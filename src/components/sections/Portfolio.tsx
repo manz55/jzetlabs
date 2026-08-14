@@ -14,6 +14,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ExternalLink, MapPin, Code2 } from "lucide-react";
 import { SectionLabel } from "@/components/ui/section-label";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import plomeriaDannyImg from "@/assets/portfolio/plomeria-danny.jpg";
 import proyectoRegistroImg from "@/assets/portfolio/proyecto-registro.jpg";
 import coderImg from "@/assets/portfolio/coder.jpg";
@@ -64,19 +65,27 @@ const PROJECTS: Project[] = [
 const ProjectCard = ({
   project,
   isActive,
+  isMobile,
   onClick,
 }: {
   project: Project;
   isActive: boolean;
+  isMobile: boolean;
   onClick: () => void;
 }) => {
+  /* Mobile: acordeón vertical (crece en alto, ancho fijo 100%).
+     Desktop/tablet: acordeón horizontal original (crece en ancho via flexGrow). */
+  const animateProps = isMobile
+    ? { height: isActive ? 340 : 100 }
+    : { flexGrow: isActive ? 3.5 : 1 };
+
   return (
     <motion.div
       layout
-      animate={{ flexGrow: isActive ? 3.5 : 1 }}
+      animate={animateProps}
       transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] as [number,number,number,number] }}
       onClick={onClick}
-      className="relative overflow-hidden cursor-pointer flex-shrink-0"
+      className="relative overflow-hidden cursor-pointer flex-shrink-0 w-full sm:w-auto"
       style={{
         borderRadius: "16px",
         minWidth: 0,
@@ -103,7 +112,7 @@ const ProjectCard = ({
       />
 
       {/* Content */}
-      <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-8">
+      <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-8">
         <motion.span
           animate={{ opacity: 1 }}
           className="self-start"
@@ -204,6 +213,7 @@ const ProjectCard = ({
 
 export function Portfolio() {
   const [activeId, setActiveId] = useState(PROJECTS[0].id);
+  const isMobile = useIsMobile();
 
   return (
     <section
@@ -228,20 +238,21 @@ export function Portfolio() {
           </h2>
         </motion.div>
 
-        {/* Elastic gallery */}
+        {/* Elastic gallery — vertical (alto) en mobile, horizontal (ancho) desde sm */}
         <motion.div
           initial={{ opacity: 0, y: 32 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.1 }}
           viewport={{ once: true }}
-          className="flex gap-3"
-          style={{ height: "clamp(340px, 52vh, 480px)" }}
+          className="flex flex-col sm:flex-row gap-3"
+          style={{ height: isMobile ? "auto" : "clamp(340px, 52vh, 480px)" }}
         >
           {PROJECTS.map((project) => (
             <ProjectCard
               key={project.id}
               project={project}
               isActive={activeId === project.id}
+              isMobile={isMobile}
               onClick={() => setActiveId(project.id)}
             />
           ))}

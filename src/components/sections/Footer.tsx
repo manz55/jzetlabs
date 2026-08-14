@@ -142,7 +142,7 @@ export function Footer() {
           style={{ borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.75rem" }}
         >
           <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem", color: "var(--text-muted)" }}>
-            © 2025 Jzet Labs · Ciudad de Guatemala
+            © 2026 Jzet Labs · Ciudad de Guatemala
           </p>
           <div className="flex items-center gap-4">
             <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem", color: "var(--text-muted)" }}>

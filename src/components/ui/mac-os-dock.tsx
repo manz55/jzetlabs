@@ -12,6 +12,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 
 /* ── SVG Icons ───────────────────────────────────── */
 const HomeIcon = ({ className = "w-4 h-4" }) => (
@@ -151,21 +152,6 @@ function useScrollPast(threshold: number) {
     return () => window.removeEventListener("scroll", onScroll);
   }, [threshold]);
   return past;
-}
-
-/* ── useIsMobile ───────────────────────────────────
-   6 nav + separator + 3 social ya no caben cómodos con el padding/tamaño
-   de escritorio en pantallas angostas — se compacta el dock ahí. */
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 639px)");
-    const update = () => setIsMobile(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
-  return isMobile;
 }
 
 /* ── MacOS Dock ──────────────────────────────────── */
