@@ -42,7 +42,7 @@
 /* ── Base Reset ────────────────────────────────────── */
 /* box-sizing/margin/padding reset is already handled by Tailwind own
    preflight inside @layer base -- redeclaring it here unlayered would win
-   over every layered px-*/py-*/p-* utility in the cascade and silently
+   over every layered padding utility class in the cascade and silently
    zero out all padding sitewide, so this is left to Tailwind on purpose. */
 
 html { scroll-behavior: smooth; }
