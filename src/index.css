@@ -1,0 +1,106 @@
+/* ── Fonts — must precede all other rules ──────────── */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap');
+
+@import "tailwindcss";
+
+/* ── Jzet Labs Design Tokens ──────────────────────────
+   Paleta "Zen Linen" (21st.dev/@serafimcloud/themes/zen-linen, modo oscuro)
+   aplicada a todo excepto el hero, que mantiene su propio ámbar hardcodeado
+   sobre el video y no depende de estas variables. Un solo acento: terracota.
+   ──────────────────────────────────────────────────── */
+:root {
+  /* Backgrounds — 3 levels for section alternation */
+  --bg-void:    #101010;   /* darkest — footer */
+  --bg-base:    #141414;   /* standard dark */
+  --bg-surface: #1c1c1c;   /* slightly lighter */
+
+  /* Legacy aliases (keep for components not yet updated) */
+  --bg-editor:  var(--bg-void);
+
+  /* Accent — terracota cálido (var. name "amber" conservado por compat,
+     ya no es ámbar) */
+  --amber:      #f26a4b;
+  --amber-l:    #f5896e;
+  --amber-dim:  rgba(242, 106, 75, 0.12);
+  --amber-glow: rgba(242, 106, 75, 0.28);
+
+  /* Text scale */
+  --text:       #e8e3da;
+  --text-2:     #d1cfc0;
+  --text-muted: #8e8a83;
+
+  /* Borders */
+  --border:       rgba(255, 255, 255, 0.07);
+  --border-amber: rgba(242, 106, 75, 0.24);
+
+  /* Typography — ROLE-BASED */
+  --font-heading: 'Space Grotesk', system-ui, sans-serif;  /* headlines */
+  --font-body:    'Inter', system-ui, sans-serif;            /* body, descriptions */
+  --font-mono:    'JetBrains Mono', 'Courier New', monospace; /* labels, code, terminal */
+}
+
+/* ── Base Reset ────────────────────────────────────── */
+/* box-sizing/margin/padding reset is already handled by Tailwind own
+   preflight inside @layer base -- redeclaring it here unlayered would win
+   over every layered px-*/py-*/p-* utility in the cascade and silently
+   zero out all padding sitewide, so this is left to Tailwind on purpose. */
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg-base);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.65;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  width: 100%;
+  min-height: 100svh;
+}
+
+/* ── Noise texture (hero overlay) ─────────────────── */
+.noise-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+}
+
+/* ── SectionLabel cursor ───────────────────────────── */
+@keyframes label-cursor-blink {
+  50% { opacity: 0; }
+}
+
+/* ── Light mode ────────────────────────────────────── */
+html.light {
+  --bg-void:    #e9e4d8;
+  --bg-base:    #f4efe4;
+  --bg-surface: #e6e4d7;
+  --bg-glass:   rgba(244, 239, 228, 0.75);
+  --text:       #1e1e1e;
+  --text-2:     #5e5a52;
+  --text-muted: #a89f8f;
+  --border:     rgba(0, 0, 0, 0.08);
+  --border-amber: rgba(242, 106, 75, 0.35);
+}
+
+html.light body { background: var(--bg-base); }
+html.light .noise-overlay { opacity: 0.02 !important; }
+
+/* ── Focus visible ─────────────────────────────────── */
+*:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ── Accessibility: reduced motion ────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
