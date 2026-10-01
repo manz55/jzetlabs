@@ -30,8 +30,8 @@ export const KINDS: Kind[] = [
   {
     id: "tienda",
     name: "Tienda en línea",
-    pitch: "Catálogo, carrito y pedidos, con un panel para que vos lo manejés.",
-    base: 2400,
+    pitch: "Catálogo, carrito y pedidos, con un panel para que tú lo manejes.",
+    base: 2800,
     days: [12, 18],
     market: [5000, 9000],
     includes: ["Catálogo y carrito", "Pedidos a WhatsApp y correo", "Panel de admin", "Hosting gratis"],
@@ -39,7 +39,7 @@ export const KINDS: Kind[] = [
   {
     id: "sistema",
     name: "Sistema a la medida",
-    pitch: "Asistencia, registros, inventario, planilla… eso que hoy hacés a mano.",
+    pitch: "Asistencia, registros, inventario, planilla… eso que hoy haces a mano. Este es el precio de entrada: lo afinamos según lo que lleve.",
     base: 4500,
     days: [20, 35],
     market: [9000, 30000],
@@ -79,8 +79,11 @@ export interface Pace {
 export const PACES: Pace[] = [
   { id: "calma", name: "Con calma", note: "Si no hay prisa, te sale más barato.", priceMult: 0.9, timeMult: 1.5 },
   { id: "normal", name: "Normal", note: "El ritmo de siempre.", priceMult: 1, timeMult: 1 },
-  { id: "ya", name: "Lo necesito ya", note: "Le meto prioridad y le doy hasta en la noche.", priceMult: 1.2, timeMult: 0.6 },
+  { id: "ya", name: "Lo necesito ya", note: "Le meto prioridad y le doy hasta en la noche.", priceMult: 1.25, timeMult: 0.6 },
 ];
+
+/** plan de cambios opcional, al mes, después de los 30 días de soporte incluidos */
+export const CARE_PLAN = 200;
 
 export const DOMAIN_PRICE = 150;
 /** renovación del dominio desde el 2do año; el hosting en Vercel es gratis */

@@ -41,7 +41,7 @@ export function Mercado({ onOpen }: { onOpen: (id: string) => void }) {
           </div>
           <p className="text-ink-2 text-[1.08rem] max-w-md lg:justify-self-end">
             Agarré los precios que las agencias de Guate publican en sus propias páginas y los puse a la par de los míos. Cada uno
-            tiene su link para que lo revisés vos. Fijate cuántos cobran <span className="marker text-ink">cada año</span>.
+            tiene su link para que lo revises tú. Fíjate cuántos cobran <span className="marker text-ink">cada año</span>.
           </p>
         </div>
 
@@ -157,7 +157,7 @@ export function Mercado({ onOpen }: { onOpen: (id: string) => void }) {
           <div className="mt-8 grid md:grid-cols-[auto_1fr] gap-5 items-center border-t-2 border-dashed border-ink/20 pt-6">
             <div className="relative">
               <p className="hand text-[1.35rem] text-ink-2 leading-none">
-                en {years} año{years > 1 ? "s" : ""}, contra el promedio te ahorrás
+                en {years} año{years > 1 ? "s" : ""}, contra el promedio te ahorras
               </p>
               <AnimatePresence mode="popLayout" initial={false}>
                 <motion.p
@@ -175,7 +175,7 @@ export function Mercado({ onOpen }: { onOpen: (id: string) => void }) {
 
             <div className="md:justify-self-end flex flex-col sm:flex-row sm:items-center gap-3">
               <span className="hidden sm:flex items-center gap-1 hand text-[1.2rem] text-ink-2">
-                ¿y es de verdad? mirá uno hecho por mí
+                ¿y es de verdad? mira uno hecho por mí
                 <ArrowCurly className="w-12 h-8 -rotate-12" />
               </span>
               <div className="flex flex-wrap gap-2">

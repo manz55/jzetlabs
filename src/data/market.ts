@@ -2,7 +2,7 @@
  * Precios públicos de agencias en Guatemala, tomados de sus propias páginas
  * (consultados el 1 de octubre de 2026). Si alguno cambia, se actualiza aquí.
  *
- * first   = lo que pagás el primer año
+ * first   = lo que pagas el primer año
  * perYear = lo que vuelve a cobrarse cada año desde el segundo (0 si no publican)
  */
 import { DOMAIN_PRICE, DOMAIN_RENEWAL, KINDS, type KindId } from "./pricing";

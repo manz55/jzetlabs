@@ -35,7 +35,7 @@ export function Contacto() {
             ¿Lo <span className="serif-i font-normal text-volt">platicamos?</span>
           </h2>
           <p className="mt-4 text-paper/75 text-[1.1rem] max-w-xl">
-            Contame qué tenés en mente, aunque sea una idea a medias. Te contesto yo, no un bot, y sin compromiso.
+            Cuéntame qué tienes en mente, aunque sea una idea a medias. Te contesto yo, no un bot, y sin compromiso.
           </p>
 
           <div className="mt-9 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -77,7 +77,7 @@ export function Contacto() {
                 <GitHubIcon />
                 <span>
                   <span className="block font-display font-extrabold text-lg leading-none">GitHub</span>
-                  <span className="text-sm font-mono text-paper/70">el código, por si sos curioso</span>
+                  <span className="text-sm font-mono text-paper/70">el código, por si eres curioso</span>
                 </span>
               </span>
               <ArrowUpRight className="group-hover:rotate-45 transition-transform" />

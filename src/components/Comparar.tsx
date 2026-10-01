@@ -2,13 +2,14 @@ import { motion } from "framer-motion";
 import { Squiggle } from "./Doodles";
 
 const ROWS = [
-  { k: "Precio", us: "Cerrado desde el inicio y sin mensualidades", them: "Cotización que va creciendo, y muchas veces se cobra cada año" },
+  { k: "Precio", us: "Cerrado desde el inicio y sin mensualidades obligatorias", them: "Cotización que va creciendo, y muchas veces se cobra cada año" },
   { k: "Quién te atiende", us: "Yo, el mismo que lo construye", them: "Un vendedor que pasa el mensaje" },
   { k: "Forma de pago", us: "Pago único o hasta 4 cuotas sin recargo", them: "50% adelantado y 50% al final, sin opciones" },
-  { k: "Dominio", us: "Vos decidís: con o sin", them: "Obligatorio y cobrado aparte" },
+  { k: "Dominio", us: "Tú decides: con o sin", them: "Obligatorio y cobrado aparte" },
   { k: "Tiempo", us: "Según la carga real, y si no hay prisa sale más barato", them: "\"Para la otra semana\" (pero de otro mes)" },
   { k: "Después de entregar", us: "Ronda de ajustes + 30 días de soporte incluidos", them: "Cada cambio se cobra" },
-  { k: "Tu proyecto", us: "Es tuyo: te doy accesos y código", them: "Quedás amarrado al que lo hizo" },
+  { k: "Mantenimiento", us: "Opcional: Q200 al mes y lo cancelas cuando quieras", them: "De Q450 a Q960 al mes en varias agencias" },
+  { k: "Tu proyecto", us: "Es tuyo: te paso accesos y código a tu nombre", them: "Quedas amarrado al que lo hizo" },
 ];
 
 const draw = {

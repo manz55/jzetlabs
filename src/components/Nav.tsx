@@ -67,7 +67,7 @@ export function Nav() {
             rel="noopener noreferrer"
             className="btn btn-primary !py-2 !px-4 !text-[0.92rem] hidden sm:inline-flex"
           >
-            Escribime
+            Escríbeme
           </a>
           <button
             className="md:hidden grid place-items-center w-10 h-10 rounded-xl border-2 border-ink bg-card shadow-[2px_2px_0_var(--color-ink)]"
@@ -107,7 +107,7 @@ export function Nav() {
               rel="noopener noreferrer"
               className="btn btn-primary w-full justify-center mt-2"
             >
-              Escribime por WhatsApp
+              Escríbeme por WhatsApp
             </a>
           </motion.div>
         )}

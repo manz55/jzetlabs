@@ -10,7 +10,7 @@ const FAQS = [
   },
   {
     q: "¿Tengo que pagar algo cada mes?",
-    a: "No, a menos que vos querás. El hosting es gratis para la mayoría de proyectos. Lo único anual es el dominio, si decidís tener uno (unos Q100 al año, que pagás directo vos).",
+    a: "No es obligatorio. El hosting es gratis y lo único anual es el dominio, si decides tener uno (unos Q100). Si quieres que yo me encargue de los cambios, hay un plan opcional de Q200 al mes.",
     color: "#c4b5fd",
   },
   {
@@ -20,12 +20,12 @@ const FAQS = [
   },
   {
     q: "¿Y si después quiero cambiar algo?",
-    a: "Tenés una ronda de ajustes incluida y 30 días de soporte. Y si tiene panel de admin, muchas cosas las vas a poder cambiar vos solo.",
+    a: "Tienes una ronda de ajustes y 30 días de soporte incluidos. Si tiene panel de admin, muchas cosas las cambias tú solo. Y si prefieres que yo lo haga, está el plan de Q200 al mes.",
     color: "#d5f05b",
   },
   {
     q: "¿Cómo funcionan las cuotas?",
-    a: "Arrancamos con el primer pago y el resto lo vas dando mes a mes, hasta 4 cuotas sin recargo. Si pagás todo de una vez, te hago 5% de descuento.",
+    a: "Arrancamos con el primer pago y lo demás lo vas dando mes a mes, hasta 4 cuotas sin recargo. El sitio vive en mi cuenta y con la última cuota te lo paso a tu nombre. Si pagas todo de una vez, 5% menos.",
     color: "#ff9f80",
   },
   {
@@ -64,7 +64,7 @@ function Note({ q, a, color, i }: { q: string; a: string; color: string; i: numb
           <span className="tape -top-3 left-1/2 -translate-x-1/2 rotate-[3deg]" aria-hidden />
           <span className="font-display font-extrabold text-[1.35rem] leading-tight">{q}</span>
           <span className="flex items-center gap-1.5 hand text-[1.15rem] text-ink/70">
-            <RotateCw size={14} /> tocá para voltear
+            <RotateCw size={14} /> toca para voltear
           </span>
         </span>
         {/* reverso */}

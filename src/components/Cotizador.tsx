@@ -6,9 +6,15 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check as CheckIcon, Plus } from "lucide-react";
-import { DOMAIN_PRICE, EXTRAS, KINDS, PACES, PAY_PLANS, roundTo50, type KindId } from "@/data/pricing";
+import { CARE_PLAN, DOMAIN_PRICE, EXTRAS, KINDS, PACES, PAY_PLANS, roundTo50, type KindId } from "@/data/pricing";
 import { formatQ, whatsappLink } from "@/data/site";
 import { CircleScribble, Spark } from "./Doodles";
+
+/** 0.9 → "−10%", 1.25 → "+25%" */
+const pct = (mult: number) => {
+  const n = Math.round((mult - 1) * 100);
+  return n < 0 ? `−${-n}%` : `+${n}%`;
+};
 
 function Step({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
   return (
@@ -47,6 +53,7 @@ export function Cotizador() {
   const [paceId, setPaceId] = useState("normal");
   const [domain, setDomain] = useState(true);
   const [planId, setPlanId] = useState("unico");
+  const [care, setCare] = useState(false);
 
   const kind = KINDS.find((k) => k.id === kindId)!;
   const pace = PACES.find((p) => p.id === paceId)!;
@@ -77,6 +84,7 @@ export function Cotizador() {
     `• Ritmo: ${pace.name.toLowerCase()}`,
     `• ${domain ? "Con dominio propio" : "Sin dominio por ahora"}`,
     `• Pago: ${plan.name.toLowerCase()}`,
+    care ? `• Con plan de cambios (${formatQ(CARE_PLAN)} al mes)` : null,
     `Me salió como ${formatQ(calc.total)}${plan.months > 1 ? ` (${plan.months} pagos de ${formatQ(calc.monthly)})` : ""}. ¿Lo platicamos?`,
   ]
     .filter(Boolean)
@@ -93,18 +101,18 @@ export function Cotizador() {
               no asustan
               <CircleScribble className="absolute -inset-x-3 -inset-y-2 w-[calc(100%+1.5rem)] h-[calc(100%+1rem)] text-tomato" />
             </span>
-            . Y que se <span className="serif-i font-normal text-cobalt">acomodan a vos.</span>
+            . Y que se <span className="serif-i font-normal text-cobalt">acomodan a ti.</span>
           </h2>
           <p className="mt-5 text-ink-2 text-[1.08rem]">
-            Armá tu proyecto aquí y te sale un estimado al instante. Si no tenés prisa, te sale más barato. Si lo necesitás ya, le
-            meto turbo. Y lo podés pagar de una vez o en cuotas, como te quede mejor.
+            Arma tu proyecto aquí y te sale un estimado al instante. Si no tienes prisa, te sale más barato. Si lo necesitas ya, le
+            meto turbo. Y lo puedes pagar de una vez o en cuotas, como te quede mejor.
           </p>
         </div>
 
         <div className="mt-12 grid lg:grid-cols-[1.35fr_1fr] gap-8 lg:gap-10 items-start">
           {/* los pasos */}
           <div className="space-y-10">
-            <Step n={1} title="¿Qué necesitás?">
+            <Step n={1} title="¿Qué necesitas?">
               <div className="grid sm:grid-cols-3 gap-3">
                 {KINDS.map((k) => {
                   const active = k.id === kindId;
@@ -165,7 +173,7 @@ export function Cotizador() {
                   );
                 })}
               </div>
-              <p className="mt-2 text-sm text-ink-3">Si no ves lo que buscás, igual escribime. Casi todo se puede.</p>
+              <p className="mt-2 text-sm text-ink-3">Si no ves lo que buscas, igual escríbeme. Casi todo se puede.</p>
             </Step>
 
             <Step n={3} title="¿Con qué prisa?">
@@ -184,7 +192,7 @@ export function Cotizador() {
                       <span className="font-display font-bold block">{p.name}</span>
                       <span className={`block text-sm mt-0.5 ${active ? "text-paper/85" : "text-ink-2"}`}>{p.note}</span>
                       <span className={`block font-mono text-xs mt-2 ${active ? "text-volt" : "text-ink-3"}`}>
-                        {p.priceMult < 1 ? "−10% en precio" : p.priceMult > 1 ? "+20% en precio" : "precio base"}
+                        {p.priceMult === 1 ? "precio base" : `${pct(p.priceMult)} en precio`}
                       </span>
                     </button>
                   );
@@ -197,7 +205,7 @@ export function Cotizador() {
                 <div className="flex flex-col gap-2">
                   {[
                     { v: true, t: "Con dominio propio", d: `tunegocio.com · +${formatQ(DOMAIN_PRICE)} el primer año, yo lo configuro` },
-                    { v: false, t: "Sin dominio por ahora", d: "tunegocio.vercel.app · gratis, y si después querés, lo cambio" },
+                    { v: false, t: "Sin dominio por ahora", d: "tunegocio.vercel.app · gratis, y si después quieres, lo cambio" },
                   ].map((o) => (
                     <button
                       key={String(o.v)}
@@ -232,6 +240,28 @@ export function Cotizador() {
                 </div>
               </Step>
             </div>
+
+            <Step n={6} title="¿Y después, quieres que yo me encargue de los cambios?">
+              <div className="grid sm:grid-cols-2 gap-2">
+                {[
+                  { v: false, t: "No, gracias", d: "Tienes 30 días de soporte incluidos y, si lleva panel, lo cambias tú." },
+                  { v: true, t: `Sí, plan de cambios · ${formatQ(CARE_PLAN)} al mes`, d: "Textos, fotos y precios cuando los necesites. Lo cancelas cuando quieras." },
+                ].map((o) => (
+                  <button
+                    key={String(o.v)}
+                    onClick={() => setCare(o.v)}
+                    aria-pressed={care === o.v}
+                    className={`text-left p-3 rounded-xl border-2 border-ink transition-all ${
+                      care === o.v ? "bg-sun shadow-[3px_3px_0_var(--color-ink)]" : "bg-card hover:bg-paper"
+                    }`}
+                  >
+                    <span className="font-semibold block">{o.t}</span>
+                    <span className="text-sm text-ink-2">{o.d}</span>
+                  </button>
+                ))}
+              </div>
+              <p className="mt-2 text-sm text-ink-3">Es opcional y arranca después de los 30 días de soporte. En agencias esto anda por Q450 a Q960 al mes.</p>
+            </Step>
           </div>
 
           {/* el recibo */}
@@ -258,7 +288,7 @@ export function Cotizador() {
                 {pace.priceMult !== 1 && (
                   <li className="flex justify-between gap-3 text-ink-2">
                     <span>Ritmo: {pace.name.toLowerCase()}</span>
-                    <span className="font-mono">{pace.priceMult < 1 ? "−10%" : "+20%"}</span>
+                    <span className="font-mono">{pct(pace.priceMult)}</span>
                   </li>
                 )}
                 <li className="flex justify-between gap-3 text-ink-2">
@@ -284,6 +314,11 @@ export function Cotizador() {
                   o <strong>{plan.months} pagos</strong> de <strong className="marker">{formatQ(calc.monthly)}</strong>
                 </p>
               )}
+              {care && (
+                <p className="mt-1.5 text-sm text-ink-2">
+                  + plan de cambios: <strong className="text-ink">{formatQ(CARE_PLAN)} al mes</strong>, después de los 30 días de soporte
+                </p>
+              )}
               <p className="mt-3 text-sm text-ink-2">
                 Listo en unos <strong className="text-ink">{calc.dMin}–{calc.dMax} días hábiles</strong>, según lo que lleve.
               </p>
@@ -300,7 +335,7 @@ export function Cotizador() {
                 </p>
                 {calc.saving > 0 && (
                   <p className="mt-1 font-semibold text-ink flex items-center gap-1.5">
-                    <Spark className="w-4 h-4 text-tomato shrink-0" /> Te ahorrás arriba de {formatQ(roundTo50(calc.saving))}
+                    <Spark className="w-4 h-4 text-tomato shrink-0" /> Te ahorras arriba de {formatQ(roundTo50(calc.saving))}
                   </p>
                 )}
               </div>
@@ -311,10 +346,15 @@ export function Cotizador() {
                 rel="noopener noreferrer"
                 className="btn btn-primary w-full justify-center mt-5"
               >
-                Mandame esto por WhatsApp
+                Mándame esto por WhatsApp
               </a>
+              {plan.months > 1 && (
+                <p className="mt-3 text-xs text-ink-2 leading-relaxed">
+                  En cuotas: arrancamos con el primer pago y el sitio vive en mi cuenta hasta la última. Con esa te lo paso todo a tu nombre.
+                </p>
+              )}
               <p className="mt-3 text-xs text-ink-3 leading-relaxed">
-                Es un estimado para que tengás una idea. El precio final te lo confirmo después de platicar y queda cerrado: no
+                Es un estimado para que tengas una idea. El precio final te lo confirmo después de platicar y queda cerrado: no
                 cambia a medio camino.
               </p>
             </motion.div>

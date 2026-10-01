@@ -242,7 +242,7 @@ export function ProjectStage({
                       })}
                     </div>
                     <span className="hand text-[1.15rem] text-cobalt leading-tight text-right">
-                      arrastrá la barra <span className="font-mono text-xs bg-volt text-ink px-1 rounded border border-ink">RX</span> para ver por dentro
+                      arrastra la barra <span className="font-mono text-xs bg-volt text-ink px-1 rounded border border-ink">RX</span> para ver por dentro
                     </span>
                   </div>
 
@@ -268,7 +268,7 @@ export function ProjectStage({
                   </AnimatePresence>
 
                   {project.deskTall && !showPhone && (
-                    <p className="mt-3 text-xs font-mono text-ink-3 hidden [@media(hover:hover)]:block">pasá el mouse por la pantalla y baja sola</p>
+                    <p className="mt-3 text-xs font-mono text-ink-3 hidden [@media(hover:hover)]:block">pasa el mouse por la pantalla y baja sola</p>
                   )}
                 </div>
 

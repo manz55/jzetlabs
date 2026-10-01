@@ -82,7 +82,7 @@ export const PROJECTS: Project[] = [
     problem:
       "El registro de los niños era en hojas, y saber quién faltó o quién llegó con quién era casi imposible.",
     built:
-      "Un check-in por equipos y edades, búsqueda por nombre aunque lo escribás mal, reportes de asistencia, fichas de familias y hasta impresión de etiquetas.",
+      "Un check-in por equipos y edades, búsqueda por nombre aunque lo escribas mal, reportes de asistencia, fichas de familias y hasta impresión de etiquetas.",
     result: "Los maestros registran en segundos y tienen claro quién vino y quién no.",
     stack: ["React", "TypeScript", "Supabase", "Vercel"],
     xray: ["búsqueda que perdona errores", "grupos por edad", "reportes de ausencias", "etiquetas impresas"],
@@ -116,7 +116,7 @@ export const PROJECTS: Project[] = [
     accent: "#d5f05b",
     problem: "Quería un asistente que me escuchara y me respondiera en tiempo real, sin tanto clic.",
     built:
-      "Un asistente de voz y texto con memoria. Le podés hablar, escribir o mandar fotos y archivos, y va transcribiendo la plática en vivo.",
+      "Un asistente de voz y texto con memoria. Le puedes hablar, escribir o mandar fotos y archivos, y va transcribiendo la plática en vivo.",
     result: "Es mi laboratorio: lo que aprendo aquí después termina en los proyectos de los clientes.",
     stack: ["Gemini", "Supabase", "Node.js", "Web Speech"],
     xray: ["voz en tiempo real", "memoria entre pláticas", "fotos y archivos", "transcripción en vivo"],

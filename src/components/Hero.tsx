@@ -112,7 +112,7 @@ export function Hero({ onOpen }: { onOpen: (id: string) => void }) {
           >
             ¡Qué tal! Soy <strong className="text-ink">Josh</strong>. En Jzet Labs armo tiendas en línea, sistemas para
             el día a día y landing pages a la medida, a precios que <span className="marker text-ink">no te sacan un susto</span>.
-            Me contás qué necesitás, lo platicamos y lo armo a tu ritmo.
+            Me cuentas qué necesitas, lo platicamos y lo armo a tu ritmo.
           </motion.p>
 
           <motion.div
@@ -122,12 +122,12 @@ export function Hero({ onOpen }: { onOpen: (id: string) => void }) {
             className="mt-8 flex flex-wrap items-center gap-3"
           >
             <a
-              href={whatsappLink("¡Hola Josh! Tengo una idea y quiero ver si me podés ayudar.")}
+              href={whatsappLink("¡Hola Josh! Tengo una idea y quiero ver si me puedes ayudar.")}
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-primary"
             >
-              Contame tu idea <ArrowRight size={18} strokeWidth={2.5} />
+              Cuéntame tu idea <ArrowRight size={18} strokeWidth={2.5} />
             </a>
             <a href="#precios" className="btn btn-ghost">
               Ver cuánto cuesta
@@ -135,14 +135,14 @@ export function Hero({ onOpen }: { onOpen: (id: string) => void }) {
           </motion.div>
 
           <p className="mt-6 text-sm text-ink-3 font-mono">
-            sin mensualidades · pago único o en cuotas · con o sin dominio
+            sin mensualidades obligatorias · pago único o en cuotas · con o sin dominio
           </p>
         </div>
 
         {/* mesa de trabajo con polaroids que se pueden mover */}
         <div className="relative">
           <div className="hand absolute -top-9 right-2 sm:right-6 text-[1.45rem] text-cobalt rotate-[-4deg] z-10 pointer-events-none select-none">
-            agarralos y movelos, son proyectos reales
+            agárralos y muévelos, son proyectos reales
             <ArrowCurly className="w-16 h-11 inline-block ml-1 -scale-x-100 rotate-[70deg] translate-y-3" />
           </div>
           <div
@@ -164,7 +164,7 @@ export function Hero({ onOpen }: { onOpen: (id: string) => void }) {
               <Spark className="absolute left-[44%] top-[30%] w-5 h-5 text-cobalt animate-[sway_3s_ease-in-out_infinite]" />
             )}
           </div>
-          <p className="hand text-[1.2rem] text-ink-2 mt-2 text-center">tocá uno para verlo de cerca</p>
+          <p className="hand text-[1.2rem] text-ink-2 mt-2 text-center">toca uno para verlo de cerca</p>
         </div>
       </div>
 

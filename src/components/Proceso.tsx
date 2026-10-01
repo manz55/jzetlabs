@@ -6,7 +6,7 @@ const STEPS = [
   {
     icon: MessageCircle,
     t: "Platicamos",
-    d: "Me escribís por WhatsApp o nos echamos una llamada. Me contás qué hace tu negocio y qué te está quitando tiempo. Esto no cuesta nada.",
+    d: "Me escribes por WhatsApp o nos echamos una llamada. Me cuentas qué hace tu negocio y qué te está quitando tiempo. Esto no cuesta nada.",
     color: "bg-sun",
   },
   {
@@ -18,13 +18,13 @@ const STEPS = [
   {
     icon: Hammer,
     t: "Lo construyo",
-    d: "Te voy mandando avances para que lo veás crecer y opinés. Si algo no te late, lo cambio a tiempo.",
+    d: "Te voy mandando avances para que lo veas crecer y opines. Si algo no te late, lo cambio a tiempo.",
     color: "bg-lilac",
   },
   {
     icon: Rocket,
     t: "Lo subo al aire",
-    d: "Lo publico, te doy todos los accesos, te enseño a usarlo y te quedan 30 días de soporte por cualquier cosa.",
+    d: "Lo publico, te enseño a usarlo y te quedan 30 días de soporte. Los accesos te los paso a tu nombre (si es en cuotas, con la última).",
     color: "bg-volt",
   },
 ];

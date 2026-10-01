@@ -1,5 +1,5 @@
 /*
- * El taller — cada proyecto cuelga de un cordón. Lo jalás (arrastrando hacia
+ * El taller — cada proyecto cuelga de un cordón. Lo jalas (arrastrando hacia
  * abajo o con un click/Enter) y el proyecto baja como pantalla de proyector.
  */
 import { animate, motion, useMotionValue, useReducedMotion, useTransform } from "framer-motion";
@@ -84,11 +84,11 @@ export function Taller({ onOpen }: { onOpen: (id: string) => void }) {
             <p className="section-num">01 — el taller</p>
             <h2 className="mt-3 text-[clamp(2.2rem,5vw,3.8rem)] font-extrabold">
               Nada de galería aburrida.{" "}
-              <span className="serif-i font-normal text-cobalt">Jalá un cordón.</span>
+              <span className="serif-i font-normal text-cobalt">Jala un cordón.</span>
             </h2>
           </div>
           <p className="text-ink-2 text-[1.08rem] max-w-md lg:justify-self-end">
-            Cada cordón tiene colgado un proyecto real. Jalalo hacia abajo (o dale click) y baja para que lo veás en compu o en
+            Cada cordón tiene colgado un proyecto real. Jálalo hacia abajo (o dale click) y baja para que lo veas en compu o en
             cel, y hasta por dentro con rayos X.
           </p>
         </div>
@@ -108,7 +108,7 @@ export function Taller({ onOpen }: { onOpen: (id: string) => void }) {
 
           <div className="hand absolute right-0 sm:right-4 bottom-2 text-[1.35rem] text-tomato rotate-[-5deg] pointer-events-none hidden sm:flex items-end gap-1">
             <ArrowDown className="w-8 h-12 -scale-x-100 rotate-[160deg] -translate-y-14" />
-            jalá uno, en serio
+            jala uno, en serio
           </div>
           <Spark className="absolute left-2 bottom-8 w-7 h-7 text-cobalt hidden sm:block" />
         </div>
