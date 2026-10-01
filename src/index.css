@@ -1,103 +1,196 @@
-/* ── Fonts — must precede all other rules ──────────── */
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap');
-
 @import "tailwindcss";
 
-/* ── Jzet Labs Design Tokens ──────────────────────────
-   Paleta "Zen Linen" (21st.dev/@serafimcloud/themes/zen-linen, modo oscuro)
-   aplicada a todo excepto el hero, que mantiene su propio ámbar hardcodeado
-   sobre el video y no depende de estas variables. Un solo acento: terracota.
-   ──────────────────────────────────────────────────── */
-:root {
-  /* Backgrounds — 3 levels for section alternation */
-  --bg-void:    #101010;   /* darkest — footer */
-  --bg-base:    #141414;   /* standard dark */
-  --bg-surface: #1c1c1c;   /* slightly lighter */
+/*
+ * Jzet Labs — "el taller".
+ * Papel cuadriculado de cuaderno de ingeniería + tinta + stickers.
+ * Colores con chispa pero sin quemar la vista: el fondo es papel cálido,
+ * los acentos aparecen en piezas chicas (stickers, marcador, botones).
+ * Contraste (AA): ink sobre volt/sun/mint/lilac/tomato ✓ · paper sobre cobalt ✓
+ * Tomato se reserva para acciones (contactar, cotizar).
+ */
+@theme {
+  --color-paper: #f5f2ea;
+  --color-card: #fffdf8;
+  --color-ink: #17161c;
+  --color-ink-2: #4a4852;
+  --color-ink-3: #85828c;
+  --color-line: #d9d4c7;
+  --color-volt: #d5f05b;
+  --color-cobalt: #3b5bdb;
+  --color-tomato: #ff6a3d;
+  --color-sun: #ffd166;
+  --color-mint: #8ce0c3;
+  --color-lilac: #c4b5fd;
+  --color-blueprint: #1d3b8f;
 
-  /* Legacy aliases (keep for components not yet updated) */
-  --bg-editor:  var(--bg-void);
+  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
+  --font-hand: "Caveat", "Comic Sans MS", cursive;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  /* Accent — terracota cálido (var. name "amber" conservado por compat,
-     ya no es ámbar) */
-  --amber:      #f26a4b;
-  --amber-l:    #f5896e;
-  --amber-dim:  rgba(242, 106, 75, 0.12);
-  --amber-glow: rgba(242, 106, 75, 0.28);
+  --shadow-hard-sm: 2px 2px 0 var(--color-ink);
+  --shadow-hard: 4px 4px 0 var(--color-ink);
+  --shadow-hard-lg: 7px 7px 0 var(--color-ink);
 
-  /* Text scale */
-  --text:       #e8e3da;
-  --text-2:     #d1cfc0;
-  --text-muted: #8e8a83;
-
-  /* Borders */
-  --border:       rgba(255, 255, 255, 0.07);
-  --border-amber: rgba(242, 106, 75, 0.24);
-
-  /* Typography — ROLE-BASED */
-  --font-heading: 'Space Grotesk', system-ui, sans-serif;  /* headlines */
-  --font-body:    'Inter', system-ui, sans-serif;            /* body, descriptions */
-  --font-mono:    'JetBrains Mono', 'Courier New', monospace; /* labels, code, terminal */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* ── Base Reset ────────────────────────────────────── */
-/* box-sizing/margin/padding reset is already handled by Tailwind own
-   preflight inside @layer base -- redeclaring it here unlayered would win
-   over every layered padding utility class in the cascade and silently
-   zero out all padding sitewide, so this is left to Tailwind on purpose. */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+    color-scheme: light;
+  }
 
-html { scroll-behavior: smooth; }
+  body {
+    background-color: var(--color-paper);
+    /* cuadrícula de cuaderno: líneas finas cada 28px y una más marcada cada 140px */
+    background-image:
+      linear-gradient(rgba(23, 22, 28, 0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(23, 22, 28, 0.055) 1px, transparent 1px),
+      linear-gradient(rgba(59, 91, 219, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59, 91, 219, 0.07) 1px, transparent 1px);
+    background-size: 28px 28px, 28px 28px, 140px 140px, 140px 140px;
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: 17px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
 
-body {
-  background: var(--bg-base);
-  color: var(--text);
-  font-family: var(--font-body);
-  font-size: 16px;
-  line-height: 1.65;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* grano encima de todo para que no se vea plano ni "digital" */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0.32;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='.18'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.025em;
+    line-height: 1.02;
+  }
+
+  ::selection {
+    background: var(--color-volt);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-cobalt);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
 }
 
-#root {
-  width: 100%;
-  min-height: 100svh;
+@layer components {
+  .ink-card {
+    background: var(--color-card);
+    border: 2px solid var(--color-ink);
+    border-radius: 16px;
+    box-shadow: var(--shadow-hard);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 0.8rem 1.35rem;
+    border: 2px solid var(--color-ink);
+    border-radius: 12px;
+    box-shadow: var(--shadow-hard);
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.2s;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .btn:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 var(--color-ink); }
+  .btn:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--color-ink); }
+  .btn-primary { background: var(--color-tomato); color: var(--color-ink); }
+  .btn-ghost { background: var(--color-card); color: var(--color-ink); }
+
+  .sticker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.32rem 0.7rem;
+    border: 2px solid var(--color-ink);
+    border-radius: 999px;
+    box-shadow: var(--shadow-hard-sm);
+    background: var(--color-card);
+    white-space: nowrap;
+  }
+
+  /* resaltado de marcador, un poco chueco como hecho a mano */
+  .marker {
+    background: linear-gradient(100deg, transparent 2%, var(--color-volt) 4%, var(--color-volt) 94%, transparent 97%);
+    background-size: 100% 62%;
+    background-position: 0 72%;
+    background-repeat: no-repeat;
+    padding: 0 0.12em;
+  }
+
+  .hand { font-family: var(--font-hand); font-weight: 700; }
+  .serif-i { font-family: var(--font-serif); font-style: italic; font-weight: 400; letter-spacing: -0.01em; }
+
+  .section-num {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-ink-2);
+  }
+
+  /* cinta adhesiva para pegar polaroids */
+  .tape {
+    position: absolute;
+    width: 74px;
+    height: 22px;
+    background: rgba(255, 209, 102, 0.72);
+    border-left: 1px dashed rgba(23, 22, 28, 0.15);
+    border-right: 1px dashed rgba(23, 22, 28, 0.15);
+  }
+
+  /* recibo con borde de zigzag */
+  .receipt-edge {
+    --z: 10px;
+    -webkit-mask:
+      conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / calc(2 * var(--z)) 100%;
+    mask:
+      conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / calc(2 * var(--z)) 100%;
+    padding-bottom: calc(var(--z) + 1.5rem);
+  }
+
+  .no-scrollbar { scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
 }
 
-/* ── Noise texture (hero overlay) ─────────────────── */
-.noise-overlay {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+@keyframes sway {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
 }
 
-/* ── SectionLabel cursor ───────────────────────────── */
-@keyframes label-cursor-blink {
-  50% { opacity: 0; }
+@keyframes marquee {
+  to { transform: translateX(-50%); }
 }
 
-/* ── Light mode ────────────────────────────────────── */
-html.light {
-  --bg-void:    #e9e4d8;
-  --bg-base:    #f4efe4;
-  --bg-surface: #e6e4d7;
-  --bg-glass:   rgba(244, 239, 228, 0.75);
-  --text:       #1e1e1e;
-  --text-2:     #5e5a52;
-  --text-muted: #a89f8f;
-  --border:     rgba(0, 0, 0, 0.08);
-  --border-amber: rgba(242, 106, 75, 0.35);
-}
-
-html.light body { background: var(--bg-base); }
-html.light .noise-overlay { opacity: 0.02 !important; }
-
-/* ── Focus visible ─────────────────────────────────── */
-*:focus-visible {
-  outline: 2px solid var(--amber);
-  outline-offset: 3px;
-  border-radius: 4px;
-}
-
-/* ── Accessibility: reduced motion ────────────────── */
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
