@@ -38,6 +38,8 @@
 
 @layer base {
   html {
+    /* recorta lo que se salga de lado (polaroids girando al caer) para que el cel no se aleje */
+    overflow-x: clip;
     scroll-behavior: smooth;
     -webkit-tap-highlight-color: transparent;
     color-scheme: light;

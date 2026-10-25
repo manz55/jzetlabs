@@ -43,6 +43,14 @@ export const PACES: Pace[] = [
 
 /** plan de cambios opcional, al mes; es lo único mensual y se cancela cuando quieras */
 export const CARE_PLAN = 200;
+/** contrato formal: firmado en papel y con firmas legalizadas ante notario */
+export const CONTRATO_FORMAL = 250;
+
+export const ACUERDOS = [
+  { id: "sencillo", name: "Sencillo", note: "Te mando la propuesta por escrito y la aceptas por WhatsApp. Incluido.", precio: 0 },
+  { id: "formal", name: "Con contrato formal", note: `Contrato firmado en papel, con firmas legalizadas ante notario. +Q${CONTRATO_FORMAL}.`, precio: CONTRATO_FORMAL },
+];
+
 export const DOMAIN_PRICE = 150;
 /** renovación del dominio desde el 2do año */
 export const DOMAIN_RENEWAL = 100;

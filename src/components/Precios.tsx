@@ -4,7 +4,7 @@
  */
 import { useState } from "react";
 import { ArrowUpRight } from "lucide-react";
-import { CARE_PLAN, CUOTAS, KINDS, PACES, cuota, diasConRitmo, roundTo50, type KindId } from "@/data/pricing";
+import { ACUERDOS, CARE_PLAN, CUOTAS, KINDS, PACES, cuota, diasConRitmo, roundTo50, type KindId } from "@/data/pricing";
 import { formatQ, laTienda, whatsappLink } from "@/data/site";
 import { useAlAparecer } from "@/lib/anime";
 import { CircleScribble } from "./Doodles";
@@ -13,9 +13,11 @@ import { Trazo } from "./Trazo";
 export function Precios() {
   const [tipo, setTipo] = useState<KindId>("landing");
   const [ritmo, setRitmo] = useState("normal");
+  const [acuerdo, setAcuerdo] = useState("sencillo");
   const k = KINDS.find((x) => x.id === tipo)!;
   const p = PACES.find((x) => x.id === ritmo)!;
-  const total = roundTo50(k.base * p.priceMult);
+  const ac = ACUERDOS.find((x) => x.id === acuerdo)!;
+  const total = roundTo50(k.base * p.priceMult) + ac.precio;
   const [dMin, dMax] = diasConRitmo(k, p);
 
   // los sellos se estampan cuando aparecen
@@ -82,7 +84,7 @@ export function Precios() {
         </p>
 
         {/* mini cotizador */}
-        <div className="mt-10 grid lg:grid-cols-[1.4fr_1fr] gap-6 items-stretch">
+        <div className="mt-10 grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-6 items-stretch [&>*]:min-w-0">
           <div className="ink-card p-5 sm:p-6">
             <p className="hand text-[1.6rem] leading-none text-tomato">¿cuánto me saldría?</p>
             <p className="mt-4 font-semibold">1. ¿Qué necesitas?</p>
@@ -94,11 +96,20 @@ export function Precios() {
               ))}
             </div>
             <p className="mt-5 font-semibold">2. ¿Con qué prisa?</p>
-            <div className="mt-2 grid grid-cols-3 gap-2">
+            <div className="mt-2 grid grid-cols-3 gap-2 [&>*]:min-w-0">
               {PACES.map((x) => (
                 <button key={x.id} onClick={() => setRitmo(x.id)} aria-pressed={ritmo === x.id} className={`p-2.5 rounded-xl border-2 border-ink text-left transition-colors ${ritmo === x.id ? "bg-cobalt text-paper" : "bg-card hover:bg-paper"}`}>
                   <span className="font-bold block text-[0.95rem] leading-tight">{x.name}</span>
                   <span className={`text-xs ${ritmo === x.id ? "text-paper/80" : "text-ink-3"}`}>{x.note}</span>
+                </button>
+              ))}
+            </div>
+            <p className="mt-5 font-semibold">3. ¿Cómo lo dejamos por escrito?</p>
+            <div className="mt-2 grid sm:grid-cols-2 gap-2">
+              {ACUERDOS.map((x) => (
+                <button key={x.id} onClick={() => setAcuerdo(x.id)} aria-pressed={acuerdo === x.id} className={`p-2.5 rounded-xl border-2 border-ink text-left transition-colors ${acuerdo === x.id ? "bg-mint" : "bg-card hover:bg-paper"}`}>
+                  <span className="font-bold block text-[0.95rem] leading-tight">{x.name}</span>
+                  <span className="text-xs text-ink-2">{x.note}</span>
                 </button>
               ))}
             </div>
@@ -113,12 +124,13 @@ export function Precios() {
             <p className="text-paper/80 mt-3 text-sm">
               Lista en unos <b className="text-paper">{dMin}–{dMax} días hábiles</b>. Y después, Q0 al mes.
             </p>
+            <p className="text-paper/70 mt-1 text-sm">{ac.precio ? `Incluye contrato formal con firmas legalizadas (+${formatQ(ac.precio)}).` : "Acuerdo por escrito, sin trámites."}</p>
             <div className="mt-auto pt-5 flex flex-col gap-2">
-              <a href={laTienda("cotizador")} target="_blank" rel="noopener noreferrer" className="btn btn-primary justify-center">
+              <a href={laTienda("cotizador")} target="_blank" rel="noopener noreferrer" className="btn btn-primary justify-center !whitespace-normal text-center">
                 Arma el tuyo completo en La tienda <ArrowUpRight size={17} />
               </a>
               <a
-                href={whatsappLink(`¡Hola Josh! Me interesa ${k.id === "sistema" ? "un" : "una"} ${k.name.toLowerCase()} (${p.name.toLowerCase()}). En tu página me salía como ${formatQ(total)}. ¿Lo platicamos?`)}
+                href={whatsappLink(`¡Hola Josh! Me interesa ${k.id === "sistema" ? "un" : "una"} ${k.name.toLowerCase()} (${p.name.toLowerCase()}, ${ac.precio ? "con contrato formal" : "acuerdo sencillo"}). En tu página me salía como ${formatQ(total)}. ¿Lo platicamos?`)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-center text-sm text-paper/80 underline underline-offset-4"
