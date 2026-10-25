@@ -77,7 +77,7 @@ export function Precios() {
           ))}
         </div>
         <p className="mt-3 text-sm text-ink-3">
-          Días hábiles desde que me pasas tus textos y fotos. Pago único con 5% menos, o en 2 pagos, 3 o 4 meses sin recargo. Plan de cambios opcional de {formatQ(CARE_PLAN)} al mes, lo
+          Días hábiles desde que me pasas tus textos y fotos. Pago único con 3% menos, o en 2 pagos, 3 o 4 meses sin recargo. Plan de cambios opcional de {formatQ(CARE_PLAN)} al mes, lo
           cancelas cuando quieras.
         </p>
 

@@ -20,7 +20,7 @@ const FAQS = [
   },
   {
     q: "¿Cómo funcionan las cuotas?",
-    a: "Arrancamos con el primer pago y lo demás lo vas dando mes a mes, hasta 4 cuotas sin recargo. Con la última te paso todo a tu nombre. Si pagas de una vez, 5% menos.",
+    a: "Arrancamos con el primer pago y lo demás lo vas dando mes a mes, hasta 4 cuotas sin recargo. Con la última te paso todo a tu nombre. Si pagas de una vez, 3% menos.",
     color: "#c4b5fd",
     rot: -1.2,
   },
