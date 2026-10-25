@@ -101,7 +101,6 @@ export function Hero({ onOpen }: { onOpen: (id: string) => void }) {
             </span>
             <span className="relative inline-flex flex-col items-center -mb-1 rotate-6">
               <Gafas className="w-24 sm:w-28 h-auto" />
-              <span className="hand text-[1.35rem] text-ink-2 mt-0.5 leading-none tracking-normal font-bold">ese soy yo</span>
             </span>
           </h1>
           <p className="mt-7 text-[1.15rem] sm:text-[1.25rem] text-ink-2 max-w-xl">

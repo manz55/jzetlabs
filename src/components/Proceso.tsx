@@ -81,7 +81,7 @@ function FotoEnVivo() {
 const PASOS = [
   { t: "Platicamos", d: "Me escribes por WhatsApp o nos echamos una llamada. Me cuentas qué hace tu negocio y qué te quita tiempo. No cuesta nada.", Foto: FotoPlatica },
   { t: "Te mando la propuesta", d: "Un boceto de cómo se va a ver, el precio cerrado, el tiempo y la forma de pago que te quede.", Foto: FotoBoceto },
-  { t: "Lo construyo", d: "Te voy mandando avances para que lo veas crecer. Si algo no te late, lo cambio a tiempo.", Foto: FotoAvance },
+  { t: "Lo construyo", d: "Te voy mandando avances para que lo veas crecer. Si algo no te gusta o lo quieres distinto, lo cambio a tiempo.", Foto: FotoAvance },
   { t: "Lo subo al aire", d: "Lo publico, te enseño a usarlo y te quedan 30 días de soporte. Los accesos quedan a tu nombre.", Foto: FotoEnVivo },
 ];
 
