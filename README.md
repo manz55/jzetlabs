@@ -1,32 +1,13 @@
-# React + TypeScript + Vite
+# Jzet Labs — landing
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Página de presentación de Josh (https://jzetlabs.vercel.app). Hermana de **La tienda · por Jzetlabs** (https://latienda-jzetlabs.vercel.app/portafolio/): la landing es para conocerme y confiar; La tienda es para comprar.
 
-Currently, two official plugins are available:
+- React + Vite + Tailwind 4. Efectos con **anime.js 4.4.1** por CDN con SRI (`index.html`); si no carga o hay "reducir movimiento", todo se ve quieto y completo (`src/lib/anime.ts`).
+- Precios en `src/data/pricing.ts`: tienen que cuadrar EXACTO con La tienda.
+- `public/assets/*.jpg`: fotos que La tienda carga con esos nombres exactos. No renombrar ni borrar.
+- Se publica sola al subir a `main` (Vercel conectado a GitHub).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
 ```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.

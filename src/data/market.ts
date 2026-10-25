@@ -5,7 +5,7 @@
  * first   = lo que pagas el primer año
  * perYear = lo que vuelve a cobrarse cada año desde el segundo (0 si no publican)
  */
-import { DOMAIN_PRICE, DOMAIN_RENEWAL, KINDS, type KindId } from "./pricing";
+import { DOMAIN_PRICE, DOMAIN_RENEWAL, KINDS, type KindComparable } from "./pricing";
 
 export interface Offer {
   who: string;
@@ -20,7 +20,7 @@ export interface Offer {
 
 export const MARKET_CHECKED = "1 de octubre de 2026";
 
-export const MARKET: Record<KindId, Offer[]> = {
+export const MARKET: Record<KindComparable, Offer[]> = {
   landing: [
     {
       who: "Trazo",
@@ -125,7 +125,7 @@ export function totalFor(o: { first: number; perYear: number }, years: number) {
   return o.first + o.perYear * (years - 1);
 }
 
-export function myOffer(kind: KindId) {
+export function myOffer(kind: KindComparable) {
   const k = KINDS.find((x) => x.id === kind)!;
   return { first: k.base + DOMAIN_PRICE, perYear: DOMAIN_RENEWAL };
 }

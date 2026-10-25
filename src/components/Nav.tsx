@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
-import { whatsappLink } from "@/data/site";
+import { ArrowUpRight, Menu, X } from "lucide-react";
+import { laTienda, whatsappLink } from "@/data/site";
 
 const LINKS = [
-  { href: "#taller", label: "Proyectos" },
-  { href: "#precios", label: "Precios" },
-  { href: "#mercado", label: "Vs. agencias" },
+  { href: "#taller", label: "Mis trabajos" },
   { href: "#proceso", label: "Cómo trabajo" },
+  { href: "#precios", label: "Precios" },
   { href: "#preguntas", label: "Preguntas" },
 ];
 
@@ -26,6 +24,8 @@ export function Logo() {
     </a>
   );
 }
+
+const MENSAJE = "¡Hola Josh! Vi tu página y quiero platicar de un proyecto.";
 
 export function Nav() {
   const [open, setOpen] = useState(false);
@@ -50,23 +50,20 @@ export function Nav() {
         <ul className="hidden md:flex items-center gap-1">
           {LINKS.map((l) => (
             <li key={l.href}>
-              <a
-                href={l.href}
-                className="px-3 py-1.5 rounded-lg text-[0.95rem] font-medium text-ink-2 hover:text-ink hover:bg-volt/60 transition-colors no-underline"
-              >
+              <a href={l.href} className="px-3 py-1.5 rounded-lg text-[0.95rem] font-medium text-ink-2 hover:text-ink hover:bg-volt/60 transition-colors no-underline">
                 {l.label}
               </a>
             </li>
           ))}
+          <li>
+            <a href={laTienda()} target="_blank" rel="noopener noreferrer" className="hand text-[1.25rem] px-3 text-cobalt hover:underline underline-offset-4 inline-flex items-center gap-0.5">
+              La tienda <ArrowUpRight size={15} />
+            </a>
+          </li>
         </ul>
 
         <div className="flex items-center gap-2">
-          <a
-            href={whatsappLink("¡Hola Josh! Vi tu página y quiero platicar de un proyecto.")}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-primary !py-2 !px-4 !text-[0.92rem] hidden sm:inline-flex"
-          >
+          <a href={whatsappLink(MENSAJE)} target="_blank" rel="noopener noreferrer" className="btn btn-primary !py-2 !px-4 !text-[0.92rem] hidden sm:inline-flex">
             Escríbeme
           </a>
           <button
@@ -80,38 +77,27 @@ export function Nav() {
         </div>
       </nav>
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: -10, rotate: -1 }}
-            animate={{ opacity: 1, y: 0, rotate: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="md:hidden mx-auto max-w-6xl mt-2 ink-card p-3"
-          >
-            <ul className="flex flex-col">
-              {LINKS.map((l) => (
-                <li key={l.href}>
-                  <a
-                    href={l.href}
-                    onClick={() => setOpen(false)}
-                    className="block px-3 py-3 rounded-lg font-display font-bold text-lg text-ink no-underline active:bg-volt"
-                  >
-                    {l.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-            <a
-              href={whatsappLink("¡Hola Josh! Vi tu página y quiero platicar de un proyecto.")}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-primary w-full justify-center mt-2"
-            >
-              Escríbeme por WhatsApp
-            </a>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {open && (
+        <div className="md:hidden mx-auto max-w-6xl mt-2 ink-card p-3 menu-entra">
+          <ul className="flex flex-col">
+            {LINKS.map((l) => (
+              <li key={l.href}>
+                <a href={l.href} onClick={() => setOpen(false)} className="block px-3 py-3 rounded-lg font-display font-bold text-lg text-ink no-underline active:bg-volt">
+                  {l.label}
+                </a>
+              </li>
+            ))}
+            <li>
+              <a href={laTienda()} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 px-3 py-3 hand text-[1.5rem] text-cobalt">
+                La tienda · por Jzetlabs <ArrowUpRight size={18} />
+              </a>
+            </li>
+          </ul>
+          <a href={whatsappLink(MENSAJE)} target="_blank" rel="noopener noreferrer" className="btn btn-primary w-full justify-center mt-2">
+            Escríbeme por WhatsApp
+          </a>
+        </div>
+      )}
     </header>
   );
 }

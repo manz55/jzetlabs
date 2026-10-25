@@ -8,3 +8,6 @@ export function whatsappLink(text: string) {
 }
 
 export const formatQ = (n: number) => `Q${Math.round(n).toLocaleString("en-US")}`;
+
+export const LA_TIENDA = "https://latienda-jzetlabs.vercel.app/portafolio/";
+export const laTienda = (seccion?: string) => (seccion ? `${LA_TIENDA}#${seccion}` : LA_TIENDA);

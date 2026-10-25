@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { Nav } from "@/components/Nav";
 import { Hero } from "@/components/Hero";
+import { Prueba } from "@/components/Prueba";
 import { Taller } from "@/components/Taller";
-import { ProjectStage } from "@/components/ProjectStage";
-import { Cotizador } from "@/components/Cotizador";
-import { Comparar } from "@/components/Comparar";
-import { Mercado } from "@/components/Mercado";
+import { Ficha } from "@/components/Ficha";
 import { Proceso } from "@/components/Proceso";
+import { Confianza } from "@/components/Confianza";
+import { Precios } from "@/components/Precios";
+import { Mercado } from "@/components/Mercado";
 import { Preguntas } from "@/components/Preguntas";
-import { Contacto } from "@/components/Contacto";
+import { Cierre } from "@/components/Cierre";
 
 export default function App() {
   const [openId, setOpenId] = useState<string | null>(null);
@@ -18,15 +19,16 @@ export default function App() {
       <Nav />
       <main>
         <Hero onOpen={setOpenId} />
+        <Prueba />
         <Taller onOpen={setOpenId} />
-        <Cotizador />
-        <Mercado onOpen={setOpenId} />
-        <Comparar />
         <Proceso />
+        <Confianza />
+        <Precios />
+        <Mercado />
         <Preguntas />
       </main>
-      <Contacto />
-      <ProjectStage projectId={openId} onClose={() => setOpenId(null)} onChange={setOpenId} />
+      <Cierre />
+      <Ficha projectId={openId} onClose={() => setOpenId(null)} onChange={setOpenId} />
     </>
   );
 }

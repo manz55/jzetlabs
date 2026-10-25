@@ -166,15 +166,40 @@
     border-right: 1px dashed rgba(23, 22, 28, 0.15);
   }
 
-  /* recibo con borde de zigzag */
-  .receipt-edge {
-    --z: 10px;
-    -webkit-mask:
-      conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / calc(2 * var(--z)) 100%;
-    mask:
-      conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / calc(2 * var(--z)) 100%;
-    padding-bottom: calc(var(--z) + 1.5rem);
+  /* la cinta se despega un poquito al pasar el mouse sobre la captura */
+  .cinta { transform-origin: 8% 50%; transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .foto-pegada:hover .cinta { transform: rotate(-14deg) translateY(-5px); }
+  .foto-pegada { transition: transform 0.3s; }
+  .foto-pegada:hover { transform: rotate(0deg) translateY(-4px) !important; }
+
+  /* sello de tinta que se estampa */
+  .sello {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.15rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-tomato);
+    border: 3px solid var(--color-tomato);
+    border-radius: 10px;
+    padding: 0.3rem 0.8rem;
+    background: rgba(255, 253, 248, 0.85);
+    mix-blend-mode: multiply;
+    box-shadow: inset 0 0 0 2px rgba(255, 106, 61, 0.25);
   }
+
+  /* cordones del taller: --jalon lo mueve el dedo / anime.js */
+  .cordon { --jalon: 0px; }
+  .cordon-hilo { height: calc(var(--base) + var(--jalon)); }
+  .cordon-etiqueta { top: calc(var(--base) - 2px); transform: translateY(var(--jalon)); }
+  .cordon-regresa .cordon-hilo, .cordon-regresa .cordon-etiqueta { transition: height 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .cordon-tag { animation: sway 3.4s ease-in-out infinite; transform-origin: top center; }
+
+  /* inclinación de reposo de stickers y notas (anime.js la respeta al caer) */
+  .razon, .nota { transform: rotate(var(--rot, 0deg)); }
+
+  .menu-entra { animation: menu-entra 0.18s ease-out; }
 
   .no-scrollbar { scrollbar-width: none; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -185,8 +210,8 @@
   50% { transform: rotate(3deg); }
 }
 
-@keyframes marquee {
-  to { transform: translateX(-50%); }
+@keyframes menu-entra {
+  from { opacity: 0; transform: translateY(-8px); }
 }
 
 @media (prefers-reduced-motion: reduce) {

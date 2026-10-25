@@ -1,131 +1,141 @@
 /*
- * El taller — cada proyecto cuelga de un cordón. Lo jalas (arrastrando hacia
- * abajo o con un click/Enter) y el proyecto baja como pantalla de proyector.
+ * El taller: mis trabajos cuelgan de cordones cortos. Lo jalas (arrastrando
+ * hacia abajo, con un toque o con Enter) y baja la ficha del trabajo.
+ * El cordón regresa con un resorte de anime.js; sin anime.js regresa con CSS.
  */
-import { animate, motion, useMotionValue, useReducedMotion, useTransform } from "framer-motion";
-import { PROJECTS, type Project } from "@/data/projects";
-import { ArrowDown, Spark } from "./Doodles";
+import { useRef } from "react";
+import { TALLER, type Project } from "@/data/projects";
+import { laTienda } from "@/data/site";
+import { anime } from "@/lib/anime";
 
-const LENGTHS = [110, 170, 135, 195, 150];
-const PULL_AT = 70;
+const LARGOS = [70, 110, 85, 125, 95];
+const JALON = 55;
 
-function Cord({ project, index, onPull }: { project: Project; index: number; onPull: (id: string) => void }) {
-  const y = useMotionValue(0);
-  const base = LENGTHS[index % LENGTHS.length];
-  const height = useTransform(y, (v) => base + Math.max(0, v));
-  const stretch = useTransform(y, [0, PULL_AT, 160], [1, 1, 0.75]);
-  const reduce = useReducedMotion();
+function Cordon({ p, i, onPull }: { p: Project; i: number; onPull: (id: string) => void }) {
+  const base = LARGOS[i % LARGOS.length];
+  const raiz = useRef<HTMLDivElement>(null);
+  const estado = useRef({ y: 0, inicio: 0, activo: false, movio: false });
 
-  const tug = async () => {
-    await animate(y, 95, { duration: 0.18, ease: "easeIn" });
-    onPull(project.id);
-    animate(y, 0, { type: "spring", stiffness: 380, damping: 9 });
+  const pintar = (y: number) => raiz.current?.style.setProperty("--jalon", `${Math.max(0, y)}px`);
+
+  const soltar = () => {
+    const s = estado.current;
+    const a = anime();
+    if (a) {
+      a.animate(s, { y: 0, ease: a.createSpring({ stiffness: 320, damping: 7 }), onUpdate: () => pintar(s.y) });
+    } else {
+      raiz.current?.classList.add("cordon-regresa");
+      s.y = 0;
+      pintar(0);
+      setTimeout(() => raiz.current?.classList.remove("cordon-regresa"), 400);
+    }
+  };
+
+  const jalar = () => {
+    const s = estado.current;
+    const a = anime();
+    if (!a) return onPull(p.id);
+    a.animate(s, {
+      y: 90,
+      duration: 180,
+      ease: "inQuad",
+      onUpdate: () => pintar(s.y),
+      onComplete: () => {
+        onPull(p.id);
+        soltar();
+      },
+    });
   };
 
   return (
-    <div className="relative w-[62px] sm:w-[96px] shrink-0">
-      {/* el cordón */}
-      <motion.div style={{ height, scaleX: stretch }} className="absolute left-1/2 top-0 -ml-[1.5px] w-[3px] bg-ink rounded-full origin-top" />
-      {/* nudo + etiqueta */}
-      <motion.button
+    <div ref={raiz} className="cordon relative w-[64px] sm:w-[120px] shrink-0" style={{ ["--base" as string]: `${base}px` }}>
+      <span className="cordon-hilo absolute left-1/2 top-0 -ml-[1.5px] w-[3px] bg-ink rounded-full" aria-hidden />
+      <button
         type="button"
-        drag="y"
-        dragConstraints={{ top: 0, bottom: 150 }}
-        dragElastic={0.08}
-        dragSnapToOrigin
-        dragTransition={{ bounceStiffness: 420, bounceDamping: 9 }}
-        style={{ y, top: base - 2 }}
-        onDragEnd={() => {
-          if (y.get() > PULL_AT) onPull(project.id);
+        className="cordon-etiqueta group absolute left-1/2 -translate-x-1/2 flex flex-col items-center cursor-grab active:cursor-grabbing touch-none select-none"
+        aria-label={`Jalar el cordón de ${p.name}`}
+        onPointerDown={(e) => {
+          const s = estado.current;
+          s.activo = true;
+          s.movio = false;
+          s.inicio = e.clientY - s.y;
+          e.currentTarget.setPointerCapture(e.pointerId);
         }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            tug();
-          }
+        onPointerMove={(e) => {
+          const s = estado.current;
+          if (!s.activo) return;
+          s.y = Math.min(150, Math.max(0, e.clientY - s.inicio));
+          if (s.y > 6) s.movio = true;
+          pintar(s.y);
+        }}
+        onPointerUp={() => {
+          const s = estado.current;
+          if (!s.activo) return;
+          s.activo = false;
+          if (s.y > JALON) {
+            onPull(p.id);
+            soltar();
+          } else if (s.movio) soltar();
         }}
         onClick={(e) => {
-          /* tras un arrastre largo el cordón sigue estirado (y alto), así que solo cuenta como toque si casi no se movió */
-          if (e.detail > 0 && y.get() < 8) tug();
+          // toque sin arrastrar (o Enter con el teclado)
+          if (estado.current.movio) return;
+          e.preventDefault();
+          jalar();
         }}
-        whileHover={{ scale: 1.05 }}
-        className="group absolute left-1/2 -translate-x-1/2 flex flex-col items-center cursor-grab active:cursor-grabbing touch-none select-none focus-visible:outline-none"
-        aria-label={`Jalar el cordón de ${project.name}`}
       >
-        <span className="w-4 h-4 rounded-full bg-ink border-2 border-ink" />
+        <span className="w-4 h-4 rounded-full bg-ink" />
         <span
-          className="relative -mt-1 flex flex-col items-center w-[56px] sm:w-[84px] pt-3 pb-3 border-2 border-ink rounded-[12px_12px_14px_14px] shadow-[3px_3px_0_var(--color-ink)] group-focus-visible:outline-[3px] group-focus-visible:outline-cobalt group-focus-visible:outline"
-          style={{
-            background: project.accent,
-            animation: reduce ? undefined : `sway ${3 + index * 0.4}s ease-in-out ${index * -0.7}s infinite`,
-            transformOrigin: "top center",
-          }}
+          className="cordon-tag relative -mt-1 flex flex-col items-center w-[62px] sm:w-[108px] px-1 sm:px-2 pt-3 pb-3 border-2 border-ink rounded-[12px_12px_16px_16px] shadow-[3px_3px_0_var(--color-ink)] group-focus-visible:outline-[3px] group-focus-visible:outline-cobalt group-focus-visible:outline"
+          style={{ background: p.accent, animationDuration: `${3 + i * 0.5}s`, animationDelay: `${i * -0.7}s` }}
         >
           <span className="w-3 h-3 rounded-full bg-paper border-2 border-ink" aria-hidden />
-          <span className="font-mono text-[0.62rem] mt-1.5 text-ink/70">0{index + 1}</span>
-          <span
-            className="font-display font-extrabold text-ink text-[0.95rem] sm:text-[1.15rem] leading-none mt-1.5 whitespace-nowrap"
-            style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
-          >
-            {project.name}
+          <span className="font-display font-extrabold text-ink text-[0.74rem] sm:text-[1.15rem] leading-tight text-center mt-2 whitespace-nowrap sm:whitespace-normal">
+            <span className="sm:hidden">{p.name.split(" ")[0]}</span>
+            <span className="hidden sm:inline">{p.name}</span>
           </span>
+          <span className="hand text-[1.05rem] text-ink/70 leading-tight text-center mt-0.5 hidden sm:block">{p.tag}</span>
         </span>
-      </motion.button>
+      </button>
     </div>
   );
 }
 
 export function Taller({ onOpen }: { onOpen: (id: string) => void }) {
   return (
-    <section id="taller" className="relative px-4 sm:px-6 pt-20 pb-16 scroll-mt-20">
+    <section id="taller" className="relative px-4 sm:px-6 pt-16 pb-16 scroll-mt-20">
       <div className="mx-auto max-w-6xl">
-        <div className="grid lg:grid-cols-[1fr_1.1fr] gap-8 items-end">
+        <div className="grid lg:grid-cols-[1fr_1fr] gap-6 items-end">
           <div>
-            <p className="section-num">01 — el taller</p>
-            <h2 className="mt-3 text-[clamp(2.2rem,5vw,3.8rem)] font-extrabold">
-              Nada de galería aburrida.{" "}
-              <span className="serif-i font-normal text-cobalt">Jala un cordón.</span>
+            <p className="section-num">el taller</p>
+            <h2 className="mt-3 text-[clamp(2.3rem,5.5vw,4rem)] font-extrabold">
+              Mis trabajos. <span className="serif-i font-normal text-cobalt">Jala uno.</span>
             </h2>
           </div>
           <p className="text-ink-2 text-[1.08rem] max-w-md lg:justify-self-end">
-            Cada cordón tiene colgado un proyecto real. Jálalo hacia abajo (o dale click) y baja para que lo veas en compu o en
-            cel, y hasta por dentro con rayos X.
+            Cada cordón tiene un trabajo real colgado. Jálalo y baja su ficha: cómo era antes, cómo quedó y una lupa para ver cómo funciona por dentro.
           </p>
         </div>
 
-        <div className="relative mt-12">
-          {/* el riel de donde cuelgan */}
-          <div className="relative h-5 rounded-full bg-ink border-2 border-ink shadow-[0_4px_0_rgba(23,22,28,0.18)]">
+        <div className="relative mt-10">
+          <div className="relative h-5 rounded-full bg-ink" aria-hidden>
             <span className="absolute left-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-paper/80" />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-paper/80" />
           </div>
-
-          <div className="flex justify-between sm:justify-around px-1 sm:px-6 min-h-[360px] sm:min-h-[420px]">
-            {PROJECTS.map((p, i) => (
-              <Cord key={p.id} project={p} index={i} onPull={onOpen} />
+          <div className="flex justify-between sm:justify-around px-0 sm:px-1 min-h-[300px] sm:min-h-[330px]">
+            {TALLER.map((p, i) => (
+              <Cordon key={p.id} p={p} i={i} onPull={onOpen} />
             ))}
           </div>
-
-          <div className="hand absolute right-0 sm:right-4 bottom-2 text-[1.35rem] text-tomato rotate-[-5deg] pointer-events-none hidden sm:flex items-end gap-1">
-            <ArrowDown className="w-8 h-12 -scale-x-100 rotate-[160deg] -translate-y-14" />
-            jala uno, en serio
-          </div>
-          <Spark className="absolute left-2 bottom-8 w-7 h-7 text-cobalt hidden sm:block" />
+          <p className="hand text-[1.4rem] text-tomato -rotate-2 text-center mt-1">jala uno, en serio</p>
         </div>
 
-        {/* atajo accesible para quien tenga prisa */}
-        <div className="mt-6 flex flex-wrap items-center gap-2">
-          <span className="text-sm text-ink-3 mr-1">¿Con prisa? Directo:</span>
-          {PROJECTS.map((p) => (
-            <button
-              key={p.id}
-              onClick={() => onOpen(p.id)}
-              className="text-sm font-medium px-3 py-1 rounded-full border-2 border-ink/80 bg-card hover:bg-volt transition-colors"
-            >
-              {p.name}
-            </button>
-          ))}
-        </div>
+        <p className="mt-4 text-center text-ink-2">
+          ¿Quieres ver todo, con demos para probar?{" "}
+          <a href={laTienda("trabajos")} target="_blank" rel="noopener noreferrer" className="hand text-[1.4rem] text-cobalt underline underline-offset-4">
+            Está en La tienda →
+          </a>
+        </p>
       </div>
     </section>
   );
