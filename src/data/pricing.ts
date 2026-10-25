@@ -51,6 +51,9 @@ export const ACUERDOS = [
   { id: "formal", name: "Con contrato formal", note: `Contrato firmado en papel, con firmas legalizadas ante notario. +Q${CONTRATO_FORMAL}.`, precio: CONTRATO_FORMAL },
 ];
 
+/** impuesto de la factura (pequeño contribuyente): lo paga el cliente, se suma al total */
+export const FACTURA = 0.05;
+
 export const DOMAIN_PRICE = 150;
 /** renovación del dominio desde el 2do año */
 export const DOMAIN_RENEWAL = 100;

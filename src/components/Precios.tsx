@@ -4,7 +4,7 @@
  */
 import { useState } from "react";
 import { ArrowUpRight } from "lucide-react";
-import { ACUERDOS, CARE_PLAN, CUOTAS, KINDS, PACES, cuota, diasConRitmo, roundTo50, type KindId } from "@/data/pricing";
+import { ACUERDOS, CARE_PLAN, FACTURA, CUOTAS, KINDS, PACES, cuota, diasConRitmo, roundTo50, type KindId } from "@/data/pricing";
 import { formatQ, laTienda, whatsappLink } from "@/data/site";
 import { useAlAparecer } from "@/lib/anime";
 import { CircleScribble } from "./Doodles";
@@ -17,7 +17,9 @@ export function Precios() {
   const k = KINDS.find((x) => x.id === tipo)!;
   const p = PACES.find((x) => x.id === ritmo)!;
   const ac = ACUERDOS.find((x) => x.id === acuerdo)!;
-  const total = roundTo50(k.base * p.priceMult) + ac.precio;
+  const subtotal = roundTo50(k.base * p.priceMult) + ac.precio;
+  const factura = Math.round(subtotal * FACTURA);
+  const total = subtotal + factura;
   const [dMin, dMax] = diasConRitmo(k, p);
 
   // los sellos se estampan cuando aparecen
@@ -79,7 +81,7 @@ export function Precios() {
           ))}
         </div>
         <p className="mt-3 text-sm text-ink-3">
-          Días hábiles desde que me pasas tus textos y fotos. Pago único con 3% menos, o en 2 pagos, 3 o 4 meses sin recargo. Plan de cambios opcional de {formatQ(CARE_PLAN)} al mes, lo
+          Precios más el 5% de la factura. Días hábiles desde que me pasas tus textos y fotos. Pago único con 3% menos, o en 2 pagos, 3 o 4 meses sin recargo. Plan de cambios opcional de {formatQ(CARE_PLAN)} al mes, lo
           cancelas cuando quieras.
         </p>
 
@@ -123,6 +125,9 @@ export function Precios() {
             <p className="text-paper/80 mt-1">{k.id === "expres" ? "un solo pago" : `o ${CUOTAS} pagos de ${formatQ(Math.round(total / CUOTAS))}`}</p>
             <p className="text-paper/80 mt-3 text-sm">
               Lista en unos <b className="text-paper">{dMin}–{dMax} días hábiles</b>. Y después, Q0 al mes.
+            </p>
+            <p className="text-paper/70 mt-1 text-sm">
+              {formatQ(subtotal)} + {formatQ(factura)} de factura (5%). Siempre con factura.
             </p>
             <p className="text-paper/70 mt-1 text-sm">{ac.precio ? `Incluye contrato formal con firmas legalizadas (+${formatQ(ac.precio)}).` : "Acuerdo por escrito, sin trámites."}</p>
             <div className="mt-auto pt-5 flex flex-col gap-2">

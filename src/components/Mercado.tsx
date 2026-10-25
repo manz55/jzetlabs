@@ -146,7 +146,7 @@ export function Mercado() {
         </div>
 
         <p className="mt-4 text-xs text-ink-3 leading-relaxed max-w-3xl">
-          Precios tomados de las páginas públicas de cada agencia el {MARKET_CHECKED}. Pueden cambiar y cada quien incluye cosas distintas, por eso cada uno lleva su link. Los míos son el precio base más dominio.
+          Precios tomados de las páginas públicas de cada agencia el {MARKET_CHECKED}. Pueden cambiar y cada quien incluye cosas distintas, por eso cada uno lleva su link. Los míos son el precio base más dominio, sin el 5% de la factura.
         </p>
       </div>
     </section>
