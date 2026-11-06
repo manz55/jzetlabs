@@ -1,149 +1,140 @@
 /*
- * Cómo trabajo (detrás de cámaras): línea de tiempo que se dibuja con el
- * scroll (anime.js onScroll) y una "foto de proceso" en cada paso.
+ * Cómo trabajamos (4 pasos) y Preguntas frecuentes.
+ * Pasos con anime.js: al llegar a la sección, la línea se dibuja y cada paso
+ * aparece en orden. Si se pidió reducir movimiento, se ve todo quieto.
+ * Los textos son los mismos de La tienda: si cambia uno, cambie el otro.
  */
 import { useEffect, useRef } from "react";
-import gomideliDesk from "@/assets/portfolio/gomideli-desk.jpg";
-import gomideliMob from "@/assets/portfolio/gomideli-mob.jpg";
-import { anime } from "@/lib/anime";
-
-/* foto 1: nota de la plática */
-function FotoPlatica() {
-  return (
-    <div className="relative bg-[#fffdf3] border-2 border-ink p-4 shadow-[4px_4px_0_var(--color-ink)] rotate-[-2deg]" style={{ backgroundImage: "repeating-linear-gradient(#fffdf3 0 24px, #c9d4f2 24px 25px)" }}>
-      <span className="tape -top-3 left-6 rotate-[-5deg]" aria-hidden />
-      <p className="hand text-[1.35rem] leading-[25px]">Lo que me contaste:</p>
-      <ul className="hand text-[1.15rem] leading-[25px] text-ink-2">
-        <li>— vendes por WhatsApp</li>
-        <li>— se pierden pedidos</li>
-        <li>— quieres cambiar precios tú</li>
-      </ul>
-      <p className="hand text-[1.15rem] leading-[25px] text-tomato">→ tienda + panel ✓</p>
-    </div>
-  );
-}
-
-/* foto 2: boceto a mano */
-function FotoBoceto() {
-  return (
-    <div className="relative bg-card border-2 border-ink p-3 shadow-[4px_4px_0_var(--color-ink)] rotate-[1.5deg]">
-      <span className="tape -top-3 right-6 rotate-[4deg]" aria-hidden />
-      <svg viewBox="0 0 220 140" className="w-full h-auto text-ink" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-label="Boceto de la página">
-        <path d="M8 10 H212 V132 H8 Z" />
-        <path d="M8 28 H212" />
-        <path d="M16 19 h30 M150 19 h20 M178 19 h26" strokeWidth="3" />
-        <path d="M18 44 h90 M18 56 h70" strokeWidth="5" />
-        <path d="M18 70 h80 M18 78 h60" opacity=".5" />
-        <rect x="18" y="90" width="44" height="14" rx="4" />
-        <rect x="130" y="40" width="70" height="64" rx="6" />
-        <path d="M140 92 l14 -18 l12 12 l8 -8 l16 14" />
-        <circle cx="180" cy="56" r="6" />
-        <path d="M18 116 h40 M70 116 h40 M122 116 h40" opacity=".5" />
-      </svg>
-      <p className="hand text-[1.1rem] text-ink-2 text-center">el boceto, antes de programar</p>
-    </div>
-  );
-}
-
-/* foto 3: mensaje de avance */
-function FotoAvance() {
-  return (
-    <div className="relative bg-[#e9e2d5] border-2 border-ink p-3 shadow-[4px_4px_0_var(--color-ink)] rotate-[-1deg]">
-      <div className="relative overflow-hidden rounded-lg border border-ink/30 aspect-[16/9]">
-        <img src={gomideliDesk} alt="" className="w-full h-full object-cover object-top" loading="lazy" />
-        {/* lo que falta, todavía en gris */}
-        <div className="absolute inset-y-0 right-0 w-[45%] bg-paper/85" style={{ backgroundImage: "repeating-linear-gradient(-45deg, transparent 0 8px, rgba(23,22,28,.06) 8px 16px)" }}>
-          <span className="absolute inset-0 grid place-items-center hand text-[1.1rem] text-ink-3">en eso ando…</span>
-        </div>
-      </div>
-      <p className="mt-2 ml-auto w-fit max-w-[85%] bg-[#d9fdd3] rounded-xl rounded-br-sm px-3 py-1.5 text-[0.85rem] shadow-sm">
-        ¡Qué tal! Ya quedó el catálogo, te mando el link para que lo veas y me digas qué cambiamos 👇
-      </p>
-      <p className="hand text-[1rem] text-ink-3 text-right mt-0.5">así te voy avisando</p>
-    </div>
-  );
-}
-
-/* foto 4: ya en vivo, en el cel */
-function FotoEnVivo() {
-  return (
-    <div className="relative flex items-end justify-center gap-3">
-      <div className="w-[120px] rounded-[22px] border-[3px] border-ink bg-ink p-[5px] shadow-[4px_4px_0_rgba(23,22,28,.3)] rotate-[3deg]">
-        <div className="aspect-[9/19] rounded-[16px] overflow-hidden">
-          <img src={gomideliMob} alt="La tienda ya publicada en un celular" className="w-full h-full object-cover object-top" loading="lazy" />
-        </div>
-      </div>
-      <span className="sello absolute left-0 sm:-left-6 -top-6 -rotate-12">¡En línea!</span>
-    </div>
-  );
-}
+import { animate, createTimeline, stagger } from "animejs";
+import { ChevronDown } from "lucide-react";
 
 const PASOS = [
-  { t: "Platicamos", d: "Me escribes por WhatsApp o nos echamos una llamada. Me cuentas qué hace tu negocio y qué te quita tiempo. No cuesta nada.", Foto: FotoPlatica },
-  { t: "Te mando la propuesta", d: "Un boceto de cómo se va a ver, el precio cerrado, el tiempo y la forma de pago que te quede.", Foto: FotoBoceto },
-  { t: "Lo construyo", d: "Te voy mandando avances para que lo veas crecer. Si algo no te gusta o lo quieres distinto, lo cambio a tiempo.", Foto: FotoAvance },
-  { t: "Lo subo al aire", d: "Lo publico, te enseño a usarlo y te quedan 30 días de soporte. Los accesos quedan a tu nombre.", Foto: FotoEnVivo },
+  { titulo: "Diagnóstico", texto: "Una reunión sin costo para entender cómo trabaja hoy su negocio y qué le está costando tiempo." },
+  { titulo: "Propuesta con opciones", texto: "Le presento qué módulos necesita, el plan que le conviene y el precio final por escrito." },
+  { titulo: "Implementación y capacitación", texto: "Configuro el sistema con sus datos y capacito a su equipo hasta que lo usen sin ayuda." },
+  { titulo: "Soporte", texto: "Acompañamiento continuo: dudas, ajustes y mejoras según su plan." },
+];
+
+const PREGUNTAS = [
+  {
+    p: "¿Necesito comprar un servidor o un dominio?",
+    r: "No. Los planes incluyen dominio, servidor y base de datos con respaldos diarios (en el plan Propio, el primer año; después, Q600 al año). Usted solo usa el sistema.",
+  },
+  {
+    p: "¿Mis datos están seguros?",
+    r: "Sí. Cada persona entra con su propio acceso y ve solo lo que le corresponde. La conexión va cifrada, la información se respalda todos los días y la bitácora registra cada cambio.",
+  },
+  {
+    p: "¿Funciona sin internet?",
+    r: "Depende de la parte del sistema. El marcaje, por ejemplo, se guarda en el celular y se envía cuando vuelve la señal. Si en su negocio la señal falla, lo vemos en el diagnóstico.",
+  },
+  {
+    p: "¿Qué pasa si mi negocio crece?",
+    r: "Puede pasar de Control a Integral y agregar módulos cuando lo necesite, sin empezar de cero. Si tiene el plan Propio, también puede pasarse a un plan mensual.",
+  },
+  {
+    p: "¿Puedo cancelar?",
+    r: "Sí. Los planes mensuales se cancelan con un mes de aviso, y le entregamos toda su información en Excel.",
+  },
 ];
 
 export function Proceso() {
-  const ref = useRef<HTMLDivElement>(null);
+  const raiz = useRef<HTMLOListElement>(null);
 
   useEffect(() => {
-    const a = anime();
-    const el = ref.current;
-    if (!a || !el) return;
-    const linea = a.svg.createDrawable(el.querySelector(".linea-tiempo path")!);
-    const dibujo = a.animate(linea, {
-      draw: ["0 0", "0 1"],
-      ease: "linear",
-      autoplay: a.onScroll({ target: el, enter: "85% start", leave: "60% end", sync: 0.3 }),
-    });
-    const pasos = [...el.querySelectorAll<HTMLElement>(".paso")];
-    pasos.forEach((n) => (n.style.opacity = "0"));
-    const observadores = pasos.map((n, i) =>
-      a.onScroll({
-        target: n,
-        enter: "80% top",
-        repeat: false,
-        onEnter: () => a.animate(n, { opacity: [0, 1], translateX: [i % 2 ? 30 : -30, 0], duration: 650, ease: "outBack" }),
-      }),
+    const el = raiz.current;
+    if (!el || matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return;
+
+    const horizontal = matchMedia("(min-width: 768px)").matches;
+    // en compu, una línea horizontal; en celular, un tramo vertical entre cada paso
+    const linea = horizontal ? el.querySelectorAll(".proceso-linea") : el.querySelectorAll(".proceso-tramo");
+    const bolas = el.querySelectorAll(".proceso-num");
+    const textos = el.querySelectorAll(".proceso-texto");
+    // estado inicial: todo escondido hasta que la sección entre en pantalla
+    const inicio = animate([...bolas, ...textos], { opacity: 0, duration: 0 });
+    const lineaInicio = animate(linea, horizontal ? { scaleX: 0, duration: 0 } : { scaleY: 0, duration: 0 });
+
+    let tl: ReturnType<typeof createTimeline> | undefined;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting) return;
+        io.disconnect();
+        tl = createTimeline({ defaults: { ease: "outCubic" } });
+        tl.add(linea, horizontal ? { scaleX: [0, 1], duration: 1100 } : { scaleY: [0, 1], duration: 300, delay: stagger(260) });
+        tl.add(bolas, { opacity: [0, 1], scale: [0.4, 1], duration: 450, delay: stagger(260), ease: "outBack(2)" }, 0).add(
+          textos,
+          { opacity: [0, 1], translateY: [10, 0], duration: 500, delay: stagger(260) },
+          150,
+        );
+      },
+      { threshold: 0.3 },
     );
+    io.observe(el);
     return () => {
-      dibujo.revert();
-      observadores.forEach((o) => o.revert());
-      pasos.forEach((n) => (n.style.opacity = ""));
+      io.disconnect();
+      inicio.revert();
+      lineaInicio.revert();
+      tl?.revert();
     };
   }, []);
 
   return (
-    <section id="proceso" className="relative px-4 sm:px-6 py-20 scroll-mt-16">
-      <div className="mx-auto max-w-5xl">
-        <p className="section-num">detrás de cámaras</p>
-        <h2 className="mt-3 text-[clamp(2.2rem,5vw,3.6rem)] font-extrabold">
-          Así trabajo. <span className="serif-i font-normal text-cobalt">Paso por paso.</span>
-        </h2>
+    <section id="proceso" className="py-16 sm:py-24 border-t border-linea" aria-labelledby="proceso-titulo">
+      <div className="contenedor">
+        <div className="max-w-2xl aparece">
+          <p className="etiqueta">Cómo trabajamos</p>
+          <h2 id="proceso-titulo" className="mt-3 text-[1.75rem] sm:text-[2.2rem]">
+            De la primera plática a su sistema funcionando.
+          </h2>
+        </div>
 
-        <div ref={ref} className="relative mt-14">
-          <svg className="linea-tiempo absolute left-[18px] md:left-1/2 md:-translate-x-1/2 top-0 w-8 h-full" viewBox="0 0 32 400" preserveAspectRatio="none" aria-hidden>
-            <path d="M16 0 C 4 60, 28 110, 16 170 S 4 280, 16 330 S 26 380, 16 400" fill="none" stroke="var(--color-tomato)" strokeWidth={3.5} strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-          </svg>
+        <ol ref={raiz} className="relative mt-12 grid gap-8 md:grid-cols-4 md:gap-6">
+          {/* línea que une los pasos: vertical en celular, horizontal en compu */}
+          <span
+            aria-hidden
+            className="proceso-linea absolute hidden md:block left-[22px] right-[calc(25%-40px)] top-[21px] h-0.5 origin-left bg-acento/40"
+          />
+          {PASOS.map((p, i) => (
+            <li key={p.titulo} className="relative flex gap-5 md:block">
+              {i < PASOS.length - 1 && (
+                <span aria-hidden className="proceso-tramo absolute left-[21px] top-11 -bottom-8 w-0.5 origin-top bg-acento/40 md:hidden" />
+              )}
+              <span className="proceso-num relative z-10 grid h-11 w-11 shrink-0 place-items-center rounded-full bg-marino text-[1.05rem] font-bold text-white ring-4 ring-white">
+                {i + 1}
+              </span>
+              <div className="proceso-texto md:mt-5">
+                <h3 className="text-[1.15rem]">{p.titulo}</h3>
+                <p className="mt-1.5 text-suave">{p.texto}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}
 
-          <ol className="space-y-14">
-            {PASOS.map(({ t, d, Foto }, i) => (
-              <li key={t} className={`paso relative grid md:grid-cols-2 gap-6 md:gap-14 items-center pl-14 md:pl-0`}>
-                <span className="absolute left-[13px] md:left-1/2 md:-translate-x-1/2 top-1 md:top-1/2 md:-translate-y-1/2 grid place-items-center w-11 h-11 -ml-[9px] md:ml-0 rounded-full bg-sun border-2 border-ink font-display font-extrabold z-10">
-                  {i + 1}
-                </span>
-                <div className={i % 2 ? "md:order-2 md:pl-8" : "md:pr-8 md:text-right"}>
-                  <h3 className="text-[1.6rem] font-bold">{t}</h3>
-                  <p className="mt-2 text-ink-2">{d}</p>
-                </div>
-                <div className={`max-w-[340px] w-full ${i % 2 ? "md:order-1 md:justify-self-end md:pr-8" : "md:pl-8"}`}>
-                  <Foto />
-                </div>
-              </li>
-            ))}
-          </ol>
+export function Preguntas() {
+  return (
+    <section id="preguntas" className="py-16 sm:py-24 bg-fondo border-y border-linea" aria-labelledby="preguntas-titulo">
+      <div className="contenedor grid gap-10 lg:grid-cols-[1fr_1.6fr] lg:gap-16">
+        <div className="aparece">
+          <p className="etiqueta">Preguntas frecuentes</p>
+          <h2 id="preguntas-titulo" className="mt-3 text-[1.75rem] sm:text-[2.2rem]">
+            Lo que más nos preguntan.
+          </h2>
+          <p className="mt-3 text-suave">¿Tiene otra duda? Escríbame por WhatsApp y se la respondo.</p>
+        </div>
+        <div className="divide-y divide-linea rounded-xl border border-linea bg-white aparece">
+          {PREGUNTAS.map((q) => (
+            <details key={q.p} className="group px-5 sm:px-6">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-5 font-semibold text-tinta [&::-webkit-details-marker]:hidden">
+                {q.p}
+                <ChevronDown aria-hidden className="h-5 w-5 shrink-0 text-suave transition-transform duration-300 group-open:rotate-180" />
+              </summary>
+              <p className="pb-5 -mt-1 text-suave">{q.r}</p>
+            </details>
+          ))}
         </div>
       </div>
     </section>

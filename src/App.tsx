@@ -1,34 +1,32 @@
-import { useState } from "react";
-import { Nav } from "@/components/Nav";
-import { Hero } from "@/components/Hero";
-import { Prueba } from "@/components/Prueba";
-import { Taller } from "@/components/Taller";
-import { Ficha } from "@/components/Ficha";
-import { Proceso } from "@/components/Proceso";
-import { Confianza } from "@/components/Confianza";
-import { Precios } from "@/components/Precios";
-import { Mercado } from "@/components/Mercado";
-import { Preguntas } from "@/components/Preguntas";
-import { Cierre } from "@/components/Cierre";
+import { useEffect } from "react";
+import { Caso, Encabezado, Llamado, Pie, PorQue, Portada } from "@/components/Secciones";
+import { Planes } from "@/components/Planes";
+import { Rubros } from "@/components/Rubros";
+import { Centro } from "@/components/Centro";
+import { Preguntas, Proceso } from "@/components/Proceso";
+import { activarAparecer } from "@/lib/aparecer";
 
 export default function App() {
-  const [openId, setOpenId] = useState<string | null>(null);
+  useEffect(() => activarAparecer(), []);
 
   return (
     <>
-      <Nav />
+      <a href="#inicio" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-white focus:px-3 focus:py-2 focus:rounded">
+        Ir al contenido
+      </a>
+      <Encabezado />
       <main>
-        <Hero onOpen={setOpenId} />
-        <Prueba />
-        <Taller onOpen={setOpenId} />
+        <Portada />
+        <Centro />
+        <Rubros />
+        <Caso />
+        <Planes />
+        <PorQue />
         <Proceso />
-        <Confianza />
-        <Precios />
-        <Mercado />
         <Preguntas />
+        <Llamado />
       </main>
-      <Cierre />
-      <Ficha projectId={openId} onClose={() => setOpenId(null)} onChange={setOpenId} />
+      <Pie />
     </>
   );
 }
