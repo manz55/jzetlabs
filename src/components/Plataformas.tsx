@@ -1,7 +1,7 @@
 /*
  * Plataformas: dónde se usa el sistema (celular, compu, app instalable, tiendas de apps).
  * Lo de "Incluido" ya existe (web adaptable + app instalable como la demo de asistencia).
- * Escritorio y tiendas de apps se hacen a la medida, con precio POR CONFIRMAR.
+ * Escritorio y tiendas de apps se hacen a la medida (precios confirmados el 6 nov 2026).
  * Los textos son los mismos de La tienda: si cambia uno, cambie el otro.
  */
 import { Download, Monitor, MonitorSmartphone, Smartphone } from "lucide-react";
@@ -14,28 +14,24 @@ const OPCIONES = [
     titulo: "En el celular, la tablet y la compu",
     texto: "Se abre desde cualquier navegador, sin instalar nada, y se acomoda a cada pantalla.",
     precio: "Incluido",
-    porConfirmar: false,
   },
   {
     Icono: Download,
     titulo: "Como app en su celular",
     texto: "Se instala desde el navegador con su propio ícono, abre en pantalla completa y partes como el marcaje funcionan sin señal.",
     precio: "Incluido",
-    porConfirmar: false,
   },
   {
     Icono: Monitor,
     titulo: "Programa para la compu",
     texto: "Para Windows o Mac, ideal para cajas, recepción o bodega: se abre con un clic, como cualquier programa.",
     precio: "Desde Q1,500",
-    porConfirmar: true,
   },
   {
     Icono: Smartphone,
     titulo: "App en Play Store y App Store",
     texto: "Su app con su nombre y su logo en las tiendas de Android y iPhone.",
     precio: "Desde Q2,500 por tienda",
-    porConfirmar: true,
   },
 ];
 
@@ -54,7 +50,7 @@ export function Plataformas() {
         </div>
 
         <ul className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {OPCIONES.map(({ Icono, titulo, texto, precio, porConfirmar }) => (
+          {OPCIONES.map(({ Icono, titulo, texto, precio }) => (
             <li key={titulo} className="flex flex-col gap-3 rounded-xl border border-linea bg-white p-6 aparece">
               <span className="grid h-10 w-10 place-items-center rounded-lg bg-marino/5 text-marino">
                 <Icono className={ic} />
@@ -63,11 +59,6 @@ export function Plataformas() {
               <p className="text-[0.95rem] leading-snug text-suave">{texto}</p>
               <p className="mt-auto pt-2 font-semibold text-acento">
                 {precio}
-                {porConfirmar && (
-                  <span className="ml-2 inline-block rounded bg-amber-100 px-1.5 py-0.5 align-middle text-[0.7rem] font-semibold tracking-wide text-amber-800">
-                    POR CONFIRMAR
-                  </span>
-                )}
               </p>
             </li>
           ))}
