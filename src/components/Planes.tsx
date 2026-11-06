@@ -3,7 +3,7 @@
  * (cambio suave cada 4 s; quieto si se pidió reducir movimiento).
  */
 import { useEffect, useState } from "react";
-import { FRASES, NOTA_USUARIOS, PLANES } from "@/data/planes";
+import { FRASES, NOTA_USUARIOS, PLANES, REGLAS } from "@/data/planes";
 import { laTienda, whatsappLink } from "@/data/site";
 
 function FraseRotando() {
@@ -45,7 +45,7 @@ export function Planes() {
             Tres formas de tener su sistema.
           </h2>
           <FraseRotando />
-          <p className="mt-2 text-suave">Pague una sola vez o cada mes. En el diagnóstico gratis vemos cuál le queda mejor.</p>
+          <p className="mt-2 text-suave">Pague una sola vez o cada mes: lo mensual es opcional. En el diagnóstico gratis vemos cuál le queda mejor.</p>
         </div>
 
         <div className="mt-10 grid lg:grid-cols-3 gap-6 items-start">
@@ -60,6 +60,7 @@ export function Planes() {
               <h3 className="text-[1.45rem]">{p.nombre}</h3>
               <p className="mt-1.5 text-suave">{p.para}</p>
               <p className="mt-5 text-[2.1rem] font-bold leading-none text-marino">
+                <span className="mr-1.5 text-base font-medium text-suave">desde</span>
                 {p.monto} <span className="text-base font-medium text-suave">{p.periodo}</span>
               </p>
               <p className="mt-2 text-[0.92rem] text-suave">{p.nota}</p>
@@ -71,6 +72,11 @@ export function Planes() {
                   </li>
                 ))}
               </ul>
+              {p.noIncluye && (
+                <p className="mt-4 rounded-lg bg-fondo px-3 py-2.5 text-[0.88rem] text-suave">
+                  <b className="text-tinta">No incluye:</b> {p.noIncluye}
+                </p>
+              )}
               <a
                 href={whatsappLink(`Hola, Joshua. Me interesa el plan ${p.nombre} para mi empresa.`)}
                 target="_blank"
@@ -83,7 +89,12 @@ export function Planes() {
           ))}
         </div>
 
-        <p className="mt-8 text-suave aparece">
+        <div className="mt-8 rounded-xl border-l-4 border-marino bg-white p-5 aparece">
+          <p className="font-semibold text-tinta">Reglas claras</p>
+          <p className="mt-1 text-suave">{REGLAS}</p>
+        </div>
+
+        <p className="mt-6 text-suave aparece">
           {NOTA_USUARIOS} Todos los planes se facturan (FEL). Si paga Control o Integral por año, le regalo 2 meses.{" "}
           <a href={laTienda("planes")} className="font-semibold text-marino underline underline-offset-4 hover:text-acento">
             Ver la comparación completa

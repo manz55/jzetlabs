@@ -33,6 +33,10 @@ const PREGUNTAS = [
     r: "Puede pasar de Control a Integral y agregar módulos cuando lo necesite, sin empezar de cero. Si tiene el plan Propio, también puede pasarse a un plan mensual.",
   },
   {
+    p: "¿Qué pasa si después quiero agregar algo?",
+    r: "Se puede, siempre. Si no estaba en lo que firmamos, le mando la cotización por escrito y usted decide. Así nadie se lleva sorpresas.",
+  },
+  {
     p: "¿Puedo cancelar?",
     r: "Sí. Los planes mensuales se cancelan con un mes de aviso, y le entrego toda su información en Excel.",
   },
