@@ -1,12 +1,13 @@
 import { useEffect } from "react";
 import { Caso, Encabezado, Llamado, Pie, PorQue, Portada } from "@/components/Secciones";
-import { Planes } from "@/components/Planes";
+import { QueHago } from "@/components/QueHago";
 import { Rubros } from "@/components/Rubros";
-import { Centro } from "@/components/Centro";
-import { Plataformas } from "@/components/Plataformas";
-import { Preguntas, Proceso } from "@/components/Proceso";
 import { activarAparecer } from "@/lib/aparecer";
 
+/*
+ * Landing = quién soy y qué hago. Los precios completos viven en La tienda.
+ * Portada → Qué hago → Véalo funcionando → EFAMIC → Por qué conmigo → Llamado.
+ */
 export default function App() {
   useEffect(() => activarAparecer(), []);
 
@@ -18,14 +19,10 @@ export default function App() {
       <Encabezado />
       <main>
         <Portada />
-        <Centro />
-        <Plataformas />
+        <QueHago />
         <Rubros />
         <Caso />
-        <Planes />
         <PorQue />
-        <Proceso />
-        <Preguntas />
         <Llamado />
       </main>
       <Pie />

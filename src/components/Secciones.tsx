@@ -26,7 +26,7 @@ export function Encabezado() {
         <Logo />
         <nav className="flex items-center gap-2 sm:gap-5" aria-label="Principal">
           <a href={laTienda()} className="hidden sm:inline text-[0.95rem] font-medium text-suave hover:text-marino">
-            Soluciones y planes
+            Precios y planes
           </a>
           <a href={WA_DIAGNOSTICO} target="_blank" rel="noopener noreferrer" className="btn btn-principal !min-h-[40px] !px-4 !py-2 !text-[0.92rem]">
             <span className="sm:hidden">Diagnóstico gratis</span>
@@ -43,21 +43,19 @@ export function Portada() {
     <section id="inicio" className="portada-papel border-b border-linea overflow-hidden">
       <div className="contenedor grid lg:grid-cols-[1fr_1.05fr] gap-14 lg:gap-12 items-center pt-12 pb-16 sm:pt-20 sm:pb-24">
         <div>
-          <p className="text-[0.95rem] text-suave">
-            <span className="font-semibold text-tinta">Joshua Zet</span> · Sistemas a la medida en Guatemala
-          </p>
-          <h1 className="mt-5 text-[2.5rem] sm:text-[3.3rem] lg:text-[3.7rem] leading-[1.04]">
-            Un sistema <span className="whitespace-nowrap">hecho para</span> <RubroRotando />
+          <p className="nota-mano text-acento text-[1.9rem]">Hola, soy Joshua.</p>
+          <h1 className="mt-3 text-[2.5rem] sm:text-[3.2rem] lg:text-[3.4rem] leading-[1.04]">
+            Hago <span className="whitespace-nowrap">sistemas para</span> <RubroRotando />
           </h1>
           <p className="mt-6 text-[1.12rem] sm:text-[1.2rem] text-texto max-w-xl">
-            Ventas, citas, cobros, inventario, notas o planilla: lo que hoy hace a mano, en Excel o por WhatsApp, en un sistema que calcula, cuadra y avisa solo.
+            Páginas web, sistemas y apps para que su negocio deje de hacer las cosas a mano. Usted trata conmigo de principio a fin: yo escucho, yo lo construyo y yo le doy soporte.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-3">
             <a href={WA_DIAGNOSTICO} target="_blank" rel="noopener noreferrer" className="btn btn-principal">
               <IconoWhatsApp /> Agendar diagnóstico gratis
             </a>
-            <a href={laTienda()} className="btn btn-secundario">
-              Ver soluciones y planes
+            <a href={laTienda("planes")} className="btn btn-secundario">
+              Ver precios y planes
             </a>
           </div>
           <p className="mt-4 text-sm text-suave">Una reunión sin costo para entender cómo trabaja su negocio hoy.</p>
@@ -71,56 +69,21 @@ export function Portada() {
   );
 }
 
-const BENEFICIOS = [
-  {
-    titulo: "La planilla, lista en minutos",
-    texto: "Horas extra, séptimo, bonificación e IGSS se calculan solos con cada marcaje. Ya no se arma a mano en Excel.",
-  },
-  {
-    titulo: "Control aunque no haya señal",
-    texto: "Su personal marca entrada y salida con ubicación y huella o FaceID, en la oficina, la obra o en campo. Los datos suben cuando vuelve el internet.",
-  },
-  {
-    titulo: "Cada movimiento queda registrado",
-    texto: "Quién hizo cada cambio y cuándo, con respaldos diarios y reportes en Excel y PDF listos para contabilidad.",
-  },
-];
-
-export function Beneficios() {
-  return (
-    <section className="py-16 sm:py-24" aria-labelledby="beneficios-titulo">
-      <div className="contenedor">
-        <h2 id="beneficios-titulo" className="text-[1.75rem] sm:text-[2.2rem] max-w-2xl aparece">
-          Menos horas en papeleo, más control sobre su operación.
-        </h2>
-        <ol className="mt-10 grid md:grid-cols-3 gap-y-8 md:gap-x-10 border-t border-linea">
-          {BENEFICIOS.map((b, i) => (
-            <li key={b.titulo} className="pt-6 aparece" style={{ transitionDelay: `${i * 80}ms` }}>
-              <span className="text-sm font-semibold text-acento">0{i + 1}</span>
-              <h3 className="mt-2 text-[1.25rem]">{b.titulo}</h3>
-              <p className="mt-2 text-suave">{b.texto}</p>
-            </li>
-          ))}
-        </ol>
-      </div>
-    </section>
-  );
-}
-
 const RAZONES = [
-  { titulo: "A la medida de su forma de trabajar", texto: "Parto de cómo opera su empresa hoy: sus periodos de pago, su boleta y sus reglas." },
-  { titulo: "Implementación y capacitación", texto: "Configuro el sistema, cargo a su personal y capacito a quienes lo van a usar." },
-  { titulo: "Soporte directo", texto: "Usted habla con quien construyó el sistema, no con un centro de llamadas." },
+  { titulo: "Una sola persona, de principio a fin", texto: "Usted habla conmigo: yo escucho, yo lo construyo y yo le doy soporte. Sin intermediarios ni centros de llamadas." },
+  { titulo: "A la medida de cómo trabaja", texto: "Parto de cómo opera su negocio hoy, no de una plantilla. Sus reglas, sus formatos, su forma de cobrar." },
+  { titulo: "Reglas claras", texto: "Lo que se pacta por escrito es lo que se entrega. Si después quiere algo más, se lo cotizo antes y usted decide." },
+  { titulo: "Implementación y capacitación", texto: "Configuro el sistema con sus datos y capacito a su equipo hasta que lo usen sin ayuda." },
 ];
 
 export function PorQue() {
   return (
-    <section className="py-16 sm:py-24" aria-labelledby="porque-titulo">
+    <section className="py-16 sm:py-24 bg-fondo border-y border-linea" aria-labelledby="porque-titulo">
       <div className="contenedor grid lg:grid-cols-[1fr_1.3fr] gap-10 lg:gap-16">
         <div className="aparece">
           <p className="etiqueta">Por qué trabajar conmigo</p>
           <h2 id="porque-titulo" className="mt-3 text-[1.75rem] sm:text-[2.2rem]">
-            Un sistema hecho para su empresa, no al revés.
+            Un sistema hecho para su negocio, no al revés.
           </h2>
         </div>
         <ul className="divide-y divide-linea">
@@ -206,6 +169,9 @@ export function Llamado() {
           <a href={WA_DIAGNOSTICO} target="_blank" rel="noopener noreferrer" className="btn btn-principal !text-[1.05rem] !min-h-[54px]">
             <IconoWhatsApp /> Agendar diagnóstico gratis
           </a>
+          <a href={laTienda("planes")} className="btn !min-h-[50px] bg-white text-marino hover:bg-white/90">
+            Ver precios y planes
+          </a>
           <p className="text-sm text-white/80 text-center lg:text-left">
             WhatsApp {WHATSAPP_DISPLAY} ·{" "}
             <a href={`mailto:${EMAIL}?subject=${encodeURIComponent("Diagnóstico para mi empresa")}`} className="underline underline-offset-2 hover:text-white">
@@ -225,7 +191,7 @@ export function Pie() {
         <Logo claro />
         <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2" aria-label="Pie de página">
           <a href={laTienda()} className="hover:text-white">
-            Soluciones y planes
+            Precios y planes
           </a>
           <a href={laTienda("proyectos")} className="hover:text-white">
             Proyectos

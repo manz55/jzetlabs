@@ -8,7 +8,7 @@ export function whatsappLink(text: string) {
 }
 
 /** mensaje del botón principal: agendar el diagnóstico */
-export const WA_DIAGNOSTICO = whatsappLink("Hola, Joshua. Quiero agendar un diagnóstico gratis para mi empresa.");
+export const WA_DIAGNOSTICO = whatsappLink("Hola, Joshua. Quiero agendar un diagnóstico gratis para mi negocio.");
 
 export const LA_TIENDA = "https://latienda-jzetlabs.vercel.app/portafolio/";
 export const laTienda = (seccion?: string) => (seccion ? `${LA_TIENDA}#${seccion}` : LA_TIENDA);
