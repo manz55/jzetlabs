@@ -117,7 +117,7 @@ const ITEMS: BentoItem[] = [
   },
   {
     title: "¿Su rubro no está aquí?",
-    description: "Si hoy lo hace a mano, en Excel o por WhatsApp, se puede convertir en un sistema. Cuénteme cómo trabaja y lo armamos.",
+    description: "Si hoy lo hace a mano, en Excel o por WhatsApp, se puede convertir en un sistema. Cuénteme cómo trabaja y se lo armo.",
     icon: <Sparkles className={ic} />,
     status: "Diagnóstico gratis",
     statusTone: "verde",

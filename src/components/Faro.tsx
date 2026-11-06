@@ -1,11 +1,10 @@
 /*
  * El "faro" de la portada: Jzet Labs en el centro y los rubros alrededor.
- * Animado con anime.js: las líneas se dibujan, los rubros aparecen,
- * el centro late y unos puntos viajan del rubro al centro (datos que llegan solos).
+ * Animado con anime.js, solo al cargar: las líneas se dibujan y los rubros aparecen.
  * Si se pidió reducir movimiento, se muestra quieto.
  */
 import { useEffect, useRef } from "react";
-import { animate, createTimeline, stagger, svg } from "animejs";
+import { createTimeline, stagger, svg } from "animejs";
 import { BookOpen, Briefcase, Dumbbell, GraduationCap, Package, Stethoscope, Store, Ticket, type LucideIcon } from "lucide-react";
 
 const NODOS: { nombre: string; Icono: LucideIcon }[] = [
@@ -42,34 +41,8 @@ export function Faro() {
       .add(lineas, { draw: ["0 0", "0 1"], duration: 700, delay: stagger(70) }, "-=200")
       .add(nodos, { opacity: [0, 1], scale: [0.7, 1], duration: 500, delay: stagger(70) }, "-=800");
 
-    const latido = animate(el.querySelectorAll(".faro-onda"), {
-      scale: [1, 2.3],
-      opacity: [0.45, 0],
-      duration: 2600,
-      delay: stagger(1300),
-      loop: true,
-      ease: "outQuad",
-    });
-
-    // un punto viaja de un rubro al centro, cada vez desde otro rubro
-    const puntos = el.querySelectorAll<SVGCircleElement>(".faro-punto");
-    const viajes = Array.from(puntos).map((p, i) =>
-      animate(p, {
-        cx: [posiciones[(i * 3) % NODOS.length].x, C],
-        cy: [posiciones[(i * 3) % NODOS.length].y, C],
-        opacity: [{ to: 1, duration: 200 }, { to: 1, duration: 1000 }, { to: 0, duration: 200 }],
-        duration: 1400,
-        delay: 1600 + i * 900,
-        loopDelay: 2200,
-        loop: true,
-        ease: "inOutSine",
-      }),
-    );
-
     return () => {
       entrada.revert();
-      latido.revert();
-      viajes.forEach((v) => v.revert());
     };
   }, []);
 
@@ -81,16 +54,11 @@ export function Faro() {
         {posiciones.map((p, i) => (
           <line key={i} className="faro-linea" x1={C} y1={C} x2={p.x} y2={p.y} stroke="#0b2545" strokeOpacity=".18" strokeWidth="1.5" />
         ))}
-        {[0, 1, 2].map((i) => (
-          <circle key={i} className="faro-punto" cx={C} cy={C} r="5" fill="#1a7f4e" opacity="0" />
-        ))}
       </svg>
 
       {/* centro */}
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
        <div className="faro-centro relative">
-        <span className="faro-onda absolute inset-0 rounded-full bg-acento/30" />
-        <span className="faro-onda absolute inset-0 rounded-full bg-acento/30" />
         <div className="relative grid h-[88px] w-[88px] sm:h-[104px] sm:w-[104px] place-items-center rounded-full bg-marino text-white shadow-xl ring-8 ring-white">
           <div className="text-center leading-tight">
             <span className="block font-titulo text-[1.9rem] sm:text-[2.2rem] font-extrabold">J</span>

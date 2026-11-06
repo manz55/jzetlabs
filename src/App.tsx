@@ -3,6 +3,7 @@ import { Caso, Encabezado, Llamado, Pie, PorQue, Portada } from "@/components/Se
 import { Planes } from "@/components/Planes";
 import { Rubros } from "@/components/Rubros";
 import { Centro } from "@/components/Centro";
+import { Plataformas } from "@/components/Plataformas";
 import { Preguntas, Proceso } from "@/components/Proceso";
 import { activarAparecer } from "@/lib/aparecer";
 
@@ -18,6 +19,7 @@ export default function App() {
       <main>
         <Portada />
         <Centro />
+        <Plataformas />
         <Rubros />
         <Caso />
         <Planes />

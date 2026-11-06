@@ -34,7 +34,7 @@ const PREGUNTAS = [
   },
   {
     p: "¿Puedo cancelar?",
-    r: "Sí. Los planes mensuales se cancelan con un mes de aviso, y le entregamos toda su información en Excel.",
+    r: "Sí. Los planes mensuales se cancelan con un mes de aviso, y le entrego toda su información en Excel.",
   },
 ];
 
@@ -82,7 +82,7 @@ export function Proceso() {
     <section id="proceso" className="py-16 sm:py-24 border-t border-linea" aria-labelledby="proceso-titulo">
       <div className="contenedor">
         <div className="max-w-2xl aparece">
-          <p className="etiqueta">Cómo trabajamos</p>
+          <p className="etiqueta">Cómo trabajo</p>
           <h2 id="proceso-titulo" className="mt-3 text-[1.75rem] sm:text-[2.2rem]">
             De la primera plática a su sistema funcionando.
           </h2>
@@ -121,7 +121,7 @@ export function Preguntas() {
         <div className="aparece">
           <p className="etiqueta">Preguntas frecuentes</p>
           <h2 id="preguntas-titulo" className="mt-3 text-[1.75rem] sm:text-[2.2rem]">
-            Lo que más nos preguntan.
+            Lo que más me preguntan.
           </h2>
           <p className="mt-3 text-suave">¿Tiene otra duda? Escríbame por WhatsApp y se la respondo.</p>
         </div>

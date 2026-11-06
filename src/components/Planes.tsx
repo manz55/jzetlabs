@@ -84,7 +84,7 @@ export function Planes() {
         </div>
 
         <p className="mt-8 text-suave aparece">
-          {NOTA_USUARIOS} Todos los planes se facturan (FEL). Si paga Control o Integral por año, le regalamos 2 meses.{" "}
+          {NOTA_USUARIOS} Todos los planes se facturan (FEL). Si paga Control o Integral por año, le regalo 2 meses.{" "}
           <a href={laTienda("planes")} className="font-semibold text-marino underline underline-offset-4 hover:text-acento">
             Ver la comparación completa
           </a>
