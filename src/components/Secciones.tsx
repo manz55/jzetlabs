@@ -6,7 +6,7 @@
  */
 import efamicMarcaje from "@/assets/portfolio/efamic-mob.jpg";
 import efamicPanel from "@/assets/sistema/panel-hoy.jpg";
-import { EMAIL, WHATSAPP_DISPLAY, WA_DIAGNOSTICO, laTienda } from "@/data/site";
+import { EMAIL, WHATSAPP_DISPLAY, WA_DIAGNOSTICO, WA_HOLA, laTienda } from "@/data/site";
 import { Logo } from "./Logo";
 import { Faro } from "./Faro";
 import { RubroRotando } from "./RubroRotando";
@@ -25,15 +25,17 @@ export function Encabezado() {
       <div className="contenedor flex items-center justify-between gap-4 h-16">
         <Logo />
         <nav className="flex items-center gap-2 sm:gap-5" aria-label="Principal">
+          <a href="/#trabajos" className="hidden md:inline text-[0.95rem] font-medium text-suave hover:text-marino">
+            Trabajos
+          </a>
           <a href="/web" className="hidden sm:inline text-[0.95rem] font-medium text-suave hover:text-marino">
             Páginas web
           </a>
           <a href={laTienda()} className="hidden sm:inline text-[0.95rem] font-medium text-suave hover:text-marino">
             Precios y planes
           </a>
-          <a href={WA_DIAGNOSTICO} target="_blank" rel="noopener noreferrer" className="btn btn-principal !min-h-[40px] !px-4 !py-2 !text-[0.92rem]">
-            <span className="sm:hidden">Diagnóstico gratis</span>
-            <span className="hidden sm:inline">Agendar diagnóstico gratis</span>
+          <a href={WA_HOLA} target="_blank" rel="noopener noreferrer" className="btn btn-principal !min-h-[40px] !px-4 !py-2 !text-[0.92rem]">
+            <IconoWhatsApp /> Escríbame
           </a>
         </nav>
       </div>
@@ -162,18 +164,18 @@ export function Llamado() {
       <div className="contenedor py-16 sm:py-20 grid lg:grid-cols-[1.4fr_1fr] gap-8 items-center">
         <div className="aparece">
           <h2 id="llamado-titulo" className="text-white text-[1.75rem] sm:text-[2.3rem]">
-            ¿Qué problema le resolvemos primero?
+            ¿Qué hacemos para su negocio?
           </h2>
           <p className="mt-4 text-white/85 max-w-xl">
-            Agende un diagnóstico gratis. Revisamos cómo trabaja su empresa y le propongo opciones con tiempos y costos claros.
+            Escríbame y platicamos sin costo. Le propongo opciones con tiempos y precios claros, y usted decide.
           </p>
         </div>
         <div className="flex flex-col gap-3 aparece">
-          <a href={WA_DIAGNOSTICO} target="_blank" rel="noopener noreferrer" className="btn btn-principal !text-[1.05rem] !min-h-[54px]">
-            <IconoWhatsApp /> Agendar diagnóstico gratis
+          <a href={WA_HOLA} target="_blank" rel="noopener noreferrer" className="btn btn-principal !text-[1.05rem] !min-h-[54px]">
+            <IconoWhatsApp /> Escribirme por WhatsApp
           </a>
-          <a href={laTienda("planes")} className="btn !min-h-[50px] bg-white text-marino hover:bg-white/90">
-            Ver precios y planes
+          <a href={laTienda()} className="btn !min-h-[50px] bg-white text-marino hover:bg-white/90">
+            Ver precios completos
           </a>
           <p className="text-sm text-white/80 text-center lg:text-left">
             WhatsApp {WHATSAPP_DISPLAY} ·{" "}

@@ -14,7 +14,7 @@ const ITEMS: BentoItem[] = [
     title: "Páginas web",
     description: "Landing, sitio web o tienda en línea: rápidas, que se ven bien en el celular y llevan directo a su WhatsApp.",
     icon: <Globe className={ic} />,
-    status: "Desde Q700",
+    status: "Desde Q1,000",
     statusTone: "verde",
     tags: ["Landing", "Sitio web", "Tienda en línea"],
     cta: "Ver paquetes y ejemplos",

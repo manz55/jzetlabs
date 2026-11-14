@@ -1,12 +1,13 @@
 import { useEffect } from "react";
-import { Caso, Encabezado, Llamado, Pie, PorQue, Portada } from "@/components/Secciones";
+import { Encabezado, Llamado, Pie } from "@/components/Secciones";
+import { ComoTrabajo, PortadaVitrina, Trabajos } from "@/components/Vitrina";
 import { QueHago } from "@/components/QueHago";
 import { Rubros } from "@/components/Rubros";
 import { activarAparecer } from "@/lib/aparecer";
 
 /*
- * Landing = quién soy y qué hago. Los precios completos viven en La tienda.
- * Portada → Qué hago → Véalo funcionando → EFAMIC → Por qué conmigo → Llamado.
+ * Home = vitrina: quién soy, trabajos reales y qué hago. Precios completos en La tienda.
+ * Portada → Trabajos reales → Qué hago → Véalo funcionando → Cómo trabajo → Llamado.
  */
 export default function App() {
   useEffect(() => activarAparecer(), []);
@@ -18,11 +19,11 @@ export default function App() {
       </a>
       <Encabezado />
       <main>
-        <Portada />
+        <PortadaVitrina />
+        <Trabajos />
         <QueHago />
         <Rubros />
-        <Caso />
-        <PorQue />
+        <ComoTrabajo />
         <Llamado />
       </main>
       <Pie />

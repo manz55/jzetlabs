@@ -7,6 +7,9 @@ export function whatsappLink(text: string) {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
 }
 
+/** mensaje general de la Home */
+export const WA_HOLA = whatsappLink("Hola, Joshua. Vi su página y quiero platicar sobre mi negocio.");
+
 /** mensaje del botón principal: agendar el diagnóstico */
 export const WA_DIAGNOSTICO = whatsappLink("Hola, Joshua. Quiero agendar un diagnóstico gratis para mi negocio.");
 
