@@ -18,6 +18,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         web: resolve(__dirname, 'web/index.html'),
+        demoTienda: resolve(__dirname, 'demos/tienda/index.html'),
       },
     },
   },

@@ -59,6 +59,6 @@ export const PAQUETES = [
  */
 export const DEMOS = [
   { categoria: "Clínica Dental / Estética", titulo: "Citas y servicios claros", url: "", estilo: "clinica" },
-  { categoria: "Tienda en Línea", titulo: "Catálogo con pedidos por WhatsApp", url: "", estilo: "tienda" },
+  { categoria: "Tienda en Línea", titulo: "Catálogo con pedidos por WhatsApp", url: "/demos/tienda/?tipo=ropa", estilo: "tienda" },
   { categoria: "Servicios Profesionales", titulo: "Presencia formal y contacto directo", url: "", estilo: "servicios" },
 ] as const;

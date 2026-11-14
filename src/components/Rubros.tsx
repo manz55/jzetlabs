@@ -27,6 +27,7 @@ type Variante = {
   hoy: string[];
   sistema: string[];
   visual: "foto" | "planes";
+  demo: { texto: string; tipo: string };
 };
 
 const VARIANTES_TIENDA: Variante[] = [
@@ -38,6 +39,7 @@ const VARIANTES_TIENDA: Variante[] = [
     hoy: ["Fotos en Instagram y el precio “por inbox”.", "Apartados y pagos anotados en el chat, y ahí se pierden."],
     sistema: ["Catálogo con tallas, colores y precios a la vista.", "El cliente arma su pedido y le llega por WhatsApp.", "Ve qué prenda se vende más y qué talla se le acabó."],
     visual: "foto",
+    demo: { texto: "Pruebe la demo de tienda de ropa", tipo: "ropa" },
   },
   {
     id: "comida",
@@ -47,6 +49,7 @@ const VARIANTES_TIENDA: Variante[] = [
     hoy: ["El menú es una foto vieja y los precios ya cambiaron.", "Los pedidos se toman a mano entre mensajes y llamadas."],
     sistema: ["Menú en línea con fotos y precios al día.", "El pedido le llega completo, con dirección y forma de pago.", "Sabe qué platillo se vende más cada semana."],
     visual: "foto",
+    demo: { texto: "Pruebe la demo del restaurante", tipo: "restaurante" },
   },
   {
     id: "tiempos",
@@ -56,6 +59,7 @@ const VARIANTES_TIENDA: Variante[] = [
     hoy: ["Los planes y precios se mandan en PDFs y audios.", "Las semanas apartadas viven en un Excel que nadie actualiza."],
     sistema: ["Planes claros, con lo que incluye cada uno.", "Las semanas disponibles y apartadas, a la vista.", "Recordatorios de pago para cada socio."],
     visual: "planes",
+    demo: { texto: "Pruebe la demo de tiempo compartido", tipo: "tiempo" },
   },
 ];
 
@@ -337,18 +341,22 @@ export function Rubros() {
               </div>
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
-              {r.demo && v?.visual !== "planes" ? (
+              {v ? (
+                <a href={`/demos/tienda/?tipo=${v.demo.tipo}`} target="_blank" rel="noopener" className="btn btn-principal">
+                  {v.demo.texto}
+                </a>
+              ) : r.demo ? (
                 <a href={r.demo.href} target="_blank" rel="noopener noreferrer" className="btn btn-principal">
                   {r.demo.texto}
                 </a>
               ) : (
                 <a
-                  href={whatsappLink(`Hola, Joshua. Me interesa el sistema para ${(v?.nombre ?? r.nombre).toLowerCase()}.`)}
+                  href={whatsappLink(`Hola, Joshua. Me interesa el sistema para ${r.nombre.toLowerCase()}.`)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-principal"
                 >
-                  {v ? "Pregunte por su negocio" : "Pregunte por su evento"}
+                  Pregunte por su evento
                 </a>
               )}
             </div>
@@ -362,7 +370,7 @@ export function Rubros() {
           ) : v ? (
             <figure className="justify-self-center">
               <img src={v.foto} alt={`Ejemplo de tienda de ${v.nombre.toLowerCase()}`} className="w-[230px] sm:w-[270px] aspect-[4/5] object-cover rounded-[1.4rem] shadow-lg" loading="lazy" />
-              <figcaption className="mt-3 max-w-[270px] text-center text-xs text-suave">Foto de ejemplo. La demo de la tienda usa datos de prueba.</figcaption>
+              <figcaption className="mt-3 max-w-[270px] text-center text-xs text-suave">Foto de ejemplo. La demo usa datos de prueba.</figcaption>
             </figure>
           ) : (
           <figure className="justify-self-center">

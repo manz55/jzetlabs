@@ -1,6 +1,20 @@
 {
   "rewrites": [
-    { "source": "/web", "destination": "/web/index.html" },
-    { "source": "/web/", "destination": "/web/index.html" }
+    {
+      "source": "/web",
+      "destination": "/web/index.html"
+    },
+    {
+      "source": "/web/",
+      "destination": "/web/index.html"
+    },
+    {
+      "source": "/demos/tienda",
+      "destination": "/demos/tienda/index.html"
+    },
+    {
+      "source": "/demos/tienda/",
+      "destination": "/demos/tienda/index.html"
+    }
   ]
 }
