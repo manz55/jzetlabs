@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Encabezado, Llamado, Pie } from "@/components/Secciones";
 import { ComoTrabajo, Trabajos } from "@/components/Vitrina";
 import { PortadaFotos } from "@/components/PortadaFotos";
+import { ChatWhatsApp } from "@/components/ChatWhatsApp";
 import { QueHago } from "@/components/QueHago";
 import { Rubros } from "@/components/Rubros";
 import { activarAparecer } from "@/lib/aparecer";
@@ -30,6 +31,7 @@ export default function App() {
         <Llamado />
       </main>
       <Pie />
+      <ChatWhatsApp />
     </>
   );
 }

@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import { cambiarTema, useTema } from "@/lib/tema";
 import { topesDeSecciones } from "@/lib/hojas";
+import { abrirChat } from "./ChatWhatsApp";
 import { Logo } from "./Logo";
 import { Titulo } from "./Titulo";
 import { Faro } from "./Faro";
@@ -97,7 +98,8 @@ export function Encabezado() {
           href={WA_HOLA}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2.5 rounded-full bg-noche oscuro:bg-white/[0.07] oscuro:ring-1 oscuro:ring-white/10 text-white pl-4 pr-1.5 py-1.5 text-[0.93rem] font-semibold hover:bg-marino transition-colors"
+          onClick={(e) => { e.preventDefault(); abrirChat(); }}
+          className="inline-flex items-center gap-2.5 rounded-full active:scale-95 transition bg-noche oscuro:bg-white/[0.07] oscuro:ring-1 oscuro:ring-white/10 text-white pl-4 pr-1.5 py-1.5 text-[0.93rem] font-semibold hover:bg-marino transition-colors"
         >
           Escríbame
           <span className="grid place-items-center w-8 h-8 rounded-full bg-acento">
@@ -235,7 +237,7 @@ export function Llamado() {
             Escríbame con confianza. Me cuenta qué necesita y le propongo opciones con tiempos y precios claros. Yo quedo a la orden.
           </p>
           <div className="flex flex-col sm:flex-row lg:justify-end gap-3 [&>a]:whitespace-nowrap">
-            <a href={WA_HOLA} target="_blank" rel="noopener noreferrer" className="btn btn-principal !text-[1.05rem] !min-h-[56px] !rounded-full !px-6">
+            <a href={WA_HOLA} target="_blank" rel="noopener noreferrer" onClick={(e) => { e.preventDefault(); abrirChat(); }} className="btn btn-principal !text-[1.05rem] !min-h-[56px] !rounded-full !px-6">
               <IconoWhatsApp /> Escribirme por WhatsApp
             </a>
             <a href={laTienda()} className="btn !min-h-[56px] !rounded-full !px-6 bg-white text-marino hover:bg-white/90">

@@ -18,6 +18,7 @@ import maestrosMob from "@/assets/portfolio/maestros-mob-grupos.jpg";
 import { WA_HOLA } from "@/data/site";
 import { useTema } from "@/lib/tema";
 import InkRidges from "./ui/ink-ridges";
+import { abrirChat } from "./ChatWhatsApp";
 import { IconoWhatsApp } from "./Secciones";
 
 const FOTOS = [
@@ -250,7 +251,7 @@ export function PortadaFotos() {
             <span className="text-sm font-semibold text-acento">Pago único</span>
           </div>
           <div className="pieza mt-7 flex flex-col sm:flex-row gap-3 w-full sm:w-auto [&>a]:whitespace-nowrap">
-            <a href={WA_HOLA} target="_blank" rel="noopener noreferrer" className="btn btn-principal">
+            <a href={WA_HOLA} target="_blank" rel="noopener noreferrer" onClick={(e) => { e.preventDefault(); abrirChat(); }} className="btn btn-principal">
               <IconoWhatsApp /> Escribirme por WhatsApp
             </a>
             <a href="#trabajos" className="btn btn-secundario">
