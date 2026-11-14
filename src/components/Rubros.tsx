@@ -125,7 +125,7 @@ export function Rubros() {
   }
 
   return (
-    <section id="rubros" className="py-20 sm:py-28 bg-white" aria-labelledby="rubros-titulo">
+    <section id="rubros" className="py-20 sm:py-28 bg-blanco" aria-labelledby="rubros-titulo">
       <div className="contenedor">
         <div className="max-w-3xl aparece">
           <Titulo id="rubros-titulo" antes="Véalo" acento="funcionando" />
@@ -151,7 +151,7 @@ export function Rubros() {
               tabIndex={i === activo ? 0 : -1}
               onClick={() => setActivo(i)}
               className={`shrink-0 rounded-full border px-4 py-2 text-[0.95rem] font-semibold transition-colors ${
-                i === activo ? "border-marino bg-marino text-white" : "border-linea bg-white text-suave hover:border-marino hover:text-marino"
+                i === activo ? "border-marino bg-marino text-white" : "border-linea bg-blanco text-suave hover:border-marino hover:text-marino oscuro:hover:border-tinta oscuro:hover:text-tinta"
               }`}
             >
               {x.nombre}

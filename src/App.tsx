@@ -5,6 +5,7 @@ import { PortadaFotos } from "@/components/PortadaFotos";
 import { QueHago } from "@/components/QueHago";
 import { Rubros } from "@/components/Rubros";
 import { activarAparecer } from "@/lib/aparecer";
+import { activarHojas } from "@/lib/hojas";
 
 /*
  * Home = vitrina: quién soy, trabajos reales y qué hago. Precios completos en La tienda.
@@ -12,6 +13,7 @@ import { activarAparecer } from "@/lib/aparecer";
  */
 export default function App() {
   useEffect(() => activarAparecer(), []);
+  useEffect(() => activarHojas(), []);
 
   return (
     <>

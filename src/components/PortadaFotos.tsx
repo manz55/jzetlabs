@@ -16,6 +16,8 @@ import gomiDesk from "@/assets/portfolio/gomideli-desk.jpg";
 import efamicMob from "@/assets/portfolio/efamic-mob.jpg";
 import maestrosMob from "@/assets/portfolio/maestros-mob-grupos.jpg";
 import { WA_HOLA } from "@/data/site";
+import { useTema } from "@/lib/tema";
+import InkRidges from "./ui/ink-ridges";
 import { IconoWhatsApp } from "./Secciones";
 
 const FOTOS = [
@@ -56,9 +58,21 @@ export function PortadaFotos() {
   const textoCapa = useRef<HTMLDivElement>(null);
   const saltar = useRef<() => void>(() => {});
 
+  const tema = useTema();
+  const [vecesTema, setVecesTema] = useState(0);
+  const temaAntes = useRef(tema);
   const [mover, setMover] = useState(false);
+  // en celular: sol más chico y arriba, sin pájaros (pasarían sobre el texto)
+  const [cel] = useState(() => typeof window !== "undefined" && matchMedia("(max-width: 640px)").matches);
   const [intro, setIntro] = useState(false);
   const [i, setI] = useState(0);
+
+  // al cambiar de modo, las montañas se vuelven a pintar
+  useEffect(() => {
+    if (temaAntes.current === tema) return;
+    temaAntes.current = tema;
+    setVecesTema((n) => n + 1);
+  }, [tema]);
 
   // decidir antes de pintar: con movimiento, y la entrada solo la primera vez
   useLayoutEffect(() => {
@@ -179,12 +193,33 @@ export function PortadaFotos() {
   }, [mover, intro]);
 
   return (
-    <section id="inicio" ref={escena} className={`portada-papel border-b border-linea ${mover ? "h-[220svh]" : ""}`}>
+    <section id="inicio" ref={escena} className={`portada-papel ${mover ? "h-[220svh]" : ""}`}>
       <div ref={pegado} className={`${mover ? "sticky top-0 h-[100svh] overflow-hidden" : ""} relative`}>
+        {/* fondo: montañas de tinta (se repintan al cambiar de modo; con luna en oscuro) */}
+        <InkRidges
+          className="!absolute inset-0 bg-papel text-marino oscuro:text-[#c9d7ea]"
+          layers={4}
+          seed={11}
+          horizon={0.36}
+          mist={0.65}
+          drift={0.04}
+          parallax={0.02}
+          paintIn={2600}
+          sunPosition={cel ? [0.86, 0.9] : [0.84, 0.82]}
+          sunSize={cel ? 0.032 : 0.055}
+          sunColor="#b5402a"
+          scrollDepth={0}
+          clouds={0.3}
+          glow={0.4}
+          birds={cel ? 0 : 5}
+          birdsEvery={16}
+          grain={0.25}
+          repintar={vecesTema}
+        />
         {/* contenido final */}
         <div
           ref={contenido}
-          className={`contenedor flex flex-col items-center justify-center text-center pt-24 pb-14 ${mover ? "h-full" : "min-h-[85svh]"} ${intro ? "[&_.pieza]:opacity-0" : ""}`}
+          className={`relative z-[1] contenedor flex flex-col items-center justify-center text-center pt-24 pb-14 ${mover ? "h-full" : "min-h-[85svh]"} ${intro ? "[&_.pieza]:opacity-0" : ""}`}
         >
           <p className="pieza etiqueta">Páginas web y sistemas · Guatemala</p>
           <h1 className="pieza mt-4 max-w-5xl text-[2.25rem] sm:text-[3.3rem] lg:text-[4.1rem] leading-[1.1]">
@@ -203,7 +238,7 @@ export function PortadaFotos() {
           <p className="pieza mt-6 max-w-2xl text-[1.05rem] sm:text-[1.15rem] text-texto">
             Ya lo hice para un plomero, una tienda, una empresa y una iglesia, y con gusto lo hago para su negocio. Usted trata directo conmigo.
           </p>
-          <div className="pieza mt-6 flex flex-wrap items-baseline justify-center gap-x-5 gap-y-1 text-marino">
+          <div className="pieza mt-6 flex flex-wrap items-baseline justify-center gap-x-5 gap-y-1 rounded-2xl sm:rounded-full bg-papel/80 backdrop-blur-sm px-5 py-1.5 text-marino oscuro:text-tinta">
             <span>
               <span className="text-suave text-[0.9rem]">Páginas desde </span>
               <b className="font-[family-name:var(--font-titulo)] text-[1.35rem]">Q1,000</b>
@@ -227,17 +262,26 @@ export function PortadaFotos() {
         {/* 3: foto que crece al bajar */}
         <div
           ref={capa}
-          className={mover ? "absolute inset-0 z-10" : "relative h-[75svh]"}
+          className={`bg-marino ${mover ? "absolute inset-0 z-10" : "relative h-[75svh]"}`}
           style={mover ? { opacity: 0, pointerEvents: "none" } : undefined}
         >
-          <img src={fotoGrande} alt="Joshua Zet sentado frente a las montañas de Guatemala" className="absolute inset-0 w-full h-full object-cover object-[50%_28%]" loading="eager" />
-          <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(8,26,49,.82),rgba(8,26,49,.15)_55%,transparent)]" />
-          <div ref={textoCapa} className="absolute inset-x-0 bottom-0 contenedor pb-12 sm:pb-16" style={mover ? { opacity: 0 } : undefined}>
-            <p className="nota-mano text-[#9fe0bf] text-[2.1rem] sm:text-[2.6rem]">Hola, soy Joshua.</p>
-            <p className="mt-2 max-w-xl text-white text-[1.15rem] sm:text-[1.35rem] leading-snug">
+          <img
+            src={fotoGrande}
+            alt="Joshua Zet sentado frente a las montañas de Guatemala"
+            className="absolute inset-y-0 right-0 w-full lg:w-1/2 h-full object-cover object-[50%_28%] lg:object-[50%_40%]"
+            loading="eager"
+          />
+          <div className="absolute inset-0 lg:hidden bg-[linear-gradient(to_top,rgba(8,26,49,.82),rgba(8,26,49,.15)_55%,transparent)]" />
+          <div
+            ref={textoCapa}
+            className="absolute inset-x-0 bottom-0 contenedor pb-12 sm:pb-16 lg:inset-y-0 lg:right-auto lg:w-1/2 lg:max-w-none lg:flex lg:flex-col lg:justify-center lg:pl-[max(4rem,calc((100vw-72rem)/2+2rem))] lg:pr-14 lg:pb-0"
+            style={mover ? { opacity: 0 } : undefined}
+          >
+            <p className="nota-mano text-[#9fe0bf] text-[2.1rem] sm:text-[2.6rem] lg:text-[3.4rem]">Hola, soy Joshua.</p>
+            <p className="mt-2 max-w-xl text-white text-[1.15rem] sm:text-[1.35rem] lg:text-[1.7rem] leading-snug">
               Trabajo solo, de principio a fin. Usted me cuenta, yo lo construyo y yo le enseño cómo funciona.
             </p>
-            <a href="#trabajos" className="mt-6 btn bg-white text-marino hover:bg-white/90">
+            <a href="#trabajos" className="mt-6 self-start btn !rounded-full bg-white text-marino hover:bg-white/90">
               Ver mis trabajos
             </a>
           </div>

@@ -8,6 +8,9 @@ import efamicMarcaje from "@/assets/portfolio/efamic-mob.jpg";
 import efamicPanel from "@/assets/sistema/panel-hoy.jpg";
 import { EMAIL, WHATSAPP_DISPLAY, WA_DIAGNOSTICO, WA_HOLA, laTienda } from "@/data/site";
 import { useEffect, useState } from "react";
+import { Moon, Sun } from "lucide-react";
+import { cambiarTema, useTema } from "@/lib/tema";
+import { topesDeSecciones } from "@/lib/hojas";
 import { Logo } from "./Logo";
 import { Titulo } from "./Titulo";
 import { Faro } from "./Faro";
@@ -28,33 +31,55 @@ const MENU = [
   { href: "/web", id: "", texto: "Páginas web" },
 ];
 
+/* sol / luna: cambia toda la Home a claro u oscuro y las montañas se repintan */
+function BotonTema() {
+  const tema = useTema();
+  const oscuro = tema === "oscuro";
+  return (
+    <button
+      type="button"
+      onClick={() => cambiarTema(oscuro ? "claro" : "oscuro")}
+      aria-label={oscuro ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+      title={oscuro ? "Modo claro" : "Modo oscuro"}
+      className="grid place-items-center w-11 h-11 rounded-full border border-tinta/15 text-tinta hover:bg-tinta/5 transition-colors"
+    >
+      {oscuro ? <Sun size={19} /> : <Moon size={19} />}
+    </button>
+  );
+}
+
 export function Encabezado() {
   const [activo, setActivo] = useState("");
 
-  // marcar en el menú la sección que se está viendo
+  // marcar en el menú la sección que se está viendo (las secciones están pegadas: se usa su lugar original)
   useEffect(() => {
-    const secciones = MENU.map((m) => (m.id ? document.getElementById(m.id) : null)).filter(Boolean) as HTMLElement[];
-    if (!("IntersectionObserver" in window) || !secciones.length) return;
-    const io = new IntersectionObserver(
-      (entradas) => {
-        for (const e of entradas) if (e.isIntersecting) setActivo(e.target.id);
-      },
-      { rootMargin: "-45% 0px -50% 0px" },
-    );
-    secciones.forEach((n) => io.observe(n));
-    const arriba = () => scrollY < innerHeight * 0.5 && setActivo("");
-    addEventListener("scroll", arriba, { passive: true });
+    let cuadro = 0;
+    const revisar = () => {
+      cuadro = 0;
+      const topes = topesDeSecciones();
+      const linea = window.scrollY + window.innerHeight * 0.45;
+      let actual = "";
+      for (const [id, y] of topes) if (y <= linea) actual = id;
+      setActivo(MENU.some((m) => m.id === actual) ? actual : "");
+    };
+    const pedir = () => {
+      if (!cuadro) cuadro = requestAnimationFrame(revisar);
+    };
+    revisar();
+    addEventListener("scroll", pedir, { passive: true });
+    addEventListener("resize", pedir);
     return () => {
-      io.disconnect();
-      removeEventListener("scroll", arriba);
+      removeEventListener("scroll", pedir);
+      removeEventListener("resize", pedir);
+      cancelAnimationFrame(cuadro);
     };
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 bg-[#fbf9f5]/85 backdrop-blur">
+    <header className="sticky top-0 z-40 bg-crema/85 backdrop-blur">
       <div className="contenedor flex items-center justify-between gap-4 h-16 sm:h-[72px]">
         <Logo />
-        <nav className="hidden lg:flex items-center gap-0.5 rounded-full bg-tinta p-1.5" aria-label="Principal">
+        <nav className="hidden lg:flex items-center gap-0.5 rounded-full bg-noche oscuro:bg-white/[0.07] oscuro:ring-1 oscuro:ring-white/10 p-1.5" aria-label="Principal">
           {MENU.map((m) => (
             <a
               key={m.texto}
@@ -66,17 +91,20 @@ export function Encabezado() {
             </a>
           ))}
         </nav>
+        <div className="flex items-center gap-2">
+        <BotonTema />
         <a
           href={WA_HOLA}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2.5 rounded-full bg-tinta text-white pl-4 pr-1.5 py-1.5 text-[0.93rem] font-semibold hover:bg-marino transition-colors"
+          className="inline-flex items-center gap-2.5 rounded-full bg-noche oscuro:bg-white/[0.07] oscuro:ring-1 oscuro:ring-white/10 text-white pl-4 pr-1.5 py-1.5 text-[0.93rem] font-semibold hover:bg-marino transition-colors"
         >
           Escríbame
           <span className="grid place-items-center w-8 h-8 rounded-full bg-acento">
             <IconoWhatsApp />
           </span>
         </a>
+        </div>
       </div>
     </header>
   );

@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* modo oscuro de la Home: clase .oscuro en <html> (solo la Home la pone) */
+@custom-variant oscuro (&:where(.oscuro, .oscuro *));
+
 /*
  * Jzet Labs — landing formal para empresas.
  * Un color principal (azul marino) y un solo acento (verde, para la acción).
@@ -17,10 +20,26 @@
   --color-fondo: #f5f7fa;
 
   --color-papel: #f7f4ee;
+  --color-blanco: #ffffff;
+  --color-crema: #fbf9f5;
+  --color-noche: #111827;
 
   --font-sans: "Instrument Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-titulo: "Bricolage Grotesque", "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mano: "Caveat", cursive;
+}
+
+/* modo oscuro: los neutros se invierten; marino, verde y "noche" se quedan */
+.oscuro {
+  --color-tinta: #eef2f7;
+  --color-texto: #cdd5df;
+  --color-suave: #9ba8b7;
+  --color-linea: #253244;
+  --color-fondo: #111a26;
+  --color-papel: #0d141d;
+  --color-blanco: #0f1722;
+  --color-crema: #0b1119;
+  color-scheme: dark;
 }
 
 @layer base {
@@ -30,7 +49,7 @@
     -webkit-tap-highlight-color: transparent;
   }
   body {
-    background: #fff;
+    background: var(--color-blanco);
     color: var(--color-texto);
     font-family: var(--font-sans);
     font-size: 17px;
@@ -64,17 +83,13 @@
   .btn-principal:hover { background: var(--color-acento-2); }
   .btn-secundario { background: #fff; color: var(--color-marino); border: 1px solid #cbd5e1; }
   .btn-secundario:hover { border-color: var(--color-marino); }
+  .oscuro .btn-secundario { background: transparent; color: var(--color-tinta); border-color: #3a4a5f; }
+  .oscuro .btn-secundario:hover { border-color: var(--color-tinta); }
 
   .etiqueta { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-acento); }
 
-  /* portada: papel con cuadrícula muy tenue */
-  .portada-papel {
-    background-color: var(--color-papel);
-    background-image:
-      linear-gradient(rgba(11,37,69,.045) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(11,37,69,.045) 1px, transparent 1px);
-    background-size: 28px 28px;
-  }
+  /* papel liso (antes llevaba cuadrícula) */
+  .portada-papel { background-color: var(--color-papel); }
   .nota-mano { font-family: var(--font-mano); font-size: 1.45rem; line-height: 1.05; font-weight: 600; }
   .trazo path { stroke-dasharray: 210; stroke-dashoffset: 210; animation: trazar .9s .5s ease-out forwards; }
   @keyframes trazar { to { stroke-dashoffset: 0; } }
@@ -82,6 +97,14 @@
   /* cambio suave al tocar otra pestaña de rubro */
   .panel-rubro { animation: entrar-panel 0.35s ease; }
   @keyframes entrar-panel { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* hojas: cada sección sube sobre la anterior (ver lib/hojas.ts) */
+  .hoja {
+    position: sticky;
+    border-radius: 2rem 2rem 0 0;
+    box-shadow: 0 -22px 50px -28px rgba(11, 37, 69, 0.35);
+  }
+  @media (min-width: 1024px) { .hoja { border-radius: 2.75rem 2.75rem 0 0; } }
 
   /* aparecer suave al bajar (solo si hay JS y no se pidió reducir movimiento) */
   .js .aparece { opacity: 0; transform: translateY(14px); transition: opacity 0.6s ease, transform 0.6s ease; }

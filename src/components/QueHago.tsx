@@ -76,7 +76,7 @@ export function QueHago() {
   const filas = ITEMS.slice(0, -1);
   const ultimo = ITEMS[ITEMS.length - 1];
   return (
-    <section id="que-hago" className="py-20 sm:py-28 bg-[#fbf9f5] scroll-mt-16" aria-labelledby="quehago-titulo">
+    <section id="que-hago" className="py-20 sm:py-28 bg-crema scroll-mt-16" aria-labelledby="quehago-titulo">
       <div className="contenedor">
         <div className="grid lg:grid-cols-[1.4fr_1fr] gap-6 lg:items-end aparece">
           <Titulo id="quehago-titulo" antes="Lo que" acento="hago" cuenta={filas.length} />
@@ -93,7 +93,7 @@ export function QueHago() {
                 <a
                   href={it.href}
                   {...(externo ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                  className="group grid grid-cols-[auto_1fr_auto] items-center gap-4 sm:gap-8 py-6 sm:py-8 hover:bg-white/70 transition-colors -mx-3 px-3 rounded-xl"
+                  className="group grid grid-cols-[auto_1fr_auto] items-center gap-4 sm:gap-8 py-6 sm:py-8 hover:bg-blanco/70 transition-colors -mx-3 px-3 rounded-xl"
                 >
                   <span className="self-start pt-2 text-sm text-suave tabular-nums">{String(i + 1).padStart(2, "0")}</span>
                   <span>
@@ -105,7 +105,7 @@ export function QueHago() {
                   </span>
                   <span className="flex items-center gap-5">
                     <span className="hidden sm:block text-right text-[0.95rem] font-semibold text-acento whitespace-nowrap">{it.status}</span>
-                    <span className="grid place-items-center w-11 h-11 sm:w-12 sm:h-12 rounded-full border border-tinta/20 text-tinta group-hover:bg-tinta group-hover:text-white transition-colors">
+                    <span className="grid place-items-center w-11 h-11 sm:w-12 sm:h-12 rounded-full border border-tinta/20 text-tinta group-hover:bg-acento group-hover:border-acento group-hover:text-white transition-colors">
                       <ArrowUpRight size={20} className="transition-transform group-hover:rotate-45" />
                     </span>
                   </span>

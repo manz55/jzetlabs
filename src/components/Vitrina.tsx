@@ -21,7 +21,7 @@ import maestrosMob from "@/assets/portfolio/maestros-mob-grupos.jpg";
 
 function Celular({ src, alt, className = "" }: { src: string; alt: string; className?: string }) {
   return (
-    <div className={`rounded-[1.1rem] border-[4px] border-tinta bg-tinta overflow-hidden shadow-[0_20px_40px_-16px_rgba(11,37,69,.6)] ${className}`}>
+    <div className={`rounded-[1.1rem] border-[4px] border-noche bg-noche overflow-hidden shadow-[0_20px_40px_-16px_rgba(11,37,69,.6)] ${className}`}>
       <img src={src} alt={alt} className="block w-full aspect-[9/19] object-cover object-top rounded-[0.8rem]" loading="lazy" />
     </div>
   );
@@ -83,7 +83,7 @@ export function Trabajos() {
   const lista = TRABAJOS.filter((t) => filtro === "todos" || t.cat === filtro);
 
   return (
-    <section id="trabajos" className="bg-white py-20 sm:py-28 scroll-mt-16" aria-labelledby="trabajos-titulo">
+    <section id="trabajos" className="bg-blanco py-20 sm:py-28 scroll-mt-16" aria-labelledby="trabajos-titulo">
       <div className="contenedor">
         <div className="grid lg:grid-cols-[1.4fr_1fr] gap-6 lg:items-end aparece">
           <Titulo id="trabajos-titulo" antes="Trabajos" acento="reales" cuenta={TRABAJOS.length} />
@@ -139,7 +139,7 @@ export function Trabajos() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={`Ver ${t.nombre} en vivo`}
-                    className="shrink-0 grid place-items-center w-12 h-12 rounded-full bg-tinta text-white hover:bg-acento transition-colors"
+                    className="shrink-0 grid place-items-center w-12 h-12 rounded-full bg-noche oscuro:bg-white/10 text-white hover:bg-acento transition-colors"
                   >
                     <ArrowUpRight size={20} />
                   </a>

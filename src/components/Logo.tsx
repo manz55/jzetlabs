@@ -6,7 +6,7 @@ export function Logo({ claro = false, href = "#inicio" }: { claro?: boolean; hre
       <span className={`grid place-items-center w-9 h-9 rounded-lg font-bold text-[1.05rem] ${claro ? "bg-white text-marino" : "bg-marino text-white"}`} aria-hidden>
         J
       </span>
-      <span className={`font-semibold text-[1.15rem] tracking-tight ${claro ? "text-white" : "text-marino"}`}>{MARCA}</span>
+      <span className={`font-semibold text-[1.15rem] tracking-tight ${claro ? "text-white" : "text-marino oscuro:text-tinta"}`}>{MARCA}</span>
     </a>
   );
 }
