@@ -14,9 +14,6 @@ import efamicDesk from "@/assets/portfolio/efamic-desk.jpg";
 import efamicMob from "@/assets/portfolio/efamic-mob.jpg";
 import maestrosDesk from "@/assets/portfolio/maestros-desk.jpg";
 import maestrosMob from "@/assets/portfolio/maestros-mob-grupos.jpg";
-import foto from "@/assets/joshua.jpg";
-import { WA_HOLA } from "@/data/site";
-import { IconoWhatsApp } from "./Secciones";
 
 /* ---------- marcos ---------- */
 
@@ -38,58 +35,6 @@ function Celular({ src, alt, className = "" }: { src: string; alt: string; class
     <div className={`rounded-[1.1rem] border-[4px] border-tinta bg-tinta overflow-hidden shadow-[0_20px_40px_-16px_rgba(11,37,69,.6)] ${className}`}>
       <img src={src} alt={alt} className="block w-full aspect-[9/19] object-cover object-top rounded-[0.8rem]" loading="lazy" />
     </div>
-  );
-}
-
-/* ---------- portada ---------- */
-
-export function PortadaVitrina() {
-  return (
-    <section id="inicio" className="portada-papel border-b border-linea overflow-hidden">
-      <div className="contenedor grid lg:grid-cols-[1fr_1.05fr] gap-12 lg:gap-12 items-center pt-12 pb-16 sm:pt-20 sm:pb-24">
-        <div>
-          <p className="nota-mano text-acento text-[1.9rem]">Hola, soy Joshua.</p>
-          <h1 className="mt-3 text-[2.4rem] sm:text-[3.1rem] lg:text-[3.35rem] leading-[1.04]">
-            Hago páginas web y sistemas para negocios de Guatemala.
-          </h1>
-          <p className="mt-6 text-[1.1rem] sm:text-[1.18rem] text-texto max-w-xl">
-            Lo que hoy hace a mano, lo podemos pasar a una página o a un sistema. Ya lo hice para un plomero, una tienda, una empresa y una iglesia, y con gusto lo hago para su negocio. Usted trata directo conmigo.
-          </p>
-
-          <dl className="mt-7 grid grid-cols-2 max-w-md rounded-xl border border-linea bg-white divide-x divide-linea">
-            <div className="px-4 py-3">
-              <dt className="text-[0.8rem] text-suave">Páginas web</dt>
-              <dd className="font-[family-name:var(--font-titulo)] font-bold text-marino text-[1.45rem] leading-tight">
-                <span className="text-[0.85rem] font-medium text-suave">desde </span>Q1,000
-              </dd>
-            </div>
-            <div className="px-4 py-3">
-              <dt className="text-[0.8rem] text-suave">Sistemas</dt>
-              <dd className="font-[family-name:var(--font-titulo)] font-bold text-marino text-[1.45rem] leading-tight">
-                <span className="text-[0.85rem] font-medium text-suave">desde </span>Q2,000
-              </dd>
-            </div>
-          </dl>
-          <p className="mt-2 text-sm font-semibold text-acento">Pago único, sin mensualidades obligatorias.</p>
-
-          <div className="mt-8 flex flex-col sm:flex-row sm:flex-wrap gap-3 [&>a]:whitespace-nowrap">
-            <a href={WA_HOLA} target="_blank" rel="noopener noreferrer" className="btn btn-principal">
-              <IconoWhatsApp /> Escribirme por WhatsApp
-            </a>
-            <a href="#trabajos" className="btn btn-secundario">
-              Ver mis trabajos
-            </a>
-          </div>
-        </div>
-
-        {/* collage de trabajos reales */}
-        <figure className="relative mx-auto w-full max-w-[580px] pb-6">
-          <Navegador src={dannyDesk} alt="Página de Plomería Danny en la computadora" className="w-[86%]" />
-          <Celular src={gomiMob} alt="Tienda en línea de GomiDeli en el celular" className="absolute bottom-0 right-0 w-[30%]" />
-          <figcaption className="mt-3 pr-[32%] nota-mano text-[1.2rem] leading-tight text-suave">Trabajos reales: Plomería Danny y GomiDeli</figcaption>
-        </figure>
-      </div>
-    </section>
   );
 }
 
@@ -190,10 +135,6 @@ export function ComoTrabajo() {
             Trato directo conmigo, de principio a fin.
           </h2>
           <p className="mt-3 text-suave">Sin intermediarios: usted me cuenta, yo lo construyo y yo le enseño cómo funciona. Si tiene alguna duda, no tenga pena, me pregunta.</p>
-          <figure className="mt-6 max-w-[340px]">
-            <img src={foto} alt="Joshua Zet sentado frente a las montañas" width={675} height={1200} className="w-full aspect-[4/5] object-cover object-[50%_45%] rounded-2xl border border-linea" loading="lazy" />
-            <figcaption className="mt-2 nota-mano text-[1.25rem] text-suave">Joshua Zet · Guatemala</figcaption>
-          </figure>
         </div>
         <ol className="grid sm:grid-cols-2 gap-5">
           {PASOS.map((p, i) => (

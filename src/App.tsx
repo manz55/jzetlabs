@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Encabezado, Llamado, Pie } from "@/components/Secciones";
-import { ComoTrabajo, PortadaVitrina, Trabajos } from "@/components/Vitrina";
+import { ComoTrabajo, Trabajos } from "@/components/Vitrina";
+import { PortadaFotos } from "@/components/PortadaFotos";
 import { QueHago } from "@/components/QueHago";
 import { Rubros } from "@/components/Rubros";
 import { activarAparecer } from "@/lib/aparecer";
@@ -19,7 +20,7 @@ export default function App() {
       </a>
       <Encabezado />
       <main>
-        <PortadaVitrina />
+        <PortadaFotos />
         <Trabajos />
         <QueHago />
         <Rubros />
