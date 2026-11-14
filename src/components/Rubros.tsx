@@ -10,6 +10,7 @@ import tienda from "@/assets/demos/tienda-dueno.jpg";
 import ventas from "@/assets/demos/ventas-dueno.jpg";
 import marcaje from "@/assets/sistema/cel-marcaje.jpg";
 import { whatsappLink } from "@/data/site";
+import { Titulo } from "./Titulo";
 
 const DEMOS = "https://latienda-jzetlabs.vercel.app/";
 
@@ -124,14 +125,11 @@ export function Rubros() {
   }
 
   return (
-    <section id="rubros" className="py-16 sm:py-24" aria-labelledby="rubros-titulo">
+    <section id="rubros" className="py-20 sm:py-28 bg-white" aria-labelledby="rubros-titulo">
       <div className="contenedor">
-        <div className="max-w-2xl aparece">
-          <p className="etiqueta">Véalo funcionando</p>
-          <h2 id="rubros-titulo" className="mt-3 text-[1.75rem] sm:text-[2.2rem]">
-            ¿Qué problema tiene su negocio?
-          </h2>
-          <p className="mt-3 text-suave">Elija su rubro: el problema de hoy, cómo lo resuelve el sistema y una demo para probar.</p>
+        <div className="max-w-3xl aparece">
+          <Titulo id="rubros-titulo" antes="Véalo" acento="funcionando" />
+          <p className="mt-4 text-suave text-[1.05rem]">¿Qué problema tiene su negocio? Elija su rubro: el problema de hoy, cómo lo resuelve el sistema y una demo para probar.</p>
         </div>
 
         <div

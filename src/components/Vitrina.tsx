@@ -1,11 +1,13 @@
 /*
  * Home como vitrina (reestructuración del 13 nov 2026):
- * Portada con precio al frente y trabajos reales a la vista → Trabajos reales
- * (sección oscura) → … → Cómo trabajo.
+ * Estilo de la portada llevado al resto: títulos grandes con una palabra a mano,
+ * fotos grandes, mucho aire. Trabajos reales (con filtros) → … → Cómo trabajo.
  * Capturas: Plomería Danny y GomiDeli son sitios publicados; EFAMIC con nombres
  * de ejemplo; Maestros de Niños sin datos de niños.
  */
+import { useState } from "react";
 import { ArrowUpRight } from "lucide-react";
+import { Titulo } from "./Titulo";
 import dannyDesk from "@/assets/portfolio/danny-desk.jpg";
 import dannyMob from "@/assets/portfolio/danny-mob.jpg";
 import gomiDesk from "@/assets/portfolio/gomideli-desk.jpg";
@@ -16,19 +18,6 @@ import maestrosDesk from "@/assets/portfolio/maestros-desk.jpg";
 import maestrosMob from "@/assets/portfolio/maestros-mob-grupos.jpg";
 
 /* ---------- marcos ---------- */
-
-function Navegador({ src, alt, className = "" }: { src: string; alt: string; className?: string }) {
-  return (
-    <div className={`rounded-lg border border-linea bg-white overflow-hidden shadow-[0_18px_40px_-22px_rgba(11,37,69,.45)] ${className}`}>
-      <div className="flex items-center gap-1.5 px-2.5 h-6 bg-fondo border-b border-linea" aria-hidden>
-        <span className="w-2 h-2 rounded-full bg-[#e5e7eb]" />
-        <span className="w-2 h-2 rounded-full bg-[#e5e7eb]" />
-        <span className="w-2 h-2 rounded-full bg-[#e5e7eb]" />
-      </div>
-      <img src={src} alt={alt} className="block w-full aspect-[16/10] object-cover object-top" loading="lazy" />
-    </div>
-  );
-}
 
 function Celular({ src, alt, className = "" }: { src: string; alt: string; className?: string }) {
   return (
@@ -44,6 +33,7 @@ const TRABAJOS = [
   {
     nombre: "Plomería Danny",
     tipo: "Página web · Servicios",
+    cat: "pagina",
     texto: "Una página con fotos de sus trabajos reales, para que la gente lo encuentre y le escriba directo por WhatsApp o le llame. Con su propio dominio.",
     desk: dannyDesk,
     mob: dannyMob,
@@ -53,6 +43,7 @@ const TRABAJOS = [
   {
     nombre: "GomiDeli",
     tipo: "Tienda en línea",
+    cat: "pagina",
     texto: "Su tienda en línea: los clientes ven las gomitas, arman su pedido y le llega directo a su WhatsApp.",
     desk: gomiDesk,
     mob: gomiMob,
@@ -62,6 +53,7 @@ const TRABAJOS = [
   {
     nombre: "EFAMIC",
     tipo: "Sistema · Empresa metalmecánica",
+    cat: "sistema",
     texto: "Antes la planilla se armaba a mano y tomaba de 3 a 5 días. Ahora cada quien marca desde su teléfono y la planilla sale sola. Cuando me piden un ajuste, se lo hago y queda subido.",
     desk: efamicDesk,
     mob: efamicMob,
@@ -71,6 +63,7 @@ const TRABAJOS = [
   {
     nombre: "Maestros de Niños",
     tipo: "Sistema · Iglesia",
+    cat: "sistema",
     texto: "Lo que el ministerio llevaba en papel ahora lo registran en la página: niños por grupo, asistencia del día y reportes, desde cualquier teléfono o compu.",
     desk: maestrosDesk,
     mob: maestrosMob,
@@ -79,35 +72,79 @@ const TRABAJOS = [
   },
 ];
 
+const FILTROS = [
+  { id: "todos", texto: "Todos" },
+  { id: "pagina", texto: "Páginas" },
+  { id: "sistema", texto: "Sistemas" },
+];
+
 export function Trabajos() {
+  const [filtro, setFiltro] = useState("todos");
+  const lista = TRABAJOS.filter((t) => filtro === "todos" || t.cat === filtro);
+
   return (
-    <section id="trabajos" className="bg-marino text-white py-16 sm:py-24 scroll-mt-16" aria-labelledby="trabajos-titulo">
+    <section id="trabajos" className="bg-white py-20 sm:py-28 scroll-mt-16" aria-labelledby="trabajos-titulo">
       <div className="contenedor">
-        <div className="max-w-2xl aparece">
-          <p className="etiqueta !text-[#7fd1a8]">Trabajos reales</p>
-          <h2 id="trabajos-titulo" className="mt-3 text-white text-[1.85rem] sm:text-[2.5rem]">
-            Esto ya lo hice. Lo puedo hacer para su negocio, y mejor.
-          </h2>
-          <p className="mt-3 text-white/80">Cuatro rubros distintos, cada uno hecho a la medida de cómo trabaja ese negocio. Ninguno es una plantilla.</p>
+        <div className="grid lg:grid-cols-[1.4fr_1fr] gap-6 lg:items-end aparece">
+          <Titulo id="trabajos-titulo" antes="Trabajos" acento="reales" cuenta={TRABAJOS.length} />
+          <p className="text-suave text-[1.05rem] max-w-md lg:justify-self-end">
+            Esto ya lo hice. Cada uno hecho a la medida de cómo trabaja ese negocio, ninguno es una plantilla. Lo puedo hacer para el suyo, y mejor.
+          </p>
         </div>
 
-        <div className="mt-12 grid md:grid-cols-2 gap-8 lg:gap-10">
-          {TRABAJOS.map((t) => (
-            <article key={t.nombre} className="aparece">
-              <div className="relative rounded-2xl bg-white/[0.06] border border-white/10 p-5 sm:p-6 pb-8">
-                <Navegador src={t.desk} alt={`${t.nombre} en la computadora`} className="w-[82%]" />
-                <Celular src={t.mob} alt={`${t.nombre} en el celular`} className="absolute bottom-4 right-5 w-[26%]" />
+        <div className="mt-12 flex flex-wrap gap-x-7 gap-y-2" role="group" aria-label="Filtrar trabajos">
+          {FILTROS.map((f) => {
+            const n = f.id === "todos" ? TRABAJOS.length : TRABAJOS.filter((t) => t.cat === f.id).length;
+            const activo = filtro === f.id;
+            return (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setFiltro(f.id)}
+                aria-pressed={activo}
+                className={`text-[1.1rem] ${activo ? "text-tinta underline underline-offset-[6px] decoration-2 decoration-acento" : "text-suave hover:text-tinta"}`}
+              >
+                {f.texto}
+                <sup className="ml-0.5 text-[0.7em]">{n}</sup>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-8 grid md:grid-cols-2 gap-x-8 gap-y-14">
+          {lista.map((t) => (
+            <article key={t.nombre} className="group">
+              <div className="flex items-center justify-between text-sm text-suave">
+                <span>{t.tipo}</span>
+                <span>{t.url ? "En línea" : "Privado"}</span>
               </div>
-              <p className="mt-5 text-[0.8rem] font-semibold uppercase tracking-wider text-[#7fd1a8]">{t.tipo}</p>
-              <h3 className="mt-1 text-white text-[1.35rem]">{t.nombre}</h3>
-              <p className="mt-2 text-white/80">{t.texto}</p>
-              {t.url ? (
-                <a href={t.url} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-1 font-semibold text-white underline underline-offset-4 hover:text-[#7fd1a8]">
-                  Ver en vivo <ArrowUpRight size={17} />
-                </a>
-              ) : (
-                <p className="mt-3 text-sm text-white/60">{t.nota}</p>
-              )}
+              <div className="mt-3 relative rounded-2xl bg-fondo overflow-hidden aspect-[16/11]">
+                <img
+                  src={t.desk}
+                  alt={`${t.nombre} en la computadora`}
+                  className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                  loading="lazy"
+                />
+                <Celular src={t.mob} alt={`${t.nombre} en el celular`} className="absolute bottom-4 right-4 w-[22%]" />
+              </div>
+              <div className="mt-5 flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-[1.5rem] sm:text-[1.7rem]">{t.nombre}</h3>
+                  <p className="mt-2 text-suave max-w-lg">{t.texto}</p>
+                  {!t.url && <p className="mt-2 text-sm text-suave/80">{t.nota}</p>}
+                </div>
+                {t.url && (
+                  <a
+                    href={t.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Ver ${t.nombre} en vivo`}
+                    className="shrink-0 grid place-items-center w-12 h-12 rounded-full bg-tinta text-white hover:bg-acento transition-colors"
+                  >
+                    <ArrowUpRight size={20} />
+                  </a>
+                )}
+              </div>
             </article>
           ))}
         </div>
@@ -127,21 +164,20 @@ const PASOS = [
 
 export function ComoTrabajo() {
   return (
-    <section className="py-16 sm:py-24 bg-fondo border-y border-linea" aria-labelledby="como-titulo">
-      <div className="contenedor grid lg:grid-cols-[1fr_1.3fr] gap-10 lg:gap-16 items-start">
-        <div className="aparece">
-          <p className="etiqueta">Cómo trabajo</p>
-          <h2 id="como-titulo" className="mt-3 text-[1.75rem] sm:text-[2.2rem]">
-            Trato directo conmigo, de principio a fin.
-          </h2>
-          <p className="mt-3 text-suave">Sin intermediarios: usted me cuenta, yo lo construyo y yo le enseño cómo funciona. Si tiene alguna duda, no tenga pena, me pregunta.</p>
+    <section id="como-trabajo" className="py-20 sm:py-28 bg-fondo scroll-mt-16" aria-labelledby="como-titulo">
+      <div className="contenedor">
+        <div className="grid lg:grid-cols-[1.4fr_1fr] gap-6 lg:items-end aparece">
+          <Titulo id="como-titulo" antes="Cómo" acento="trabajo" />
+          <p className="text-suave text-[1.05rem] max-w-md lg:justify-self-end">
+            Trato directo conmigo, de principio a fin. Usted me cuenta, yo lo construyo y yo le enseño cómo funciona. Si tiene alguna duda, no tenga pena, me pregunta.
+          </p>
         </div>
-        <ol className="grid sm:grid-cols-2 gap-5">
+        <ol className="mt-14 grid sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-10">
           {PASOS.map((p, i) => (
-            <li key={p.titulo} className="rounded-xl bg-white border border-linea p-5 aparece">
-              <span className="font-[family-name:var(--font-titulo)] font-bold text-acento text-[1.6rem] leading-none">{i + 1}</span>
-              <h3 className="mt-2 text-[1.1rem]">{p.titulo}</h3>
-              <p className="mt-1.5 text-suave text-[0.97rem]">{p.texto}</p>
+            <li key={p.titulo} className="border-t-2 border-tinta pt-5 aparece">
+              <span className="font-[family-name:var(--font-titulo)] font-bold text-acento text-[3rem] leading-none">{String(i + 1).padStart(2, "0")}</span>
+              <h3 className="mt-4 text-[1.25rem]">{p.titulo}</h3>
+              <p className="mt-2 text-suave">{p.texto}</p>
             </li>
           ))}
         </ol>

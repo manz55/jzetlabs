@@ -7,7 +7,9 @@
 import efamicMarcaje from "@/assets/portfolio/efamic-mob.jpg";
 import efamicPanel from "@/assets/sistema/panel-hoy.jpg";
 import { EMAIL, WHATSAPP_DISPLAY, WA_DIAGNOSTICO, WA_HOLA, laTienda } from "@/data/site";
+import { useEffect, useState } from "react";
 import { Logo } from "./Logo";
+import { Titulo } from "./Titulo";
 import { Faro } from "./Faro";
 import { RubroRotando } from "./RubroRotando";
 
@@ -19,25 +21,62 @@ export function IconoWhatsApp() {
   );
 }
 
+const MENU = [
+  { href: "/#trabajos", id: "trabajos", texto: "Trabajos" },
+  { href: "/#que-hago", id: "que-hago", texto: "Lo que hago" },
+  { href: "/#como-trabajo", id: "como-trabajo", texto: "Cómo trabajo" },
+  { href: "/web", id: "", texto: "Páginas web" },
+];
+
 export function Encabezado() {
+  const [activo, setActivo] = useState("");
+
+  // marcar en el menú la sección que se está viendo
+  useEffect(() => {
+    const secciones = MENU.map((m) => (m.id ? document.getElementById(m.id) : null)).filter(Boolean) as HTMLElement[];
+    if (!("IntersectionObserver" in window) || !secciones.length) return;
+    const io = new IntersectionObserver(
+      (entradas) => {
+        for (const e of entradas) if (e.isIntersecting) setActivo(e.target.id);
+      },
+      { rootMargin: "-45% 0px -50% 0px" },
+    );
+    secciones.forEach((n) => io.observe(n));
+    const arriba = () => scrollY < innerHeight * 0.5 && setActivo("");
+    addEventListener("scroll", arriba, { passive: true });
+    return () => {
+      io.disconnect();
+      removeEventListener("scroll", arriba);
+    };
+  }, []);
+
   return (
-    <header className="sticky top-0 z-40 bg-[#fbf9f5]/95 backdrop-blur border-b border-linea">
-      <div className="contenedor flex items-center justify-between gap-4 h-16">
+    <header className="sticky top-0 z-40 bg-[#fbf9f5]/85 backdrop-blur">
+      <div className="contenedor flex items-center justify-between gap-4 h-16 sm:h-[72px]">
         <Logo />
-        <nav className="flex items-center gap-2 sm:gap-5" aria-label="Principal">
-          <a href="/#trabajos" className="hidden md:inline text-[0.95rem] font-medium text-suave hover:text-marino">
-            Trabajos
-          </a>
-          <a href="/web" className="hidden sm:inline text-[0.95rem] font-medium text-suave hover:text-marino">
-            Páginas web
-          </a>
-          <a href={laTienda()} className="hidden sm:inline text-[0.95rem] font-medium text-suave hover:text-marino">
-            Precios y planes
-          </a>
-          <a href={WA_HOLA} target="_blank" rel="noopener noreferrer" className="btn btn-principal !min-h-[40px] !px-4 !py-2 !text-[0.92rem]">
-            <IconoWhatsApp /> Escríbame
-          </a>
+        <nav className="hidden lg:flex items-center gap-0.5 rounded-full bg-tinta p-1.5" aria-label="Principal">
+          {MENU.map((m) => (
+            <a
+              key={m.texto}
+              href={m.href}
+              aria-current={activo && activo === m.id ? "true" : undefined}
+              className={`rounded-full px-4 py-1.5 text-[0.93rem] transition-colors ${activo && activo === m.id ? "bg-acento text-white" : "text-white/75 hover:text-white hover:bg-white/10"}`}
+            >
+              {m.texto}
+            </a>
+          ))}
         </nav>
+        <a
+          href={WA_HOLA}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2.5 rounded-full bg-tinta text-white pl-4 pr-1.5 py-1.5 text-[0.93rem] font-semibold hover:bg-marino transition-colors"
+        >
+          Escríbame
+          <span className="grid place-items-center w-8 h-8 rounded-full bg-acento">
+            <IconoWhatsApp />
+          </span>
+        </a>
       </div>
     </header>
   );
@@ -161,29 +200,27 @@ export function Caso() {
 export function Llamado() {
   return (
     <section id="contacto" className="bg-marino text-white" aria-labelledby="llamado-titulo">
-      <div className="contenedor py-16 sm:py-20 grid lg:grid-cols-[1.4fr_1fr] gap-8 items-center">
-        <div className="aparece">
-          <h2 id="llamado-titulo" className="text-white text-[1.75rem] sm:text-[2.3rem]">
-            ¿Qué le gustaría dejar de hacer a mano?
-          </h2>
-          <p className="mt-4 text-white/85 max-w-xl">
+      <div className="contenedor py-20 sm:py-28">
+        <Titulo id="llamado-titulo" claro antes="¿Qué le gustaría dejar de hacer" acento="a mano?" className="max-w-5xl aparece" />
+        <div className="mt-10 grid lg:grid-cols-[1.3fr_1fr] gap-8 items-end aparece">
+          <p className="text-white/85 text-[1.1rem] sm:text-[1.2rem] max-w-xl">
             Escríbame con confianza. Me cuenta qué necesita y le propongo opciones con tiempos y precios claros. Yo quedo a la orden.
           </p>
-        </div>
-        <div className="flex flex-col gap-3 aparece">
-          <a href={WA_HOLA} target="_blank" rel="noopener noreferrer" className="btn btn-principal !text-[1.05rem] !min-h-[54px]">
-            <IconoWhatsApp /> Escribirme por WhatsApp
-          </a>
-          <a href={laTienda()} className="btn !min-h-[50px] bg-white text-marino hover:bg-white/90">
-            Ver precios completos
-          </a>
-          <p className="text-sm text-white/80 text-center lg:text-left">
-            WhatsApp {WHATSAPP_DISPLAY} ·{" "}
-            <a href={`mailto:${EMAIL}?subject=${encodeURIComponent("Diagnóstico para mi empresa")}`} className="underline underline-offset-2 hover:text-white">
-              {EMAIL}
+          <div className="flex flex-col sm:flex-row lg:justify-end gap-3 [&>a]:whitespace-nowrap">
+            <a href={WA_HOLA} target="_blank" rel="noopener noreferrer" className="btn btn-principal !text-[1.05rem] !min-h-[56px] !rounded-full !px-6">
+              <IconoWhatsApp /> Escribirme por WhatsApp
             </a>
-          </p>
+            <a href={laTienda()} className="btn !min-h-[56px] !rounded-full !px-6 bg-white text-marino hover:bg-white/90">
+              Ver precios completos
+            </a>
+          </div>
         </div>
+        <p className="mt-10 text-sm text-white/70 aparece">
+          WhatsApp {WHATSAPP_DISPLAY} ·{" "}
+          <a href={`mailto:${EMAIL}?subject=${encodeURIComponent("Quiero platicar sobre mi negocio")}`} className="underline underline-offset-2 hover:text-white">
+            {EMAIL}
+          </a>
+        </p>
       </div>
     </section>
   );
