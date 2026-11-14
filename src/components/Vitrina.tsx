@@ -53,7 +53,7 @@ export function PortadaVitrina() {
             Hago páginas web y sistemas para negocios de Guatemala.
           </h1>
           <p className="mt-6 text-[1.1rem] sm:text-[1.18rem] text-texto max-w-xl">
-            Ya lo hice para un plomero, una tienda, una empresa y una iglesia. Lo puedo hacer para su negocio, y mejor. Usted trata conmigo de principio a fin.
+            Lo que hoy hace a mano, lo podemos pasar a una página o a un sistema. Ya lo hice para un plomero, una tienda, una empresa y una iglesia, y con gusto lo hago para su negocio. Usted trata directo conmigo.
           </p>
 
           <dl className="mt-7 grid grid-cols-2 max-w-md rounded-xl border border-linea bg-white divide-x divide-linea">
@@ -99,7 +99,7 @@ const TRABAJOS = [
   {
     nombre: "Plomería Danny",
     tipo: "Página web · Servicios",
-    texto: "Fotos de trabajos reales, emergencias las 24 horas y botones directos a WhatsApp y llamada. Con dominio propio.",
+    texto: "Una página con fotos de sus trabajos reales, para que la gente lo encuentre y le escriba directo por WhatsApp o le llame. Con su propio dominio.",
     desk: dannyDesk,
     mob: dannyMob,
     url: "https://plomeriadanny.com",
@@ -108,7 +108,7 @@ const TRABAJOS = [
   {
     nombre: "GomiDeli",
     tipo: "Tienda en línea",
-    texto: "Catálogo de gomitas con fotos y precios, carrito y pedidos que le llegan por WhatsApp.",
+    texto: "Su tienda en línea: los clientes ven las gomitas, arman su pedido y le llega directo a su WhatsApp.",
     desk: gomiDesk,
     mob: gomiMob,
     url: "https://gomideli-tienda.vercel.app",
@@ -117,7 +117,7 @@ const TRABAJOS = [
   {
     nombre: "EFAMIC",
     tipo: "Sistema · Empresa metalmecánica",
-    texto: "Marcaje desde el celular con ubicación y huella, y planilla que se calcula sola. Antes, armarla tomaba de 3 a 5 días.",
+    texto: "Antes la planilla se armaba a mano y tomaba de 3 a 5 días. Ahora cada quien marca desde su teléfono y la planilla sale sola. Cuando me piden un ajuste, se lo hago y queda subido.",
     desk: efamicDesk,
     mob: efamicMob,
     url: "",
@@ -126,7 +126,7 @@ const TRABAJOS = [
   {
     nombre: "Maestros de Niños",
     tipo: "Sistema · Iglesia",
-    texto: "Registro de niños por grupo, asistencia del día y reportes, desde cualquier celular o computadora.",
+    texto: "Lo que el ministerio llevaba en papel ahora lo registran en la página: niños por grupo, asistencia del día y reportes, desde cualquier teléfono o compu.",
     desk: maestrosDesk,
     mob: maestrosMob,
     url: "",
@@ -143,7 +143,7 @@ export function Trabajos() {
           <h2 id="trabajos-titulo" className="mt-3 text-white text-[1.85rem] sm:text-[2.5rem]">
             Esto ya lo hice. Lo puedo hacer para su negocio, y mejor.
           </h2>
-          <p className="mt-3 text-white/80">Cuatro rubros distintos, cada uno con su propio diseño. Ninguno es una plantilla.</p>
+          <p className="mt-3 text-white/80">Cuatro rubros distintos, cada uno hecho a la medida de cómo trabaja ese negocio. Ninguno es una plantilla.</p>
         </div>
 
         <div className="mt-12 grid md:grid-cols-2 gap-8 lg:gap-10">
@@ -174,10 +174,10 @@ export function Trabajos() {
 /* ---------- cómo trabajo ---------- */
 
 const PASOS = [
-  { titulo: "Platicamos", texto: "Por WhatsApp o en una reunión sin costo. Me cuenta cómo funciona su negocio y qué necesita." },
-  { titulo: "Le propongo", texto: "Opciones con precio y tiempo claros, por escrito. Lo que se pacta es lo que se entrega." },
-  { titulo: "Lo construyo", texto: "Le muestro avances para que opine antes de terminar. Usted habla siempre conmigo." },
-  { titulo: "Se lo entrego y le explico", texto: "Le enseño a usarlo y le doy soporte. Si después quiere algo más, se lo cotizo antes." },
+  { titulo: "Platicamos", texto: "Me cuenta cómo trabaja hoy y qué le gustaría que fuera más fácil. Por WhatsApp o en persona, sin costo." },
+  { titulo: "Le propongo", texto: "Le paso opciones con precio y tiempo claros, por escrito, para que usted decida con calma." },
+  { titulo: "Lo construyo", texto: "Le voy enseñando avances. Usted me dice qué tal lo ve y, si hay que hacerle un ajuste, se lo hago. De eso no hay pena." },
+  { titulo: "Se lo entrego y le enseño", texto: "Le enseño cómo funciona y quedo a la orden para cualquier cosa. Si después quiere algo nuevo, se lo cotizo antes." },
 ];
 
 export function ComoTrabajo() {
@@ -187,9 +187,9 @@ export function ComoTrabajo() {
         <div className="aparece">
           <p className="etiqueta">Cómo trabajo</p>
           <h2 id="como-titulo" className="mt-3 text-[1.75rem] sm:text-[2.2rem]">
-            Una sola persona, de principio a fin.
+            Trato directo conmigo, de principio a fin.
           </h2>
-          <p className="mt-3 text-suave">Sin intermediarios ni centros de llamadas: yo escucho, yo lo construyo y yo le doy soporte.</p>
+          <p className="mt-3 text-suave">Sin intermediarios: usted me cuenta, yo lo construyo y yo le enseño cómo funciona. Si tiene alguna duda, no tenga pena, me pregunta.</p>
           <figure className="mt-6 max-w-[340px]">
             <img src={foto} alt="Joshua Zet sentado frente a las montañas" width={675} height={1200} className="w-full aspect-[4/5] object-cover object-[50%_45%] rounded-2xl border border-linea" loading="lazy" />
             <figcaption className="mt-2 nota-mano text-[1.25rem] text-suave">Joshua Zet · Guatemala</figcaption>

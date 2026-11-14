@@ -164,10 +164,10 @@ export function Llamado() {
       <div className="contenedor py-16 sm:py-20 grid lg:grid-cols-[1.4fr_1fr] gap-8 items-center">
         <div className="aparece">
           <h2 id="llamado-titulo" className="text-white text-[1.75rem] sm:text-[2.3rem]">
-            ¿Qué hacemos para su negocio?
+            ¿Qué le gustaría dejar de hacer a mano?
           </h2>
           <p className="mt-4 text-white/85 max-w-xl">
-            Escríbame y platicamos sin costo. Le propongo opciones con tiempos y precios claros, y usted decide.
+            Escríbame con confianza. Me cuenta qué necesita y le propongo opciones con tiempos y precios claros. Yo quedo a la orden.
           </p>
         </div>
         <div className="flex flex-col gap-3 aparece">
