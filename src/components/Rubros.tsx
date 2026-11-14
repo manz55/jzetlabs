@@ -30,12 +30,12 @@ const RUBROS: Rubro[] = [
   {
     id: "empresas",
     nombre: "Empresas",
-    problema: "La planilla se arma a mano y siempre falta un dato.",
-    hoy: ["Asistencia en papel, Excel o mensajes de WhatsApp.", "Días enteros sumando horas extra, séptimo e IGSS."],
+    problema: "Armar la planilla a mano se lleva días, y siempre falta un dato.",
+    hoy: ["La asistencia anda entre papel, Excel y mensajes de WhatsApp.", "Se le van días enteros sumando horas extra, séptimo e IGSS."],
     sistema: [
-      "Su personal marca con ubicación y huella desde el celular, aunque no haya señal.",
-      "La planilla se calcula sola y las boletas salen listas.",
-      "Caja chica y viáticos en el mismo lugar.",
+      "Su gente marca desde su teléfono, con ubicación y huella, aunque no haya señal.",
+      "La planilla sale sola y las boletas ya quedan listas.",
+      "Caja chica y viáticos, todo en el mismo lugar.",
     ],
     img: marcaje,
     alt: "Pantalla de marcaje en el celular con datos de prueba",
@@ -44,12 +44,12 @@ const RUBROS: Rubro[] = [
   {
     id: "clinicas",
     nombre: "Clínicas y dentistas",
-    problema: "Citas olvidadas y horas vacías en la agenda.",
-    hoy: ["Agenda en cuaderno o en el celular de recepción.", "Pacientes que no llegan y nadie les recordó."],
+    problema: "Citas que se olvidan y horas que se quedan vacías.",
+    hoy: ["La agenda vive en un cuaderno o en el teléfono de recepción.", "El paciente no llega porque nadie le recordó."],
     sistema: [
-      "Agenda por doctor, con las citas por confirmar a la vista.",
-      "El paciente aparta su cita y aparece en recepción.",
-      "Expediente por paciente, armado a la medida de su clínica.",
+      "Cada doctor ve su agenda y las citas que faltan por confirmar.",
+      "El paciente aparta su cita él mismo y le aparece a recepción.",
+      "El expediente de cada paciente, hecho a la medida de su clínica.",
     ],
     img: citas,
     alt: "Agenda de una clínica de prueba con citas del día por doctor",
@@ -59,11 +59,11 @@ const RUBROS: Rubro[] = [
     id: "gimnasios",
     nombre: "Gimnasios",
     problema: "Membresías vencidas que nadie cobra.",
-    hoy: ["Control de socios en una libreta o en Excel.", "No se sabe quién ya debe ni quién entró hoy."],
+    hoy: ["Los socios se llevan en una libreta o en Excel.", "No se sabe quién ya debe ni quién entró hoy."],
     sistema: [
-      "Registro de entradas en vivo.",
-      "Aviso de membresías por vencer y vencidas.",
-      "Cobros e ingresos del mes en un vistazo.",
+      "Ve en vivo quién va entrando.",
+      "Le avisa qué membresías ya vencieron o están por vencer.",
+      "Cobros e ingresos del mes, de un vistazo.",
     ],
     img: gimnasio,
     alt: "Panel de un gimnasio de prueba con las entradas de hoy",
@@ -72,12 +72,12 @@ const RUBROS: Rubro[] = [
   {
     id: "tiendas",
     nombre: "Tiendas",
-    problema: "No sabe bien cuánto vendió ni qué se está acabando.",
-    hoy: ["Pedidos regados entre WhatsApp, llamadas y el mostrador.", "El inventario se cuenta a mano, y tarde."],
+    problema: "No sabe bien cuánto vendió ni qué se le está acabando.",
+    hoy: ["Los pedidos andan regados entre WhatsApp, llamadas y el mostrador.", "El inventario se cuenta a mano, y siempre tarde."],
     sistema: [
-      "Los pedidos llegan a un solo tablero.",
-      "Ventas, ticket promedio y lo más vendido del mes.",
-      "Inventario con lo que hay y lo que falta.",
+      "Todos los pedidos le llegan a un solo lugar.",
+      "Ve cuánto vendió, su ticket promedio y lo que más sale.",
+      "Sabe qué tiene y qué le falta antes de quedarse sin nada.",
     ],
     img: tienda,
     alt: "Resumen de una tienda de prueba con ventas y pedidos por atender",
@@ -87,11 +87,11 @@ const RUBROS: Rubro[] = [
     id: "eventos",
     nombre: "Ventas y eventos",
     problema: "Tickets de papel y cuadres que no cuadran.",
-    hoy: ["Filas largas y errores al cobrar en kermeses, ferias y ventas.", "Al final del día, nadie sabe cuánto entró."],
+    hoy: ["Filas largas y errores al cobrar en kermeses, ferias y ventas.", "Al final del día nadie sabe cuánto entró."],
     sistema: [
-      "Menú con precios en un celular o tablet: se toca y el total sale solo.",
-      "Número de orden en pantalla para que la gente sepa cuándo recoger.",
-      "Cuadre automático por vendedor y reporte final del evento.",
+      "Se toca el producto en un teléfono o tablet y el total sale solo.",
+      "La gente ve su número de orden en pantalla y sabe cuándo recoger.",
+      "El cuadre sale por vendedor, con el reporte final del evento.",
     ],
     img: ventas,
     alt: "Tablero de ventas de prueba con el total vendido en vivo",
@@ -203,7 +203,7 @@ export function Rubros() {
             <h3 className="text-[1.5rem] sm:text-[1.9rem]">{r.problema}</h3>
             <div className="mt-6 grid sm:grid-cols-2 gap-6">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-wider text-suave">Hoy</p>
+                <p className="nota-mano text-[1.6rem] text-suave">Antes, a mano…</p>
                 <ul className="mt-2 space-y-2">
                   {r.hoy.map((t) => (
                     <li key={t} className="flex gap-2.5">
@@ -214,7 +214,7 @@ export function Rubros() {
                 </ul>
               </div>
               <div>
-                <p className="text-sm font-semibold uppercase tracking-wider text-acento">Con el sistema</p>
+                <p className="nota-mano text-[1.6rem] text-mano">Ya con su sistema</p>
                 <ul className="mt-2 space-y-2">
                   {r.sistema.map((t) => (
                     <li key={t} className="flex gap-2.5">
