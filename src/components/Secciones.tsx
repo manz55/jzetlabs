@@ -25,6 +25,9 @@ export function Encabezado() {
       <div className="contenedor flex items-center justify-between gap-4 h-16">
         <Logo />
         <nav className="flex items-center gap-2 sm:gap-5" aria-label="Principal">
+          <a href="/web" className="hidden sm:inline text-[0.95rem] font-medium text-suave hover:text-marino">
+            Páginas web
+          </a>
           <a href={laTienda()} className="hidden sm:inline text-[0.95rem] font-medium text-suave hover:text-marino">
             Precios y planes
           </a>
@@ -190,6 +193,9 @@ export function Pie() {
       <div className="contenedor py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
         <Logo claro />
         <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2" aria-label="Pie de página">
+          <a href="/web" className="hover:text-white">
+            Páginas web
+          </a>
           <a href={laTienda()} className="hover:text-white">
             Precios y planes
           </a>
