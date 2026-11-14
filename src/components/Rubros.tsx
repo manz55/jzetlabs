@@ -3,7 +3,7 @@
  * Cada pestaña: el problema de hoy, lo que hace el sistema, una captura de la demo
  * (datos de prueba) y el enlace para probarla. Teclado: flechas, Inicio y Fin.
  */
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
 import citas from "@/assets/demos/citas-dueno.jpg";
 import gimnasio from "@/assets/demos/gimnasio-dueno.jpg";
 import tienda from "@/assets/demos/tienda-dueno.jpg";
@@ -102,6 +102,31 @@ const RUBROS: Rubro[] = [
 export function Rubros() {
   const [activo, setActivo] = useState(0);
   const botones = useRef<(HTMLButtonElement | null)[]>([]);
+  const lista = useRef<HTMLDivElement>(null);
+
+  // pestañas con cursor que se desliza: sigue al mouse y vuelve a la elegida
+  const [encima, setEncima] = useState<number | null>(null);
+  const [cursor, setCursor] = useState({ left: 0, width: 0, listo: false });
+  const objetivo = encima ?? activo;
+  useLayoutEffect(() => {
+    const medir = () => {
+      const b = botones.current[objetivo];
+      if (b) setCursor({ left: b.offsetLeft, width: b.offsetWidth, listo: true });
+    };
+    medir();
+    addEventListener("resize", medir);
+    return () => removeEventListener("resize", medir);
+  }, [objetivo]);
+  // en celular, que la pestaña elegida quede a la vista dentro de la barra
+  useEffect(() => {
+    const b = botones.current[activo];
+    const l = lista.current;
+    if (!b || !l) return;
+    const izq = b.offsetLeft - 16;
+    const der = b.offsetLeft + b.offsetWidth + 16 - l.clientWidth;
+    if (l.scrollLeft > izq) l.scrollTo({ left: izq, behavior: "smooth" });
+    else if (l.scrollLeft < der) l.scrollTo({ left: der, behavior: "smooth" });
+  }, [activo]);
   const r = RUBROS[activo];
 
   // en celular, la tira de pestañas se desliza para que la elegida quede a la vista
@@ -133,11 +158,18 @@ export function Rubros() {
         </div>
 
         <div
+          ref={lista}
           role="tablist"
           aria-label="Rubros"
           onKeyDown={teclas}
-          className="relative mt-8 -mx-5 px-5 sm:mx-0 sm:px-0 flex gap-2 overflow-x-auto pb-2 aparece"
+          onMouseLeave={() => setEncima(null)}
+          className="relative mt-8 flex w-fit max-w-full overflow-x-auto rounded-full border border-linea bg-crema p-1 [scrollbar-width:none] aparece"
         >
+          <span
+            aria-hidden
+            className="absolute top-1 bottom-1 rounded-full bg-acento shadow-[0_6px_16px_-8px_rgba(200,73,15,.8)] transition-[left,width] duration-300 ease-[cubic-bezier(.2,.8,.2,1)]"
+            style={{ left: cursor.left, width: cursor.width, opacity: cursor.listo ? 1 : 0 }}
+          />
           {RUBROS.map((x, i) => (
             <button
               key={x.id}
@@ -150,8 +182,9 @@ export function Rubros() {
               aria-controls={`panel-${x.id}`}
               tabIndex={i === activo ? 0 : -1}
               onClick={() => setActivo(i)}
-              className={`shrink-0 rounded-full border px-4 py-2 text-[0.95rem] font-semibold transition-colors ${
-                i === activo ? "border-marino bg-marino text-white" : "border-linea bg-blanco text-suave hover:border-marino hover:text-marino oscuro:hover:border-tinta oscuro:hover:text-tinta"
+              onMouseEnter={() => setEncima(i)}
+              className={`relative z-10 shrink-0 rounded-full px-4 sm:px-5 py-2 sm:py-2.5 text-[0.95rem] font-semibold transition-colors duration-200 active:scale-95 ${
+                i === objetivo ? "text-white" : "text-suave hover:text-tinta"
               }`}
             >
               {x.nombre}

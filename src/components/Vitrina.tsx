@@ -52,7 +52,7 @@ const TRABAJOS = [
   },
   {
     nombre: "EFAMIC",
-    tipo: "Sistema · Empresa metalmecánica",
+    tipo: "Sistema · Contratista de mantenimiento y construcción",
     cat: "sistema",
     texto: "Antes la planilla se armaba a mano y tomaba de 3 a 5 días. Ahora cada quien marca desde su teléfono y la planilla sale sola. Cuando me piden un ajuste, se lo hago y queda subido.",
     desk: efamicDesk,

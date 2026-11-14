@@ -182,7 +182,7 @@ export function Caso() {
           <h2 id="caso-titulo" className="mt-3 text-[1.75rem] sm:text-[2.2rem]">
             EFAMIC pasó de Excel y WhatsApp a un sistema propio.
           </h2>
-          <p className="mt-3 text-suave">Empresa metalmecánica · 23 empleados · En uso desde septiembre de 2026</p>
+          <p className="mt-3 text-suave">Contratista de mantenimiento y construcción · 23 empleados · En uso desde septiembre de 2026</p>
         </div>
 
         <div className="mt-10 grid lg:grid-cols-[1.2fr_1fr] gap-10 lg:gap-14 items-start">
