@@ -197,7 +197,7 @@ export function PortadaFotos() {
       <div ref={pegado} className={`${mover ? "sticky top-0 h-[100svh] overflow-hidden" : ""} relative`}>
         {/* fondo: montañas de tinta (se repintan al cambiar de modo; con luna en oscuro) */}
         <InkRidges
-          className="!absolute inset-0 bg-papel text-marino oscuro:text-[#c9d7ea]"
+          className="!absolute inset-0 bg-papel text-marino oscuro:text-[#ead9c8]"
           layers={4}
           seed={11}
           horizon={0.36}
@@ -231,7 +231,7 @@ export function PortadaFotos() {
             >
               <Fotos i={i} />
             </span>{" "}
-            <span className="font-[family-name:var(--font-mano)] font-semibold text-acento text-[1.18em] leading-none">a mano,</span>
+            <span className="font-[family-name:var(--font-mano)] font-semibold text-mano text-[1.18em] leading-none">a mano,</span>
             <br className="hidden lg:block" />{" "}
             lo pasamos a una página o a un sistema.
           </h1>
@@ -271,13 +271,13 @@ export function PortadaFotos() {
             className="absolute inset-y-0 right-0 w-full lg:w-1/2 h-full object-cover object-[50%_28%] lg:object-[50%_40%]"
             loading="eager"
           />
-          <div className="absolute inset-0 lg:hidden bg-[linear-gradient(to_top,rgba(8,26,49,.82),rgba(8,26,49,.15)_55%,transparent)]" />
+          <div className="absolute inset-0 lg:hidden bg-[linear-gradient(to_top,rgba(28,23,20,.82),rgba(28,23,20,.15)_55%,transparent)]" />
           <div
             ref={textoCapa}
             className="absolute inset-x-0 bottom-0 contenedor pb-12 sm:pb-16 lg:inset-y-0 lg:right-auto lg:w-1/2 lg:max-w-none lg:flex lg:flex-col lg:justify-center lg:pl-[max(4rem,calc((100vw-72rem)/2+2rem))] lg:pr-14 lg:pb-0"
             style={mover ? { opacity: 0 } : undefined}
           >
-            <p className="nota-mano text-[#9fe0bf] text-[2.1rem] sm:text-[2.6rem] lg:text-[3.4rem]">Hola, soy Joshua.</p>
+            <p className="nota-mano text-claro text-[2.1rem] sm:text-[2.6rem] lg:text-[3.4rem]">Hola, soy Joshua.</p>
             <p className="mt-2 max-w-xl text-white text-[1.15rem] sm:text-[1.35rem] lg:text-[1.7rem] leading-snug">
               Trabajo solo, de principio a fin. Usted me cuenta, yo lo construyo y yo le enseño cómo funciona.
             </p>
@@ -292,9 +292,9 @@ export function PortadaFotos() {
           <div className="absolute inset-0 z-20 cursor-pointer" onClick={() => saltar.current()} aria-hidden>
             <div ref={palabras} className="absolute inset-0 flex flex-col items-center justify-center gap-[210px] sm:flex-row sm:gap-[320px] px-4 font-[family-name:var(--font-titulo)] font-bold text-tinta text-[1.15rem] sm:text-[2rem]">
               <span>Lo que hoy hace</span>
-              <span className="font-[family-name:var(--font-mano)] text-acento text-[1.5rem] sm:text-[2.6rem]">a mano.</span>
+              <span className="font-[family-name:var(--font-mano)] text-mano text-[1.5rem] sm:text-[2.6rem]">a mano.</span>
             </div>
-            <div ref={tarjeta} className="absolute overflow-hidden rounded-[14px] shadow-[0_20px_40px_-18px_rgba(11,37,69,.5)] bg-linea" style={{ opacity: 0 }}>
+            <div ref={tarjeta} className="absolute overflow-hidden rounded-[14px] shadow-[0_20px_40px_-18px_rgba(42,32,27,.5)] bg-linea" style={{ opacity: 0 }}>
               <Fotos i={i} />
             </div>
           </div>

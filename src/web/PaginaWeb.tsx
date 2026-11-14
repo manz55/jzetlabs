@@ -36,7 +36,7 @@ export default function PaginaWeb() {
 
 function Barra() {
   return (
-    <header className="sticky top-0 z-40 bg-[#fbf9f5]/95 backdrop-blur border-b border-linea">
+    <header className="sticky top-0 z-40 bg-crema/95 backdrop-blur border-b border-linea">
       <div className="contenedor flex items-center justify-between gap-4 h-16">
         <Logo href="/" />
         <a href="#precios" className="btn btn-principal !min-h-[40px] !px-4 !py-2 !text-[0.92rem]">
@@ -81,7 +81,7 @@ function Maqueta() {
   return (
     <figure className="relative mx-auto w-full max-w-[560px] pb-10 sm:pb-6" aria-label="Ejemplo de página web para una clínica dental, en computadora y en celular">
       {/* navegador */}
-      <div className="w-[80%] sm:w-full rounded-xl border border-linea bg-white shadow-[0_20px_50px_-20px_rgba(11,37,69,.35)] overflow-hidden" aria-hidden>
+      <div className="w-[80%] sm:w-full rounded-xl border border-linea bg-white shadow-[0_20px_50px_-20px_rgba(42,32,27,.3)] overflow-hidden" aria-hidden>
         <div className="flex items-center gap-2 px-3 h-9 bg-fondo border-b border-linea">
           <span className="w-2.5 h-2.5 rounded-full bg-[#e5e7eb]" />
           <span className="w-2.5 h-2.5 rounded-full bg-[#e5e7eb]" />
@@ -126,7 +126,7 @@ function Maqueta() {
       </div>
 
       {/* celular */}
-      <div className="absolute -bottom-2 right-0 sm:-right-4 w-[44%] sm:w-[36%] max-w-[190px] rounded-[1.6rem] border-[5px] border-tinta bg-white shadow-[0_24px_50px_-18px_rgba(11,37,69,.55)] overflow-hidden" aria-hidden>
+      <div className="absolute -bottom-2 right-0 sm:-right-4 w-[44%] sm:w-[36%] max-w-[190px] rounded-[1.6rem] border-[5px] border-tinta bg-white shadow-[0_24px_50px_-18px_rgba(42,32,27,.5)] overflow-hidden" aria-hidden>
         <div className="mx-auto mt-1.5 h-1.5 w-10 rounded-full bg-tinta/90" />
         <div className="px-3 pt-3 pb-14">
           <p className="text-[0.5rem] font-semibold uppercase tracking-wider text-acento">Clínica Aurora</p>
@@ -282,7 +282,7 @@ function Paquetes() {
           {PAQUETES.map((p) => (
             <article
               key={p.id}
-              className={`relative rounded-xl bg-white p-6 sm:p-7 flex flex-col aparece ${p.destacado ? "border-2 border-acento shadow-[0_18px_40px_-22px_rgba(26,127,78,.55)]" : "border border-linea"}`}
+              className={`relative rounded-xl bg-white p-6 sm:p-7 flex flex-col aparece ${p.destacado ? "border-2 border-acento shadow-[0_18px_40px_-22px_rgba(200,73,15,.45)]" : "border border-linea"}`}
             >
               {p.destacado && (
                 <span className="absolute -top-3 left-6 rounded-full bg-acento text-white text-[0.75rem] font-semibold px-3 py-1">Más elegido</span>

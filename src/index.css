@@ -4,41 +4,48 @@
 @custom-variant oscuro (&:where(.oscuro, .oscuro *));
 
 /*
- * Jzet Labs — landing formal para empresas.
- * Un color principal (azul marino) y un solo acento (verde, para la acción).
- * Contraste AA: texto #1f2937 y #4b5563 sobre blanco; blanco sobre marino y verde.
+ * Jzet Labs — paleta "gato naranja" (13 nov 2026): naranja y crema como el gato
+ * de Joshua, con café muy oscuro en lugar de negro.
+ * "marino" quedó como nombre del color oscuro de la marca (ahora café).
+ * acento = naranja profundo para botones y texto pequeño (contraste AA);
+ * mano = naranja brillante para el logo y las palabras a mano.
  */
 @theme {
-  --color-marino: #0b2545;
-  --color-marino-2: #13315c;
-  --color-acento: #1a7f4e;
-  --color-acento-2: #146a41;
-  --color-tinta: #111827;
-  --color-texto: #374151;
-  --color-suave: #4b5563;
-  --color-linea: #e5e7eb;
-  --color-fondo: #f5f7fa;
+  --color-marino: #2a201b;
+  --color-marino-2: #3a2d26;
+  --color-acento: #c8490f;
+  --color-acento-2: #a83c0b;
+  --color-mano: #e05a12;
+  --color-claro: #ffb07a;
+  --color-tinta: #2a201b;
+  --color-texto: #4a3d35;
+  --color-suave: #6b5b50;
+  --color-linea: #eadfd4;
+  --color-fondo: #fdf1e6;
 
-  --color-papel: #f7f4ee;
+  --color-papel: #fff8f1;
   --color-blanco: #ffffff;
-  --color-crema: #fbf9f5;
-  --color-noche: #111827;
+  --color-crema: #fffaf5;
+  --color-noche: #1c1714;
 
   --font-sans: "Instrument Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-titulo: "Bricolage Grotesque", "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mano: "Caveat", cursive;
 }
 
-/* modo oscuro: los neutros se invierten; marino, verde y "noche" se quedan */
+/* modo oscuro: los neutros se invierten a café noche; el naranja se aclara un poco */
 .oscuro {
-  --color-tinta: #eef2f7;
-  --color-texto: #cdd5df;
-  --color-suave: #9ba8b7;
-  --color-linea: #253244;
-  --color-fondo: #111a26;
-  --color-papel: #0d141d;
-  --color-blanco: #0f1722;
-  --color-crema: #0b1119;
+  --color-tinta: #fff8f1;
+  --color-texto: #e6d9cd;
+  --color-suave: #b9a796;
+  --color-linea: #3a2e27;
+  --color-fondo: #241c17;
+  --color-papel: #1c1714;
+  --color-blanco: #201915;
+  --color-crema: #18120f;
+  --color-acento: #e8641f;
+  --color-acento-2: #f07a3a;
+  --color-mano: #ff8a3d;
   color-scheme: dark;
 }
 
@@ -81,9 +88,9 @@
   }
   .btn-principal { background: var(--color-acento); color: #fff; }
   .btn-principal:hover { background: var(--color-acento-2); }
-  .btn-secundario { background: #fff; color: var(--color-marino); border: 1px solid #cbd5e1; }
+  .btn-secundario { background: #fff; color: var(--color-marino); border: 1px solid #e3d3c5; }
   .btn-secundario:hover { border-color: var(--color-marino); }
-  .oscuro .btn-secundario { background: transparent; color: var(--color-tinta); border-color: #3a4a5f; }
+  .oscuro .btn-secundario { background: transparent; color: var(--color-tinta); border-color: #4a3b32; }
   .oscuro .btn-secundario:hover { border-color: var(--color-tinta); }
 
   .etiqueta { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-acento); }
@@ -98,11 +105,16 @@
   .panel-rubro { animation: entrar-panel 0.35s ease; }
   @keyframes entrar-panel { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
+  /* logo: la colita del gato se mueve una vez al cargar y al pasar el mouse */
+  .logo-gato .colita { transform-box: fill-box; transform-origin: 15% 100%; animation: colita 1.1s 0.8s ease-in-out 1; }
+  .group:hover .logo-gato .colita { animation: colita 1.1s ease-in-out 1; }
+  @keyframes colita { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-22deg); } 55% { transform: rotate(14deg); } 80% { transform: rotate(-6deg); } }
+
   /* hojas: cada sección sube sobre la anterior (ver lib/hojas.ts) */
   .hoja {
     position: sticky;
     border-radius: 2rem 2rem 0 0;
-    box-shadow: 0 -22px 50px -28px rgba(11, 37, 69, 0.35);
+    box-shadow: 0 -22px 50px -28px rgba(42, 32, 27, 0.35);
   }
   @media (min-width: 1024px) { .hoja { border-radius: 2.75rem 2.75rem 0 0; } }
 
@@ -116,4 +128,5 @@
   .js .aparece { opacity: 1; transform: none; transition: none; }
   .trazo path { animation: none; stroke-dashoffset: 0; }
   .panel-rubro { animation: none; }
+  .logo-gato .colita, .group:hover .logo-gato .colita { animation: none; }
 }

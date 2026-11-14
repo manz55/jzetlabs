@@ -21,7 +21,7 @@ import maestrosMob from "@/assets/portfolio/maestros-mob-grupos.jpg";
 
 function Celular({ src, alt, className = "" }: { src: string; alt: string; className?: string }) {
   return (
-    <div className={`rounded-[1.1rem] border-[4px] border-noche bg-noche overflow-hidden shadow-[0_20px_40px_-16px_rgba(11,37,69,.6)] ${className}`}>
+    <div className={`rounded-[1.1rem] border-[4px] border-noche bg-noche overflow-hidden shadow-[0_20px_40px_-16px_rgba(42,32,27,.6)] ${className}`}>
       <img src={src} alt={alt} className="block w-full aspect-[9/19] object-cover object-top rounded-[0.8rem]" loading="lazy" />
     </div>
   );

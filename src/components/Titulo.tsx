@@ -16,13 +16,13 @@ type Props = {
 export function Titulo({ id, antes, acento, despues = "", cuenta, etiqueta, claro = false, className = "" }: Props) {
   return (
     <div className={className}>
-      {etiqueta && <p className={`etiqueta ${claro ? "!text-[#9fe0bf]" : ""}`}>{etiqueta}</p>}
+      {etiqueta && <p className={`etiqueta ${claro ? "!text-claro" : ""}`}>{etiqueta}</p>}
       <h2
         id={id}
         className={`${etiqueta ? "mt-3" : ""} text-[2.4rem] sm:text-[3.4rem] lg:text-[4.1rem] leading-[1.04] tracking-[-0.03em] ${claro ? "!text-white" : ""}`}
       >
         {antes}{" "}
-        <span className={`font-[family-name:var(--font-mano)] font-semibold text-[1.15em] leading-none tracking-normal whitespace-nowrap ${claro ? "text-[#9fe0bf]" : "text-acento"}`}>
+        <span className={`font-[family-name:var(--font-mano)] font-semibold text-[1.15em] leading-none tracking-normal whitespace-nowrap ${claro ? "text-claro" : "text-mano"}`}>
           {acento}
         </span>
         {despues}

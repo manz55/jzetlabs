@@ -256,7 +256,7 @@ export function Llamado() {
 
 export function Pie() {
   return (
-    <footer className="bg-[#081a31] text-white/80">
+    <footer className="bg-noche text-white/80">
       <div className="contenedor py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
         <Logo claro />
         <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2" aria-label="Pie de página">
