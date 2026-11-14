@@ -12,4 +12,13 @@ export default defineConfig({
   resolve: {
     alias: { '@': resolve(__dirname, './src') },
   },
+  build: {
+    rollupOptions: {
+      // dos páginas: la Home (/) y la de páginas web para negocios (/web)
+      input: {
+        main: resolve(__dirname, 'index.html'),
+        web: resolve(__dirname, 'web/index.html'),
+      },
+    },
+  },
 })
