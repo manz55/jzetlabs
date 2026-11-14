@@ -110,7 +110,7 @@
   @keyframes entrar-panel { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
   /* logo: la colita del gato se mueve una vez al cargar y al pasar el mouse */
-  .logo-gato .colita { transform-box: fill-box; transform-origin: 15% 100%; animation: colita 1.1s 0.8s ease-in-out 1; }
+  .logo-gato .colita { transform-box: fill-box; transform-origin: 85% 100%; animation: colita 1.1s 0.8s ease-in-out 1; }
   .group:hover .logo-gato .colita { animation: colita 1.1s ease-in-out 1; }
   @keyframes colita { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-22deg); } 55% { transform: rotate(14deg); } 80% { transform: rotate(-6deg); } }
 

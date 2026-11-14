@@ -8,16 +8,10 @@ import { MARCA } from "@/data/site";
 export function LogoGato({ className = "" }: { className?: string }) {
   return (
     <svg viewBox="0 0 36 40" className={`logo-gato ${className}`} aria-hidden>
-      <path d="M11.5 9.6 L13.6 2.2 L17.6 7.4 Z M18.4 7.4 L22.4 2.2 L24.5 9.6 Z" className="fill-mano" />
-      <path
-        d="M10.5 10.2 L25.5 10.2 M21 10.2 L21 26.5 C21 33.6 16 36.8 11 35 C7.6 33.7 6.4 30.6 7.8 28.2"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="4.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path className="colita stroke-mano" d="M7.8 28.2 C6.2 26.2 7.2 23.8 9.6 24.3" fill="none" strokeWidth="2.6" strokeLinecap="round" />
+      <path className="colita stroke-mano" d="M7.8 28.2 C8.9 26.3 9.2 23.2 7.2 21.9 C5.5 20.8 3.6 22 4.2 23.9" fill="none" strokeWidth="4.2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M11.6 10.2 L13.9 2.6 L17.4 10.2 Z M18.6 10.2 L22.1 2.6 L24.4 10.2 Z" className="fill-mano stroke-mano" strokeWidth="1.2" strokeLinejoin="round" />
+      <path d="M10.5 10.2 L25.5 10.2" fill="none" stroke="currentColor" strokeWidth="4.2" strokeLinecap="round" />
+      <path d="M21 10.2 L21 26.5 C21 33.6 16 36.8 11 35 C7.6 33.7 6.4 30.6 7.8 28.2" fill="none" stroke="currentColor" strokeWidth="4.2" strokeLinejoin="round" />
     </svg>
   );
 }

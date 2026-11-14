@@ -9,11 +9,22 @@ import { Send } from "lucide-react";
 import { WHATSAPP_DISPLAY, whatsappLink } from "@/data/site";
 import { LogoGato } from "./Logo";
 import { Modal } from "./Modal";
+import { abrirTawk, tawkActivo } from "@/lib/tawk";
 
 const EVENTO = "jz-chat";
 
-export function abrirChat(mensaje = "") {
+function abrirVentanita(mensaje: string) {
   window.dispatchEvent(new CustomEvent(EVENTO, { detail: mensaje }));
+}
+
+/**
+ * "Escríbame" sin mensaje: si Tawk.to está activo, abre el chat de la página;
+ * si no (o si falla), la ventanita que arma el mensaje de WhatsApp.
+ * Con un mensaje (p. ej. "Cotizar por WhatsApp"), siempre la ventanita.
+ */
+export function abrirChat(mensaje = "") {
+  if (!mensaje && tawkActivo()) abrirTawk(() => abrirVentanita(""));
+  else abrirVentanita(mensaje);
 }
 
 const OPCIONES = [
