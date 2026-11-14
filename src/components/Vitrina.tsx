@@ -71,7 +71,7 @@ export function PortadaVitrina() {
           </dl>
           <p className="mt-2 text-sm font-semibold text-acento">Pago único, sin mensualidades obligatorias.</p>
 
-          <div className="mt-8 flex flex-col sm:flex-row gap-3">
+          <div className="mt-8 flex flex-col sm:flex-row sm:flex-wrap gap-3 [&>a]:whitespace-nowrap">
             <a href={WA_HOLA} target="_blank" rel="noopener noreferrer" className="btn btn-principal">
               <IconoWhatsApp /> Escribirme por WhatsApp
             </a>
