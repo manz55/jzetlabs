@@ -14,6 +14,7 @@ import efamicDesk from "@/assets/portfolio/efamic-desk.jpg";
 import efamicMob from "@/assets/portfolio/efamic-mob.jpg";
 import maestrosDesk from "@/assets/portfolio/maestros-desk.jpg";
 import maestrosMob from "@/assets/portfolio/maestros-mob-grupos.jpg";
+import foto from "@/assets/joshua.jpg";
 import { WA_HOLA } from "@/data/site";
 import { IconoWhatsApp } from "./Secciones";
 
@@ -188,13 +189,11 @@ export function ComoTrabajo() {
           <h2 id="como-titulo" className="mt-3 text-[1.75rem] sm:text-[2.2rem]">
             Una sola persona, de principio a fin.
           </h2>
-          <div className="mt-6 flex items-center gap-4">
-            {/* FOTO: cuando Josh mande su foto, cambiar este círculo por <img … /> */}
-            <div className="grid place-items-center w-20 h-20 shrink-0 rounded-full bg-marino text-white font-[family-name:var(--font-titulo)] font-bold text-[1.9rem]" aria-hidden>
-              J
-            </div>
-            <p className="text-suave">Sin intermediarios ni centros de llamadas: yo escucho, yo lo construyo y yo le doy soporte.</p>
-          </div>
+          <p className="mt-3 text-suave">Sin intermediarios ni centros de llamadas: yo escucho, yo lo construyo y yo le doy soporte.</p>
+          <figure className="mt-6 max-w-[340px]">
+            <img src={foto} alt="Joshua Zet sentado frente a las montañas" width={675} height={1200} className="w-full aspect-[4/5] object-cover object-[50%_45%] rounded-2xl border border-linea" loading="lazy" />
+            <figcaption className="mt-2 nota-mano text-[1.25rem] text-suave">Joshua Zet · Guatemala</figcaption>
+          </figure>
         </div>
         <ol className="grid sm:grid-cols-2 gap-5">
           {PASOS.map((p, i) => (
