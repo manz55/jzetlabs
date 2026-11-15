@@ -7,6 +7,7 @@ import { Modal } from "@/components/Modal";
 import { whatsappLink } from "@/data/site";
 
 export const DEMOS = [
+  { nombre: "Clínica", href: "/demos/clinica/" },
   { nombre: "Tienda de ropa", href: "/demos/ropa/" },
   { nombre: "Restaurante", href: "/demos/restaurante/" },
   { nombre: "Tiempo compartido", href: "/demos/tiempo-compartido/" },

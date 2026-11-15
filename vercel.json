@@ -39,6 +39,14 @@
     {
       "source": "/demos/tiempo-compartido/",
       "destination": "/demos/tiempo-compartido/index.html"
+    },
+    {
+      "source": "/demos/clinica",
+      "destination": "/demos/clinica/index.html"
+    },
+    {
+      "source": "/demos/clinica/",
+      "destination": "/demos/clinica/index.html"
     }
   ]
 }

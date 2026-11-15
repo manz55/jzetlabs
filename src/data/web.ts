@@ -58,7 +58,7 @@ export const PAQUETES = [
  * Mientras quede vacía, el botón dice "Demo muy pronto" y no lleva a ningún lado.
  */
 export const DEMOS = [
-  { categoria: "Clínica Dental / Estética", titulo: "Citas y servicios claros", url: "", estilo: "clinica" },
+  { categoria: "Clínica Dental / Estética", titulo: "Citas y servicios claros", url: "/demos/clinica/", estilo: "clinica" },
   { categoria: "Tienda en Línea", titulo: "Catálogo con pedidos por WhatsApp", url: "/demos/ropa/", estilo: "tienda" },
   { categoria: "Servicios Profesionales", titulo: "Presencia formal y contacto directo", url: "", estilo: "servicios" },
 ] as const;
