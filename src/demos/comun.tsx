@@ -9,14 +9,14 @@ import { whatsappLink } from "@/data/site";
 export const DEMOS = [
   { nombre: "Tienda de ropa", href: "/demos/ropa/" },
   { nombre: "Restaurante", href: "/demos/restaurante/" },
-  { nombre: "Tiempo compartido", href: "/demos/tienda/?tipo=tiempo" },
+  { nombre: "Tiempo compartido", href: "/demos/tiempo-compartido/" },
 ];
 
 export const qz = (n: number) => `Q${n.toLocaleString("en-US")}`;
 
 /* Banda de arriba: dice que es demo y lleva a las otras */
 export function BandaDemos() {
-  const aqui = location.pathname + (location.pathname.startsWith("/demos/tienda") ? location.search : "");
+  const aqui = location.pathname.endsWith("/") ? location.pathname : location.pathname + "/";
   return (
     <div className="relative z-40 bg-[#1c1714] text-white/85 text-[0.8rem]">
       <div className="mx-auto max-w-7xl px-4 py-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">

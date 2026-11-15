@@ -1,15 +1,7 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import '../../index.css'
-import TiendaDemo from './TiendaDemo.tsx'
-
-// la tienda de ropa y el restaurante ahora tienen su propia página
+/*
+ * La demo vieja de tienda se dividió en tres páginas propias.
+ * Este archivo solo manda los links viejos a la página nueva.
+ */
 const t = new URLSearchParams(location.search).get('tipo')
-if (t === 'restaurante') location.replace('/demos/restaurante/')
-else if (t !== 'tiempo') location.replace('/demos/ropa/')
-
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <TiendaDemo />
-  </StrictMode>,
-)
+const destino = t === 'restaurante' ? '/demos/restaurante/' : t === 'tiempo' ? '/demos/tiempo-compartido/' : '/demos/ropa/'
+location.replace(destino)
