@@ -143,6 +143,19 @@
   .cajon[open] .cajon-caja { animation: cajon-entra 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); }
   @keyframes cajon-entra { from { transform: translateX(100%); } to { transform: none; } }
 
+  /* demo de restaurante: el plato gira muy despacio y el mapa es un dibujo de calles */
+  .plato-gira { animation: plato 90s linear infinite; }
+  @keyframes plato { to { transform: rotate(360deg); } }
+  .mapa {
+    background-color: #efe5d3;
+    background-image:
+      linear-gradient(90deg, transparent 47%, #fbf4e8 47%, #fbf4e8 53%, transparent 53%),
+      linear-gradient(0deg, transparent 46%, #fbf4e8 46%, #fbf4e8 54%, transparent 54%),
+      linear-gradient(90deg, transparent 18%, rgba(251, 244, 232, 0.8) 18%, rgba(251, 244, 232, 0.8) 21%, transparent 21%, transparent 79%, rgba(251, 244, 232, 0.8) 79%, rgba(251, 244, 232, 0.8) 82%, transparent 82%),
+      linear-gradient(0deg, transparent 20%, rgba(251, 244, 232, 0.8) 20%, rgba(251, 244, 232, 0.8) 23%, transparent 23%, transparent 77%, rgba(251, 244, 232, 0.8) 77%, rgba(251, 244, 232, 0.8) 80%, transparent 80%),
+      radial-gradient(circle at 78% 26%, #cfd8b8 0 14%, transparent 14.5%);
+  }
+
   /* hojas: cada sección sube sobre la anterior (ver lib/hojas.ts) */
   .hoja {
     position: sticky;
@@ -164,5 +177,5 @@
   .logo-gato .colita, .group:hover .logo-gato .colita { animation: none; }
   .modal[open] .modal-caja, .modal[open]::backdrop, .burbuja-entra, .punto { animation: none; }
   .btn:active { transform: none; }
-  .demo-hero, .demo-sube, .cinta, .cajon[open] .cajon-caja { animation: none; }
+  .demo-hero, .demo-sube, .cinta, .cajon[open] .cajon-caja, .plato-gira { animation: none; }
 }

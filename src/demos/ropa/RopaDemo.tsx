@@ -6,9 +6,10 @@
  * Fotos libres de Unsplash (src/assets/demo-tienda).
  */
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { ArrowRight, Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
+import { ArrowRight, ShoppingBag, Trash2, X } from "lucide-react";
 import { Modal } from "@/components/Modal";
 import { whatsappLink } from "@/data/site";
+import { BandaDemos, CierreJzet, Contador, qz } from "../comun";
 import ropa1 from "@/assets/demo-tienda/ropa-1.jpg";
 import ropa2 from "@/assets/demo-tienda/ropa-2.jpg";
 import ropa3 from "@/assets/demo-tienda/ropa-3.jpg";
@@ -21,7 +22,6 @@ import ropaLook from "@/assets/demo-tienda/ropa-look.jpg";
 const TINTA = "#141210";
 const ACENTO = "#c2410c";
 const FONDO = "#f6f3ee";
-const qz = (n: number) => `Q${n.toLocaleString("en-US")}`;
 
 type Categoria = "Camisas" | "Pantalones" | "Abrigos" | "Accesorios";
 type Prenda = {
@@ -278,7 +278,7 @@ export default function RopaDemo() {
         ))}
       </section>
 
-      <CierreJzet />
+      <CierreJzet demo="tienda de ropa" />
 
       {/* ficha de la prenda */}
       <Modal abierto={!!ficha} alCerrar={() => setFicha(null)} titulo={ficha?.nombre ?? "Prenda"} ancho="sm:w-[min(56rem,94vw)]">
@@ -488,20 +488,6 @@ function Ficha({ p, alAgregar, alVerGuia }: { p: Prenda; alAgregar: (p: Prenda, 
   );
 }
 
-function Contador({ valor, alCambiar }: { valor: number; alCambiar: (v: number) => void }) {
-  return (
-    <div className="inline-flex items-center rounded-full border border-black/15">
-      <button type="button" aria-label="Uno menos" onClick={() => alCambiar(valor - 1)} className="grid place-items-center w-9 h-9 rounded-full hover:bg-black/5 active:scale-90">
-        <Minus size={14} />
-      </button>
-      <span className="w-6 text-center tabular-nums text-sm font-semibold">{valor}</span>
-      <button type="button" aria-label="Uno más" onClick={() => alCambiar(valor + 1)} className="grid place-items-center w-9 h-9 rounded-full hover:bg-black/5 active:scale-90">
-        <Plus size={14} />
-      </button>
-    </div>
-  );
-}
-
 /* Panel que entra desde la derecha (la bolsa) */
 function Cajon({ abierto, alCerrar, children }: { abierto: boolean; alCerrar: () => void; children: ReactNode }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -523,57 +509,5 @@ function Cajon({ abierto, alCerrar, children }: { abierto: boolean; alCerrar: ()
     >
       <div className="cajon-caja h-full bg-[#fbf9f6] shadow-[-20px_0_60px_-30px_rgba(0,0,0,.5)]">{children}</div>
     </dialog>
-  );
-}
-
-/* Banda de arriba, común a las demos */
-export function BandaDemos() {
-  const demos = [
-    { nombre: "Tienda de ropa", href: "/demos/ropa/" },
-    { nombre: "Restaurante", href: "/demos/tienda/?tipo=restaurante" },
-    { nombre: "Tiempo compartido", href: "/demos/tienda/?tipo=tiempo" },
-  ];
-  const actual = location.pathname.startsWith("/demos/ropa") ? "/demos/ropa/" : location.pathname + location.search;
-  return (
-    <div className="relative z-40 bg-[#1c1714] text-white/85 text-[0.8rem]">
-      <div className="mx-auto max-w-7xl px-4 py-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <a href="/" className="hover:text-white">
-          ← Demo de <b className="text-white">Jzet Labs</b> · datos de ejemplo
-        </a>
-        <nav className="flex items-center gap-1 rounded-full bg-white/10 p-0.5" aria-label="Otras demos">
-          {demos.map((d) => (
-            <a key={d.href} href={d.href} aria-current={actual === d.href ? "page" : undefined} className={`rounded-full px-3 py-1 transition ${actual === d.href ? "bg-white text-[#1c1714] font-semibold" : "hover:text-white"}`}>
-              {d.nombre}
-            </a>
-          ))}
-        </nav>
-      </div>
-    </div>
-  );
-}
-
-function CierreJzet() {
-  return (
-    <footer className="bg-[#1c1714] text-white">
-      <div className="mx-auto max-w-7xl px-5 py-14 grid md:grid-cols-[1.4fr_1fr] gap-8 items-center">
-        <div>
-          <p className="text-white/60 text-sm">Esta es una demo de tienda de ropa hecha por Jzet Labs. El negocio y los precios son de ejemplo.</p>
-          <p className="mt-2 text-[1.8rem] sm:text-[2.3rem] font-bold leading-tight font-[family-name:var(--font-titulo)]">¿Quiere una tienda así para su negocio?</p>
-        </div>
-        <div className="flex flex-col sm:flex-row md:justify-end gap-3">
-          <a
-            href={whatsappLink("Hola, Joshua. Vi la demo de la tienda de ropa y quiero una página así para mi negocio.")}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-principal !rounded-full"
-          >
-            Escribirle a Joshua
-          </a>
-          <a href="/web" className="btn !rounded-full border border-white/25 text-white hover:bg-white/10">
-            Ver paquetes y precios
-          </a>
-        </div>
-      </div>
-    </footer>
   );
 }

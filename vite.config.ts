@@ -20,6 +20,7 @@ export default defineConfig({
         web: resolve(__dirname, 'web/index.html'),
         demoTienda: resolve(__dirname, 'demos/tienda/index.html'),
         demoRopa: resolve(__dirname, 'demos/ropa/index.html'),
+        demoRestaurante: resolve(__dirname, 'demos/restaurante/index.html'),
       },
     },
   },

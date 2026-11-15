@@ -163,7 +163,7 @@ function Banda({ tipo, setTipo }: { tipo: Tipo; setTipo: (t: Tipo) => void }) {
             <button
               key={t}
               type="button"
-              onClick={() => (t === "ropa" ? location.assign("/demos/ropa/") : setTipo(t))}
+              onClick={() => (t === "ropa" ? location.assign("/demos/ropa/") : t === "restaurante" ? location.assign("/demos/restaurante/") : setTipo(t))}
               aria-pressed={t === tipo}
               className={`rounded-full px-3 py-1 transition ${t === tipo ? "bg-white text-[#1c1714] font-semibold" : "hover:text-white"}`}
             >
