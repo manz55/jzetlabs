@@ -15,6 +15,14 @@
     {
       "source": "/demos/tienda/",
       "destination": "/demos/tienda/index.html"
+    },
+    {
+      "source": "/demos/ropa",
+      "destination": "/demos/ropa/index.html"
+    },
+    {
+      "source": "/demos/ropa/",
+      "destination": "/demos/ropa/index.html"
     }
   ]
 }

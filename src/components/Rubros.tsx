@@ -342,7 +342,7 @@ export function Rubros() {
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
               {v ? (
-                <a href={`/demos/tienda/?tipo=${v.demo.tipo}`} target="_blank" rel="noopener" className="btn btn-principal">
+                <a href={v.demo.tipo === "ropa" ? "/demos/ropa/" : `/demos/tienda/?tipo=${v.demo.tipo}`} target="_blank" rel="noopener" className="btn btn-principal">
                   {v.demo.texto}
                 </a>
               ) : r.demo ? (
