@@ -1,14 +1,11 @@
 /*
  * Portada con fotos (idea inspirada en el movimiento de la plantilla Halden, sin copiar su diseño):
- * 1. Entrada: en el centro pasan la foto de Joshua y los 4 trabajos reales, con
- *    "Lo que hoy hace" … "a mano." a los lados.
- * 2. La tarjeta viaja y se vuelve la "pastilla" dentro del título.
- * 3. Al bajar, la pastilla crece hasta llenar la pantalla con la foto de Joshua.
- * La entrada dura menos de 2 s, se salta con un toque y solo sale la primera vez
- * por visita. Con "reducir movimiento" se ve todo quieto.
+ * El texto sale desde el primer momento (prueba de 5 segundos: qué hago, para
+ * quién, para qué sirve y cuánto cuesta). La "pastilla" del título va pasando
+ * la foto de Joshua y los trabajos reales; al bajar, crece hasta llenar la
+ * pantalla con la foto de Joshua. Con "reducir movimiento" se ve todo quieto.
  */
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { animate, stagger } from "animejs";
 import foto from "@/assets/joshua.jpg";
 import fotoGrande from "@/assets/joshua-grande.jpg";
 import dannyDesk from "@/assets/portfolio/danny-desk.jpg";
@@ -28,8 +25,15 @@ const FOTOS = [
   { src: efamicMob, pos: "50% 38%" },
   { src: maestrosMob, pos: "50% 22%" },
 ];
-/* cuánto se queda cada foto en la entrada (ms) */
-const TIEMPOS = [650, 260, 260, 260, 300];
+/* rubros con demo para probar: el cliente se ve ahí en un vistazo */
+const LATIENDA = "https://latienda-jzetlabs.vercel.app/";
+const RUBROS = [
+  { t: "Clínicas", href: "/demos/clinica/" },
+  { t: "Tiendas", href: "/demos/ropa/" },
+  { t: "Restaurantes", href: "/demos/restaurante/" },
+  { t: "Gimnasios", href: `${LATIENDA}gimnasio/socio.html` },
+  { t: "Empresas", href: `${LATIENDA}asistencia/empleado.html` },
+];
 
 function Fotos({ i }: { i: number }) {
   return (
@@ -53,11 +57,8 @@ export function PortadaFotos() {
   const pegado = useRef<HTMLDivElement>(null);
   const contenido = useRef<HTMLDivElement>(null);
   const pastilla = useRef<HTMLSpanElement>(null);
-  const tarjeta = useRef<HTMLDivElement>(null);
-  const palabras = useRef<HTMLDivElement>(null);
   const capa = useRef<HTMLDivElement>(null);
   const textoCapa = useRef<HTMLDivElement>(null);
-  const saltar = useRef<() => void>(() => {});
 
   const tema = useTema();
   const [vecesTema, setVecesTema] = useState(0);
@@ -65,7 +66,6 @@ export function PortadaFotos() {
   const [mover, setMover] = useState(false);
   // en celular: sol más chico y arriba, sin pájaros (pasarían sobre el texto)
   const [cel] = useState(() => typeof window !== "undefined" && matchMedia("(max-width: 640px)").matches);
-  const [intro, setIntro] = useState(false);
   const [i, setI] = useState(0);
 
   // al cambiar de modo, las montañas se vuelven a pintar
@@ -75,83 +75,20 @@ export function PortadaFotos() {
     setVecesTema((n) => n + 1);
   }, [tema]);
 
-  // decidir antes de pintar: con movimiento, y la entrada solo la primera vez
+  // decidir antes de pintar: con o sin movimiento
   useLayoutEffect(() => {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     setMover(true);
-    if (!sessionStorage.getItem("jz-entrada")) setIntro(true);
   }, []);
-
-  // 1 y 2: la entrada
-  useLayoutEffect(() => {
-    if (!intro) return;
-    sessionStorage.setItem("jz-entrada", "1");
-    const c = pegado.current!.getBoundingClientRect();
-    const t = tarjeta.current!;
-    const ancho = Math.min(150, c.width * 0.3);
-    const alto = ancho * 1.25;
-    Object.assign(t.style, { width: `${ancho}px`, height: `${alto}px`, left: `${(c.width - ancho) / 2}px`, top: `${(c.height - alto) / 2}px` });
-
-    animate(t, { scale: [0.7, 1], opacity: [0, 1], duration: 450, ease: "outCubic" });
-    animate(palabras.current!.children, { opacity: [0, 1], translateY: [14, 0], delay: stagger(120), duration: 600, ease: "outCubic" });
-
-    let paso = 0;
-    let reloj = 0;
-    let listo = false;
-    const acomodar = () => {
-      if (listo) return;
-      listo = true;
-      window.clearTimeout(reloj);
-      const c2 = pegado.current!.getBoundingClientRect();
-      const p = pastilla.current!.getBoundingClientRect();
-      const r = t.getBoundingClientRect();
-      animate(palabras.current!, { opacity: 0, duration: 250 });
-      animate(t, {
-        left: [r.left - c2.left, p.left - c2.left],
-        top: [r.top - c2.top, p.top - c2.top],
-        width: [r.width, p.width],
-        height: [r.height, p.height],
-        borderRadius: [14, p.height / 2],
-        duration: 650,
-        ease: "inOutCubic",
-        onComplete: () => setIntro(false),
-      });
-      animate(contenido.current!.querySelectorAll(".pieza"), {
-        opacity: [0, 1],
-        translateY: [18, 0],
-        delay: stagger(80, { start: 300 }),
-        duration: 550,
-        ease: "outCubic",
-      });
-      // respaldo: si el navegador pausó la animación (pestaña de fondo), mostrar todo igual
-      reloj = window.setTimeout(() => {
-        contenido.current?.querySelectorAll<HTMLElement>(".pieza").forEach((n) => {
-          n.style.opacity = "1";
-          n.style.transform = "none";
-        });
-        setIntro(false);
-      }, 1600);
-    };
-    const siguiente = () => {
-      paso += 1;
-      if (paso < FOTOS.length) {
-        setI(paso);
-        reloj = window.setTimeout(siguiente, TIEMPOS[paso]);
-      } else acomodar();
-    };
-    reloj = window.setTimeout(siguiente, TIEMPOS[0]);
-    saltar.current = acomodar;
-    return () => window.clearTimeout(reloj);
-  }, [intro]);
 
   // la pastilla sigue pasando fotos despacio
   useEffect(() => {
-    if (!mover || intro) return;
+    if (!mover) return;
     const t = window.setInterval(() => setI((n) => (n + 1) % FOTOS.length), 2400);
     return () => window.clearInterval(t);
-  }, [mover, intro]);
+  }, [mover]);
 
-  // 3: al bajar, la pastilla crece hasta llenar la pantalla
+  // al bajar, la pastilla crece hasta llenar la pantalla
   useEffect(() => {
     if (!mover) return;
     let caja = { t: 0, l: 0, r: 0, b: 0, h: 0 };
@@ -191,7 +128,7 @@ export function PortadaFotos() {
       removeEventListener("resize", alCambiarTamano);
       cancelAnimationFrame(cuadro);
     };
-  }, [mover, intro]);
+  }, [mover]);
 
   return (
     <section id="inicio" ref={escena} className={`portada-papel ${mover ? "h-[220svh]" : ""}`}>
@@ -220,26 +157,39 @@ export function PortadaFotos() {
         {/* contenido final */}
         <div
           ref={contenido}
-          className={`relative z-[1] contenedor flex flex-col items-center justify-center text-center pt-24 pb-14 ${mover ? "h-full" : "min-h-[85svh]"} ${intro ? "[&_.pieza]:opacity-0" : ""}`}
+          className={`relative z-[1] contenedor flex flex-col items-center justify-center text-center pt-20 sm:pt-24 pb-10 sm:pb-14 ${mover ? "h-full" : "min-h-[85svh]"}`}
         >
           <p className="pieza etiqueta">Páginas web y sistemas · Guatemala</p>
           <h1 className="pieza mt-4 max-w-5xl text-[2.25rem] sm:text-[3.3rem] lg:text-[4.1rem] leading-[1.1]">
-            Lo que hoy hace{" "}
+            Su página web y su sistema, hechos{" "}
             <span
               ref={pastilla}
               aria-hidden
-              className={`relative inline-block align-middle -mt-[0.12em] w-[2.1em] h-[0.92em] rounded-full overflow-hidden bg-linea ring-1 ring-black/10 ${intro ? "invisible" : ""}`}
+              className={`relative inline-block align-middle -mt-[0.12em] w-[2.1em] h-[0.92em] rounded-full overflow-hidden bg-linea ring-1 ring-black/10`}
             >
               <Fotos i={i} />
             </span>{" "}
-            <span className="font-[family-name:var(--font-mano)] font-semibold text-mano text-[1.18em] leading-none">a mano,</span>
+            <span className="font-[family-name:var(--font-mano)] font-semibold text-mano text-[1.18em] leading-none">a mano</span>
             <br className="hidden lg:block" />{" "}
-            lo pasamos a una página o a un sistema.
+            para su negocio.
           </h1>
-          <p className="pieza mt-6 max-w-2xl text-[1.05rem] sm:text-[1.15rem] text-texto">
-            Ya lo hice para un plomero, una tienda, una empresa y una iglesia, y con gusto lo hago para su negocio. Usted trata directo conmigo.
+          <p className="pieza mt-4 sm:mt-6 max-w-2xl text-[1rem] sm:text-[1.15rem] text-texto">
+            Que sus clientes lo encuentren, agenden y le pidan por WhatsApp. Y usted deja el cuaderno y el Excel. Trata directo conmigo.
           </p>
-          <div className="pieza mt-6 flex flex-wrap items-baseline justify-center gap-x-5 gap-y-1 rounded-2xl sm:rounded-full bg-papel/80 backdrop-blur-sm px-5 py-1.5 text-marino oscuro:text-tinta">
+          <div className="pieza mt-5 -mx-5 sm:mx-0 flex w-[calc(100%+2.5rem)] sm:w-auto items-center sm:justify-center gap-2 overflow-x-auto sm:flex-wrap px-5 sm:px-0 [scrollbar-width:none]">
+            <span className="shrink-0 text-[0.9rem] text-suave">Pruebe una demo:</span>
+            {RUBROS.map((r) => (
+              <a
+                key={r.t}
+                href={r.href}
+                {...(r.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                className="shrink-0 rounded-full border border-marino/15 bg-papel/80 backdrop-blur-sm px-3.5 py-1.5 text-[0.92rem] font-semibold text-marino oscuro:text-tinta oscuro:border-white/15 transition hover:border-acento hover:text-acento active:scale-95"
+              >
+                {r.t}
+              </a>
+            ))}
+          </div>
+          <div className="pieza mt-4 sm:mt-6 flex flex-wrap items-baseline justify-center gap-x-5 gap-y-1 rounded-2xl sm:rounded-full bg-papel/80 backdrop-blur-sm px-5 py-1.5 text-marino oscuro:text-tinta">
             <span>
               <span className="text-suave text-[0.9rem]">Páginas desde </span>
               <b className="font-[family-name:var(--font-titulo)] text-[1.35rem]">Q1,000</b>
@@ -250,7 +200,7 @@ export function PortadaFotos() {
             </span>
             <span className="text-sm font-semibold text-acento">Pago único</span>
           </div>
-          <div className="pieza mt-7 flex flex-col sm:flex-row gap-3 w-full sm:w-auto [&>a]:whitespace-nowrap">
+          <div className="pieza mt-5 sm:mt-7 flex flex-col sm:flex-row gap-3 w-full sm:w-auto [&>a]:whitespace-nowrap">
             <a href={WA_HOLA} target="_blank" rel="noopener noreferrer" onClick={(e) => { e.preventDefault(); abrirChat(); }} className="btn btn-principal">
               <IconoWhatsApp /> Escribirme por WhatsApp
             </a>
@@ -260,7 +210,7 @@ export function PortadaFotos() {
           </div>
         </div>
 
-        {/* 3: foto que crece al bajar */}
+        {/* foto que crece al bajar */}
         <div
           ref={capa}
           className={`bg-marino ${mover ? "absolute inset-0 z-10" : "relative h-[75svh]"}`}
@@ -288,18 +238,6 @@ export function PortadaFotos() {
           </div>
         </div>
 
-        {/* 1: entrada (se salta con un toque) */}
-        {intro && (
-          <div className="absolute inset-0 z-20 cursor-pointer" onClick={() => saltar.current()} aria-hidden>
-            <div ref={palabras} className="absolute inset-0 flex flex-col items-center justify-center gap-[210px] sm:flex-row sm:gap-[320px] px-4 font-[family-name:var(--font-titulo)] font-bold text-tinta text-[1.15rem] sm:text-[2rem]">
-              <span>Lo que hoy hace</span>
-              <span className="font-[family-name:var(--font-mano)] text-mano text-[1.5rem] sm:text-[2.6rem]">a mano.</span>
-            </div>
-            <div ref={tarjeta} className="absolute overflow-hidden rounded-[14px] shadow-[0_20px_40px_-18px_rgba(42,32,27,.5)] bg-linea" style={{ opacity: 0 }}>
-              <Fotos i={i} />
-            </div>
-          </div>
-        )}
       </div>
     </section>
   );
