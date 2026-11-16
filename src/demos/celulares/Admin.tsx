@@ -277,8 +277,8 @@ function Pedidos({ t }: { t: Tienda }) {
           const sig = SIGUIENTE[p.estado];
           return (
             <li key={p.id} className={`rounded-2xl bg-white ${p.nuevo ? "ring-2" : ""}`} style={p.nuevo ? { ["--tw-ring-color" as string]: PRIMARIO } : undefined}>
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3">
-                <button type="button" onClick={() => setAbierto(abierto === p.id ? null : p.id)} className="flex-1 min-w-[180px] text-left">
+              <div className="grid grid-cols-2 sm:grid-cols-[1fr_170px_170px] items-center gap-x-3 gap-y-2.5 px-4 py-3">
+                <button type="button" onClick={() => setAbierto(abierto === p.id ? null : p.id)} className="col-span-2 sm:col-span-1 min-w-0 text-left">
                   <span className="flex items-center gap-2">
                     <span className="font-mono font-bold">{p.id}</span>
                     {p.nuevo && <span className="rounded-full px-2 text-[0.68rem] font-bold text-white" style={{ background: PRIMARIO }}>Nuevo</span>}
@@ -292,7 +292,7 @@ function Pedidos({ t }: { t: Tienda }) {
                   value={p.estado}
                   onChange={(e) => mover(p, e.target.value as EstadoPedido)}
                   aria-label={`Estado del pedido ${p.id}`}
-                  className="rounded-full border-0 px-3 py-1.5 text-[0.8rem] font-bold"
+                  className="w-full rounded-full border-0 pl-2.5 pr-1 py-2 text-[0.76rem] sm:text-[0.82rem] font-bold"
                   style={{ background: ESTADOS_PEDIDO[p.estado].fondo, color: ESTADOS_PEDIDO[p.estado].color }}
                 >
                   {ESTADOS_ELEGIBLES.map((e) => (
@@ -301,10 +301,12 @@ function Pedidos({ t }: { t: Tienda }) {
                     </option>
                   ))}
                 </select>
-                {sig && (
-                  <button type="button" onClick={() => mover(p, sig.a)} className="rounded-full px-4 py-1.5 text-[0.85rem] font-bold text-white active:scale-95 transition" style={{ background: PRIMARIO }}>
+                {sig ? (
+                  <button type="button" onClick={() => mover(p, sig.a)} className="w-full rounded-full px-3 py-2 text-[0.85rem] font-bold text-white active:scale-95 transition" style={{ background: PRIMARIO }}>
                     {sig.texto} →
                   </button>
+                ) : (
+                  <span className="w-full truncate rounded-full px-3 py-2 text-center text-[0.8rem] font-semibold text-black/40 bg-black/[0.03]">Sin pendientes</span>
                 )}
               </div>
               {abierto === p.id && (
