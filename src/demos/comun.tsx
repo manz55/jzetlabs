@@ -12,6 +12,7 @@ export const DEMOS = [
   { nombre: "Tienda de ropa", href: "/demos/ropa/" },
   { nombre: "Cosméticos", href: "/demos/cosmeticos/" },
   { nombre: "Fundadora", href: "/demos/fundadora/" },
+  { nombre: "Celulares", href: "/demos/celulares/" },
   { nombre: "Restaurante", href: "/demos/restaurante/" },
   { nombre: "Tiempo compartido", href: "/demos/tiempo-compartido/" },
 ];

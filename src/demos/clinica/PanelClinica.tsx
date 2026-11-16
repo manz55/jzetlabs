@@ -1010,7 +1010,7 @@ function Reportes({ citas, dias, extras }: { citas: Cita[]; dias: Date[]; extras
           <p className="font-bold">Citas por día</p>
           <div className="mt-5 flex h-44 items-end gap-2">
             {porDia.map(({ d, n }) => (
-              <div key={iso(d)} className="flex-1 flex flex-col items-center gap-1.5">
+              <div key={iso(d)} className="flex-1 h-full flex flex-col justify-end items-center gap-1.5">
                 <span className="text-[0.7rem] font-semibold opacity-60">{n}</span>
                 <div className="w-full rounded-t-lg transition-all" style={{ height: `${(n / max) * 100}%`, minHeight: 4, background: AZUL }} />
                 <span className="text-[0.68rem] opacity-55">{DIAS_CORTOS[d.getDay()]}</span>

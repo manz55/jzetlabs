@@ -14,6 +14,7 @@ import fotoRopa from "@/assets/demos/ropa.jpg";
 import fotoComida from "@/assets/demos/comida.jpg";
 import fotoResort from "@/assets/demos/resort.jpg";
 import fotoCosmeticos from "@/assets/demo-cosmeticos/kit.jpg";
+import fotoCelulares from "@/assets/demo-celulares/portada.jpg";
 import { whatsappLink } from "@/data/site";
 import { Titulo } from "./Titulo";
 
@@ -53,6 +54,16 @@ const VARIANTES_TIENDA: Variante[] = [
     demo: { texto: "Pruebe la demo de cosméticos", tipo: "cosmeticos" },
   },
   {
+    id: "celulares",
+    nombre: "Celulares",
+    foto: fotoCelulares,
+    problema: "“¿Precio? ¿Hay en azul? ¿Ya salió mi pedido?”, todo el día por mensaje.",
+    hoy: ["El catálogo es una historia que dura 24 horas.", "El stock se lleva en un cuaderno y se vende lo que ya no hay."],
+    sistema: ["Tienda con carrito, pago con tarjeta o transferencia y cuotas.", "El cliente rastrea su pedido o su reparación con un código.", "Usted ve ventas, stock por sucursal y devoluciones en su panel."],
+    visual: "foto",
+    demo: { texto: "Pruebe la demo de celulares", tipo: "celulares" },
+  },
+  {
     id: "comida",
     nombre: "Comida",
     foto: fotoComida,
@@ -74,13 +85,13 @@ const VARIANTES_TIENDA: Variante[] = [
   },
 ];
 
-const RUTA_DEMO: Record<string, string> = { ropa: "/demos/ropa/", cosmeticos: "/demos/cosmeticos/", restaurante: "/demos/restaurante/", tiempo: "/demos/tiempo-compartido/" };
+const RUTA_DEMO: Record<string, string> = { ropa: "/demos/ropa/", cosmeticos: "/demos/cosmeticos/", celulares: "/demos/celulares/", restaurante: "/demos/restaurante/", tiempo: "/demos/tiempo-compartido/" };
 
 /* Tarjetas con foto: al pasar el mouse por una, las demás se ponen borrosas; sin mouse, todas nítidas */
 function TarjetasFoco({ elegida, alElegir }: { elegida: number; alElegir: (i: number) => void }) {
   const [encima, setEncima] = useState<number | null>(null);
   return (
-    <div className="md:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-5" onMouseLeave={() => setEncima(null)} role="group" aria-label="Tipo de tienda">
+    <div className="md:col-span-2 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4" onMouseLeave={() => setEncima(null)} role="group" aria-label="Tipo de tienda">
       {VARIANTES_TIENDA.map((v, i) => {
         const borrosa = encima !== null && encima !== i;
         return (

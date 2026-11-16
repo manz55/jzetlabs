@@ -41,6 +41,14 @@
       "destination": "/demos/fundadora/index.html"
     },
     {
+      "source": "/demos/celulares",
+      "destination": "/demos/celulares/index.html"
+    },
+    {
+      "source": "/demos/celulares/",
+      "destination": "/demos/celulares/index.html"
+    },
+    {
       "source": "/demos/restaurante",
       "destination": "/demos/restaurante/index.html"
     },
