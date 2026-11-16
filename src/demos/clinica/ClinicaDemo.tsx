@@ -6,17 +6,18 @@
  * Fotos libres de Unsplash (src/assets/demo-clinica).
  */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, CalendarCheck, Check, ChevronsLeftRight, Clock, CreditCard, LayoutDashboard, MapPin, Phone, Smile } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarCheck, Check, ChevronsLeftRight, Clock, CreditCard, Eye, HeartHandshake, LayoutDashboard, MapPin, Phone, Smile, Target } from "lucide-react";
 import paciente from "@/assets/demo-clinica/paciente.jpg";
 import sonrisa from "@/assets/demo-clinica/sonrisa.jpg";
 import consultorio from "@/assets/demo-clinica/consultorio.jpg";
 import { BandaDemos, CierreJzet, MensajeWhatsApp, qz } from "../comun";
 import {
   AZUL, CIELO, DOCTORES, LETRA, MENTA, SERVICIOS_PAGINA as SERVICIOS, TINTA,
-  DIAS_CORTOS, fechaLarga, horasDelDia, iso, mayus, proximosDias, tomado, useCitas, yaPaso,
-  type Cita, type Doctor, type Servicio,
+  DIAS_CORTOS, ROLES, fechaLarga, horasDelDia, iso, mayus, proximosDias, tomado, useCitas, useExtras, usePermisos, yaPaso,
+  type Cita, type Doctor, type Servicio, type Sesion,
 } from "./datos";
 import { PanelClinica } from "./PanelClinica";
+import { Entrada, ICONO_ROL, PortalPaciente } from "./Sistema";
 
 export default function ClinicaDemo() {
   const [citas, setCitas, reiniciar] = useCitas();
@@ -25,6 +26,9 @@ export default function ClinicaDemo() {
   const [mensaje, setMensaje] = useState<string | null>(null);
   const [ultima, setUltima] = useState<Cita | null>(null);
   const [servicioInicial, setServicioInicial] = useState<string | null>(null);
+  const [sesion, setSesion] = useState<Sesion | null>(null);
+  const [extras, setExtras] = useExtras();
+  const [permisos, setPermisos] = usePermisos();
 
   // la vista se recuerda en la dirección (#panel), para poder compartir el link del panel
   useEffect(() => {
@@ -32,16 +36,17 @@ export default function ClinicaDemo() {
     addEventListener("hashchange", cambio);
     return () => removeEventListener("hashchange", cambio);
   }, []);
-  function irA(v: "pacientes" | "panel", dia?: string) {
+  function irA(v: "pacientes" | "panel", dia?: string, s?: Sesion | null) {
     if (dia) setDiaPanel(dia);
+    if (s !== undefined) setSesion(s);
     history.replaceState(null, "", v === "panel" ? "#panel" : location.pathname);
     setVista(v);
     window.scrollTo({ top: 0 });
   }
 
   useEffect(() => {
-    document.title = "Clínica Dental Aurora · Demo de Jzet Labs";
-  }, []);
+    if (vista === "pacientes") document.title = "Clínica Dental Aurora · Demo de Jzet Labs";
+  }, [vista]);
 
   const proximo = useMemo(() => {
     for (const d of proximosDias())
@@ -55,7 +60,38 @@ export default function ClinicaDemo() {
       <div style={{ fontFamily: LETRA }}>
         <BandaDemos />
         <SelectorVista vista={vista} irA={irA} />
-        <PanelClinica citas={citas} setCitas={setCitas} reiniciar={reiniciar} diaInicial={diaPanel} alMensaje={setMensaje} irAPagina={() => irA("pacientes")} />
+        {!sesion ? (
+          <Entrada alEntrar={setSesion} alVolver={() => irA("pacientes")} />
+        ) : sesion.rol === "paciente" ? (
+          <PortalPaciente
+            citas={citas}
+            setCitas={setCitas}
+            extras={extras}
+            alSalir={() => setSesion(null)}
+            alAgendar={() => {
+              irA("pacientes");
+              setTimeout(() => document.getElementById("agenda")?.scrollIntoView(), 50);
+            }}
+          />
+        ) : (
+          <PanelClinica
+            sesion={sesion}
+            citas={citas}
+            setCitas={setCitas}
+            extras={extras}
+            setExtras={setExtras}
+            permisos={permisos}
+            setPermisos={setPermisos}
+            reiniciar={() => {
+              reiniciar();
+              setExtras({});
+            }}
+            diaInicial={diaPanel}
+            alMensaje={setMensaje}
+            irAPagina={() => irA("pacientes")}
+            alSalir={() => setSesion(null)}
+          />
+        )}
         <MensajeWhatsApp mensaje={mensaje} alCerrar={() => setMensaje(null)} demo="clínica dental" que="el mensaje" />
       </div>
     );
@@ -86,16 +122,24 @@ export default function ClinicaDemo() {
             <a href="#servicios" className="hover:opacity-100">
               Servicios
             </a>
+            <a href="#nosotros" className="hover:opacity-100">
+              Nosotros
+            </a>
             <a href="#equipo" className="hover:opacity-100">
               Doctores
             </a>
-            <a href="#horario" className="hover:opacity-100">
-              Horario
+            <a href="#opiniones" className="hover:opacity-100">
+              Opiniones
             </a>
           </nav>
-          <a href="#agenda" className="rounded-full px-4 py-2 text-[0.9rem] font-bold text-white active:scale-95 transition" style={{ background: AZUL }}>
-            Agendar cita
-          </a>
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={() => irA("panel", undefined, { rol: "paciente" })} className="hidden sm:inline-flex rounded-full px-4 py-2 text-[0.9rem] font-bold hover:bg-[#0f2a3a]/5">
+              Mi cuenta
+            </button>
+            <a href="#agenda" className="rounded-full px-4 py-2 text-[0.9rem] font-bold text-white active:scale-95 transition" style={{ background: AZUL }}>
+              Agendar cita
+            </a>
+          </div>
         </div>
       </header>
 
@@ -154,6 +198,8 @@ export default function ClinicaDemo() {
         </div>
       </section>
 
+      <UnSistema alEntrar={(s) => irA("panel", undefined, s)} />
+
       <Agenda
         servicioInicial={servicioInicial}
         citas={citas}
@@ -207,6 +253,8 @@ export default function ClinicaDemo() {
 
       <AntesDespues />
 
+      <Nosotros />
+
       {/* equipo */}
       <section id="equipo" className="scroll-mt-16 mx-auto max-w-6xl px-5 py-16 sm:py-24">
         <h2 className="!text-[#0f2a3a] text-[2.2rem] sm:text-[3rem] font-extrabold tracking-[-0.03em]" style={{ fontFamily: LETRA }}>
@@ -232,6 +280,8 @@ export default function ClinicaDemo() {
         </div>
         <p className="mt-4 text-sm opacity-55">Nombres y fotos de ejemplo.</p>
       </section>
+
+      <Opiniones />
 
       {/* recordatorio */}
       <section className="mx-auto max-w-6xl px-5 pb-16 sm:pb-24">
@@ -298,10 +348,10 @@ export default function ClinicaDemo() {
         accion={
           ultima
             ? {
-                texto: "Ver la cita en el panel de la clínica",
+                texto: "Ver la cita como recepción",
                 alTocar: () => {
                   setMensaje(null);
-                  irA("panel", ultima.dia);
+                  irA("panel", ultima.dia, { rol: "recepcion" });
                 },
               }
             : undefined
@@ -316,12 +366,12 @@ function SelectorVista({ vista, irA }: { vista: "pacientes" | "panel"; irA: (v: 
   return (
     <div className="bg-[#12344a] text-white">
       <div className="mx-auto max-w-7xl px-4 py-2 flex flex-wrap items-center justify-center sm:justify-between gap-2 text-[0.82rem]">
-        <p className="hidden sm:block text-white/70">Esta demo tiene dos partes: lo que ve el paciente y lo que ve la clínica.</p>
+        <p className="hidden sm:block text-white/70">Esta demo tiene dos partes: la página que ve el público y el sistema por dentro.</p>
         <div className="flex rounded-full bg-white/10 p-0.5" role="group" aria-label="Vista de la demo">
           {(
             [
               ["pacientes", "Página de pacientes", Smile],
-              ["panel", "Panel de la clínica", LayoutDashboard],
+              ["panel", "Sistema de la clínica", LayoutDashboard],
             ] as const
           ).map(([v, t, Icono]) => (
             <button
@@ -608,6 +658,138 @@ function AntesDespues() {
             className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize"
           />
         </div>
+      </div>
+    </section>
+  );
+}
+
+/* Lo que se entiende en 5 segundos: un solo sistema para todos */
+function UnSistema({ alEntrar }: { alEntrar: (s: Sesion) => void }) {
+  const tarjetas = [
+    { r: ROLES[4], t: "Pacientes", d: "Agendan en línea, ven sus citas, indicaciones y saldo." },
+    { r: ROLES[0], t: "Recepción", d: "Agenda de todos, confirma, manda recordatorios y cobra." },
+    { r: ROLES[1], t: "Doctores", d: "Su agenda, consultas, odontograma y plan de tratamiento." },
+    { r: ROLES[3], t: "Dueño", d: "Ingresos, reportes y qué puede ver cada quien." },
+  ];
+  return (
+    <section className="mx-auto max-w-6xl px-5 pb-10">
+      <div className="rounded-[2rem] bg-white p-6 sm:p-8 border border-[#0f2a3a]/8">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="font-bold text-[0.85rem] uppercase tracking-[0.14em]" style={{ color: AZUL }}>
+              Todo en un solo sistema
+            </p>
+            <h2 className="mt-1 !text-[#0f2a3a] text-[1.6rem] sm:text-[2rem] font-extrabold tracking-[-0.03em] leading-tight" style={{ fontFamily: LETRA }}>
+              Cada quien entra y ve lo suyo
+            </h2>
+          </div>
+          <p className="text-sm opacity-60">Toque uno para entrar como esa persona.</p>
+        </div>
+        <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {tarjetas.map(({ r, t, d }) => {
+            const Icono = ICONO_ROL[r.rol];
+            return (
+              <button
+                key={t}
+                type="button"
+                onClick={() => alEntrar({ rol: r.rol, doctor: r.doctor })}
+                className="group flex flex-col rounded-2xl p-4 text-left transition hover:shadow-md active:scale-[0.98]"
+                style={{ background: CIELO }}
+              >
+                <span className="grid place-items-center w-10 h-10 rounded-xl bg-white" style={{ color: AZUL }}>
+                  <Icono size={20} />
+                </span>
+                <span className="mt-3 font-extrabold text-[1.05rem]">{t}</span>
+                <span className="mt-1 flex-1 text-[0.88rem] opacity-70">{d}</span>
+                <span className="mt-3 inline-flex items-center gap-1 text-[0.85rem] font-bold" style={{ color: AZUL }}>
+                  Entrar <ArrowRight size={15} className="transition group-hover:translate-x-0.5" />
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* Quiénes somos: historia, misión, visión y valores (texto de ejemplo) */
+function Nosotros() {
+  const bloques = [
+    { Icono: Target, t: "Misión", d: "Atender a cada paciente con calma, explicarle todo antes de empezar y cobrarle lo justo." },
+    { Icono: Eye, t: "Visión", d: "Ser la clínica a la que las familias de la zona vuelven, y a la que mandan a sus conocidos." },
+    { Icono: HeartHandshake, t: "Valores", d: "Puntualidad, precios claros, higiene estricta y trato amable, sin regaños." },
+  ];
+  return (
+    <section id="nosotros" className="scroll-mt-16 mx-auto max-w-6xl px-5 pt-16 sm:pt-24">
+      <div className="grid lg:grid-cols-[1fr_1.15fr] gap-10 items-start">
+        <div>
+          <p className="font-bold text-[0.85rem] uppercase tracking-[0.14em]" style={{ color: AZUL }}>
+            Quiénes somos
+          </p>
+          <h2 className="mt-2 !text-[#0f2a3a] text-[2.2rem] sm:text-[3rem] font-extrabold tracking-[-0.03em] leading-[1.05]" style={{ fontFamily: LETRA }}>
+            Una clínica pequeña, a propósito
+          </h2>
+          <p className="mt-5 text-[1.05rem] opacity-75">
+            Aurora abrió en 2016 con un sillón y una idea: que ir al dentista no dé miedo ni sorpresas en la cuenta. Hoy somos dos doctores, una recepcionista y más de 1,500 pacientes que nos conocen por nombre.
+          </p>
+          <p className="mt-3 text-sm opacity-55">Historia, cifras y textos de ejemplo.</p>
+        </div>
+        <div className="grid gap-3">
+          {bloques.map(({ Icono, t, d }) => (
+            <div key={t} className="flex gap-4 rounded-3xl bg-white p-5 border border-[#0f2a3a]/8">
+              <span className="grid place-items-center w-11 h-11 shrink-0 rounded-2xl" style={{ background: CIELO, color: AZUL }}>
+                <Icono size={21} />
+              </span>
+              <div>
+                <h3 className="!text-[#0f2a3a] text-[1.15rem] font-bold" style={{ fontFamily: LETRA }}>
+                  {t}
+                </h3>
+                <p className="mt-0.5 opacity-70">{d}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* Opiniones: de ejemplo, con iniciales (en la real van las de sus pacientes, con su permiso) */
+function Opiniones() {
+  const lista = [
+    { n: "Paola G.", s: "Limpieza dental", t: "Me dijeron el precio desde antes y eso fue lo que pagué. Me llegó el recordatorio y no tuve que esperar." },
+    { n: "Ricardo M.", s: "Resina", t: "Le tengo pánico al dentista y la doctora me explicó todo con paciencia. No sentí nada." },
+    { n: "Familia Ávila", s: "Ortodoncia", t: "En el portal vemos cuánto llevamos pagado de los brackets de mi hija. Muy ordenado." },
+  ];
+  return (
+    <section id="opiniones" className="scroll-mt-16 mx-auto max-w-6xl px-5 pb-16 sm:pb-24">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <h2 className="!text-[#0f2a3a] text-[2.2rem] sm:text-[3rem] font-extrabold tracking-[-0.03em]" style={{ fontFamily: LETRA }}>
+          Lo que dicen los pacientes
+        </h2>
+        <span className="rounded-full px-3 py-1 text-[0.8rem] font-semibold" style={{ background: CIELO, color: AZUL }}>
+          Opiniones de ejemplo
+        </span>
+      </div>
+      <div className="mt-8 grid md:grid-cols-3 gap-4">
+        {lista.map((o) => (
+          <figure key={o.n} className="flex flex-col rounded-3xl bg-white p-6 border border-[#0f2a3a]/8">
+            <blockquote className="flex-1 text-[1.02rem] leading-relaxed">“{o.t}”</blockquote>
+            <figcaption className="mt-5 flex items-center gap-3">
+              <span className="grid place-items-center w-10 h-10 rounded-full text-[0.85rem] font-bold text-white" style={{ background: AZUL }}>
+                {o.n
+                  .split(" ")
+                  .map((x) => x[0])
+                  .join("")}
+              </span>
+              <span>
+                <span className="block font-bold">{o.n}</span>
+                <span className="block text-[0.82rem] opacity-60">{o.s}</span>
+              </span>
+            </figcaption>
+          </figure>
+        ))}
       </div>
     </section>
   );
