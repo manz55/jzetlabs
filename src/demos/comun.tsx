@@ -2,6 +2,7 @@
  * Piezas que comparten las demos: la banda de arriba, el cierre de Jzet Labs,
  * la vista de "así le llega el mensaje" y el contador de cantidad.
  */
+import { useEffect, useRef, type ReactNode } from "react";
 import { ArrowRight, Minus, Plus } from "lucide-react";
 import { Modal } from "@/components/Modal";
 import { whatsappLink } from "@/data/site";
@@ -9,6 +10,7 @@ import { whatsappLink } from "@/data/site";
 export const DEMOS = [
   { nombre: "Clínica", href: "/demos/clinica/" },
   { nombre: "Tienda de ropa", href: "/demos/ropa/" },
+  { nombre: "Cosméticos", href: "/demos/cosmeticos/" },
   { nombre: "Restaurante", href: "/demos/restaurante/" },
   { nombre: "Tiempo compartido", href: "/demos/tiempo-compartido/" },
 ];
@@ -24,7 +26,7 @@ export function BandaDemos() {
         <a href="/" className="hover:text-white">
           ← Demo de <b className="text-white">Jzet Labs</b> · datos de ejemplo
         </a>
-        <nav className="flex items-center gap-1 rounded-full bg-white/10 p-0.5" aria-label="Otras demos">
+        <nav className="flex max-w-full items-center gap-1 overflow-x-auto rounded-full bg-white/10 p-0.5 [scrollbar-width:none]" aria-label="Otras demos">
           {DEMOS.map((d) => {
             const activa = aqui === d.href;
             return (
@@ -32,7 +34,7 @@ export function BandaDemos() {
                 key={d.href}
                 href={d.href}
                 aria-current={activa ? "page" : undefined}
-                className={`rounded-full px-3 py-1 transition ${activa ? "bg-white text-[#1c1714] font-semibold" : "hover:text-white"}`}
+                className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1 transition ${activa ? "bg-white text-[#1c1714] font-semibold" : "hover:text-white"}`}
               >
                 {d.nombre}
               </a>
@@ -115,5 +117,29 @@ export function Contador({ valor, alCambiar, claro = false }: { valor: number; a
         <Plus size={14} />
       </button>
     </div>
+  );
+}
+
+/* Bolsa lateral que sale desde la derecha */
+export function Cajon({ abierto, alCerrar, children, fondo = "#fbf9f6" }: { abierto: boolean; alCerrar: () => void; children: ReactNode; fondo?: string }) {
+  const ref = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const d = ref.current;
+    if (!d) return;
+    if (abierto && !d.open) d.showModal();
+    if (!abierto && d.open) d.close();
+  }, [abierto]);
+  return (
+    <dialog
+      ref={ref}
+      aria-label="Su bolsa"
+      onClose={alCerrar}
+      onClick={(e) => {
+        if (e.target === ref.current) alCerrar();
+      }}
+      className="cajon"
+    >
+      <div className="cajon-caja h-full shadow-[-20px_0_60px_-30px_rgba(0,0,0,.5)]" style={{ background: fondo }}>{children}</div>
+    </dialog>
   );
 }

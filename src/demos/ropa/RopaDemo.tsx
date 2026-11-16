@@ -5,11 +5,11 @@
  * lookbook y bolsa lateral que arma el pedido de WhatsApp.
  * Fotos libres de Unsplash (src/assets/demo-tienda).
  */
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight, ShoppingBag, Trash2, X } from "lucide-react";
 import { Modal } from "@/components/Modal";
 import { whatsappLink } from "@/data/site";
-import { BandaDemos, CierreJzet, Contador, qz } from "../comun";
+import { BandaDemos, Cajon, CierreJzet, Contador, qz } from "../comun";
 import ropa1 from "@/assets/demo-tienda/ropa-1.jpg";
 import ropa2 from "@/assets/demo-tienda/ropa-2.jpg";
 import ropa3 from "@/assets/demo-tienda/ropa-3.jpg";
@@ -489,25 +489,3 @@ function Ficha({ p, alAgregar, alVerGuia }: { p: Prenda; alAgregar: (p: Prenda, 
 }
 
 /* Panel que entra desde la derecha (la bolsa) */
-function Cajon({ abierto, alCerrar, children }: { abierto: boolean; alCerrar: () => void; children: ReactNode }) {
-  const ref = useRef<HTMLDialogElement>(null);
-  useEffect(() => {
-    const d = ref.current;
-    if (!d) return;
-    if (abierto && !d.open) d.showModal();
-    if (!abierto && d.open) d.close();
-  }, [abierto]);
-  return (
-    <dialog
-      ref={ref}
-      aria-label="Su bolsa"
-      onClose={alCerrar}
-      onClick={(e) => {
-        if (e.target === ref.current) alCerrar();
-      }}
-      className="cajon"
-    >
-      <div className="cajon-caja h-full bg-[#fbf9f6] shadow-[-20px_0_60px_-30px_rgba(0,0,0,.5)]">{children}</div>
-    </dialog>
-  );
-}

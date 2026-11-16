@@ -25,6 +25,14 @@
       "destination": "/demos/ropa/index.html"
     },
     {
+      "source": "/demos/cosmeticos",
+      "destination": "/demos/cosmeticos/index.html"
+    },
+    {
+      "source": "/demos/cosmeticos/",
+      "destination": "/demos/cosmeticos/index.html"
+    },
+    {
       "source": "/demos/restaurante",
       "destination": "/demos/restaurante/index.html"
     },

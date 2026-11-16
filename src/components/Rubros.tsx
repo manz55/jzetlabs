@@ -13,6 +13,7 @@ import marcaje from "@/assets/sistema/cel-marcaje.jpg";
 import fotoRopa from "@/assets/demos/ropa.jpg";
 import fotoComida from "@/assets/demos/comida.jpg";
 import fotoResort from "@/assets/demos/resort.jpg";
+import fotoCosmeticos from "@/assets/demo-cosmeticos/kit.jpg";
 import { whatsappLink } from "@/data/site";
 import { Titulo } from "./Titulo";
 
@@ -42,6 +43,16 @@ const VARIANTES_TIENDA: Variante[] = [
     demo: { texto: "Pruebe la demo de tienda de ropa", tipo: "ropa" },
   },
   {
+    id: "cosmeticos",
+    nombre: "Cosméticos",
+    foto: fotoCosmeticos,
+    problema: "Todo el día contestando “¿precio?” y “¿qué tono me queda?”.",
+    hoy: ["Vende por Instagram y cada pedido es una conversación larga.", "Cursos y citas se apartan por mensaje, uno por uno."],
+    sistema: ["Precio, tono y cómo usarlo, a la vista.", "La clienta encuentra su tono de base en dos preguntas.", "Cursos con fechas y cupos, y pedidos que le llegan armados a WhatsApp."],
+    visual: "foto",
+    demo: { texto: "Pruebe la demo de cosméticos", tipo: "cosmeticos" },
+  },
+  {
     id: "comida",
     nombre: "Comida",
     foto: fotoComida,
@@ -63,11 +74,13 @@ const VARIANTES_TIENDA: Variante[] = [
   },
 ];
 
+const RUTA_DEMO: Record<string, string> = { ropa: "/demos/ropa/", cosmeticos: "/demos/cosmeticos/", restaurante: "/demos/restaurante/", tiempo: "/demos/tiempo-compartido/" };
+
 /* Tarjetas con foto: al pasar el mouse por una, las demás se ponen borrosas; sin mouse, todas nítidas */
 function TarjetasFoco({ elegida, alElegir }: { elegida: number; alElegir: (i: number) => void }) {
   const [encima, setEncima] = useState<number | null>(null);
   return (
-    <div className="md:col-span-2 grid grid-cols-3 gap-3 sm:gap-5" onMouseLeave={() => setEncima(null)} role="group" aria-label="Tipo de tienda">
+    <div className="md:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-5" onMouseLeave={() => setEncima(null)} role="group" aria-label="Tipo de tienda">
       {VARIANTES_TIENDA.map((v, i) => {
         const borrosa = encima !== null && encima !== i;
         return (
@@ -344,7 +357,7 @@ export function Rubros() {
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
               {v ? (
-                <a href={v.demo.tipo === "ropa" ? "/demos/ropa/" : v.demo.tipo === "restaurante" ? "/demos/restaurante/" : "/demos/tiempo-compartido/"} target="_blank" rel="noopener" className="btn btn-principal">
+                <a href={RUTA_DEMO[v.demo.tipo]} target="_blank" rel="noopener" className="btn btn-principal">
                   {v.demo.texto}
                 </a>
               ) : r.demo ? (
