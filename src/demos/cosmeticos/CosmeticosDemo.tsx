@@ -73,16 +73,16 @@ const TONOS_LABIAL: Tono[] = [
 
 const PRODUCTOS: Producto[] = [
   { id: "base", nombre: "Base HD líquida", categoria: "Makeup", precio: 245, foto: baseFoto, corto: "Cobertura media, acabado natural.", sirve: "Unifica el tono sin verse pesada. Dura todo el día y no tapa los poros.", uso: "Con brocha o esponja húmeda, del centro de la cara hacia afuera.", tonos: TONOS_BASE, etiqueta: "Más vendido" },
-  { id: "rubor", nombre: "Rubor en polvo", categoria: "Makeup", precio: 135, foto: rubor, corto: "Color que se difumina fácil.", sirve: "Da color y vida a la cara. Se construye por capas, sin manchar.", uso: "Sonría y aplíquelo en la parte alta del pómulo, hacia la sien.", tonos: TONOS_RUBOR },
+  { id: "rubor", nombre: "Rubor en polvo", categoria: "Makeup", precio: 135, foto: rubor, corto: "Color que se difumina fácil.", sirve: "Da color y vida a la cara. Se construye por capas, sin manchar.", uso: "Sonríe y aplícalo en la parte alta del pómulo, hacia la sien.", tonos: TONOS_RUBOR },
   { id: "polvo", nombre: "Polvo traslúcido", categoria: "Makeup", precio: 155, foto: polvo, corto: "Sella la base, quita el brillo.", sirve: "Fija el maquillaje y controla el brillo sin dejar la cara blanca en fotos.", uso: "Poca cantidad, con brocha grande, a toquecitos en la zona T." },
-  { id: "contorno", nombre: "Paleta de contorno", categoria: "Makeup", precio: 195, foto: paleta, corto: "8 tonos para esculpir.", sirve: "Contorno, iluminador y corrector en una sola paleta, para pieles claras y morenas.", uso: "Tonos oscuros bajo el pómulo, claros en lo alto. Difumine bien.", etiqueta: "Nuevo" },
-  { id: "labial", nombre: "Labial mate", categoria: "Makeup", precio: 89, foto: labialNude, corto: "Dura hasta 8 horas.", sirve: "Color intenso que no se corre ni reseca los labios.", uso: "Aplique directo o con pincel. Para más duración, una segunda capa.", tonos: TONOS_LABIAL },
-  { id: "rojo", nombre: "Labial rojo clásico", categoria: "Makeup", precio: 95, foto: labialRojo, corto: "El rojo que le queda a todas.", sirve: "Rojo con base azul que hace ver los dientes más blancos.", uso: "Delinee primero el contorno y rellene." },
+  { id: "contorno", nombre: "Paleta de contorno", categoria: "Makeup", precio: 195, foto: paleta, corto: "8 tonos para esculpir.", sirve: "Contorno, iluminador y corrector en una sola paleta, para pieles claras y morenas.", uso: "Tonos oscuros bajo el pómulo, claros en lo alto. Difumina bien.", etiqueta: "Nuevo" },
+  { id: "labial", nombre: "Labial mate", categoria: "Makeup", precio: 89, foto: labialNude, corto: "Dura hasta 8 horas.", sirve: "Color intenso que no se corre ni reseca los labios.", uso: "Aplícalo directo o con pincel. Para más duración, una segunda capa.", tonos: TONOS_LABIAL },
+  { id: "rojo", nombre: "Labial rojo clásico", categoria: "Makeup", precio: 95, foto: labialRojo, corto: "El rojo que le queda a todas.", sirve: "Rojo con base azul que hace ver los dientes más blancos.", uso: "Delinea primero el contorno y rellena." },
   { id: "serum", nombre: "Sérum de vitamina C", categoria: "Skincare", precio: 189, foto: serum, corto: "Ilumina y empareja el tono.", sirve: "Ayuda a bajar manchas. Con extractos de naranja y camu camu.", uso: "En la mañana, 3 gotas antes de la crema." },
   { id: "crema", nombre: "Crema hidratante botánica", categoria: "Skincare", precio: 165, foto: crema, corto: "Hidrata sin dejar brillo.", sirve: "Con aloe y caléndula. Prepara la piel para que la base se vea mejor.", uso: "Mañana y noche, después del sérum." },
-  { id: "limpiador", nombre: "Limpiador en gel", categoria: "Skincare", precio: 99, foto: limpiador, corto: "Quita todo el maquillaje.", sirve: "Limpia sin resecar, con té verde y pepino.", uso: "En la noche, masajee 30 segundos y enjuague." },
+  { id: "limpiador", nombre: "Limpiador en gel", categoria: "Skincare", precio: 99, foto: limpiador, corto: "Quita todo el maquillaje.", sirve: "Limpia sin resecar, con té verde y pepino.", uso: "En la noche, masajea 30 segundos y enjuaga." },
   { id: "aceite", nombre: "Aceite facial de noche", categoria: "Skincare", precio: 145, foto: aceite, corto: "Repara mientras duerme.", sirve: "Rosa mosqueta y jojoba para la piel seca o cansada.", uso: "En la noche, 2 o 3 gotas al final de la rutina." },
-  { id: "brochas", nombre: "Set de 12 brochas", categoria: "Brochas", precio: 320, foto: brochas, corto: "Las mismas de la academia.", sirve: "Todo lo que necesita para base, polvo, rubor, ojos y cejas. Pelo sintético suave.", uso: "Lávelas una vez por semana con jabón neutro.", etiqueta: "Kit de alumna" },
+  { id: "brochas", nombre: "Set de 12 brochas", categoria: "Brochas", precio: 320, foto: brochas, corto: "Las mismas de la academia.", sirve: "Todo lo que necesitas para base, polvo, rubor, ojos y cejas. Pelo sintético suave.", uso: "Lávalas una vez por semana con jabón neutro.", etiqueta: "Kit de alumna" },
 ];
 const porId = (id: string) => PRODUCTOS.find((p) => p.id === id)!;
 const CATEGORIAS: ("Todo" | Categoria)[] = ["Todo", "Makeup", "Skincare", "Brochas"];
@@ -108,17 +108,17 @@ function tonoPara(piel: (typeof PIELES)[number], sub: (typeof SUBTONOS)[number][
 
 /* tips como los de sus publicaciones */
 const TIPS = [
-  { t: "Aplicarlo demasiado abajo", d: "Llevar el rubor a la parte baja de la mejilla hace ver la cara más caída. Aplíquelo hacia arriba, hacia la sien." },
-  { t: "Usar mucho producto", d: "Empiece con poquito y vaya subiendo. Quitar rubor de más es mucho más difícil que agregar." },
-  { t: "No difuminar los bordes", d: "Si se nota dónde empieza y dónde termina, falta difuminar. Use una brocha limpia con movimientos circulares." },
-  { t: "Un tono que no es para usted", d: "Si su subtono es cálido, busque durazno o coral. Si es frío, rosas. Nuestro buscador de tono le ayuda." },
-  { t: "Ponerlo sobre la piel seca", d: "Sobre piel sin hidratar el polvo se pega en parches. Hidrate primero y espere un minuto." },
+  { t: "Aplicarlo demasiado abajo", d: "Llevar el rubor a la parte baja de la mejilla hace ver la cara más caída. Aplícalo hacia arriba, hacia la sien." },
+  { t: "Usar mucho producto", d: "Empieza con poquito y ve subiendo. Quitar rubor de más es mucho más difícil que agregar." },
+  { t: "No difuminar los bordes", d: "Si se nota dónde empieza y dónde termina, falta difuminar. Usa una brocha limpia con movimientos circulares." },
+  { t: "Un tono que no es para ti", d: "Si tu subtono es cálido, busca durazno o coral. Si es frío, rosas. Nuestro buscador de tono te ayuda." },
+  { t: "Ponerlo sobre la piel seca", d: "Sobre piel sin hidratar el polvo se pega en parches. Hidrata primero y espera un minuto." },
 ];
 
 const CURSOS = [
-  { id: "auto", nombre: "Automaquillaje", nivel: "Para principiantes", dura: "1 sábado · 9:00 a 13:00", precio: 450, cupos: 4, fechas: ["Sáb 28 de noviembre", "Sáb 12 de diciembre"], incluye: ["Aprende con su propio maquillaje", "Mini kit de regalo", "Grupo de máximo 10"] },
+  { id: "auto", nombre: "Automaquillaje", nivel: "Para principiantes", dura: "1 sábado · 9:00 a 13:00", precio: 450, cupos: 4, fechas: ["Sáb 28 de noviembre", "Sáb 12 de diciembre"], incluye: ["Aprendes con tu propio maquillaje", "Mini kit de regalo", "Grupo de máximo 10"] },
   { id: "pro", nombre: "Maquillaje profesional", nivel: "Para trabajar de esto", dura: "8 semanas · sábados", precio: 3200, cupos: 6, fechas: ["Inicia 9 de enero", "Inicia 6 de febrero"], incluye: ["Set de 12 brochas incluido", "Prácticas con modelos", "Certificado de la academia"], destacado: true },
-  { id: "novias", nombre: "Masterclass novias y eventos", nivel: "Si ya maquilla", dura: "1 domingo · 9:00 a 15:00", precio: 900, cupos: 2, fechas: ["Dom 6 de diciembre"], incluye: ["Maquillaje que dura 12 horas", "Fotos con flash sin brillo", "Cómo cobrar sus servicios"] },
+  { id: "novias", nombre: "Masterclass novias y eventos", nivel: "Si ya maquillas", dura: "1 domingo · 9:00 a 15:00", precio: 900, cupos: 2, fechas: ["Dom 6 de diciembre"], incluye: ["Maquillaje que dura 12 horas", "Fotos con flash sin brillo", "Cómo cobrar tus servicios"] },
 ];
 
 const SERVICIOS = [
@@ -165,7 +165,7 @@ export default function CosmeticosDemo() {
       if (i >= 0) return b.map((l, k) => (k === i ? { ...l, cantidad: l.cantidad + cantidad } : l));
       return [...b, { p, tono, cantidad, precio }];
     });
-    setAviso(`${p.nombre}${tono ? `, ${tono}` : ""} está en su bolsa`);
+    setAviso(`${p.nombre}${tono ? `, ${tono}` : ""} está en tu bolsa`);
   }
 
   function pedir() {
@@ -202,7 +202,7 @@ export default function CosmeticosDemo() {
               Tienda
             </a>
             <a href="#tono" className={enlace}>
-              Su tono
+              Tu tono
             </a>
             <a href="#tips" className={enlace}>
               Tips
@@ -214,7 +214,7 @@ export default function CosmeticosDemo() {
               Servicios
             </a>
             <a href="#visitenos" className={enlace}>
-              Visítenos
+              Visítanos
             </a>
           </nav>
           <button
@@ -241,10 +241,10 @@ export default function CosmeticosDemo() {
               Cosmetics & Makeup School · Guatemala
             </p>
             <h1 className="mt-5 text-[2.9rem] sm:text-[4.4rem] leading-[0.98] tracking-[-0.02em] font-semibold !text-white" style={{ fontFamily: SERIF }}>
-              Maquillaje que <em style={{ color: DORADO }}>cuida</em> su piel.
+              Maquillaje que <em style={{ color: DORADO }}>cuida</em> tu piel.
             </h1>
             <p className="mt-6 max-w-lg text-[1.06rem] text-white/70">
-              Nuestra propia línea de makeup y skincare, y una academia donde le enseñamos a usarla. Compre en línea, aprenda con nosotras o venga a maquillarse al estudio.
+              Nuestra propia línea de makeup y skincare, y una academia donde te enseñamos a usarla. Compra en línea, aprende con nosotras o ven a maquillarte al estudio.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <a href="#tienda" className="inline-flex items-center gap-2 rounded-full px-6 py-3.5 font-semibold text-black active:scale-[0.97] transition" style={{ background: DORADO }}>
@@ -280,7 +280,7 @@ export default function CosmeticosDemo() {
             {[
               { t: "Makeup", href: "#tienda", I: Sparkles, f: () => setFiltro("Makeup") },
               { t: "Skincare", href: "#tienda", I: Leaf, f: () => setFiltro("Skincare") },
-              { t: "Su tono", href: "#tono", I: Brush },
+              { t: "Tu tono", href: "#tono", I: Brush },
               { t: "Tips", href: "#tips", I: Check },
               { t: "Academia", href: "#academia", I: GraduationCap },
               { t: "Servicios", href: "#servicios", I: CalendarDays },
@@ -362,7 +362,7 @@ export default function CosmeticosDemo() {
           agregar(porId("base"), base, 1, Math.round(porId("base").precio * 0.9));
           agregar(porId("rubor"), rub, 1, Math.round(porId("rubor").precio * 0.9));
           agregar(porId("polvo"), undefined, 1, Math.round(porId("polvo").precio * 0.9));
-          setAviso("Su kit está en la bolsa, con 10% de descuento");
+          setAviso("Tu kit ya está en la bolsa, con 10% de descuento");
           setBolsaAbierta(true);
         }}
       />
@@ -380,7 +380,7 @@ export default function CosmeticosDemo() {
               En el estudio
             </p>
             <h2 className="mt-2 text-[2.2rem] sm:text-[3rem] leading-[1.02] font-semibold !text-[#0e0d0c]" style={{ fontFamily: SERIF }}>
-              La maquillamos nosotras
+              Te maquillamos nosotras
             </h2>
             <ul className="mt-6 divide-y divide-black/10 border-y border-black/10">
               {SERVICIOS.map((s) => (
@@ -443,7 +443,7 @@ export default function CosmeticosDemo() {
               Tienda y academia
             </p>
             <h2 className="mt-2 text-[2.2rem] sm:text-[3rem] leading-[1.02] font-semibold !text-[#0e0d0c]" style={{ fontFamily: SERIF }}>
-              Pruebe los tonos antes de comprar
+              Prueba los tonos antes de comprar
             </h2>
             <ul className="mt-6 space-y-3">
               <li className="flex gap-3">
@@ -453,7 +453,7 @@ export default function CosmeticosDemo() {
                 <Clock size={20} style={{ color: DORADO }} /> Lunes a sábado, 10:00 a 19:00
               </li>
               <li className="flex gap-3">
-                <Sparkles size={20} style={{ color: DORADO }} /> Le ayudamos a escoger su tono, sin compromiso
+                <Sparkles size={20} style={{ color: DORADO }} /> Te ayudamos a escoger tu tono, sin compromiso
               </li>
             </ul>
           </div>
@@ -469,9 +469,9 @@ export default function CosmeticosDemo() {
         <div className="mt-8 divide-y divide-black/10 border-y border-black/10">
           {[
             ["¿Sirve para piel sensible?", "Sí. Todo el maquillaje es hipoalergénico, no comedogénico y libre de parabenos."],
-            ["¿Cuánto tarda el envío?", `En la capital, 24 horas. A los departamentos, 48 horas. Desde ${qz(GRATIS)} el envío es gratis, o puede recoger en tienda.`],
-            ["¿Necesito experiencia para el curso?", "Para automaquillaje no. Para la masterclass de novias sí conviene que ya maquille."],
-            ["¿Cómo aparto mi cupo?", "Con el 50% del curso por transferencia. El resto lo paga el primer día."],
+            ["¿Cuánto tarda el envío?", `En la capital, 24 horas. A los departamentos, 48 horas. Desde ${qz(GRATIS)} el envío es gratis, o puedes recogerlo en tienda.`],
+            ["¿Necesito experiencia para el curso?", "Para automaquillaje no. Para la masterclass de novias sí conviene que ya maquilles."],
+            ["¿Cómo aparto mi cupo?", "Con el 50% del curso por transferencia. El resto lo pagas el primer día."],
           ].map(([q, a]) => (
             <details key={q} className="group py-4">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-[1.05rem]">
@@ -528,7 +528,7 @@ export default function CosmeticosDemo() {
         <div className="flex h-full flex-col" style={{ color: NEGRO }}>
           <div className="flex items-center justify-between px-6 py-5 border-b border-black/10">
             <p className="text-[1.5rem] font-semibold" style={{ fontFamily: SERIF }}>
-              Su bolsa
+              Tu bolsa
             </p>
             <button type="button" onClick={() => setBolsaAbierta(false)} aria-label="Cerrar" className="grid place-items-center w-9 h-9 rounded-full hover:bg-black/5">
               <X size={20} />
@@ -537,8 +537,8 @@ export default function CosmeticosDemo() {
           {bolsa.length === 0 ? (
             <div className="flex-1 grid place-items-center px-8 text-center">
               <div>
-                <p className="font-semibold text-[1.1rem]">Su bolsa está vacía</p>
-                <p className="mt-1 text-black/55">Elija un producto o busque su tono.</p>
+                <p className="font-semibold text-[1.1rem]">Tu bolsa está vacía</p>
+                <p className="mt-1 text-black/55">Elige un producto o busca tu tono.</p>
                 <button type="button" onClick={() => setBolsaAbierta(false)} className="mt-5 rounded-full px-5 py-2.5 text-white font-semibold" style={{ background: NEGRO }}>
                   Ver la tienda
                 </button>
@@ -574,7 +574,7 @@ export default function CosmeticosDemo() {
                   (subtotal < GRATIS ? (
                     <div>
                       <p className="text-sm">
-                        Le faltan <b>{qz(GRATIS - subtotal)}</b> para el envío gratis
+                        Te faltan <b>{qz(GRATIS - subtotal)}</b> para el envío gratis
                       </p>
                       <div className="mt-1.5 h-1.5 rounded-full bg-black/10">
                         <div className="h-full rounded-full transition-all" style={{ width: `${(subtotal / GRATIS) * 100}%`, background: DORADO }} />
@@ -582,7 +582,7 @@ export default function CosmeticosDemo() {
                     </div>
                   ) : (
                     <p className="text-sm font-semibold" style={{ color: DORADO }}>
-                      Su envío es gratis
+                      Tu envío es gratis
                     </p>
                   ))}
                 <div className="grid grid-cols-3 gap-2" role="group" aria-label="Entrega">
@@ -702,12 +702,12 @@ function BuscadorTono({ alAgregar }: { alAgregar: (base: string, rubor: string) 
         <img src={polvoNegro} alt="Brochas con polvo en el aire" className="w-full h-56 sm:h-72 lg:h-full object-cover" loading="lazy" />
         <div className="px-5 py-12 sm:p-12">
           <p className={`text-[0.7rem] ${MAYUS}`} style={{ color: DORADO }}>
-            Encuentre su tono
+            Encuentra tu tono
           </p>
           <h2 className="mt-2 text-[2rem] sm:text-[2.8rem] leading-[1.04] font-semibold !text-[#0e0d0c]" style={{ fontFamily: SERIF }}>
-            ¿No sabe qué tono de base pedir?
+            ¿No sabes qué tono de base pedir?
           </h2>
-          <p className="mt-6 font-semibold">1. ¿Cómo es su piel?</p>
+          <p className="mt-6 font-semibold">1. ¿Cómo es tu piel?</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {PIELES.map((x) => (
               <button key={x} type="button" onClick={() => setPiel(x)} aria-pressed={piel === x} className={opcion(piel === x)} style={piel === x ? { background: NEGRO } : undefined}>
@@ -715,7 +715,7 @@ function BuscadorTono({ alAgregar }: { alAgregar: (base: string, rubor: string) 
               </button>
             ))}
           </div>
-          <p className="mt-5 font-semibold">2. ¿De qué color se ven las venas de su muñeca?</p>
+          <p className="mt-5 font-semibold">2. ¿De qué color se ven las venas de tu muñeca?</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {SUBTONOS.map((x) => (
               <button key={x.id} type="button" onClick={() => setSub(x.id)} aria-pressed={sub === x.id} className={opcion(sub === x.id)} style={sub === x.id ? { background: NEGRO } : undefined}>
@@ -726,7 +726,7 @@ function BuscadorTono({ alAgregar }: { alAgregar: (base: string, rubor: string) 
 
           {r ? (
             <div key={`${piel}-${sub}`} className="burbuja-entra mt-7 bg-white p-5">
-              <p className="text-sm text-black/55">{SUBTONOS.find((x) => x.id === sub)!.d}. Su kit:</p>
+              <p className="text-sm text-black/55">{SUBTONOS.find((x) => x.id === sub)!.d}. Tu kit:</p>
               <div className="mt-3 grid grid-cols-3 gap-3 text-center">
                 {[
                   { t: "Base", v: r.base.nombre, hex: r.base.hex },
@@ -752,10 +752,10 @@ function BuscadorTono({ alAgregar }: { alAgregar: (base: string, rubor: string) 
                   <ShoppingBag size={17} /> Llevar mi kit
                 </button>
               </div>
-              <p className="mt-3 text-[0.8rem] text-black/50">Si tiene duda, venga a la tienda y se lo probamos.</p>
+              <p className="mt-3 text-[0.8rem] text-black/50">Si tienes duda, ven a la tienda y te lo probamos.</p>
             </div>
           ) : (
-            <p className="mt-7 text-black/55">Elija una opción en cada pregunta.</p>
+            <p className="mt-7 text-black/55">Elige una opción en cada pregunta.</p>
           )}
         </div>
       </div>
@@ -775,9 +775,9 @@ function Tips({ alVerRubor }: { alVerRubor: () => void }) {
             Tips de la academia
           </p>
           <h2 className="mt-2 text-[2.2rem] sm:text-[3rem] leading-[1.02] font-semibold !text-white" style={{ fontFamily: SERIF }}>
-            5 errores al aplicarse rubor
+            5 errores al aplicarte rubor
           </h2>
-          <p className="mt-2 text-white/60">Que quizás comete sin darse cuenta.</p>
+          <p className="mt-2 text-white/60">Que quizás cometes sin darte cuenta.</p>
         </div>
         <div className="flex gap-2">
           <button type="button" onClick={() => mover(-1)} aria-label="Anterior" className="grid place-items-center w-11 h-11 rounded-full border border-white/25 hover:border-white active:scale-90">
@@ -830,7 +830,7 @@ function Academia({ alReservar }: { alReservar: (curso: string, fecha: string) =
             Makeup School
           </p>
           <h2 className="mt-2 text-[2.3rem] sm:text-[3.4rem] leading-[1] font-semibold !text-[#0e0d0c]" style={{ fontFamily: SERIF }}>
-            Aprenda a maquillarse, o a vivir de esto
+            Aprende a maquillarte, o a vivir de esto
           </h2>
           <p className="mt-4 max-w-lg text-black/65">Grupos pequeños, práctica desde la primera clase y con los mismos productos de la tienda.</p>
         </div>
@@ -913,16 +913,16 @@ function DeInstagram() {
           <p className="mt-3 text-center text-[0.68rem] text-black/45">Perfil de ejemplo</p>
         </div>
         <div>
-          <p className={`text-[0.7rem] ${MAYUS} text-white/55`}>¿Vende por Instagram?</p>
+          <p className={`text-[0.7rem] ${MAYUS} text-white/55`}>¿Vendes por Instagram?</p>
           <h2 className="mt-2 text-[2rem] sm:text-[2.8rem] leading-[1.05] font-semibold !text-white" style={{ fontFamily: SERIF }}>
-            Sus tips atraen. Su página vende.
+            Tus tips atraen. Tu página vende.
           </h2>
           <ul className="mt-6 space-y-3 text-white/80">
             {[
-              "El link de su bio lleva a la tienda, los cursos y los servicios.",
-              "Cada producto con precio, tono y cómo usarlo: ya no contesta “¿precio?”.",
+              "El link de tu bio lleva a la tienda, los cursos y los servicios.",
+              "Cada producto con precio, tono y cómo usarlo: ya no contestas “¿precio?”.",
               "Las alumnas ven fechas y cupos, y reservan con un mensaje.",
-              "El pedido o la reserva le llega armada a su WhatsApp.",
+              "El pedido o la reserva te llega armada a tu WhatsApp.",
             ].map((t) => (
               <li key={t} className="flex gap-2.5">
                 <Check size={19} className="mt-0.5 shrink-0" style={{ color: DORADO }} /> {t}
