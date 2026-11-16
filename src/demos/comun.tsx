@@ -67,7 +67,19 @@ export function CierreJzet({ demo }: { demo: string }) {
 }
 
 /* "Así le llega": muestra el mensaje como burbuja de WhatsApp, sin enviarlo */
-export function MensajeWhatsApp({ mensaje, alCerrar, demo, que = "el pedido" }: { mensaje: string | null; alCerrar: () => void; demo: string; que?: string }) {
+export function MensajeWhatsApp({
+  mensaje,
+  alCerrar,
+  demo,
+  que = "el pedido",
+  accion,
+}: {
+  mensaje: string | null;
+  alCerrar: () => void;
+  demo: string;
+  que?: string;
+  accion?: { texto: string; alTocar: () => void };
+}) {
   return (
     <Modal abierto={mensaje !== null} alCerrar={alCerrar} titulo="Así le llega el mensaje" ancho="sm:w-[min(26rem,92vw)]">
       <div className="px-6 pt-6 pb-6 text-tinta">
@@ -76,6 +88,11 @@ export function MensajeWhatsApp({ mensaje, alCerrar, demo, que = "el pedido" }: 
         <div className="mt-4 rounded-2xl bg-[#e7ddd3] p-4">
           <p className="ml-auto w-fit max-w-[92%] whitespace-pre-line rounded-[1rem_1rem_0.3rem_1rem] bg-[#d9fdd3] px-3.5 py-2.5 text-[0.92rem] text-[#111b21] shadow-sm">{mensaje}</p>
         </div>
+        {accion && (
+          <button type="button" onClick={accion.alTocar} className="mt-4 btn btn-secundario !rounded-full w-full">
+            {accion.texto} <ArrowRight size={18} />
+          </button>
+        )}
         <p className="mt-4 text-sm text-suave">Esto es una demo: no se envía nada. ¿Quiere una página así?</p>
         <a href={whatsappLink(`Hola, Joshua. Vi la demo de ${demo} y quiero una página así para mi negocio.`)} target="_blank" rel="noopener noreferrer" className="mt-4 btn btn-principal !rounded-full w-full">
           Quiero una así <ArrowRight size={18} />

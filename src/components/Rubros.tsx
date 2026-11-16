@@ -4,7 +4,7 @@
  * (datos de prueba) y el enlace para probarla. Teclado: flechas, Inicio y Fin.
  */
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
-import citas from "@/assets/demos/citas-dueno.jpg";
+import clinicaPanel from "@/assets/demos/clinica-panel.jpg";
 import gimnasio from "@/assets/demos/gimnasio-dueno.jpg";
 import tienda from "@/assets/demos/tienda-dueno.jpg";
 import ventas from "@/assets/demos/ventas-dueno.jpg";
@@ -132,6 +132,7 @@ type Rubro = {
   img: string;
   alt: string;
   demo?: { texto: string; href: string };
+  demo2?: { texto: string; href: string };
   nota?: string;
 };
 
@@ -160,9 +161,10 @@ const RUBROS: Rubro[] = [
       "El paciente aparta su cita él mismo y le aparece a recepción.",
       "El expediente de cada paciente, hecho a la medida de su clínica.",
     ],
-    img: citas,
-    alt: "Agenda de una clínica de prueba con citas del día por doctor",
-    demo: { texto: "Pruebe la demo de citas", href: `${DEMOS}citas/paciente.html` },
+    img: clinicaPanel,
+    alt: "Panel de una clínica dental de prueba con las citas del día por doctor",
+    demo: { texto: "Pruebe el panel de la clínica", href: "/demos/clinica/#panel" },
+    demo2: { texto: "Ver la página de pacientes", href: "/demos/clinica/" },
   },
   {
     id: "gimnasios",
@@ -346,9 +348,16 @@ export function Rubros() {
                   {v.demo.texto}
                 </a>
               ) : r.demo ? (
-                <a href={r.demo.href} target="_blank" rel="noopener noreferrer" className="btn btn-principal">
-                  {r.demo.texto}
-                </a>
+                <>
+                  <a href={r.demo.href} target="_blank" rel="noopener noreferrer" className="btn btn-principal">
+                    {r.demo.texto}
+                  </a>
+                  {r.demo2 && (
+                    <a href={r.demo2.href} target="_blank" rel="noopener noreferrer" className="btn btn-secundario">
+                      {r.demo2.texto}
+                    </a>
+                  )}
+                </>
               ) : (
                 <a
                   href={whatsappLink(`Hola, Joshua. Me interesa el sistema para ${r.nombre.toLowerCase()}.`)}

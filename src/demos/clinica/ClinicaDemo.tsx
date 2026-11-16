@@ -6,81 +6,59 @@
  * Fotos libres de Unsplash (src/assets/demo-clinica).
  */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, CalendarCheck, Check, ChevronsLeftRight, Clock, CreditCard, Droplet, MapPin, Phone, ShieldCheck, Smile, Stethoscope } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarCheck, Check, ChevronsLeftRight, Clock, CreditCard, LayoutDashboard, MapPin, Phone, Smile } from "lucide-react";
 import paciente from "@/assets/demo-clinica/paciente.jpg";
 import sonrisa from "@/assets/demo-clinica/sonrisa.jpg";
 import consultorio from "@/assets/demo-clinica/consultorio.jpg";
-import doctor from "@/assets/demo-clinica/doctor.jpg";
-import doctora from "@/assets/demo-clinica/doctora.jpg";
 import { BandaDemos, CierreJzet, MensajeWhatsApp, qz } from "../comun";
-
-const TINTA = "#0f2a3a";
-const AZUL = "#1e6fa8";
-const CIELO = "#eaf3f9";
-const MENTA = "#2f9e86";
-const LETRA = '"Plus Jakarta Sans", "Instrument Sans", sans-serif';
-
-type Servicio = { id: string; nombre: string; precio: number; minutos: number; texto: string; icono: typeof Smile; desde?: boolean };
-const SERVICIOS: Servicio[] = [
-  { id: "valoracion", nombre: "Valoración", precio: 150, minutos: 30, texto: "Revisión completa y plan de tratamiento por escrito.", icono: Stethoscope },
-  { id: "limpieza", nombre: "Limpieza dental", precio: 250, minutos: 45, texto: "Quita sarro y manchas. Recomendada cada 6 meses.", icono: Droplet },
-  { id: "blanqueamiento", nombre: "Blanqueamiento", precio: 900, minutos: 60, texto: "Varios tonos más blancos en una sola sesión.", icono: Smile },
-  { id: "resina", nombre: "Resina (caries)", precio: 350, minutos: 45, texto: "Arregla caries con material del color del diente.", icono: ShieldCheck },
-  { id: "ortodoncia", nombre: "Ortodoncia", precio: 6500, minutos: 45, texto: "Brackets o alineadores. Se paga en cuotas mensuales.", icono: CalendarCheck, desde: true },
-  { id: "extraccion", nombre: "Extracción", precio: 300, minutos: 30, texto: "Sin dolor, con anestesia local.", icono: Stethoscope },
-];
-
-const DOCTORES = [
-  { id: "morales", nombre: "Dra. Ana Morales", area: "Odontología general y estética", dias: "Lunes a viernes", foto: doctora },
-  { id: "fuentes", nombre: "Dr. Luis Fuentes", area: "Ortodoncia", dias: "Martes, jueves y sábado", foto: doctor },
-];
-
-const DIAS_CORTOS = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
-const MESES_CORTOS = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
-const HORAS = Array.from({ length: 18 }, (_, i) => {
-  const m = 8 * 60 + i * 30;
-  return `${String(Math.floor(m / 60)).padStart(2, "0")}:${m % 60 === 0 ? "00" : "30"}`;
-});
-
-/* próximos 10 días hábiles (sin domingo) */
-function proximosDias() {
-  const out: Date[] = [];
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  while (out.length < 10) {
-    if (d.getDay() !== 0) out.push(new Date(d));
-    d.setDate(d.getDate() + 1);
-  }
-  return out;
-}
-
-/* horarios ocupados de ejemplo, siempre los mismos para cada día */
-function ocupado(dia: Date, i: number) {
-  const n = (dia.getDate() * 7 + i * 13) % 10;
-  return n < 3;
-}
-function yaPaso(dia: Date, hora: string) {
-  const ahora = new Date();
-  const [h, m] = hora.split(":").map(Number);
-  const t = new Date(dia);
-  t.setHours(h, m);
-  return t.getTime() < ahora.getTime() + 30 * 60 * 1000;
-}
-const fechaLarga = (d: Date) => `${DIAS_CORTOS[d.getDay()]} ${d.getDate()} de ${MESES_CORTOS[d.getMonth()]}`;
-const mayus = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
+import {
+  AZUL, CIELO, DOCTORES, LETRA, MENTA, SERVICIOS_PAGINA as SERVICIOS, TINTA,
+  DIAS_CORTOS, fechaLarga, horasDelDia, iso, mayus, proximosDias, tomado, useCitas, yaPaso,
+  type Cita, type Doctor, type Servicio,
+} from "./datos";
+import { PanelClinica } from "./PanelClinica";
 
 export default function ClinicaDemo() {
+  const [citas, setCitas, reiniciar] = useCitas();
+  const [vista, setVista] = useState<"pacientes" | "panel">(() => (location.hash === "#panel" ? "panel" : "pacientes"));
+  const [diaPanel, setDiaPanel] = useState<string | null>(null);
   const [mensaje, setMensaje] = useState<string | null>(null);
+  const [ultima, setUltima] = useState<Cita | null>(null);
   const [servicioInicial, setServicioInicial] = useState<string | null>(null);
+
+  // la vista se recuerda en la dirección (#panel), para poder compartir el link del panel
+  useEffect(() => {
+    const cambio = () => setVista(location.hash === "#panel" ? "panel" : "pacientes");
+    addEventListener("hashchange", cambio);
+    return () => removeEventListener("hashchange", cambio);
+  }, []);
+  function irA(v: "pacientes" | "panel", dia?: string) {
+    if (dia) setDiaPanel(dia);
+    history.replaceState(null, "", v === "panel" ? "#panel" : location.pathname);
+    setVista(v);
+    window.scrollTo({ top: 0 });
+  }
 
   useEffect(() => {
     document.title = "Clínica Dental Aurora · Demo de Jzet Labs";
   }, []);
 
   const proximo = useMemo(() => {
-    for (const d of proximosDias()) for (let i = 0; i < HORAS.length; i++) if (!ocupado(d, i) && !yaPaso(d, HORAS[i])) return { d, h: HORAS[i] };
+    for (const d of proximosDias())
+      for (const h of horasDelDia(d))
+        if (!yaPaso(d, h) && DOCTORES.some((doc) => doc.trabaja.includes(d.getDay()) && !tomado(citas, d, h, doc.id))) return { d, h };
     return null;
-  }, []);
+  }, [citas]);
+
+  if (vista === "panel")
+    return (
+      <div style={{ fontFamily: LETRA }}>
+        <BandaDemos />
+        <SelectorVista vista={vista} irA={irA} />
+        <PanelClinica citas={citas} setCitas={setCitas} reiniciar={reiniciar} diaInicial={diaPanel} alMensaje={setMensaje} irAPagina={() => irA("pacientes")} />
+        <MensajeWhatsApp mensaje={mensaje} alCerrar={() => setMensaje(null)} demo="clínica dental" que="el mensaje" />
+      </div>
+    );
 
   function agendar(id: string) {
     setServicioInicial(id);
@@ -90,6 +68,7 @@ export default function ClinicaDemo() {
   return (
     <div style={{ background: "#f7fafc", color: TINTA, fontFamily: LETRA }} className="min-h-screen">
       <BandaDemos />
+      <SelectorVista vista={vista} irA={irA} />
 
       {/* encabezado */}
       <header className="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-[#0f2a3a]/10">
@@ -175,7 +154,15 @@ export default function ClinicaDemo() {
         </div>
       </section>
 
-      <Agenda servicioInicial={servicioInicial} alConfirmar={setMensaje} />
+      <Agenda
+        servicioInicial={servicioInicial}
+        citas={citas}
+        alAgendar={(c, m) => {
+          setCitas((x) => [...x.map((y) => ({ ...y, nueva: false })), c]);
+          setUltima(c);
+          setMensaje(m);
+        }}
+      />
 
       {/* servicios */}
       <section id="servicios" className="scroll-mt-16 mx-auto max-w-6xl px-5 py-16 sm:py-24">
@@ -303,19 +290,71 @@ export default function ClinicaDemo() {
         <CalendarCheck size={18} /> Agendar cita
       </a>
 
-      <MensajeWhatsApp mensaje={mensaje} alCerrar={() => setMensaje(null)} demo="clínica dental" que="la cita" />
+      <MensajeWhatsApp
+        mensaje={mensaje}
+        alCerrar={() => setMensaje(null)}
+        demo="clínica dental"
+        que="la cita"
+        accion={
+          ultima
+            ? {
+                texto: "Ver la cita en el panel de la clínica",
+                alTocar: () => {
+                  setMensaje(null);
+                  irA("panel", ultima.dia);
+                },
+              }
+            : undefined
+        }
+      />
+    </div>
+  );
+}
+
+/* Cambia entre la página que ven los pacientes y el panel que usa la clínica */
+function SelectorVista({ vista, irA }: { vista: "pacientes" | "panel"; irA: (v: "pacientes" | "panel") => void }) {
+  return (
+    <div className="bg-[#12344a] text-white">
+      <div className="mx-auto max-w-7xl px-4 py-2 flex flex-wrap items-center justify-center sm:justify-between gap-2 text-[0.82rem]">
+        <p className="hidden sm:block text-white/70">Esta demo tiene dos partes: lo que ve el paciente y lo que ve la clínica.</p>
+        <div className="flex rounded-full bg-white/10 p-0.5" role="group" aria-label="Vista de la demo">
+          {(
+            [
+              ["pacientes", "Página de pacientes", Smile],
+              ["panel", "Panel de la clínica", LayoutDashboard],
+            ] as const
+          ).map(([v, t, Icono]) => (
+            <button
+              key={v}
+              type="button"
+              onClick={() => irA(v)}
+              aria-pressed={vista === v}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 font-semibold transition ${vista === v ? "bg-white text-[#12344a]" : "text-white/80 hover:text-white"}`}
+            >
+              <Icono size={14} /> {t}
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
 
 /* Agenda en 4 pasos: servicio, doctor, día y hora, datos */
-function Agenda({ servicioInicial, alConfirmar }: { servicioInicial: string | null; alConfirmar: (m: string) => void }) {
+function Agenda({ servicioInicial, citas, alAgendar }: { servicioInicial: string | null; citas: Cita[]; alAgendar: (c: Cita, mensaje: string) => void }) {
   const dias = useMemo(proximosDias, []);
   const [paso, setPaso] = useState(0);
   const [servicio, setServicio] = useState<Servicio | null>(null);
-  const [doc, setDoc] = useState<(typeof DOCTORES)[number] | null>(null);
-  // empieza en el primer día que todavía tiene horarios libres
-  const [dia, setDia] = useState<Date>(() => dias.find((d) => HORAS.some((h, i) => (d.getDay() !== 6 || h < "12:00") && !ocupado(d, i) && !yaPaso(d, h))) ?? dias[0]);
+  const [doc, setDoc] = useState<Doctor | null>(null);
+  const [dia, setDia] = useState<Date>(dias[0]);
+  const libre = (d: Date, h: string, dr: Doctor) => dr.trabaja.includes(d.getDay()) && !yaPaso(d, h) && !tomado(citas, d, h, dr.id);
+  // al elegir doctor, empieza en el primer día en que atiende y tiene horarios libres
+  useEffect(() => {
+    if (!doc) return;
+    setDia(dias.find((d) => horasDelDia(d).some((h) => libre(d, h, doc))) ?? dias[0]);
+    setHora(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [doc]);
   const [hora, setHora] = useState<string | null>(null);
   const [nombre, setNombre] = useState("");
   const [error, setError] = useState("");
@@ -336,7 +375,15 @@ function Agenda({ servicioInicial, alConfirmar }: { servicioInicial: string | nu
       return;
     }
     if (!servicio || !doc || !hora) return;
-    alConfirmar(`Hola, Clínica Aurora. Soy ${nombre.trim()} y quiero agendar ${servicio.nombre.toLowerCase()} con ${doc.nombre} el ${fechaLarga(dia)} a las ${hora}. ¿Me la confirman?`);
+    alAgendar(
+      { id: `${iso(dia)}-${hora}-${doc.id}-${Date.now()}`, dia: iso(dia), hora, doctor: doc.id, servicio: servicio.id, paciente: nombre.trim(), estado: "por-confirmar", nueva: true },
+      `Hola, Clínica Aurora. Soy ${nombre.trim()} y quiero agendar ${servicio.nombre.toLowerCase()} con ${doc.nombre} el ${fechaLarga(dia)} a las ${hora}. ¿Me la confirman?`,
+    );
+    setPaso(0);
+    setServicio(null);
+    setDoc(null);
+    setHora(null);
+    setNombre("");
   }
 
   return (
@@ -433,9 +480,13 @@ function Agenda({ servicioInicial, alConfirmar }: { servicioInicial: string | nu
                 })}
               </div>
               <div className="mt-4 grid grid-cols-3 sm:grid-cols-6 gap-2">
-                {HORAS.filter((h) => dia.getDay() !== 6 || h < "12:00").map((h) => {
-                  const i = HORAS.indexOf(h);
-                  const no = ocupado(dia, i) || yaPaso(dia, h);
+                {doc && !doc.trabaja.includes(dia.getDay()) && (
+                  <p className="col-span-full rounded-xl px-4 py-3 text-sm font-semibold" style={{ background: CIELO, color: AZUL }}>
+                    {doc.nombre} atiende {doc.dias.toLowerCase()}. Elija otro día.
+                  </p>
+                )}
+                {horasDelDia(dia).map((h) => {
+                  const no = !doc || !libre(dia, h, doc);
                   const activa = hora === h;
                   return (
                     <button
