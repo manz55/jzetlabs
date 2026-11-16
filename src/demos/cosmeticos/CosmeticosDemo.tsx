@@ -8,7 +8,7 @@
  * Fotos libres de Unsplash, sin marcas visibles (src/assets/demo-cosmeticos).
  */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Brush, CalendarDays, Check, Clock, GraduationCap, Leaf, Link2, MapPin, MessageCircle, ShoppingBag, Sparkles, Trash2, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bell, Brush, CalendarDays, Check, Clock, GraduationCap, Leaf, Link2, MapPin, MessageCircle, ShoppingBag, Sparkles, Trash2, X } from "lucide-react";
 import { Modal } from "@/components/Modal";
 import { BandaDemos, Cajon, CierreJzet, Contador, MensajeWhatsApp, qz } from "../comun";
 import rostro from "@/assets/demo-cosmeticos/rostro.jpg";
@@ -29,6 +29,12 @@ import serum from "@/assets/demo-cosmeticos/serum.jpg";
 import crema from "@/assets/demo-cosmeticos/crema.jpg";
 import limpiador from "@/assets/demo-cosmeticos/limpiador.jpg";
 import aceite from "@/assets/demo-cosmeticos/aceite.jpg";
+import graduada1 from "@/assets/demo-cosmeticos/graduada-1.jpg";
+import graduada2 from "@/assets/demo-cosmeticos/graduada-2.jpg";
+import graduada3 from "@/assets/demo-cosmeticos/graduada-3.jpg";
+import graduada4 from "@/assets/demo-cosmeticos/graduada-4.jpg";
+import graduada5 from "@/assets/demo-cosmeticos/graduada-5.jpg";
+import graduada6 from "@/assets/demo-cosmeticos/graduada-6.jpg";
 
 const NEGRO = "#0e0d0c";
 const CREMA = "#f3ede4";
@@ -370,6 +376,17 @@ export default function CosmeticosDemo() {
       <Tips alVerRubor={() => setFicha({ p: porId("rubor") })} />
 
       <Academia alReservar={(curso, fecha) => setMensaje({ que: "la reserva", texto: `Hola, Ámbar. Quiero reservar un cupo en el curso de ${curso} (${fecha}). ¿Cómo lo aparto?` })} />
+
+      <ListaEspera
+        alAvisar={(curso) =>
+          setMensaje({
+            que: "el aviso",
+            texto: `Hola, te escribimos de Ámbar Makeup School. Ya abrimos fechas para ${curso}: inicia el sábado 9 de enero y hay 8 cupos. Como estabas en la lista de espera, tienes 48 horas para apartar el tuyo antes que nadie. ¿Te lo guardamos?`,
+          })
+        }
+      />
+
+      <Graduadas />
 
       {/* servicios en estudio */}
       <section id="servicios" className="scroll-mt-20 mx-auto max-w-7xl px-5 py-14 sm:py-20">
@@ -929,6 +946,202 @@ function DeInstagram() {
               </li>
             ))}
           </ul>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* Graduadas: la prueba de que la academia funciona */
+const GRADUADAS = [
+  { foto: graduada1, n: "Daniela M.", g: "Generación 2026", hoy: "Maquilla novias en Antigua" },
+  { foto: graduada2, n: "Lucía P.", g: "Generación 2026", hoy: "Abrió su estudio en zona 14" },
+  { foto: graduada3, n: "Ana Sofía R.", g: "Generación 2025", hoy: "Maquillista de televisión" },
+  { foto: graduada4, n: "Karla G.", g: "Generación 2025", hoy: "Da clases de automaquillaje" },
+  { foto: graduada5, n: "Mónica F.", g: "Generación 2025", hoy: "Maquilla quinceañeras y eventos" },
+  { foto: graduada6, n: "Paola C.", g: "Generación 2024", hoy: "Vende la línea en Xela" },
+];
+
+function Graduadas() {
+  return (
+    <section id="graduadas" className="scroll-mt-20 py-14 sm:py-20" style={{ background: CREMA }}>
+      <div className="mx-auto max-w-7xl px-5">
+        <div className="grid lg:grid-cols-[1fr_auto] gap-6 items-end">
+          <div>
+            <p className={`text-[0.7rem] ${MAYUS}`} style={{ color: DORADO }}>
+              Nuestras graduadas
+            </p>
+            <h2 className="mt-2 text-[2.3rem] sm:text-[3.2rem] leading-[1] font-semibold !text-[#0e0d0c]" style={{ fontFamily: SERIF }}>
+              Se gradúan con toga, <em style={{ color: DORADO }}>y trabajan.</em>
+            </h2>
+            <p className="mt-4 max-w-xl text-black/65">Porque esto es una carrera de verdad. Así están hoy algunas de nuestras alumnas.</p>
+          </div>
+          <dl className="grid grid-cols-3 gap-6 text-center lg:text-left">
+            {[
+              ["+300", "graduadas"],
+              ["4", "generaciones al año"],
+              ["9 de 10", "trabajan maquillando"],
+            ].map(([n, t]) => (
+              <div key={t}>
+                <dt className="text-[2rem] sm:text-[2.4rem] font-semibold leading-none" style={{ fontFamily: SERIF }}>
+                  {n}
+                </dt>
+                <dd className="mt-1 text-[0.82rem] text-black/55">{t}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+        <div className="mt-10 grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+          {GRADUADAS.map((g) => (
+            <figure key={g.n} className="group relative overflow-hidden aspect-[4/5]">
+              <img src={g.foto} alt={`${g.n}, graduada`} className="absolute inset-0 w-full h-full object-cover transition duration-500 group-hover:scale-[1.04]" loading="lazy" />
+              <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(14,13,12,.85),transparent_55%)]" />
+              <figcaption className="absolute inset-x-0 bottom-0 p-3 sm:p-4 text-white">
+                <p className={`text-[0.58rem] ${MAYUS}`} style={{ color: DORADO }}>
+                  {g.g}
+                </p>
+                <p className="mt-0.5 font-semibold sm:text-[1.1rem]">{g.n}</p>
+                <p className="text-[0.78rem] sm:text-[0.85rem] text-white/75">{g.hoy}</p>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+        <p className="mt-4 text-sm text-black/45">Nombres, fotos y cifras de ejemplo.</p>
+      </div>
+    </section>
+  );
+}
+
+/* Lista de espera: nadie se pierde cuando no hay fecha que le quede */
+const ANOTADAS_EJEMPLO = [
+  { n: "Gabriela R.", c: "Maquillaje profesional", d: "hace 2 días" },
+  { n: "Silvia M.", c: "Automaquillaje", d: "hace 3 días" },
+  { n: "Andrea L.", c: "Maquillaje profesional", d: "hace 5 días" },
+  { n: "Rocío P.", c: "Masterclass novias y eventos", d: "hace 1 semana" },
+  { n: "Mariana T.", c: "Maquillaje profesional", d: "hace 1 semana" },
+];
+
+function ListaEspera({ alAvisar }: { alAvisar: (curso: string) => void }) {
+  const [nombre, setNombre] = useState("");
+  const [tel, setTel] = useState("");
+  const [curso, setCurso] = useState(CURSOS[1].nombre);
+  const [error, setError] = useState("");
+  const [lista, setLista] = useState<{ n: string; c: string; d: string; nueva?: boolean }[]>(ANOTADAS_EJEMPLO);
+  const [lista0, setLista0] = useState<string | null>(null);
+  const porCurso = CURSOS.map((c) => ({ c: c.nombre, n: lista.filter((x) => x.c === c.nombre).length }));
+  const campo = "mt-1.5 w-full border border-black/20 bg-white px-3 py-3 focus:outline-none focus:border-black";
+
+  return (
+    <section id="lista" className="scroll-mt-20 mx-auto max-w-7xl px-5 pb-14 sm:pb-20">
+      <div className="grid lg:grid-cols-2 border border-black/10">
+        {/* lo que ve la alumna */}
+        <div className="p-6 sm:p-10 bg-white">
+          <p className={`inline-flex items-center gap-1.5 text-[0.7rem] ${MAYUS}`} style={{ color: DORADO }}>
+            <Bell size={14} /> Lista de espera
+          </p>
+          <h3 className="mt-2 text-[1.8rem] sm:text-[2.2rem] leading-[1.05] font-semibold !text-[#0e0d0c]" style={{ fontFamily: SERIF }}>
+            ¿Ninguna fecha te queda?
+          </h3>
+          <p className="mt-2 text-black/60">Anótate y te avisamos por WhatsApp antes que a nadie cuando abramos nuevas fechas.</p>
+          {lista0 ? (
+            <div className="burbuja-entra mt-6 p-5" style={{ background: CREMA }}>
+              <p className="font-semibold text-[1.1rem]">Listo, {lista0}. Ya estás en la lista.</p>
+              <p className="mt-1 text-black/60">Te escribimos en cuanto haya fechas de {curso.toLowerCase()}. Tendrás 48 horas para apartar tu cupo antes que nadie.</p>
+              <button
+                type="button"
+                onClick={() => {
+                  setLista0(null);
+                  setNombre("");
+                  setTel("");
+                }}
+                className="mt-4 text-sm font-semibold underline underline-offset-4"
+              >
+                Anotar a otra persona
+              </button>
+            </div>
+          ) : (
+            <form
+              className="mt-6 space-y-4"
+              noValidate
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!nombre.trim()) return setError("Escribe tu nombre.");
+                if (tel.replace(/\D/g, "").length < 8) return setError("Escribe tu WhatsApp de 8 dígitos.");
+                const primero = nombre.trim().split(" ")[0];
+                setLista((l) => [{ n: nombre.trim(), c: curso, d: "ahora", nueva: true }, ...l.map((x) => ({ ...x, nueva: false }))]);
+                setLista0(primero);
+                setError("");
+              }}
+            >
+              <label className="block">
+                <span className="text-sm font-semibold">Tu nombre</span>
+                <input value={nombre} onChange={(e) => { setNombre(e.target.value); setError(""); }} placeholder="Nombre y apellido" className={campo} />
+              </label>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <label className="block">
+                  <span className="text-sm font-semibold">Tu WhatsApp</span>
+                  <input value={tel} inputMode="tel" onChange={(e) => { setTel(e.target.value.replace(/[^\d -]/g, "")); setError(""); }} placeholder="5555 5555" className={campo} />
+                </label>
+                <label className="block">
+                  <span className="text-sm font-semibold">Curso</span>
+                  <select value={curso} onChange={(e) => setCurso(e.target.value)} className={campo}>
+                    {CURSOS.map((c) => (
+                      <option key={c.id}>{c.nombre}</option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              {error && <p className="text-sm text-[#b42318]">{error}</p>}
+              <button type="submit" className="w-full rounded-full py-3.5 font-semibold text-white active:scale-[0.98] transition" style={{ background: NEGRO }}>
+                Anotarme
+              </button>
+              <p className="text-xs text-black/45">Demo: no se guarda ni se envía nada.</p>
+            </form>
+          )}
+        </div>
+
+        {/* lo que ve la academia */}
+        <div className="p-6 sm:p-10 text-white" style={{ background: NEGRO }}>
+          <p className={`text-[0.7rem] ${MAYUS} text-white/55`}>Así lo ve la academia</p>
+          <div className="mt-4 grid grid-cols-3 gap-2">
+            {porCurso.map((x) => (
+              <div key={x.c} className="border border-white/15 p-3">
+                <p className="text-[1.8rem] font-semibold leading-none" style={{ fontFamily: SERIF, color: DORADO }}>
+                  {x.n}
+                </p>
+                <p className="mt-1 text-[0.72rem] leading-tight text-white/65">{x.c}</p>
+              </div>
+            ))}
+          </div>
+          <ul className="mt-5 divide-y divide-white/10 border-y border-white/10">
+            {lista.slice(0, 6).map((x, i) => (
+              <li key={x.n + i} className="flex items-center gap-3 py-2.5 text-[0.88rem]">
+                <span className="grid place-items-center w-8 h-8 shrink-0 rounded-full text-[0.75rem] font-semibold" style={{ background: x.nueva ? DORADO : "rgba(255,255,255,.1)", color: x.nueva ? "#000" : "#fff" }}>
+                  {x.n
+                    .split(" ")
+                    .map((p) => p[0])
+                    .slice(0, 2)
+                    .join("")}
+                </span>
+                <span className="flex-1 min-w-0">
+                  <span className="block font-semibold truncate">{x.n}</span>
+                  <span className="block text-white/55 truncate">{x.c}</span>
+                </span>
+                <span className="shrink-0 text-[0.75rem]" style={{ color: x.nueva ? DORADO : "rgba(255,255,255,.45)" }}>
+                  {x.nueva ? "Nueva" : x.d}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <button
+            type="button"
+            onClick={() => alAvisar(CURSOS[1].nombre)}
+            className="mt-5 w-full rounded-full py-3 font-semibold text-black active:scale-[0.98] transition"
+            style={{ background: DORADO }}
+          >
+            Abrir fechas y avisarles a las {porCurso[1].n} de {CURSOS[1].nombre.toLowerCase()}
+          </button>
+          <p className="mt-3 text-[0.78rem] text-white/50">Con un toque les llega el aviso a todas. Nombres de ejemplo.</p>
         </div>
       </div>
     </section>
