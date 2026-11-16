@@ -14,7 +14,7 @@ import { Cajon, Contador, qz } from "../comun";
 import tecnico from "@/assets/demo-celulares/tecnico.jpg";
 import {
   AMARILLO, COBALTO, ESTADOS_PEDIDO, FALLAS, FONDO, MODELOS_REPARACION, PASOS_RASTREO, PASOS_REPARACION, PRODUCTOS, SUCURSALES, TEXTO_REPARACION, TINTA, TITULO,
-  disponibilidad, fechaCorta, productoPor, sucursalPor,
+  FOTO_CELULARES, disponibilidad, fechaCorta, productoPor, sucursalPor,
   type Linea, type Pedido, type Producto, type Tienda,
 } from "./datos";
 
@@ -23,10 +23,18 @@ const ENVIO_GRATIS = 1000;
 const cuota = (precio: number, meses: number) => Math.ceil(precio / meses);
 const sigId = (pref: string, lista: { id: string }[], base: number) => `${pref}-${Math.max(base, ...lista.map((x) => Number(x.id.split("-")[1]) || 0)) + 1}`;
 
-type Filtro = "Celulares" | "Apple" | "Samsung" | "Google" | "Seminuevos" | "Accesorios";
-const FILTROS: Filtro[] = ["Celulares", "Apple", "Samsung", "Google", "Seminuevos", "Accesorios"];
+type Filtro = "Celulares" | "iPhone" | "Samsung" | "Seminuevos" | "iPad y tablets" | "Mac y laptops" | "Accesorios";
+const FILTROS: Filtro[] = ["Celulares", "iPhone", "Samsung", "Seminuevos", "iPad y tablets", "Mac y laptops", "Accesorios"];
 const pasa = (p: Producto, f: Filtro) =>
-  f === "Accesorios" ? p.categoria === "Accesorios" : p.categoria === "Celulares" && (f === "Celulares" || (f === "Seminuevos" ? p.condicion === "Seminuevo" : p.marca === f));
+  f === "Accesorios"
+    ? p.categoria === "Accesorios"
+    : f === "iPad y tablets"
+      ? p.categoria === "Tablets"
+      : f === "Mac y laptops"
+        ? p.categoria === "Laptops"
+        : f === "Seminuevos"
+          ? p.condicion === "Seminuevo"
+          : p.categoria === "Celulares" && (f === "Celulares" || (f === "iPhone" ? p.marca === "Apple" : p.marca === f));
 
 export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }) {
   const [filtro, setFiltro] = useState<Filtro>("Celulares");
@@ -51,9 +59,9 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
   const lista = PRODUCTOS.filter((p) => (q ? `${p.marca} ${p.nombre}`.toLowerCase().includes(q) : pasa(p, filtro)));
   const piezas = carro.reduce((s, l) => s + l.cantidad, 0);
   const subtotal = carro.reduce((s, l) => s + l.precio * l.cantidad, 0);
-  const destacado = productoPor("s24ultra");
-  const ip15 = productoPor("ip15");
-  const ip13 = productoPor("ip13");
+  const destacado = productoPor("ip17promax");
+  const mac = productoPor("macbookair");
+  const s26u = productoPor("s26ultra");
 
   function agregar(l: Linea) {
     setCarro((c) => {
@@ -78,7 +86,7 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
       {/* barra de promociones */}
       <div className="text-white text-[0.8rem]" style={{ background: COBALTO }}>
         <div className="mx-auto max-w-7xl px-5 py-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-center">
-          <span>Hasta 12 cuotas sin recargo con tarjetas participantes</span>
+          <span>Celulares, iPad, Mac y laptops con garantía · Hasta 12 cuotas sin recargo</span>
           <span className="hidden sm:inline text-white/50">|</span>
           <span className="hidden sm:inline">Envío gratis desde {qz(ENVIO_GRATIS)}</span>
           <span className="hidden md:inline text-white/50">|</span>
@@ -105,7 +113,7 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
                 setBuscar(e.target.value);
                 document.getElementById("catalogo")?.scrollIntoView({ behavior: "smooth" });
               }}
-              placeholder="Buscar iPhone, Galaxy, AirPods…"
+              placeholder="Buscar iPhone, Galaxy, iPad, MacBook…"
               className="w-full bg-transparent py-2.5 text-[0.92rem] focus:outline-none"
             />
           </label>
@@ -145,12 +153,12 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
         <div className="overflow-hidden rounded-2xl text-white grid sm:grid-cols-[1.05fr_1fr]" style={{ background: TINTA }}>
           <div className="relative order-2 sm:order-1 flex flex-col justify-center p-6 sm:p-10">
             <span className="self-start rounded px-2 py-1 text-[0.72rem] font-bold uppercase tracking-wider text-black" style={{ background: AMARILLO }}>
-              Nuevo en tienda
+              Ya llegó
             </span>
             <h1 className="mt-4 text-[2.4rem] sm:text-[3.4rem] leading-[1] font-extrabold tracking-[-0.02em] !text-white" style={{ fontFamily: TITULO }}>
-              Galaxy S24 Ultra
+              iPhone 17 Pro Max
             </h1>
-            <p className="mt-3 text-white/80">Con lápiz S Pen, cámara de 200 MP y 1 año de garantía con nosotros.</p>
+            <p className="mt-3 text-white/80">Sellado, con factura y 1 año de garantía con nosotros. También en azul profundo y plata.</p>
             <p className="mt-5 text-[0.85rem] text-white/60">Desde</p>
             <p className="text-[2.2rem] font-extrabold leading-none">{qz(destacado.variantes[0].precio)}</p>
             <p className="mt-1 text-white/75">o 12 cuotas de {qz(cuota(destacado.variantes[0].precio, 12))} sin recargo</p>
@@ -158,19 +166,19 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
               <button type="button" onClick={() => setFicha(destacado)} className="rounded-lg px-5 py-3 font-bold text-white" style={{ background: COBALTO }}>
                 Comprarlo
               </button>
-              <button type="button" onClick={() => verFiltro("Samsung")} className="rounded-lg px-5 py-3 font-bold bg-white/10 hover:bg-white/20">
-                Ver Samsung
+              <button type="button" onClick={() => verFiltro("iPhone")} className="rounded-lg px-5 py-3 font-bold bg-white/10 hover:bg-white/20">
+                Ver todos los iPhone
               </button>
             </div>
           </div>
           <div className="relative order-1 sm:order-2 min-h-[260px] sm:min-h-[460px]">
-            <img src={destacado.foto} alt="Galaxy S24 Ultra en la mano, dentro de una tienda" className="absolute inset-0 w-full h-full object-cover object-[50%_35%]" />
+            <img src={destacado.foto} alt="iPhone 17 Pro Max naranja en la mano" className="absolute inset-0 w-full h-full object-cover object-[50%_40%]" />
           </div>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-1 gap-4">
           {[
-            { p: ip15, tag: "Sellado", t: "iPhone 15", d: `Desde ${qz(ip15.variantes[0].precio)}`, f: () => setFicha(ip15) },
-            { p: ip13, tag: "Seminuevos", t: "Certificados, con garantía", d: `iPhone 13 desde ${qz(ip13.variantes[0].precio)}`, f: () => verFiltro("Seminuevos") },
+            { p: mac, tag: "Nuevo", t: "MacBook Air M4", d: `Desde ${qz(mac.variantes[0].precio)} o 12 cuotas`, f: () => setFicha(mac) },
+            { p: s26u, tag: "Nuevo", t: "Galaxy S26 Ultra", d: `Desde ${qz(s26u.variantes[0].precio)}`, f: () => setFicha(s26u) },
           ].map((x) => (
             <button key={x.t} type="button" onClick={x.f} className="group relative overflow-hidden rounded-2xl min-h-[200px] text-left text-white" style={{ background: TINTA }}>
               <img src={x.p.foto} alt={x.p.nombre} className="absolute inset-0 w-full h-full object-cover transition duration-500 group-hover:scale-[1.03]" />
@@ -184,6 +192,40 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
               </div>
             </button>
           ))}
+        </div>
+      </section>
+
+      {/* qué vendemos, en 5 segundos */}
+      <section className="mx-auto max-w-7xl px-5 pt-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          {(
+            [
+              ["Celulares", FOTO_CELULARES, "iPhone, Samsung y Google", "Celulares"],
+              ["iPad y tablets", productoPor("ipadair").foto, "iPad Pro, Air, mini y Galaxy Tab", "iPad y tablets"],
+              ["Mac y laptops", productoPor("macbookpro").foto, "MacBook Air, Pro y Dell", "Mac y laptops"],
+              ["Seminuevos", productoPor("ip15pro").foto, "Certificados, con garantía", "Seminuevos"],
+              ["Audio y accesorios", productoPor("airpods").foto, "AirPods, cargadores, fundas", "Accesorios"],
+            ] as [string, string, string, Filtro][]
+          ).map(([ti, foto, d, f]) => (
+            <button key={ti} type="button" onClick={() => verFiltro(f)} className="group overflow-hidden rounded-2xl bg-white text-left border border-black/[0.06] hover:shadow-md transition">
+              <span className="block aspect-[4/3] overflow-hidden">
+                <img src={foto} alt="" className="w-full h-full object-cover transition duration-500 group-hover:scale-105" />
+              </span>
+              <span className="block p-3">
+                <span className="block font-extrabold">{ti}</span>
+                <span className="block text-[0.78rem] text-black/55">{d}</span>
+              </span>
+            </button>
+          ))}
+        </div>
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 rounded-2xl bg-white border border-black/[0.06] px-5 py-4">
+          <span className="text-[0.72rem] font-bold uppercase tracking-[0.18em] text-black/40">Marcas que vendemos</span>
+          {["Apple", "Samsung", "Google", "Dell"].map((m) => (
+            <span key={m} className="text-[1.25rem] font-extrabold tracking-[-0.01em] text-black/75" style={{ fontFamily: TITULO }}>
+              {m}
+            </span>
+          ))}
+          <span className="text-[0.85rem] font-semibold text-black/45">y accesorios de varias marcas</span>
         </div>
       </section>
 
@@ -271,7 +313,7 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
               Quiénes somos
             </p>
             <h2 className="mt-2 text-[1.9rem] sm:text-[2.5rem] leading-[1.05] font-extrabold !text-[#111318]" style={{ fontFamily: TITULO }}>
-              Sabemos de dónde viene cada celular que vendemos
+              Sabemos de dónde viene cada equipo que vendemos
             </h2>
             <p className="mt-3 text-black/65">Empezamos en 2016 con un mostrador en zona 10. Hoy tenemos tres sucursales y taller propio, y cada equipo se revisa aquí antes de entregarlo.</p>
             <ul className="mt-6 space-y-4">
@@ -557,7 +599,7 @@ function Ficha({ p, t, alAgregar }: { p: Producto; t: Tienda; alAgregar: (l: Lin
         </p>
         {v.precio >= 1000 && <p className="text-sm text-black/55">o 12 cuotas de {qz(cuota(v.precio, 12))} con tarjetas participantes</p>}
 
-        <p className="mt-5 text-sm font-semibold">Color: {color.nombre}{p.colores.length === 1 && p.categoria === "Celulares" ? " (el de la foto). Pregunte por otros colores." : ""}</p>
+        <p className="mt-5 text-sm font-semibold">Color: {color.nombre}{p.colores.length === 1 && p.categoria !== "Accesorios" ? " (el de la foto). Pregunte por otros colores." : ""}</p>
         <div className={`mt-2 flex gap-2 ${p.colores.length > 1 ? "" : "hidden"}`}>
           {p.colores.map((c) => (
             <button key={c.nombre} type="button" onClick={() => setColor(c)} aria-label={c.nombre} aria-pressed={color.nombre === c.nombre} className="w-9 h-9 rounded-full transition active:scale-90" style={{ background: c.hex, boxShadow: color.nombre === c.nombre ? `0 0 0 2px #fff, 0 0 0 4px ${COBALTO}` : "inset 0 0 0 1px rgba(0,0,0,.12)" }} />
