@@ -14,7 +14,7 @@ import fotoRopa from "@/assets/demos/ropa.jpg";
 import fotoComida from "@/assets/demos/comida.jpg";
 import fotoResort from "@/assets/demos/resort.jpg";
 import fotoCosmeticos from "@/assets/demo-cosmeticos/kit.jpg";
-import fotoCelulares from "@/assets/demo-celulares/portada.jpg";
+import fotoCelulares from "@/assets/demo-celulares/s24ultra.jpg";
 import { whatsappLink } from "@/data/site";
 import { Titulo } from "./Titulo";
 

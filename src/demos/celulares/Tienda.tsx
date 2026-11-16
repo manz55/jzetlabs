@@ -1,23 +1,21 @@
 /*
- * Lo que ve el cliente de Órbita Celulares: portada (quiénes son y de dónde
- * traen los equipos), catálogo, carrito, pago con tarjeta o transferencia,
- * rastreo, reparaciones y devoluciones. El stock nunca se muestra en números.
+ * Lo que ve el cliente de Órbita Celulares, con estilo de tienda de verdad:
+ * barra de promociones, buscador, banner del equipo del mes (foto real del
+ * mismo modelo), catálogo con fotos reales, quiénes son y de dónde traen los
+ * equipos, carrito, pago con tarjeta o transferencia, rastreo, reparaciones y
+ * devoluciones. El stock nunca se muestra en números.
  */
 import { useEffect, useMemo, useState } from "react";
 import {
-  ArrowRight, BadgeCheck, Banknote, Check, CreditCard, Lock, MapPin, PackageSearch, RefreshCcw, Search, ShieldCheck, ShoppingCart, Store, Trash2, Truck, Undo2, Wrench, X,
+  BadgeCheck, Banknote, Check, CreditCard, Lock, MapPin, MessageCircle, PackageSearch, RefreshCcw, Search, ShieldCheck, ShoppingCart, Store, Trash2, Truck, Undo2, Wrench, X,
 } from "lucide-react";
 import { Modal } from "@/components/Modal";
 import { Cajon, Contador, qz } from "../comun";
-import portada from "@/assets/demo-celulares/portada.jpg";
 import tecnico from "@/assets/demo-celulares/tecnico.jpg";
-import fundas from "@/assets/demo-celulares/fundas.jpg";
-import mano from "@/assets/demo-celulares/mano.jpg";
-import { Arte } from "./Arte";
 import {
-  COBALTO, ESTADOS_PEDIDO, FALLAS, FONDO, LIMA, MODELOS_REPARACION, PASOS_RASTREO, PASOS_REPARACION, PRODUCTOS, SUCURSALES, TEXTO_REPARACION, TINTA, TITULO,
-  disponibilidad, fechaCorta, sucursalPor,
-  type Categoria, type Linea, type Pedido, type Producto, type Tienda,
+  AMARILLO, COBALTO, ESTADOS_PEDIDO, FALLAS, FONDO, MODELOS_REPARACION, PASOS_RASTREO, PASOS_REPARACION, PRODUCTOS, SUCURSALES, TEXTO_REPARACION, TINTA, TITULO,
+  disponibilidad, fechaCorta, productoPor, sucursalPor,
+  type Linea, type Pedido, type Producto, type Tienda,
 } from "./datos";
 
 const ENVIO = 35;
@@ -25,10 +23,14 @@ const ENVIO_GRATIS = 1000;
 const cuota = (precio: number, meses: number) => Math.ceil(precio / meses);
 const sigId = (pref: string, lista: { id: string }[], base: number) => `${pref}-${Math.max(base, ...lista.map((x) => Number(x.id.split("-")[1]) || 0)) + 1}`;
 
+type Filtro = "Celulares" | "Apple" | "Samsung" | "Google" | "Seminuevos" | "Accesorios";
+const FILTROS: Filtro[] = ["Celulares", "Apple", "Samsung", "Google", "Seminuevos", "Accesorios"];
+const pasa = (p: Producto, f: Filtro) =>
+  f === "Accesorios" ? p.categoria === "Accesorios" : p.categoria === "Celulares" && (f === "Celulares" || (f === "Seminuevos" ? p.condicion === "Seminuevo" : p.marca === f));
+
 export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }) {
-  const [categoria, setCategoria] = useState<Categoria>("Celulares");
-  const [marca, setMarca] = useState("Todas");
-  const [condicion, setCondicion] = useState<"Todos" | "Nuevo" | "Seminuevo">("Todos");
+  const [filtro, setFiltro] = useState<Filtro>("Celulares");
+  const [buscar, setBuscar] = useState("");
   const [ficha, setFicha] = useState<Producto | null>(null);
   const [carro, setCarro] = useState<Linea[]>([]);
   const [carroAbierto, setCarroAbierto] = useState(false);
@@ -45,10 +47,13 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
     return () => clearTimeout(x);
   }, [aviso]);
 
-  const marcas = ["Todas", ...new Set(PRODUCTOS.filter((p) => p.categoria === categoria).map((p) => p.marca))];
-  const lista = PRODUCTOS.filter((p) => p.categoria === categoria && (marca === "Todas" || p.marca === marca) && (condicion === "Todos" || p.condicion === condicion));
+  const q = buscar.trim().toLowerCase();
+  const lista = PRODUCTOS.filter((p) => (q ? `${p.marca} ${p.nombre}`.toLowerCase().includes(q) : pasa(p, filtro)));
   const piezas = carro.reduce((s, l) => s + l.cantidad, 0);
   const subtotal = carro.reduce((s, l) => s + l.precio * l.cantidad, 0);
+  const destacado = productoPor("s24ultra");
+  const ip15 = productoPor("ip15");
+  const ip13 = productoPor("ip13");
 
   function agregar(l: Linea) {
     setCarro((c) => {
@@ -58,7 +63,11 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
     });
     setAviso(`${l.nombre} está en su carrito`);
   }
-
+  const verFiltro = (f: Filtro) => {
+    setFiltro(f);
+    setBuscar("");
+    document.getElementById("catalogo")?.scrollIntoView({ behavior: "smooth" });
+  };
   const rastrear = (c: string) => {
     setCodigo(c);
     document.getElementById("rastreo")?.scrollIntoView({ behavior: "smooth" });
@@ -66,261 +75,267 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
 
   return (
     <div style={{ background: FONDO, color: TINTA }} className="min-h-screen">
-      {/* encabezado */}
-      <header className="sticky top-0 z-30 border-b border-black/10 bg-white/90 backdrop-blur">
-        <div className="mx-auto max-w-7xl px-5 h-16 flex items-center justify-between gap-4">
-          <a href="#inicio" className="inline-flex items-center gap-2 font-extrabold text-[1.2rem]" style={{ fontFamily: TITULO }}>
-            <span className="relative grid place-items-center w-8 h-8 rounded-full" style={{ background: TINTA }}>
-              <span className="w-3 h-3 rounded-full" style={{ background: LIMA }} />
-              <span className="absolute inset-[3px] rounded-full border border-white/40" />
-            </span>
-            órbita
-          </a>
-          <nav className="hidden lg:flex gap-6 text-[0.92rem] font-medium">
-            <a href="#catalogo" onClick={() => setCategoria("Celulares")} className="hover:text-[#2456e8]">
-              Celulares
-            </a>
-            <a href="#catalogo" onClick={() => setCategoria("Accesorios")} className="hover:text-[#2456e8]">
-              Accesorios
-            </a>
-            <a href="#reparaciones" className="hover:text-[#2456e8]">
-              Reparaciones
-            </a>
-            <a href="#rastreo" className="hover:text-[#2456e8]">
-              Rastrear pedido
-            </a>
-            <a href="#sucursales" className="hover:text-[#2456e8]">
-              Sucursales
-            </a>
-          </nav>
-          <button
-            type="button"
-            onClick={() => setCarroAbierto(true)}
-            className="relative inline-flex items-center gap-2 rounded-full px-4 py-2 text-[0.9rem] font-semibold text-white active:scale-95 transition"
-            style={{ background: TINTA }}
-            aria-label={`Carrito, ${piezas} productos`}
-          >
-            <ShoppingCart size={17} /> Carrito
-            {piezas > 0 && (
-              <span className="grid place-items-center min-w-5 h-5 px-1 rounded-full text-[0.72rem] font-bold text-black" style={{ background: LIMA }}>
-                {piezas}
-              </span>
-            )}
-          </button>
+      {/* barra de promociones */}
+      <div className="text-white text-[0.8rem]" style={{ background: COBALTO }}>
+        <div className="mx-auto max-w-7xl px-5 py-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-center">
+          <span>Hasta 12 cuotas sin recargo con tarjetas participantes</span>
+          <span className="hidden sm:inline text-white/50">|</span>
+          <span className="hidden sm:inline">Envío gratis desde {qz(ENVIO_GRATIS)}</span>
+          <span className="hidden md:inline text-white/50">|</span>
+          <span className="hidden md:inline">WhatsApp 5555-0000 (de ejemplo)</span>
         </div>
-      </header>
+      </div>
 
-      {/* portada */}
-      <section id="inicio" className="text-white" style={{ background: TINTA }}>
-        <div className="mx-auto max-w-7xl px-5 pt-12 pb-14 sm:pt-16 sm:pb-20 grid lg:grid-cols-[1.1fr_1fr] gap-10 items-center">
-          <div>
-            <p className="inline-flex items-center gap-2 rounded-full border border-white/15 px-3 py-1 text-[0.8rem] text-white/80">
-              <span className="w-2 h-2 rounded-full" style={{ background: LIMA }} /> 3 sucursales · Envío a todo el país
-            </p>
-            <h1 className="mt-5 text-[2.6rem] sm:text-[4rem] leading-[1.02] tracking-[-0.02em] font-extrabold !text-white" style={{ fontFamily: TITULO }}>
-              Celulares nuevos y seminuevos, <span style={{ color: LIMA }}>con garantía de verdad.</span>
-            </h1>
-            <p className="mt-5 max-w-lg text-[1.08rem] text-white/70">Compre en línea con tarjeta o transferencia, pague en cuotas y vea en todo momento dónde va su pedido. Si algo falla, lo reparamos aquí mismo.</p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <a href="#catalogo" className="inline-flex items-center gap-2 rounded-full px-6 py-3.5 font-bold text-black active:scale-[0.97] transition" style={{ background: LIMA }}>
-                Ver celulares <ArrowRight size={18} />
-              </a>
-              <a href="#rastreo" className="rounded-full px-6 py-3.5 font-bold border border-white/25 hover:border-white active:scale-[0.97] transition">
-                Rastrear mi pedido
-              </a>
-            </div>
-            <ul className="mt-8 grid grid-cols-3 gap-3 max-w-lg text-[0.85rem]">
-              {[
-                [CreditCard, "Hasta 12 cuotas"],
-                [ShieldCheck, "Garantía en tienda"],
-                [RefreshCcw, "Recibimos su celular"],
-              ].map(([I, x]) => {
-                const Icono = I as typeof Check;
-                return (
-                  <li key={x as string} className="rounded-2xl bg-white/5 p-3">
-                    <Icono size={18} style={{ color: LIMA }} />
-                    <span className="mt-1.5 block text-white/80">{x as string}</span>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-          <div className="relative mx-auto w-full max-w-[460px]">
-            <img src={portada} alt="Mano sosteniendo un celular frente a las montañas" className="w-full aspect-[4/5] object-cover rounded-[2rem]" />
-            <button type="button" onClick={() => setFicha(PRODUCTOS[0])} className="absolute -left-3 sm:-left-8 bottom-8 flex items-center gap-3 rounded-2xl bg-white p-2.5 pr-4 text-left text-black shadow-xl active:scale-95 transition">
-              <span className="grid place-items-center w-14 h-14 rounded-xl" style={{ background: FONDO }}>
-                <Arte tipo="telefono" marca="Apple" color="#c9dbe9" className="w-10 h-12" />
-              </span>
-              <span>
-                <span className="block text-[0.7rem] font-bold uppercase tracking-wider" style={{ color: COBALTO }}>
-                  Sellado
+      {/* encabezado */}
+      <header className="sticky top-0 z-30 bg-white border-b border-black/10">
+        <div className="mx-auto max-w-7xl px-5 h-16 flex items-center gap-4">
+          <a href="#inicio" className="shrink-0 leading-none">
+            <span className="block text-[1.4rem] font-extrabold tracking-[-0.02em]" style={{ fontFamily: TITULO }}>
+              Órbita
+            </span>
+            <span className="block text-[0.62rem] font-bold uppercase tracking-[0.24em]" style={{ color: COBALTO }}>
+              Celulares
+            </span>
+          </a>
+          <label className="hidden md:flex flex-1 max-w-xl items-center gap-2 rounded-lg border border-black/15 bg-[#f7f7f6] px-3 focus-within:border-[#1f4fe0]">
+            <Search size={17} className="text-black/40" />
+            <input
+              value={buscar}
+              onChange={(e) => {
+                setBuscar(e.target.value);
+                document.getElementById("catalogo")?.scrollIntoView({ behavior: "smooth" });
+              }}
+              placeholder="Buscar iPhone, Galaxy, AirPods…"
+              className="w-full bg-transparent py-2.5 text-[0.92rem] focus:outline-none"
+            />
+          </label>
+          <div className="ml-auto flex items-center gap-2">
+            <a href="#rastreo" className="hidden sm:inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-[0.88rem] font-semibold hover:bg-black/5">
+              <PackageSearch size={17} /> Mi pedido
+            </a>
+            <button type="button" onClick={() => setCarroAbierto(true)} className="relative inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-[0.9rem] font-semibold text-white" style={{ background: TINTA }} aria-label={`Carrito, ${piezas} productos`}>
+              <ShoppingCart size={17} /> <span className="hidden sm:inline">Carrito</span>
+              {piezas > 0 && (
+                <span className="grid place-items-center min-w-5 h-5 px-1 rounded-full text-[0.72rem] font-bold text-black" style={{ background: AMARILLO }}>
+                  {piezas}
                 </span>
-                <span className="block font-bold leading-tight">iPhone 15</span>
-                <span className="block text-sm text-black/60">12 cuotas de {qz(cuota(7499, 12))}</span>
-              </span>
+              )}
             </button>
           </div>
         </div>
+        <nav className="border-t border-black/5" aria-label="Categorías">
+          <div className="mx-auto max-w-7xl px-5 flex gap-5 overflow-x-auto [scrollbar-width:none] text-[0.88rem] font-semibold">
+            {FILTROS.map((f) => (
+              <button key={f} type="button" onClick={() => verFiltro(f)} className={`shrink-0 border-b-2 py-2.5 transition ${!q && filtro === f ? "" : "border-transparent text-black/60 hover:text-black"}`} style={!q && filtro === f ? { borderColor: COBALTO, color: COBALTO } : undefined}>
+                {f}
+              </button>
+            ))}
+            <a href="#reparaciones" className="shrink-0 py-2.5 text-black/60 hover:text-black">
+              Reparaciones
+            </a>
+            <a href="#sucursales" className="shrink-0 py-2.5 text-black/60 hover:text-black">
+              Sucursales
+            </a>
+          </div>
+        </nav>
+      </header>
+
+      {/* banner del mes y promociones: cada foto es del equipo que nombra */}
+      <section id="inicio" className="mx-auto max-w-7xl px-5 pt-5 grid lg:grid-cols-[2fr_1fr] gap-4">
+        <div className="overflow-hidden rounded-2xl text-white grid sm:grid-cols-[1.05fr_1fr]" style={{ background: TINTA }}>
+          <div className="relative order-2 sm:order-1 flex flex-col justify-center p-6 sm:p-10">
+            <span className="self-start rounded px-2 py-1 text-[0.72rem] font-bold uppercase tracking-wider text-black" style={{ background: AMARILLO }}>
+              Nuevo en tienda
+            </span>
+            <h1 className="mt-4 text-[2.4rem] sm:text-[3.4rem] leading-[1] font-extrabold tracking-[-0.02em] !text-white" style={{ fontFamily: TITULO }}>
+              Galaxy S24 Ultra
+            </h1>
+            <p className="mt-3 text-white/80">Con lápiz S Pen, cámara de 200 MP y 1 año de garantía con nosotros.</p>
+            <p className="mt-5 text-[0.85rem] text-white/60">Desde</p>
+            <p className="text-[2.2rem] font-extrabold leading-none">{qz(destacado.variantes[0].precio)}</p>
+            <p className="mt-1 text-white/75">o 12 cuotas de {qz(cuota(destacado.variantes[0].precio, 12))} sin recargo</p>
+            <div className="mt-6 flex flex-wrap gap-2">
+              <button type="button" onClick={() => setFicha(destacado)} className="rounded-lg px-5 py-3 font-bold text-white" style={{ background: COBALTO }}>
+                Comprarlo
+              </button>
+              <button type="button" onClick={() => verFiltro("Samsung")} className="rounded-lg px-5 py-3 font-bold bg-white/10 hover:bg-white/20">
+                Ver Samsung
+              </button>
+            </div>
+          </div>
+          <div className="relative order-1 sm:order-2 min-h-[260px] sm:min-h-[460px]">
+            <img src={destacado.foto} alt="Galaxy S24 Ultra en la mano, dentro de una tienda" className="absolute inset-0 w-full h-full object-cover object-[50%_35%]" />
+          </div>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-1 gap-4">
+          {[
+            { p: ip15, tag: "Sellado", t: "iPhone 15", d: `Desde ${qz(ip15.variantes[0].precio)}`, f: () => setFicha(ip15) },
+            { p: ip13, tag: "Seminuevos", t: "Certificados, con garantía", d: `iPhone 13 desde ${qz(ip13.variantes[0].precio)}`, f: () => verFiltro("Seminuevos") },
+          ].map((x) => (
+            <button key={x.t} type="button" onClick={x.f} className="group relative overflow-hidden rounded-2xl min-h-[200px] text-left text-white" style={{ background: TINTA }}>
+              <img src={x.p.foto} alt={x.p.nombre} className="absolute inset-0 w-full h-full object-cover transition duration-500 group-hover:scale-[1.03]" />
+              <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(17,19,24,.88),rgba(17,19,24,.1)_65%)]" />
+              <div className="absolute inset-x-0 bottom-0 p-5">
+                <span className="rounded px-2 py-0.5 text-[0.68rem] font-bold uppercase tracking-wider text-black" style={{ background: AMARILLO }}>
+                  {x.tag}
+                </span>
+                <p className="mt-2 text-[1.35rem] font-extrabold leading-tight">{x.t}</p>
+                <p className="text-white/80">{x.d}</p>
+              </div>
+            </button>
+          ))}
+        </div>
       </section>
 
-      {/* quiénes somos y de dónde los traemos */}
-      <section className="mx-auto max-w-7xl px-5 py-14 sm:py-20">
-        <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-10 items-end">
-          <div>
-            <p className="text-[0.8rem] font-bold uppercase tracking-[0.14em]" style={{ color: COBALTO }}>
-              Quiénes somos
-            </p>
-            <h2 className="mt-2 text-[2.2rem] sm:text-[3rem] leading-[1.03] font-extrabold !text-[#0d1117]" style={{ fontFamily: TITULO }}>
-              Sabemos de dónde viene cada celular que vendemos
-            </h2>
-          </div>
-          <p className="text-[1.05rem] text-black/65">Empezamos en 2016 con un mostrador en zona 10. Hoy tenemos tres sucursales y un taller propio. Cada equipo se revisa aquí antes de llegar a sus manos.</p>
-        </div>
-        <div className="mt-10 grid md:grid-cols-3 gap-4">
+      {/* beneficios */}
+      <section className="mx-auto max-w-7xl px-5 pt-4">
+        <ul className="grid grid-cols-2 lg:grid-cols-4 gap-px overflow-hidden rounded-2xl bg-black/10">
           {[
-            { I: BadgeCheck, t: "Nuevos y sellados", d: "Los traemos de distribuidores autorizados en Miami y Panamá. Llegan con su caja sellada y factura." },
-            { I: ShieldCheck, t: "Seminuevos certificados", d: "Equipos de primera mano que pasan 30 puntos de revisión: batería, pantalla, cámaras, señal y botones." },
-            { I: RefreshCcw, t: "Canje de su celular", d: "Traiga su teléfono usado y se lo tomamos como parte de pago, según su estado." },
-          ].map(({ I, t: ti, d }) => (
-            <div key={ti} className="rounded-3xl bg-white p-6">
-              <span className="grid place-items-center w-11 h-11 rounded-2xl" style={{ background: "#e3ebff", color: COBALTO }}>
-                <I size={21} />
-              </span>
-              <h3 className="mt-4 text-[1.2rem] font-bold !text-[#0d1117]">{ti}</h3>
-              <p className="mt-1 text-black/65">{d}</p>
-            </div>
-          ))}
-        </div>
-        <dl className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            ["+12,000", "equipos vendidos"],
-            ["3", "sucursales"],
-            ["4.8", "de calificación en Google"],
-            ["24 h", "entrega en la capital"],
-          ].map(([n, x]) => (
-            <div key={x} className="rounded-2xl border border-black/10 p-4">
-              <dt className="text-[1.9rem] font-extrabold leading-none" style={{ fontFamily: TITULO }}>
-                {n}
-              </dt>
-              <dd className="mt-1 text-sm text-black/55">{x}</dd>
-            </div>
-          ))}
-        </dl>
-        <p className="mt-3 text-xs text-black/45">Cifras de ejemplo.</p>
+            [CreditCard, "12 cuotas sin recargo", "Con tarjetas participantes"],
+            [Truck, "Envío en 24 horas", "En la capital, 48 en departamentos"],
+            [ShieldCheck, "Garantía en tienda", "1 año en nuevos, 6 meses en seminuevos"],
+            [RefreshCcw, "Su celular a cuenta", "Lo recibimos como parte de pago"],
+          ].map(([I, ti, d]) => {
+            const Icono = I as typeof Check;
+            return (
+              <li key={ti as string} className="flex items-start gap-3 bg-white p-4">
+                <Icono size={22} className="shrink-0" style={{ color: COBALTO }} />
+                <span>
+                  <span className="block font-bold text-[0.92rem]">{ti as string}</span>
+                  <span className="block text-[0.8rem] text-black/55">{d as string}</span>
+                </span>
+              </li>
+            );
+          })}
+        </ul>
       </section>
 
       {/* catálogo */}
-      <section id="catalogo" className="scroll-mt-16 mx-auto max-w-7xl px-5 pb-14 sm:pb-20">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <h2 className="text-[2.2rem] sm:text-[3rem] leading-none font-extrabold !text-[#0d1117]" style={{ fontFamily: TITULO }}>
-            Catálogo
+      <section id="catalogo" className="scroll-mt-28 mx-auto max-w-7xl px-5 py-12 sm:py-16">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <h2 className="text-[1.8rem] sm:text-[2.3rem] font-extrabold tracking-[-0.02em] !text-[#111318]" style={{ fontFamily: TITULO }}>
+            {q ? `Resultados para “${buscar.trim()}”` : filtro === "Celulares" ? "Celulares" : filtro}
           </h2>
-          <div className="flex rounded-full bg-white p-1" role="group" aria-label="Categoría">
-            {(["Celulares", "Accesorios"] as Categoria[]).map((c) => (
-              <button
-                key={c}
-                type="button"
-                onClick={() => {
-                  setCategoria(c);
-                  setMarca("Todas");
-                  setCondicion("Todos");
-                }}
-                aria-pressed={categoria === c}
-                className={`rounded-full px-5 py-2 text-[0.92rem] font-semibold transition ${categoria === c ? "text-white" : "text-black/60"}`}
-                style={categoria === c ? { background: TINTA } : undefined}
-              >
-                {c}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="mt-5 flex flex-wrap gap-2">
-          {marcas.map((m) => (
-            <button key={m} type="button" onClick={() => setMarca(m)} aria-pressed={marca === m} className={`rounded-full px-3.5 py-1.5 text-[0.85rem] font-semibold border transition ${marca === m ? "border-transparent text-white" : "border-black/12 bg-white hover:border-black/40"}`} style={marca === m ? { background: COBALTO } : undefined}>
-              {m}
-            </button>
-          ))}
-          {categoria === "Celulares" && (
-            <>
-              <span className="mx-1 w-px self-stretch bg-black/10" />
-              {(["Todos", "Nuevo", "Seminuevo"] as const).map((c) => (
-                <button key={c} type="button" onClick={() => setCondicion(c)} aria-pressed={condicion === c} className={`rounded-full px-3.5 py-1.5 text-[0.85rem] font-semibold border transition ${condicion === c ? "border-transparent text-white" : "border-black/12 bg-white hover:border-black/40"}`} style={condicion === c ? { background: TINTA } : undefined}>
-                  {c === "Todos" ? "Nuevos y seminuevos" : c + "s"}
-                </button>
-              ))}
-            </>
-          )}
+          <label className="md:hidden flex w-full items-center gap-2 rounded-lg border border-black/15 bg-white px-3">
+            <Search size={17} className="text-black/40" />
+            <input value={buscar} onChange={(e) => setBuscar(e.target.value)} placeholder="Buscar un modelo…" className="w-full py-2.5 focus:outline-none" />
+          </label>
+          <p className="text-sm text-black/55">{lista.length} productos</p>
         </div>
         <div className="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {lista.map((p) => {
             const disp = disponibilidad(t.stock, p.id);
             const desde = p.variantes[0].precio;
             return (
-              <button key={p.id} type="button" onClick={() => setFicha(p)} className="group flex flex-col rounded-3xl bg-white p-3 sm:p-4 text-left transition hover:shadow-lg active:scale-[0.99]">
-                <div className="relative grid place-items-center rounded-2xl aspect-square" style={{ background: FONDO }}>
-                  <Arte tipo={p.arte} marca={p.marca} color={p.colores[0].hex} className="w-[62%] h-[80%] transition duration-500 group-hover:scale-105" />
+              <article key={p.id} className="group flex flex-col overflow-hidden rounded-2xl bg-white border border-black/[0.06]">
+                <button type="button" onClick={() => setFicha(p)} className="relative block aspect-[4/5] overflow-hidden" aria-label={`Ver ${p.nombre}`}>
+                  <img src={p.foto} alt={p.nombre} className="absolute inset-0 w-full h-full object-cover transition duration-500 group-hover:scale-[1.04]" loading="lazy" />
                   {p.etiqueta && (
-                    <span className="absolute left-2 top-2 rounded-full px-2 py-0.5 text-[0.68rem] font-bold" style={{ background: p.etiqueta === "Oferta" ? LIMA : "#fff", color: TINTA }}>
+                    <span className="absolute left-2 top-2 rounded px-2 py-0.5 text-[0.68rem] font-bold" style={p.etiqueta === "Oferta" ? { background: AMARILLO, color: "#000" } : { background: "#fff", color: TINTA }}>
                       {p.etiqueta}
                     </span>
                   )}
-                  {p.colores.length > 1 && (
-                    <span className="absolute right-2 bottom-2 flex gap-1">
-                      {p.colores.map((c) => (
-                        <span key={c.nombre} className="w-3 h-3 rounded-full ring-1 ring-black/10" style={{ background: c.hex }} />
-                      ))}
-                    </span>
-                  )}
+                  {p.antes && <span className="absolute right-2 top-2 rounded px-2 py-0.5 text-[0.68rem] font-bold text-white bg-[#c0262d]">-{Math.round((1 - desde / p.antes) * 100)}%</span>}
+                </button>
+                <div className="flex flex-1 flex-col p-3 sm:p-4">
+                  <p className="text-[0.75rem] font-semibold text-black/45">
+                    {p.marca} · {p.condicion}
+                  </p>
+                  <button type="button" onClick={() => setFicha(p)} className="text-left font-bold leading-tight hover:underline">
+                    {p.nombre}
+                  </button>
+                  <p className="mt-2 text-[1.2rem] font-extrabold leading-none">
+                    {p.variantes.length > 1 && <span className="text-[0.72rem] font-semibold text-black/45">desde </span>}
+                    {qz(desde)} {p.antes && <span className="text-[0.8rem] font-normal line-through text-black/35">{qz(p.antes)}</span>}
+                  </p>
+                  {desde >= 1000 && <p className="mt-1 text-[0.78rem] text-black/55">12 cuotas de {qz(cuota(desde, 12))}</p>}
+                  <p className={`mt-auto pt-2 text-[0.78rem] font-semibold ${disp.tipo === "agotado" ? "text-[#b42318]" : disp.tipo === "pocas" ? "text-[#b25e00]" : "text-[#1f7a3a]"}`}>{disp.texto}</p>
+                  <button type="button" onClick={() => setFicha(p)} disabled={disp.tipo === "agotado"} className="mt-2 rounded-lg py-2 text-[0.85rem] font-bold text-white disabled:opacity-40" style={{ background: COBALTO }}>
+                    {disp.tipo === "agotado" ? "Agotado" : "Comprar"}
+                  </button>
                 </div>
-                <p className="mt-3 text-[0.75rem] font-semibold text-black/45">
-                  {p.marca} · {p.condicion}
-                </p>
-                <p className="font-bold leading-tight">{p.nombre}</p>
-                <p className="mt-1 font-extrabold text-[1.15rem]">
-                  {p.variantes.length > 1 && <span className="text-[0.75rem] font-semibold text-black/45">desde </span>}
-                  {qz(desde)} {p.antes && <span className="text-[0.8rem] font-normal line-through text-black/35">{qz(p.antes)}</span>}
-                </p>
-                {desde >= 1000 && <p className="text-[0.78rem] text-black/55">o 12 cuotas de {qz(cuota(desde, 12))}</p>}
-                <p className={`mt-auto pt-2 text-[0.78rem] font-semibold ${disp.tipo === "agotado" ? "text-[#b42318]" : disp.tipo === "pocas" ? "text-[#b25e00]" : "text-[#1f7a3a]"}`}>● {disp.texto}</p>
-              </button>
+              </article>
             );
           })}
+          {!lista.length && <p className="col-span-full rounded-2xl bg-white p-8 text-center text-black/55">No encontramos ese modelo. Escríbanos y se lo conseguimos.</p>}
         </div>
-        {categoria === "Accesorios" && (
-          <div className="mt-6 grid md:grid-cols-[1.2fr_1fr] gap-4 items-center overflow-hidden rounded-3xl bg-white">
-            <img src={fundas} alt="Pared con fundas de colores" className="w-full h-48 md:h-full object-cover" loading="lazy" />
-            <div className="p-6">
-              <p className="font-bold text-[1.2rem]">¿No ve la funda de su modelo?</p>
-              <p className="mt-1 text-black/60">Tenemos más de 300 modelos en tienda. Escríbanos el suyo y le decimos si hay.</p>
-            </div>
-          </div>
-        )}
-        <p className="mt-4 text-sm text-black/45">Precios de ejemplo, en quetzales. Las marcas son de sus dueños; los dibujos son ilustrativos.</p>
+        <p className="mt-4 text-xs text-black/45">Precios de ejemplo, en quetzales. Las marcas y fotos de productos son de sus dueños.</p>
       </section>
 
-      {/* pagos seguros */}
-      <section className="px-5">
-        <div className="mx-auto max-w-7xl grid md:grid-cols-4 gap-4 rounded-3xl p-6 sm:p-8 text-white" style={{ background: TINTA }}>
-          <div className="md:col-span-1">
-            <p className="inline-flex items-center gap-2 font-bold text-[1.2rem]">
-              <Lock size={20} style={{ color: LIMA }} /> Pague como quiera
+      {/* quiénes somos y de dónde los traemos */}
+      <section className="bg-white">
+        <div className="mx-auto max-w-7xl px-5 py-12 sm:py-16 grid lg:grid-cols-[1fr_1.1fr] gap-10 items-center">
+          <img src={tecnico} alt="Técnico de Órbita revisando la placa de un celular" className="w-full aspect-[4/3] object-cover rounded-2xl" loading="lazy" />
+          <div>
+            <p className="text-[0.8rem] font-bold uppercase tracking-[0.14em]" style={{ color: COBALTO }}>
+              Quiénes somos
             </p>
-            <p className="mt-1 text-sm text-white/60">Todo el sitio va cifrado. Nosotros nunca vemos el número completo de su tarjeta.</p>
+            <h2 className="mt-2 text-[1.9rem] sm:text-[2.5rem] leading-[1.05] font-extrabold !text-[#111318]" style={{ fontFamily: TITULO }}>
+              Sabemos de dónde viene cada celular que vendemos
+            </h2>
+            <p className="mt-3 text-black/65">Empezamos en 2016 con un mostrador en zona 10. Hoy tenemos tres sucursales y taller propio, y cada equipo se revisa aquí antes de entregarlo.</p>
+            <ul className="mt-6 space-y-4">
+              {[
+                [BadgeCheck, "Nuevos y sellados", "De distribuidores autorizados en Miami y Panamá, con su caja y factura."],
+                [ShieldCheck, "Seminuevos certificados", "De primera mano, con 30 puntos de revisión: batería, pantalla, cámaras, señal y botones."],
+                [RefreshCcw, "Canje", "Traiga su celular usado y se lo tomamos como parte de pago, según su estado."],
+              ].map(([I, ti, d]) => {
+                const Icono = I as typeof Check;
+                return (
+                  <li key={ti as string} className="flex gap-3">
+                    <Icono size={22} className="mt-0.5 shrink-0" style={{ color: COBALTO }} />
+                    <span>
+                      <span className="block font-bold">{ti as string}</span>
+                      <span className="block text-black/60">{d as string}</span>
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+            <dl className="mt-7 grid grid-cols-3 gap-4 border-t border-black/10 pt-5">
+              {[
+                ["+12,000", "equipos vendidos"],
+                ["3", "sucursales"],
+                ["4.8", "en Google"],
+              ].map(([n, x]) => (
+                <div key={x}>
+                  <dt className="text-[1.7rem] font-extrabold leading-none" style={{ fontFamily: TITULO }}>
+                    {n}
+                  </dt>
+                  <dd className="mt-1 text-[0.8rem] text-black/55">{x}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="mt-2 text-xs text-black/40">Cifras de ejemplo.</p>
           </div>
-          {[
-            [CreditCard, "Tarjeta de crédito o débito", "Al contado o hasta 12 cuotas con tarjetas participantes."],
-            [Banknote, "Transferencia o depósito", "Suba su comprobante y lo verificamos en menos de 2 horas."],
-            [Store, "Pague en sucursal", "Aparte en línea y pague al recoger."],
-          ].map(([I, ti, d]) => {
-            const Icono = I as typeof Check;
-            return (
-              <div key={ti as string} className="rounded-2xl bg-white/5 p-4">
-                <Icono size={20} style={{ color: LIMA }} />
-                <p className="mt-2 font-semibold">{ti as string}</p>
-                <p className="text-sm text-white/60">{d as string}</p>
-              </div>
-            );
-          })}
+        </div>
+      </section>
+
+      {/* formas de pago */}
+      <section className="mx-auto max-w-7xl px-5 pt-12 sm:pt-16">
+        <div className="grid md:grid-cols-[1fr_2fr] gap-6 items-center rounded-2xl border border-black/10 bg-white p-6 sm:p-8">
+          <div>
+            <p className="inline-flex items-center gap-2 text-[1.3rem] font-extrabold">
+              <Lock size={20} style={{ color: COBALTO }} /> Formas de pago
+            </p>
+            <p className="mt-1 text-sm text-black/55">El sitio va cifrado. Nunca vemos el número completo de su tarjeta.</p>
+          </div>
+          <div className="grid sm:grid-cols-3 gap-3">
+            {[
+              [CreditCard, "Tarjeta", "Contado o hasta 12 cuotas."],
+              [Banknote, "Transferencia", "Suba su comprobante; lo verificamos en menos de 2 horas."],
+              [Store, "En sucursal", "Aparte en línea y pague al recoger."],
+            ].map(([I, ti, d]) => {
+              const Icono = I as typeof Check;
+              return (
+                <div key={ti as string} className="rounded-xl p-4" style={{ background: FONDO }}>
+                  <Icono size={20} style={{ color: COBALTO }} />
+                  <p className="mt-2 font-bold">{ti as string}</p>
+                  <p className="text-sm text-black/55">{d as string}</p>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
 
@@ -331,17 +346,17 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
       <Devoluciones t={t} />
 
       {/* sucursales */}
-      <section id="sucursales" className="scroll-mt-16 mx-auto max-w-7xl px-5 py-14 sm:py-20">
-        <h2 className="text-[2.2rem] sm:text-[3rem] leading-none font-extrabold !text-[#0d1117]" style={{ fontFamily: TITULO }}>
+      <section id="sucursales" className="scroll-mt-28 mx-auto max-w-7xl px-5 py-12 sm:py-16">
+        <h2 className="text-[1.8rem] sm:text-[2.3rem] font-extrabold !text-[#111318]" style={{ fontFamily: TITULO }}>
           Sucursales
         </h2>
-        <div className="mt-8 grid md:grid-cols-3 gap-4">
+        <div className="mt-6 grid md:grid-cols-3 gap-4">
           {SUCURSALES.map((s) => (
-            <div key={s.id} className="rounded-3xl bg-white p-6">
+            <div key={s.id} className="rounded-2xl bg-white border border-black/[0.06] p-5">
               <MapPin size={22} style={{ color: COBALTO }} />
-              <p className="mt-3 text-[1.2rem] font-bold">{s.nombre}</p>
+              <p className="mt-2 text-[1.15rem] font-bold">Órbita {s.nombre}</p>
               <p className="text-black/60">{s.direccion}</p>
-              <p className="mt-2 text-sm text-black/50">{s.horario}</p>
+              <p className="mt-1 text-sm text-black/50">{s.horario}</p>
             </div>
           ))}
         </div>
@@ -351,16 +366,16 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
       {/* opiniones y preguntas */}
       <section className="mx-auto max-w-7xl px-5 pb-14 sm:pb-20 grid lg:grid-cols-2 gap-10">
         <div>
-          <h2 className="text-[2rem] sm:text-[2.6rem] leading-none font-extrabold !text-[#0d1117]" style={{ fontFamily: TITULO }}>
+          <h2 className="text-[1.8rem] sm:text-[2.3rem] font-extrabold !text-[#111318]" style={{ fontFamily: TITULO }}>
             Lo que dicen
           </h2>
-          <div className="mt-6 space-y-3">
+          <div className="mt-5 space-y-3">
             {[
-              { n: "Andrea C.", t: "Compré el seminuevo y la batería venía al 91%. Me llegó al día siguiente y pude ver dónde iba." },
-              { n: "Jorge O.", t: "Me cambiaron la pantalla en dos horas mientras hacía mandados. Precio claro desde el inicio." },
-              { n: "Gabriela C.", t: "Pagué en 12 cuotas sin papeleo. Muy fácil todo en línea." },
+              { n: "Andrea C.", t: "Compré el iPhone 13 seminuevo y la batería venía al 91%. Me llegó al día siguiente y vi dónde iba." },
+              { n: "Jorge O.", t: "Me cambiaron la pantalla en dos horas mientras hacía mandados. El precio fue el de la página." },
+              { n: "Gabriela C.", t: "Pagué el S24 en 12 cuotas, sin papeleo. Muy fácil todo en línea." },
             ].map((o) => (
-              <figure key={o.n} className="rounded-2xl bg-white p-5">
+              <figure key={o.n} className="rounded-2xl bg-white border border-black/[0.06] p-5">
                 <p className="text-[#e5a400] tracking-[0.15em]" aria-label="5 de 5">
                   ★★★★★
                 </p>
@@ -372,26 +387,29 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
           </div>
         </div>
         <div>
-          <h2 className="text-[2rem] sm:text-[2.6rem] leading-none font-extrabold !text-[#0d1117]" style={{ fontFamily: TITULO }}>
-            Preguntas
+          <h2 className="text-[1.8rem] sm:text-[2.3rem] font-extrabold !text-[#111318]" style={{ fontFamily: TITULO }}>
+            Preguntas frecuentes
           </h2>
-          <div className="mt-6 divide-y divide-black/10 rounded-2xl bg-white px-5">
+          <div className="mt-5 divide-y divide-black/10 rounded-2xl bg-white border border-black/[0.06] px-5">
             {[
               ["¿Los celulares están liberados?", "Sí, todos funcionan con Tigo, Claro y cualquier compañía."],
               ["¿Cuánto tarda el envío?", `En la capital 24 horas, en los departamentos 48. Gratis desde ${qz(ENVIO_GRATIS)}.`],
               ["¿Qué pasa si mi pago con tarjeta es rechazado?", "No se cobra nada. Puede intentar con otra tarjeta o pagar por transferencia."],
               ["¿Puedo devolver un producto?", "Sí, en los primeros 7 días si está sellado o si llegó con falla. Le devolvemos su dinero o se lo cambiamos."],
-            ].map(([q, a]) => (
-              <details key={q} className="group py-4">
+            ].map(([qq, a]) => (
+              <details key={qq} className="group py-4">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">
-                  {q}
+                  {qq}
                   <span className="grid place-items-center w-7 h-7 shrink-0 rounded-full bg-black/5 transition group-open:rotate-45">+</span>
                 </summary>
                 <p className="mt-2 text-black/65">{a}</p>
               </details>
             ))}
           </div>
-          <button type="button" onClick={alAdmin} className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-black/50 hover:text-black">
+          <a href="https://wa.me/" onClick={(e) => e.preventDefault()} className="mt-5 inline-flex items-center gap-2 rounded-lg px-4 py-2.5 font-bold text-white" style={{ background: "#1f9d55" }}>
+            <MessageCircle size={18} /> ¿Otra duda? Escríbanos
+          </a>
+          <button type="button" onClick={alAdmin} className="mt-6 flex items-center gap-2 text-sm font-semibold text-black/45 hover:text-black">
             <Lock size={14} /> Acceso para el dueño
           </button>
         </div>
@@ -399,7 +417,7 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
 
       {/* carrito flotante en celular */}
       {piezas > 0 && !carroAbierto && (
-        <button type="button" onClick={() => setCarroAbierto(true)} className="md:hidden fixed bottom-5 inset-x-5 z-30 flex items-center justify-between rounded-full px-5 py-3.5 font-bold text-white shadow-xl active:scale-[0.98]" style={{ background: TINTA }}>
+        <button type="button" onClick={() => setCarroAbierto(true)} className="md:hidden fixed bottom-5 inset-x-5 z-30 flex items-center justify-between rounded-xl px-5 py-3.5 font-bold text-white shadow-xl active:scale-[0.98]" style={{ background: TINTA }}>
           <span className="inline-flex items-center gap-2">
             <ShoppingCart size={18} /> Ver carrito ({piezas})
           </span>
@@ -408,7 +426,7 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
       )}
 
       {aviso && (
-        <div role="status" className="fixed top-20 left-1/2 -translate-x-1/2 z-40 inline-flex max-w-[92vw] items-center gap-2 rounded-full bg-white px-4 py-2.5 text-[0.9rem] font-semibold shadow-xl">
+        <div role="status" className="fixed top-24 left-1/2 -translate-x-1/2 z-40 inline-flex max-w-[92vw] items-center gap-2 rounded-lg bg-white px-4 py-2.5 text-[0.9rem] font-semibold shadow-xl border border-black/10">
           <Check size={16} style={{ color: COBALTO }} /> {aviso}
         </div>
       )}
@@ -442,7 +460,7 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
             <div className="flex-1 grid place-items-center px-8 text-center">
               <div>
                 <p className="font-semibold text-[1.1rem]">Su carrito está vacío</p>
-                <button type="button" onClick={() => setCarroAbierto(false)} className="mt-4 rounded-full px-5 py-2.5 font-bold text-white" style={{ background: TINTA }}>
+                <button type="button" onClick={() => setCarroAbierto(false)} className="mt-4 rounded-lg px-5 py-2.5 font-bold text-white" style={{ background: TINTA }}>
                   Ver catálogo
                 </button>
               </div>
@@ -450,30 +468,24 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
           ) : (
             <>
               <ul className="flex-1 overflow-y-auto divide-y divide-black/10 px-6">
-                {carro.map((l, k) => {
-                  const p = PRODUCTOS.find((x) => x.id === l.id)!;
-                  const color = p.colores.find((c) => l.detalle.includes(c.nombre)) ?? p.colores[0];
-                  return (
-                    <li key={l.id + l.detalle} className="py-4 flex gap-3">
-                      <span className="grid place-items-center w-20 h-20 shrink-0 rounded-xl" style={{ background: FONDO }}>
-                        <Arte tipo={p.arte} marca={p.marca} color={color.hex} className="w-12 h-16" />
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex justify-between gap-2">
-                          <p className="font-bold leading-tight">{l.nombre}</p>
-                          <button type="button" aria-label={`Quitar ${l.nombre}`} onClick={() => setCarro((c) => c.filter((_, i) => i !== k))} className="text-black/40 hover:text-black">
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                        <p className="text-sm text-black/55">{l.detalle}</p>
-                        <div className="mt-2 flex items-center justify-between">
-                          <Contador valor={l.cantidad} alCambiar={(v) => setCarro((c) => (v <= 0 ? c.filter((_, i) => i !== k) : c.map((x, i) => (i === k ? { ...x, cantidad: v } : x))))} />
-                          <p className="font-bold">{qz(l.precio * l.cantidad)}</p>
-                        </div>
+                {carro.map((l, k) => (
+                  <li key={l.id + l.detalle} className="py-4 flex gap-3">
+                    <img src={productoPor(l.id).foto} alt="" className="w-20 h-20 shrink-0 rounded-lg object-cover" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between gap-2">
+                        <p className="font-bold leading-tight">{l.nombre}</p>
+                        <button type="button" aria-label={`Quitar ${l.nombre}`} onClick={() => setCarro((c) => c.filter((_, i) => i !== k))} className="text-black/40 hover:text-black">
+                          <Trash2 size={16} />
+                        </button>
                       </div>
-                    </li>
-                  );
-                })}
+                      <p className="text-sm text-black/55">{l.detalle}</p>
+                      <div className="mt-2 flex items-center justify-between">
+                        <Contador valor={l.cantidad} alCambiar={(v) => setCarro((c) => (v <= 0 ? c.filter((_, i) => i !== k) : c.map((x, i) => (i === k ? { ...x, cantidad: v } : x))))} />
+                        <p className="font-bold">{qz(l.precio * l.cantidad)}</p>
+                      </div>
+                    </div>
+                  </li>
+                ))}
               </ul>
               <div className="border-t border-black/10 px-6 py-5 space-y-3">
                 <p className="flex justify-between text-black/60">
@@ -487,8 +499,8 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
                     setCarroAbierto(false);
                     setPagando(true);
                   }}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-full py-3.5 font-bold text-black active:scale-[0.98]"
-                  style={{ background: LIMA }}
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-lg py-3.5 font-bold text-white active:scale-[0.98]"
+                  style={{ background: COBALTO }}
                 >
                   <Lock size={17} /> Ir a pagar
                 </button>
@@ -529,8 +541,8 @@ function Ficha({ p, t, alAgregar }: { p: Producto; t: Tienda; alAgregar: (l: Lin
   const enSucursal = SUCURSALES.filter((s) => (t.stock[p.id]?.[s.id] ?? 0) > 0);
   return (
     <div className="grid sm:grid-cols-[1fr_1.1fr]">
-      <div className="grid place-items-center p-8" style={{ background: FONDO }}>
-        <Arte tipo={p.arte} marca={p.marca} color={color.hex} className="w-48 h-60 sm:w-56 sm:h-72" />
+      <div className="relative min-h-[260px] sm:min-h-full" style={{ background: FONDO }}>
+        <img src={p.foto} alt={p.nombre} className="absolute inset-0 w-full h-full object-cover" />
       </div>
       <div className="p-6 sm:p-8">
         <p className="text-sm font-semibold text-black/50">
@@ -545,8 +557,8 @@ function Ficha({ p, t, alAgregar }: { p: Producto; t: Tienda; alAgregar: (l: Lin
         </p>
         {v.precio >= 1000 && <p className="text-sm text-black/55">o 12 cuotas de {qz(cuota(v.precio, 12))} con tarjetas participantes</p>}
 
-        <p className="mt-5 text-sm font-semibold">Color: {color.nombre}</p>
-        <div className="mt-2 flex gap-2">
+        <p className="mt-5 text-sm font-semibold">Color: {color.nombre}{p.colores.length === 1 && p.categoria === "Celulares" ? " (el de la foto). Pregunte por otros colores." : ""}</p>
+        <div className={`mt-2 flex gap-2 ${p.colores.length > 1 ? "" : "hidden"}`}>
           {p.colores.map((c) => (
             <button key={c.nombre} type="button" onClick={() => setColor(c)} aria-label={c.nombre} aria-pressed={color.nombre === c.nombre} className="w-9 h-9 rounded-full transition active:scale-90" style={{ background: c.hex, boxShadow: color.nombre === c.nombre ? `0 0 0 2px #fff, 0 0 0 4px ${COBALTO}` : "inset 0 0 0 1px rgba(0,0,0,.12)" }} />
           ))}
@@ -556,7 +568,7 @@ function Ficha({ p, t, alAgregar }: { p: Producto; t: Tienda; alAgregar: (l: Lin
             <p className="mt-4 text-sm font-semibold">Capacidad</p>
             <div className="mt-2 flex flex-wrap gap-2">
               {p.variantes.map((x) => (
-                <button key={x.capacidad} type="button" onClick={() => setV(x)} aria-pressed={v === x} className={`rounded-xl border-2 px-4 py-2 text-sm font-semibold transition ${v === x ? "" : "border-black/10"}`} style={v === x ? { borderColor: COBALTO, background: "#e3ebff" } : undefined}>
+                <button key={x.capacidad} type="button" onClick={() => setV(x)} aria-pressed={v === x} className={`rounded-xl border-2 px-4 py-2 text-sm font-semibold transition ${v === x ? "" : "border-black/10"}`} style={v === x ? { borderColor: COBALTO, background: "#e6edff" } : undefined}>
                   {x.capacidad} · {qz(x.precio)}
                 </button>
               ))}
@@ -587,7 +599,7 @@ function Ficha({ p, t, alAgregar }: { p: Producto; t: Tienda; alAgregar: (l: Lin
             type="button"
             disabled={disp.tipo === "agotado"}
             onClick={() => alAgregar({ id: p.id, nombre: p.nombre, detalle: [v.capacidad, color.nombre].filter(Boolean).join(" · "), precio: v.precio, cantidad: n })}
-            className="flex-1 rounded-full py-3 font-bold text-white disabled:opacity-40 active:scale-[0.98] transition"
+            className="flex-1 rounded-lg py-3 font-bold text-white disabled:opacity-40 active:scale-[0.98] transition"
             style={{ background: TINTA }}
           >
             {disp.tipo === "agotado" ? "Agotado" : `Agregar · ${qz(v.precio * n)}`}
@@ -695,10 +707,10 @@ function Pago({ t, carro, subtotal, alTerminar, alRastrear, alCerrar }: { t: Tie
             </h3>
             <p className="mt-1 text-black/60">Motivo: {pedido.motivoRechazo}. No se hizo ningún cobro.</p>
             <div className="mt-6 flex flex-col sm:flex-row gap-2 justify-center">
-              <button type="button" onClick={() => { setPaso("pago"); setTarjeta({ numero: "", nombre: "", vence: "", cvv: "" }); }} className="rounded-full px-5 py-3 font-bold text-white" style={{ background: TINTA }}>
+              <button type="button" onClick={() => { setPaso("pago"); setTarjeta({ numero: "", nombre: "", vence: "", cvv: "" }); }} className="rounded-lg px-5 py-3 font-bold text-white" style={{ background: TINTA }}>
                 Probar con otra tarjeta
               </button>
-              <button type="button" onClick={() => { setPaso("pago"); setMetodo("transferencia"); }} className="rounded-full px-5 py-3 font-bold border border-black/15">
+              <button type="button" onClick={() => { setPaso("pago"); setMetodo("transferencia"); }} className="rounded-lg px-5 py-3 font-bold border border-black/15">
                 Pagar por transferencia
               </button>
             </div>
@@ -717,10 +729,10 @@ function Pago({ t, carro, subtotal, alTerminar, alRastrear, alCerrar }: { t: Tie
               {pedido.id}
             </p>
             <div className="mt-6 flex flex-col sm:flex-row gap-2 justify-center">
-              <button type="button" onClick={() => alRastrear(pedido.id)} className="rounded-full px-5 py-3 font-bold text-black" style={{ background: LIMA }}>
+              <button type="button" onClick={() => alRastrear(pedido.id)} className="rounded-lg px-5 py-3 font-bold text-white" style={{ background: COBALTO }}>
                 Rastrear mi pedido
               </button>
-              <button type="button" onClick={alCerrar} className="rounded-full px-5 py-3 font-bold border border-black/15">
+              <button type="button" onClick={alCerrar} className="rounded-lg px-5 py-3 font-bold border border-black/15">
                 Seguir viendo
               </button>
             </div>
@@ -768,7 +780,7 @@ function Pago({ t, carro, subtotal, alTerminar, alRastrear, alCerrar }: { t: Tie
             ].map(([id, I, ti, pr]) => {
               const Icono = I as typeof Truck;
               return (
-                <button key={id as string} type="button" onClick={() => setEntrega(id as "envio" | "tienda")} aria-pressed={entrega === id} className={`rounded-2xl border-2 p-3 text-left transition ${entrega === id ? "" : "border-black/10"}`} style={entrega === id ? { borderColor: COBALTO, background: "#e3ebff" } : undefined}>
+                <button key={id as string} type="button" onClick={() => setEntrega(id as "envio" | "tienda")} aria-pressed={entrega === id} className={`rounded-2xl border-2 p-3 text-left transition ${entrega === id ? "" : "border-black/10"}`} style={entrega === id ? { borderColor: COBALTO, background: "#e6edff" } : undefined}>
                   <Icono size={18} />
                   <span className="mt-1 block font-semibold text-sm">{ti as string}</span>
                   <span className="block text-xs text-black/55">{pr as string}</span>
@@ -795,7 +807,7 @@ function Pago({ t, carro, subtotal, alTerminar, alRastrear, alCerrar }: { t: Tie
           )}
           {error && <p className="text-sm text-[#b42318]">{error}</p>}
           <Resumen subtotal={subtotal} envio={envio} />
-          <button type="submit" className="w-full rounded-full py-3.5 font-bold text-white" style={{ background: TINTA }}>
+          <button type="submit" className="w-full rounded-lg py-3.5 font-bold text-white" style={{ background: TINTA }}>
             Continuar al pago
           </button>
         </form>
@@ -808,7 +820,7 @@ function Pago({ t, carro, subtotal, alTerminar, alRastrear, alCerrar }: { t: Tie
             ].map(([id, I, ti]) => {
               const Icono = I as typeof Truck;
               return (
-                <button key={id as string} type="button" onClick={() => { setMetodo(id as "tarjeta" | "transferencia"); setError(""); }} aria-pressed={metodo === id} className={`flex items-center gap-2 rounded-2xl border-2 p-3 font-semibold transition ${metodo === id ? "" : "border-black/10"}`} style={metodo === id ? { borderColor: COBALTO, background: "#e3ebff" } : undefined}>
+                <button key={id as string} type="button" onClick={() => { setMetodo(id as "tarjeta" | "transferencia"); setError(""); }} aria-pressed={metodo === id} className={`flex items-center gap-2 rounded-2xl border-2 p-3 font-semibold transition ${metodo === id ? "" : "border-black/10"}`} style={metodo === id ? { borderColor: COBALTO, background: "#e6edff" } : undefined}>
                   <Icono size={18} /> {ti as string}
                 </button>
               );
@@ -900,10 +912,10 @@ function Pago({ t, carro, subtotal, alTerminar, alRastrear, alCerrar }: { t: Tie
           {error && <p className="text-sm text-[#b42318]">{error}</p>}
           <Resumen subtotal={subtotal} envio={envio} />
           <div className="flex gap-2">
-            <button type="button" onClick={() => setPaso("datos")} className="rounded-full px-5 py-3.5 font-bold border border-black/15">
+            <button type="button" onClick={() => setPaso("datos")} className="rounded-lg px-5 py-3.5 font-bold border border-black/15">
               Atrás
             </button>
-            <button type="button" onClick={pagar} className="flex-1 inline-flex items-center justify-center gap-2 rounded-full py-3.5 font-bold text-black" style={{ background: LIMA }}>
+            <button type="button" onClick={pagar} className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg py-3.5 font-bold text-white" style={{ background: COBALTO }}>
               <Lock size={16} /> {metodo === "tarjeta" ? `Pagar ${qz(total)}` : "Enviar comprobante"}
             </button>
           </div>
@@ -951,7 +963,7 @@ function Reparaciones({ t, alAgendado, alRastrear }: { t: Tienda; alAgendado: (i
           <img src={tecnico} alt="Técnico reparando la placa de un celular" className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
           <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(13,17,23,.9),transparent_60%)]" />
           <div className="absolute inset-x-0 bottom-0 p-6 text-white">
-            <p className="inline-flex items-center gap-2 text-[0.8rem] font-bold uppercase tracking-wider" style={{ color: LIMA }}>
+            <p className="inline-flex items-center gap-2 text-[0.8rem] font-bold uppercase tracking-wider" style={{ color: AMARILLO }}>
               <Wrench size={15} /> Taller propio
             </p>
             <p className="mt-1 text-[1.5rem] font-extrabold leading-tight" style={{ fontFamily: TITULO }}>
@@ -1015,7 +1027,7 @@ function Reparaciones({ t, alAgendado, alRastrear }: { t: Tienda; alAgendado: (i
                   </option>
                 ))}
               </select>
-              <button type="submit" className="rounded-full px-5 py-3 font-bold text-black" style={{ background: LIMA }}>
+              <button type="submit" className="rounded-lg px-5 py-3 font-bold text-white" style={{ background: COBALTO }}>
                 Agendar
               </button>
             </form>
@@ -1057,7 +1069,7 @@ function Rastreo({ t, codigo, setCodigo }: { t: Tienda; codigo: string; setCodig
               <Search size={18} className="text-black/40" />
               <input value={texto} onChange={(e) => setTexto(e.target.value.toUpperCase())} placeholder="OR-1038 o RP-512" className="w-full py-3 font-mono focus:outline-none" />
             </label>
-            <button type="submit" className="rounded-full px-5 font-bold text-white" style={{ background: TINTA }}>
+            <button type="submit" className="rounded-lg px-5 font-bold text-white" style={{ background: TINTA }}>
               Buscar
             </button>
           </form>
@@ -1089,8 +1101,13 @@ function Rastreo({ t, codigo, setCodigo }: { t: Tienda; codigo: string; setCodig
               No encontramos el código {c}. Revise que esté bien escrito.
             </p>
           ) : (
-            <div className="relative mx-auto max-w-[260px]">
-              <img src={mano} alt="" className="w-full" loading="lazy" />
+            <div className="rounded-2xl p-5 text-[0.92rem]" style={{ background: FONDO }}>
+              <p className="font-bold">Así funciona</p>
+              <ol className="mt-3 space-y-2 text-black/65">
+                <li>1. Al pagar le damos su código de pedido (OR-…).</li>
+                <li>2. Si deja su celular a reparar, le damos un código RP-….</li>
+                <li>3. Escríbalo aquí y vea en qué paso va, sin llamar ni escribir.</li>
+              </ol>
             </div>
           )}
         </div>
@@ -1202,7 +1219,7 @@ function Devoluciones({ t }: { t: Tienda }) {
               <textarea rows={2} value={detalle} onChange={(e) => setDetalle(e.target.value)} className="mt-1.5 w-full resize-none rounded-xl border border-black/15 px-3 py-2.5 focus:outline-none focus:border-[#2456e8]" />
             </label>
             {error && <p className="text-sm text-[#b42318]">{error}</p>}
-            <button type="submit" className="w-full rounded-full py-3 font-bold text-white" style={{ background: TINTA }}>
+            <button type="submit" className="w-full rounded-lg py-3 font-bold text-white" style={{ background: TINTA }}>
               Enviar solicitud
             </button>
           </form>

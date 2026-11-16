@@ -9,7 +9,7 @@ import { BarChart3, Lock, ShoppingBag } from "lucide-react";
 import { BandaDemos, CierreJzet } from "../comun";
 import { TiendaCliente } from "./Tienda";
 import { PanelDueno } from "./Admin";
-import { LIMA, TINTA, TITULO, useTienda } from "./datos";
+import { AMARILLO, TINTA, TITULO, useTienda } from "./datos";
 
 type Vista = "tienda" | "admin";
 
@@ -42,7 +42,7 @@ export default function CelularesDemo() {
                 ["admin", "Panel del dueño", BarChart3],
               ] as const
             ).map(([v, tx, I]) => (
-              <button key={v} type="button" onClick={() => irA(v)} aria-pressed={vista === v} className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 font-semibold transition ${vista === v ? "text-black" : "text-white/80 hover:text-white"}`} style={vista === v ? { background: LIMA } : undefined}>
+              <button key={v} type="button" onClick={() => irA(v)} aria-pressed={vista === v} className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 font-semibold transition ${vista === v ? "text-black" : "text-white/80 hover:text-white"}`} style={vista === v ? { background: AMARILLO } : undefined}>
                 <I size={14} /> {tx}
               </button>
             ))}
@@ -70,7 +70,7 @@ function Entrada({ alEntrar }: { alEntrar: () => void }) {
   return (
     <div className="min-h-[calc(100vh-80px)] grid place-items-center px-5 py-16 text-white" style={{ background: TINTA }}>
       <div className="w-full max-w-sm rounded-3xl bg-white/5 p-7 ring-1 ring-white/10">
-        <span className="grid place-items-center w-12 h-12 rounded-2xl" style={{ background: LIMA, color: TINTA }}>
+        <span className="grid place-items-center w-12 h-12 rounded-2xl" style={{ background: AMARILLO, color: TINTA }}>
           <Lock size={22} />
         </span>
         <h1 className="mt-5 text-[1.8rem] font-extrabold leading-tight !text-white" style={{ fontFamily: TITULO }}>
@@ -85,7 +85,7 @@ function Entrada({ alEntrar }: { alEntrar: () => void }) {
           Contraseña
           <input value="••••••••" readOnly type="text" className="mt-1.5 w-full rounded-xl bg-white/10 px-3 py-2.5 text-white/70" />
         </label>
-        <button type="button" onClick={alEntrar} className="mt-6 w-full rounded-full py-3.5 font-bold text-black active:scale-[0.98]" style={{ background: LIMA }}>
+        <button type="button" onClick={alEntrar} className="mt-6 w-full rounded-full py-3.5 font-bold text-black active:scale-[0.98]" style={{ background: AMARILLO }}>
           Entrar a la demo
         </button>
         <p className="mt-4 text-center text-xs text-white/45">En su tienda real cada persona entra con su propio usuario y contraseña.</p>

@@ -4,16 +4,30 @@
  * para que lo que haga el cliente aparezca en el panel del dueño.
  */
 import { useEffect, useState } from "react";
+import ip15pro from "@/assets/demo-celulares/ip15pro.jpg";
+import ip15 from "@/assets/demo-celulares/ip15.jpg";
+import ip13 from "@/assets/demo-celulares/ip13.jpg";
+import s24ultra from "@/assets/demo-celulares/s24ultra.jpg";
+import s24 from "@/assets/demo-celulares/s24.jpg";
+import a55 from "@/assets/demo-celulares/a55.jpg";
+import pixel9 from "@/assets/demo-celulares/pixel9.jpg";
+import airpods from "@/assets/demo-celulares/airpods.jpg";
+import audifonos from "@/assets/demo-celulares/audifonos.jpg";
+import cargador from "@/assets/demo-celulares/cargador.jpg";
+import cable from "@/assets/demo-celulares/cable.jpg";
+import fundas from "@/assets/demo-celulares/fundas-magsafe.jpg";
+import bateria from "@/assets/demo-celulares/bateria.jpg";
+import reloj from "@/assets/demo-celulares/reloj.jpg";
 
-export const TINTA = "#0d1117";
-export const COBALTO = "#2456e8";
-export const LIMA = "#c8f04a";
-export const FONDO = "#f4f5f7";
+export const TINTA = "#111318";
+export const COBALTO = "#1f4fe0";
+export const AMARILLO = "#ffd23f";
+export const FONDO = "#f3f3f1";
 export const TITULO = "var(--font-titulo)";
+
 
 export type Condicion = "Nuevo" | "Seminuevo";
 export type Categoria = "Celulares" | "Accesorios";
-export type Arte = "telefono" | "funda" | "cargador" | "audifonos" | "bateria" | "reloj";
 export type Variante = { capacidad?: string; precio: number };
 export type Producto = {
   id: string;
@@ -21,7 +35,7 @@ export type Producto = {
   marca: string;
   categoria: Categoria;
   condicion: Condicion;
-  arte: Arte;
+  foto: string;
   colores: { nombre: string; hex: string }[];
   variantes: Variante[];
   antes?: number;
@@ -32,74 +46,93 @@ export type Producto = {
   etiqueta?: string;
 };
 
+/* cada foto es del modelo real que dice el nombre */
 export const PRODUCTOS: Producto[] = [
   {
-    id: "ip15", nombre: "iPhone 15", marca: "Apple", categoria: "Celulares", condicion: "Nuevo", arte: "telefono",
-    colores: [{ nombre: "Negro", hex: "#2b2d31" }, { nombre: "Azul", hex: "#c9dbe9" }, { nombre: "Rosado", hex: "#f2d6d9" }],
-    variantes: [{ capacidad: "128 GB", precio: 7499 }, { capacidad: "256 GB", precio: 8399 }],
-    resumen: "Sellado, con factura y garantía de 1 año.", detalles: ["Pantalla de 6.1\"", "Cámara de 48 MP", "Puerto USB-C", "eSIM y chip físico"],
+    id: "ip15pro", nombre: "iPhone 15 Pro", marca: "Apple", categoria: "Celulares", condicion: "Nuevo", foto: ip15pro,
+    colores: [{ nombre: "Titanio azul", hex: "#3d4a5c" }],
+    variantes: [{ capacidad: "128 GB", precio: 9299 }, { capacidad: "256 GB", precio: 10299 }],
+    resumen: "Sellado en su caja, con factura y garantía de 1 año.", detalles: ["Pantalla de 6.1\" a 120 Hz", "Titanio, más liviano", "Cámara de 48 MP con zoom 3x", "Puerto USB-C"],
     garantia: "1 año con nosotros", origen: "Distribuidor autorizado en Miami", etiqueta: "Más vendido",
   },
   {
-    id: "ip13", nombre: "iPhone 13", marca: "Apple", categoria: "Celulares", condicion: "Seminuevo", arte: "telefono",
-    colores: [{ nombre: "Blanco", hex: "#eceae6" }, { nombre: "Medianoche", hex: "#22262e" }],
+    id: "ip15", nombre: "iPhone 15", marca: "Apple", categoria: "Celulares", condicion: "Nuevo", foto: ip15,
+    colores: [{ nombre: "Azul", hex: "#4b5a78" }],
+    variantes: [{ capacidad: "128 GB", precio: 7499 }, { capacidad: "256 GB", precio: 8399 }],
+    resumen: "Sellado, con factura y garantía de 1 año.", detalles: ["Pantalla de 6.1\"", "Cámara de 48 MP", "Puerto USB-C", "eSIM y chip físico"],
+    garantia: "1 año con nosotros", origen: "Distribuidor autorizado en Miami",
+  },
+  {
+    id: "ip13", nombre: "iPhone 13", marca: "Apple", categoria: "Celulares", condicion: "Seminuevo", foto: ip13,
+    colores: [{ nombre: "Verde", hex: "#3b5a46" }],
     variantes: [{ capacidad: "128 GB", precio: 3999 }, { capacidad: "256 GB", precio: 4499 }], antes: 4600,
     resumen: "Batería arriba de 88% y revisión de 30 puntos.", detalles: ["Pantalla de 6.1\"", "Batería 88% o más", "Sin golpes ni rayones", "Incluye cable"],
     garantia: "6 meses con nosotros", origen: "Equipos de primera mano de EE. UU., revisados aquí", etiqueta: "Seminuevo certificado",
   },
   {
-    id: "s24", nombre: "Galaxy S24", marca: "Samsung", categoria: "Celulares", condicion: "Nuevo", arte: "telefono",
-    colores: [{ nombre: "Gris", hex: "#5b5f66" }, { nombre: "Violeta", hex: "#cbbfe0" }, { nombre: "Amarillo", hex: "#efe39a" }],
-    variantes: [{ capacidad: "256 GB", precio: 6999 }, { capacidad: "512 GB", precio: 7899 }],
-    resumen: "Liberado para cualquier compañía.", detalles: ["Pantalla de 6.2\" a 120 Hz", "Zoom óptico 3x", "8 GB de RAM", "Carga rápida"],
+    id: "s24ultra", nombre: "Galaxy S24 Ultra", marca: "Samsung", categoria: "Celulares", condicion: "Nuevo", foto: s24ultra,
+    colores: [{ nombre: "Titanio gris", hex: "#8f8a80" }],
+    variantes: [{ capacidad: "256 GB", precio: 9999 }, { capacidad: "512 GB", precio: 11199 }],
+    resumen: "Con su lápiz S Pen. Liberado para cualquier compañía.", detalles: ["Pantalla de 6.8\"", "Cámara de 200 MP", "Zoom óptico 5x", "Lápiz S Pen incluido"],
+    garantia: "1 año con nosotros", origen: "Importado de Panamá, liberado", etiqueta: "Nuevo en tienda",
+  },
+  {
+    id: "s24", nombre: "Galaxy S24", marca: "Samsung", categoria: "Celulares", condicion: "Nuevo", foto: s24,
+    colores: [{ nombre: "Gris mármol", hex: "#c9cbc8" }],
+    variantes: [{ capacidad: "256 GB", precio: 6999 }],
+    resumen: "Compacto y potente. Liberado.", detalles: ["Pantalla de 6.2\" a 120 Hz", "Zoom óptico 3x", "8 GB de RAM", "Carga rápida"],
     garantia: "1 año con nosotros", origen: "Importado de Panamá, liberado",
   },
   {
-    id: "a55", nombre: "Galaxy A55", marca: "Samsung", categoria: "Celulares", condicion: "Nuevo", arte: "telefono",
-    colores: [{ nombre: "Azul hielo", hex: "#cfe3f2" }, { nombre: "Negro", hex: "#2a2c30" }],
+    id: "a55", nombre: "Galaxy A55", marca: "Samsung", categoria: "Celulares", condicion: "Nuevo", foto: a55,
+    colores: [{ nombre: "Azul", hex: "#7f9fd6" }],
     variantes: [{ capacidad: "128 GB", precio: 3299 }, { capacidad: "256 GB", precio: 3699 }],
     resumen: "El mejor precio por lo que trae.", detalles: ["Pantalla de 6.6\"", "Batería de 5,000 mAh", "Resistente al agua", "Cámara de 50 MP"],
     garantia: "1 año con nosotros", origen: "Distribuidor regional", etiqueta: "Oferta",
   },
   {
-    id: "redmi", nombre: "Redmi Note 13", marca: "Xiaomi", categoria: "Celulares", condicion: "Nuevo", arte: "telefono",
-    colores: [{ nombre: "Verde", hex: "#a8c9b3" }, { nombre: "Negro", hex: "#26282b" }],
-    variantes: [{ capacidad: "128 GB", precio: 1899 }, { capacidad: "256 GB", precio: 2199 }],
-    resumen: "Buen celular sin gastar de más.", detalles: ["Pantalla AMOLED de 6.67\"", "Cámara de 108 MP", "Carga de 33 W", "Doble chip"],
-    garantia: "1 año con nosotros", origen: "Distribuidor regional",
-  },
-  {
-    id: "moto", nombre: "Moto G84", marca: "Motorola", categoria: "Celulares", condicion: "Seminuevo", arte: "telefono",
-    colores: [{ nombre: "Magenta", hex: "#b23a6e" }],
-    variantes: [{ capacidad: "256 GB", precio: 1499 }], antes: 1799,
-    resumen: "Como nuevo, con su caja.", detalles: ["Pantalla pOLED de 6.5\"", "12 GB de RAM", "Batería 92%", "Incluye cargador"],
+    id: "pixel9", nombre: "Pixel 9 Pro", marca: "Google", categoria: "Celulares", condicion: "Seminuevo", foto: pixel9,
+    colores: [{ nombre: "Porcelana", hex: "#ece8e1" }],
+    variantes: [{ capacidad: "128 GB", precio: 6299 }], antes: 7200,
+    resumen: "Como nuevo, con su caja. Batería 95%.", detalles: ["Pantalla de 6.3\"", "La mejor cámara para fotos de noche", "16 GB de RAM", "7 años de actualizaciones"],
     garantia: "6 meses con nosotros", origen: "Recibido en canje, revisado aquí",
   },
   {
-    id: "funda", nombre: "Funda de silicón", marca: "Órbita", categoria: "Accesorios", condicion: "Nuevo", arte: "funda",
-    colores: [{ nombre: "Naranja", hex: "#f08a4b" }, { nombre: "Azul", hex: "#4a6fd1" }, { nombre: "Verde", hex: "#7fb48f" }, { nombre: "Negro", hex: "#2a2a2a" }],
-    variantes: [{ precio: 129 }], resumen: "Para la mayoría de modelos. Pregunte por el suyo.", detalles: ["Silicón suave por dentro", "Bordes que protegen la cámara", "Compatible con carga inalámbrica"],
-    garantia: "30 días", origen: "Hecha para nosotros en Guatemala",
+    id: "airpods", nombre: "AirPods Pro (2.ª generación)", marca: "Apple", categoria: "Accesorios", condicion: "Nuevo", foto: airpods,
+    colores: [{ nombre: "Blanco", hex: "#f2f2f2" }], variantes: [{ precio: 2199 }],
+    resumen: "Cancelación de ruido y estuche USB-C.", detalles: ["Cancelación activa de ruido", "Modo ambiente", "Estuche con carga USB-C", "Sellados"],
+    garantia: "1 año con nosotros", origen: "Distribuidor autorizado en Miami",
   },
   {
-    id: "cargador", nombre: "Cargador rápido 30 W", marca: "Órbita", categoria: "Accesorios", condicion: "Nuevo", arte: "cargador",
-    colores: [{ nombre: "Blanco", hex: "#f2f2f2" }], variantes: [{ precio: 199 }], resumen: "Carga al 50% en 30 minutos.", detalles: ["Puerto USB-C", "Protección contra sobrecarga", "Incluye cable de 1 m"],
-    garantia: "6 meses", origen: "Importado",
-  },
-  {
-    id: "audifonos", nombre: "Audífonos inalámbricos", marca: "Órbita", categoria: "Accesorios", condicion: "Nuevo", arte: "audifonos",
-    colores: [{ nombre: "Blanco", hex: "#f2f2f2" }, { nombre: "Negro", hex: "#2a2a2a" }], variantes: [{ precio: 349 }], antes: 449,
-    resumen: "Hasta 6 horas de música por carga.", detalles: ["Estuche con 24 horas extra", "Cancelación de ruido", "Bluetooth 5.3"],
+    id: "audifonos", nombre: "Audífonos inalámbricos", marca: "Órbita", categoria: "Accesorios", condicion: "Nuevo", foto: audifonos,
+    colores: [{ nombre: "Negro", hex: "#2a2a2a" }], variantes: [{ precio: 349 }], antes: 449,
+    resumen: "Hasta 6 horas de música por carga.", detalles: ["Estuche con 24 horas extra", "Bluetooth 5.3", "Funcionan con Android y iPhone"],
     garantia: "6 meses", origen: "Importado", etiqueta: "Oferta",
   },
   {
-    id: "powerbank", nombre: "Batería portátil 10,000 mAh", marca: "Órbita", categoria: "Accesorios", condicion: "Nuevo", arte: "bateria",
-    colores: [{ nombre: "Gris", hex: "#8a8f98" }], variantes: [{ precio: 249 }], resumen: "Dos cargas completas a su celular.", detalles: ["Entrada y salida USB-C", "Pantalla de carga", "Cabe en la bolsa"],
+    id: "cargador", nombre: "Cargador USB-C 20 W", marca: "Órbita", categoria: "Accesorios", condicion: "Nuevo", foto: cargador,
+    colores: [{ nombre: "Blanco", hex: "#f2f2f2" }], variantes: [{ precio: 199 }], resumen: "Carga rápida para iPhone y Android.", detalles: ["Carga al 50% en 30 minutos", "Protección contra sobrecarga", "Enchufe para Guatemala"],
     garantia: "6 meses", origen: "Importado",
   },
   {
-    id: "reloj", nombre: "Reloj inteligente", marca: "Órbita", categoria: "Accesorios", condicion: "Nuevo", arte: "reloj",
-    colores: [{ nombre: "Negro", hex: "#2a2a2a" }, { nombre: "Rosado", hex: "#e6b7b9" }], variantes: [{ precio: 599 }],
+    id: "cable", nombre: "Cable USB-C de 1 m", marca: "Órbita", categoria: "Accesorios", condicion: "Nuevo", foto: cable,
+    colores: [{ nombre: "Blanco", hex: "#f2f2f2" }], variantes: [{ precio: 89 }], resumen: "Resistente, para carga rápida.", detalles: ["Hasta 60 W", "Cubierta reforzada", "Funciona con iPhone 15 y Android"],
+    garantia: "3 meses", origen: "Importado",
+  },
+  {
+    id: "fundas", nombre: "Funda MagSafe para iPhone", marca: "Órbita", categoria: "Accesorios", condicion: "Nuevo", foto: fundas,
+    colores: [{ nombre: "Verde", hex: "#6f8f62" }, { nombre: "Celeste", hex: "#8fb3e0" }, { nombre: "Gris", hex: "#5d6066" }, { nombre: "Rojo", hex: "#b23a3a" }, { nombre: "Azul", hex: "#3b4f8f" }],
+    variantes: [{ precio: 179 }], resumen: "Imán para cargadores y accesorios MagSafe.", detalles: ["Textura que no resbala", "Protege la cámara", "Para iPhone 13 a 15"],
+    garantia: "30 días", origen: "Importado",
+  },
+  {
+    id: "bateria", nombre: "Batería portátil 10,000 mAh", marca: "Órbita", categoria: "Accesorios", condicion: "Nuevo", foto: bateria,
+    colores: [{ nombre: "Verde azulado", hex: "#2f7d7a" }], variantes: [{ precio: 249 }], resumen: "Dos cargas completas a su celular.", detalles: ["Entrada y salida USB-C", "Cabe en la bolsa", "Carga dos equipos a la vez"],
+    garantia: "6 meses", origen: "Importado",
+  },
+  {
+    id: "reloj", nombre: "Reloj inteligente", marca: "Órbita", categoria: "Accesorios", condicion: "Nuevo", foto: reloj,
+    colores: [{ nombre: "Verde menta", hex: "#cfe3d6" }], variantes: [{ precio: 599 }],
     resumen: "Pasos, ritmo cardíaco y notificaciones.", detalles: ["Batería de 7 días", "Resistente al agua", "Funciona con Android y iPhone"],
     garantia: "6 meses", origen: "Importado",
   },
@@ -195,28 +228,31 @@ function pedidosEjemplo(): Pedido[] {
   return [
     p("OR-1041", 0, "Daniela Pérez", "ip15", 0, "transferencia", "pago-pendiente", "z10"),
     p("OR-1040", 0, "Carlos Méndez", "a55", 1, "tarjeta", "pagado", "mix"),
-    p("OR-1039", 0, "Lucía Ramírez", "funda", 0, "tarjeta", "rechazado", "z10", { motivoRechazo: "Fondos insuficientes", tarjeta: "0002" }),
-    p("OR-1038", 1, "Jorge Ortiz", "s24", 0, "tarjeta", "en-camino", "z10", { guia: "GT-558201" }),
-    p("OR-1037", 1, "Sofía Hernández", "redmi", 0, "transferencia", "preparando", "xela"),
+    p("OR-1039", 0, "Lucía Ramírez", "fundas", 0, "tarjeta", "rechazado", "z10", { motivoRechazo: "Fondos insuficientes", tarjeta: "0002" }),
+    p("OR-1038", 1, "Jorge Ortiz", "s24ultra", 0, "tarjeta", "en-camino", "z10", { guia: "GT-558201" }),
+    p("OR-1037", 1, "Sofía Hernández", "pixel9", 0, "transferencia", "preparando", "xela"),
     p("OR-1036", 2, "Andrea Castillo", "ip13", 0, "tarjeta", "entregado", "mix"),
     p("OR-1035", 3, "Kevin Orellana", "audifonos", 0, "tarjeta", "entregado", "z10"),
-    p("OR-1034", 4, "Gabriela Cruz", "ip15", 1, "tarjeta", "entregado", "z10"),
-    p("OR-1033", 5, "Pedro Juárez", "moto", 0, "transferencia", "devuelto", "xela"),
+    p("OR-1034", 4, "Gabriela Cruz", "ip15pro", 1, "tarjeta", "entregado", "z10"),
+    p("OR-1033", 5, "Pedro Juárez", "ip13", 0, "transferencia", "devuelto", "xela"),
     p("OR-1032", 6, "Valeria Chávez", "a55", 0, "tarjeta", "entregado", "mix"),
   ];
 }
 
 const STOCK_INICIAL: Stock = {
-  ip15: { z10: 6, mix: 2, xela: 1 },
-  ip13: { z10: 3, mix: 1, xela: 0 },
+  ip15pro: { z10: 5, mix: 2, xela: 1 },
+  ip15: { z10: 6, mix: 3, xela: 2 },
+  ip13: { z10: 2, mix: 1, xela: 0 },
+  s24ultra: { z10: 3, mix: 1, xela: 1 },
   s24: { z10: 4, mix: 2, xela: 2 },
   a55: { z10: 9, mix: 7, xela: 5 },
-  redmi: { z10: 12, mix: 10, xela: 8 },
-  moto: { z10: 1, mix: 0, xela: 1 },
-  funda: { z10: 40, mix: 25, xela: 18 },
-  cargador: { z10: 22, mix: 15, xela: 9 },
+  pixel9: { z10: 1, mix: 0, xela: 0 },
+  airpods: { z10: 6, mix: 3, xela: 2 },
   audifonos: { z10: 3, mix: 2, xela: 0 },
-  powerbank: { z10: 14, mix: 8, xela: 6 },
+  cargador: { z10: 22, mix: 15, xela: 9 },
+  cable: { z10: 40, mix: 25, xela: 18 },
+  fundas: { z10: 30, mix: 18, xela: 12 },
+  bateria: { z10: 14, mix: 8, xela: 6 },
   reloj: { z10: 5, mix: 2, xela: 2 },
 };
 
@@ -250,10 +286,10 @@ function useGuardado<T>(clave: string, inicial: () => T) {
 }
 
 export function useTienda() {
-  const [pedidos, setPedidos] = useGuardado("orbita-pedidos-v1", pedidosEjemplo);
-  const [devoluciones, setDevoluciones] = useGuardado("orbita-devoluciones-v1", () => DEVOLUCIONES_EJEMPLO);
-  const [reparaciones, setReparaciones] = useGuardado("orbita-reparaciones-v1", () => REPARACIONES_EJEMPLO);
-  const [stock, setStock] = useGuardado("orbita-stock-v1", () => STOCK_INICIAL);
+  const [pedidos, setPedidos] = useGuardado("orbita-pedidos-v2", pedidosEjemplo);
+  const [devoluciones, setDevoluciones] = useGuardado("orbita-devoluciones-v2", () => DEVOLUCIONES_EJEMPLO);
+  const [reparaciones, setReparaciones] = useGuardado("orbita-reparaciones-v2", () => REPARACIONES_EJEMPLO);
+  const [stock, setStock] = useGuardado("orbita-stock-v2", () => STOCK_INICIAL);
   const reiniciar = () => {
     setPedidos(pedidosEjemplo());
     setDevoluciones(DEVOLUCIONES_EJEMPLO);

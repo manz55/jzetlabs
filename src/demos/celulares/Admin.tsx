@@ -9,9 +9,8 @@ import {
   AlertTriangle, BarChart3, Boxes, Check, CreditCard, LogOut, Minus, Package, Plus, RotateCcw, Store, Undo2, Wrench, X,
 } from "lucide-react";
 import { qz } from "../comun";
-import { Arte } from "./Arte";
 import {
-  COBALTO, ESTADOS_PEDIDO, FONDO, LIMA, PASOS_REPARACION, PRODUCTOS, SUCURSALES, TEXTO_REPARACION, TINTA, TITULO,
+  COBALTO, ESTADOS_PEDIDO, FONDO, AMARILLO, PASOS_REPARACION, PRODUCTOS, SUCURSALES, TEXTO_REPARACION, TINTA, TITULO,
   fechaCorta, sucursalPor,
   type EstadoPedido, type Pedido, type Tienda,
 } from "./datos";
@@ -48,7 +47,7 @@ export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () =>
         </p>
         <p className="px-2 pb-4 text-[0.75rem] text-white/50">Solo para el dueño y su equipo</p>
         {menu.map(([id, tx, I, n]) => (
-          <button key={id} type="button" onClick={() => setPestana(id)} className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left font-semibold transition ${pestana === id ? "text-black" : "text-white/75 hover:bg-white/5"}`} style={pestana === id ? { background: LIMA } : undefined}>
+          <button key={id} type="button" onClick={() => setPestana(id)} className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left font-semibold transition ${pestana === id ? "text-black" : "text-white/75 hover:bg-white/5"}`} style={pestana === id ? { background: AMARILLO } : undefined}>
             <I size={18} /> <span className="flex-1">{tx}</span>
             {!!n && <span className={`rounded-full px-2 text-[0.72rem] ${pestana === id ? "bg-black/15" : "bg-white/15"}`}>{n}</span>}
           </button>
@@ -79,9 +78,9 @@ export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () =>
           </div>
           <nav className="flex overflow-x-auto [scrollbar-width:none]">
             {menu.map(([id, tx, I, n]) => (
-              <button key={id} type="button" onClick={() => setPestana(id)} className={`relative shrink-0 flex flex-col items-center gap-0.5 px-3.5 py-2 text-[0.7rem] font-semibold ${pestana === id ? "" : "text-white/55"}`} style={pestana === id ? { color: LIMA } : undefined}>
+              <button key={id} type="button" onClick={() => setPestana(id)} className={`relative shrink-0 flex flex-col items-center gap-0.5 px-3.5 py-2 text-[0.7rem] font-semibold ${pestana === id ? "" : "text-white/55"}`} style={pestana === id ? { color: AMARILLO } : undefined}>
                 <I size={18} /> {tx}
-                {!!n && <span className="absolute right-1.5 top-1 min-w-4 h-4 rounded-full px-1 text-[0.6rem] leading-4 text-black" style={{ background: LIMA }}>{n}</span>}
+                {!!n && <span className="absolute right-1.5 top-1 min-w-4 h-4 rounded-full px-1 text-[0.6rem] leading-4 text-black" style={{ background: AMARILLO }}>{n}</span>}
               </button>
             ))}
           </nav>
@@ -223,7 +222,7 @@ function Resumen({ t, irA, porVerificar, devPend, bajos, repListas }: { t: Tiend
           <p className="mt-5 font-bold">Cómo pagan</p>
           <div className="mt-2 flex h-3 overflow-hidden rounded-full bg-black/5">
             <div style={{ width: `${total7 ? (tarjeta / total7) * 100 : 0}%`, background: COBALTO }} />
-            <div className="flex-1" style={{ background: LIMA }} />
+            <div className="flex-1" style={{ background: AMARILLO }} />
           </div>
           <div className="mt-2 flex justify-between text-[0.8rem]">
             <span>
@@ -231,7 +230,7 @@ function Resumen({ t, irA, porVerificar, devPend, bajos, repListas }: { t: Tiend
               Tarjeta {qz(tarjeta)}
             </span>
             <span>
-              <span className="inline-block w-2 h-2 rounded-full mr-1" style={{ background: LIMA }} />
+              <span className="inline-block w-2 h-2 rounded-full mr-1" style={{ background: AMARILLO }} />
               Transferencia {qz(total7 - tarjeta)}
             </span>
           </div>
@@ -242,7 +241,7 @@ function Resumen({ t, irA, porVerificar, devPend, bajos, repListas }: { t: Tiend
         <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3">
           {top.map(({ p, n }) => (
             <div key={p.id} className="flex items-center gap-3 rounded-xl p-3" style={{ background: FONDO }}>
-              <Arte tipo={p.arte} marca={p.marca} color={p.colores[0].hex} className="w-9 h-12 shrink-0" />
+              <img src={p.foto} alt="" className="w-11 h-12 shrink-0 rounded-lg object-cover" />
               <div className="min-w-0">
                 <p className="truncate font-semibold text-[0.9rem]">{p.nombre}</p>
                 <p className="text-[0.8rem] text-black/55">{n} vendidos</p>
@@ -284,7 +283,7 @@ function Pedidos({ t }: { t: Tienda }) {
       </div>
       <ul className="mt-4 space-y-2">
         {lista.map((p) => (
-          <li key={p.id} className={`rounded-2xl bg-white ${p.nuevo ? "ring-2" : ""}`} style={p.nuevo ? { ["--tw-ring-color" as string]: LIMA } : undefined}>
+          <li key={p.id} className={`rounded-2xl bg-white ${p.nuevo ? "ring-2" : ""}`} style={p.nuevo ? { ["--tw-ring-color" as string]: AMARILLO } : undefined}>
             <button type="button" onClick={() => setAbierto(abierto === p.id ? null : p.id)} className="w-full flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3 text-left">
               <span className="font-mono font-bold">{p.id}</span>
               <span className="flex-1 min-w-[140px]">
@@ -295,7 +294,7 @@ function Pedidos({ t }: { t: Tienda }) {
               </span>
               <span className="font-bold">{qz(p.total)}</span>
               <Chip estado={p.estado} />
-              {p.nuevo && <span className="rounded-full px-2 text-[0.7rem] font-bold text-black" style={{ background: LIMA }}>Nuevo</span>}
+              {p.nuevo && <span className="rounded-full px-2 text-[0.7rem] font-bold text-black" style={{ background: AMARILLO }}>Nuevo</span>}
             </button>
             {abierto === p.id && (
               <div className="border-t border-black/8 px-4 py-4 text-[0.9rem]">
@@ -424,7 +423,7 @@ function Inventario({ t }: { t: Tienda }) {
                 <tr key={p.id} className="border-b border-black/5 last:border-0">
                   <td className="px-4 py-2.5">
                     <span className="flex items-center gap-2.5">
-                      <Arte tipo={p.arte} marca={p.marca} color={p.colores[0].hex} className="w-7 h-9 shrink-0" />
+                      <img src={p.foto} alt="" className="w-9 h-10 shrink-0 rounded-md object-cover" />
                       <span>
                         <span className="block font-semibold">{p.nombre}</span>
                         <span className="block text-[0.75rem] text-black/50">{p.condicion}</span>
@@ -472,7 +471,7 @@ function Reparaciones({ t }: { t: Tienda }) {
       <Titulo sub="Mueva cada equipo de estado. El cliente lo ve con su código en Rastreo.">Reparaciones</Titulo>
       <div className="mt-5 grid md:grid-cols-2 lg:grid-cols-3 gap-3">
         {t.reparaciones.map((r) => (
-          <div key={r.id} className={`flex flex-col rounded-2xl bg-white p-4 ${r.nueva ? "ring-2" : ""}`} style={r.nueva ? { ["--tw-ring-color" as string]: LIMA } : undefined}>
+          <div key={r.id} className={`flex flex-col rounded-2xl bg-white p-4 ${r.nueva ? "ring-2" : ""}`} style={r.nueva ? { ["--tw-ring-color" as string]: AMARILLO } : undefined}>
             <div className="flex items-center justify-between">
               <span className="font-mono font-bold">{r.id}</span>
               <span className="rounded-full px-2.5 py-0.5 text-[0.72rem] font-bold" style={r.estado === "listo" ? { background: "#e1f5e6", color: "#1f7a3a" } : { background: "#e3ebff", color: COBALTO }}>
@@ -526,7 +525,7 @@ function Devoluciones({ t }: { t: Tienda }) {
         {t.devoluciones.map((d) => {
           const p = t.pedidos.find((x) => x.id === d.pedido);
           return (
-            <li key={d.id} className={`rounded-2xl bg-white px-4 py-3 ${d.nueva ? "ring-2" : ""}`} style={d.nueva ? { ["--tw-ring-color" as string]: LIMA } : undefined}>
+            <li key={d.id} className={`rounded-2xl bg-white px-4 py-3 ${d.nueva ? "ring-2" : ""}`} style={d.nueva ? { ["--tw-ring-color" as string]: AMARILLO } : undefined}>
               <div className="flex flex-wrap items-center gap-3">
                 <span className="font-mono font-bold">{d.id}</span>
                 <span className="flex-1 min-w-[160px]">
