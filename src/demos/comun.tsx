@@ -11,6 +11,7 @@ export const DEMOS = [
   { nombre: "Clínica", href: "/demos/clinica/" },
   { nombre: "Tienda de ropa", href: "/demos/ropa/" },
   { nombre: "Cosméticos", href: "/demos/cosmeticos/" },
+  { nombre: "Fundadora", href: "/demos/fundadora/" },
   { nombre: "Restaurante", href: "/demos/restaurante/" },
   { nombre: "Tiempo compartido", href: "/demos/tiempo-compartido/" },
 ];

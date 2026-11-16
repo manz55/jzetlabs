@@ -8,7 +8,7 @@
  * Fotos libres de Unsplash, sin marcas visibles (src/assets/demo-cosmeticos).
  */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Bell, Brush, CalendarDays, Check, Clock, GraduationCap, Leaf, Link2, MapPin, MessageCircle, ShoppingBag, Sparkles, Trash2, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bell, Brush, CalendarDays, Check, Clock, GraduationCap, Leaf, Link2, MapPin, MessageCircle, Palette, ShoppingBag, Trash2, X } from "lucide-react";
 import { Modal } from "@/components/Modal";
 import { BandaDemos, Cajon, CierreJzet, Contador, MensajeWhatsApp, qz } from "../comun";
 import rostro from "@/assets/demo-cosmeticos/rostro.jpg";
@@ -284,7 +284,7 @@ export default function CosmeticosDemo() {
         <div className="border-t border-white/10">
           <div className="mx-auto max-w-7xl px-5 py-6 flex gap-5 sm:gap-8 overflow-x-auto sm:justify-center [scrollbar-width:none]">
             {[
-              { t: "Makeup", href: "#tienda", I: Sparkles, f: () => setFiltro("Makeup") },
+              { t: "Makeup", href: "#tienda", I: Palette, f: () => setFiltro("Makeup") },
               { t: "Skincare", href: "#tienda", I: Leaf, f: () => setFiltro("Skincare") },
               { t: "Tu tono", href: "#tono", I: Brush },
               { t: "Tips", href: "#tips", I: Check },
@@ -470,9 +470,12 @@ export default function CosmeticosDemo() {
                 <Clock size={20} style={{ color: DORADO }} /> Lunes a sábado, 10:00 a 19:00
               </li>
               <li className="flex gap-3">
-                <Sparkles size={20} style={{ color: DORADO }} /> Te ayudamos a escoger tu tono, sin compromiso
+                <Brush size={20} style={{ color: DORADO }} /> Te ayudamos a escoger tu tono, sin compromiso
               </li>
             </ul>
+            <a href="/demos/fundadora/" className="mt-6 inline-flex items-center gap-1.5 border-b border-black pb-0.5 text-[0.9rem] font-semibold hover:text-[#b38b54] hover:border-[#b38b54] transition">
+              Ámbar es una de las empresas de Valeria Ríos <ArrowRight size={16} />
+            </a>
           </div>
           <img src={espejo} alt="Tocador con espejo de luces y maquillaje" className="w-full aspect-[4/3] object-cover" loading="lazy" />
         </div>

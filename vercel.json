@@ -33,6 +33,14 @@
       "destination": "/demos/cosmeticos/index.html"
     },
     {
+      "source": "/demos/fundadora",
+      "destination": "/demos/fundadora/index.html"
+    },
+    {
+      "source": "/demos/fundadora/",
+      "destination": "/demos/fundadora/index.html"
+    },
+    {
       "source": "/demos/restaurante",
       "destination": "/demos/restaurante/index.html"
     },
