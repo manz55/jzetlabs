@@ -6,16 +6,16 @@
  */
 import { useEffect, useMemo, useState } from "react";
 import {
-  AlertTriangle, BarChart3, Boxes, Check, CreditCard, LogOut, Minus, Package, Plus, RotateCcw, Store, Undo2, Wrench, X,
+  AlertTriangle, BarChart3, Boxes, Camera, Check, CreditCard, Eye, EyeOff, LogOut, Minus, Package, Phone, Plus, RotateCcw, Store, Undo2, Users, Wrench, X,
 } from "lucide-react";
 import { qz } from "../comun";
 import {
-  COBALTO, ESTADOS_PEDIDO, FONDO, AMARILLO, PASOS_REPARACION, PRODUCTOS, SUCURSALES, TEXTO_REPARACION, TINTA, TITULO,
+  PRIMARIO, ESTADOS_PEDIDO, FONDO, AMARILLO, LAVANDA, LETRA_SISTEMA, PASOS_REPARACION, SUCURSALES, TEXTO_REPARACION, TINTA,
   fechaCorta, sucursalPor,
-  type EstadoPedido, type Pedido, type Tienda,
+  type EstadoPedido, type Pedido, type Producto, type Reparacion, type Tienda,
 } from "./datos";
 
-type Pestana = "resumen" | "pedidos" | "pagos" | "inventario" | "reparaciones" | "devoluciones";
+type Pestana = "resumen" | "pedidos" | "pagos" | "inventario" | "reparaciones" | "tecnicos" | "devoluciones";
 const VENDIDO: EstadoPedido[] = ["pagado", "preparando", "en-camino", "entregado"];
 const diaIso = (iso: string) => new Date(iso).toDateString();
 
@@ -27,27 +27,25 @@ export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () =>
 
   const porVerificar = t.pedidos.filter((p) => p.estado === "pago-pendiente");
   const devPend = t.devoluciones.filter((d) => d.estado === "pendiente");
-  const bajos = PRODUCTOS.filter((p) => Object.values(t.stock[p.id] ?? {}).reduce((s, n) => s + n, 0) <= 3);
+  const bajos = t.productos.filter((p) => Object.values(t.stock[p.id] ?? {}).reduce((s, n) => s + n, 0) <= 3);
   const repListas = t.reparaciones.filter((r) => r.estado === "listo");
 
   const menu: [Pestana, string, typeof BarChart3, number?][] = [
     ["resumen", "Resumen", BarChart3],
     ["pedidos", "Pedidos", Package, t.pedidos.filter((p) => p.estado === "pagado").length],
     ["pagos", "Pagos", CreditCard, porVerificar.length],
-    ["inventario", "Inventario", Boxes, bajos.length],
+    ["inventario", "Productos", Boxes, bajos.length],
     ["reparaciones", "Reparaciones", Wrench, t.reparaciones.filter((r) => r.estado !== "entregado").length],
+    ["tecnicos", "Técnicos", Users, t.tecnicos.filter((x) => x.activo).length],
     ["devoluciones", "Devoluciones", Undo2, devPend.length],
   ];
 
   return (
-    <div className="min-h-screen lg:grid lg:grid-cols-[230px_1fr]" style={{ background: FONDO, color: TINTA }}>
+    <div className="min-h-screen lg:grid lg:grid-cols-[230px_1fr]" style={{ background: FONDO, color: TINTA, fontFamily: LETRA_SISTEMA }}>
       <aside className="hidden lg:flex flex-col gap-1 p-4 text-white" style={{ background: TINTA }}>
-        <p className="px-2 pt-1 font-extrabold text-[1.15rem]" style={{ fontFamily: TITULO }}>
-          órbita · panel
-        </p>
-        <p className="px-2 pb-4 text-[0.75rem] text-white/50">Solo para el dueño y su equipo</p>
+        <p className="px-2 pt-1 pb-4 font-extrabold text-[1.2rem]">Órbita</p>
         {menu.map(([id, tx, I, n]) => (
-          <button key={id} type="button" onClick={() => setPestana(id)} className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left font-semibold transition ${pestana === id ? "text-black" : "text-white/75 hover:bg-white/5"}`} style={pestana === id ? { background: AMARILLO } : undefined}>
+          <button key={id} type="button" onClick={() => setPestana(id)} className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left font-semibold transition ${pestana === id ? "text-white" : "text-white/75 hover:bg-white/5"}`} style={pestana === id ? { background: PRIMARIO } : undefined}>
             <I size={18} /> <span className="flex-1">{tx}</span>
             {!!n && <span className={`rounded-full px-2 text-[0.72rem] ${pestana === id ? "bg-black/15" : "bg-white/15"}`}>{n}</span>}
           </button>
@@ -69,16 +67,14 @@ export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () =>
         {/* pestañas en celular */}
         <div className="lg:hidden sticky top-0 z-20 text-white" style={{ background: TINTA }}>
           <div className="flex items-center justify-between px-4 py-2.5">
-            <p className="font-extrabold" style={{ fontFamily: TITULO }}>
-              órbita · panel
-            </p>
+            <p className="font-extrabold">Órbita</p>
             <button type="button" onClick={alSalir} className="inline-flex items-center gap-1.5 rounded-full border border-white/20 px-3 py-1 text-[0.8rem]">
               <LogOut size={14} /> Salir
             </button>
           </div>
           <nav className="flex overflow-x-auto [scrollbar-width:none]">
             {menu.map(([id, tx, I, n]) => (
-              <button key={id} type="button" onClick={() => setPestana(id)} className={`relative shrink-0 flex flex-col items-center gap-0.5 px-3.5 py-2 text-[0.7rem] font-semibold ${pestana === id ? "" : "text-white/55"}`} style={pestana === id ? { color: AMARILLO } : undefined}>
+              <button key={id} type="button" onClick={() => setPestana(id)} className={`relative shrink-0 flex flex-col items-center gap-0.5 px-3.5 py-2 text-[0.7rem] font-semibold ${pestana === id ? "" : "text-white/55"}`} style={pestana === id ? { color: "#c9b3ff" } : undefined}>
                 <I size={18} /> {tx}
                 {!!n && <span className="absolute right-1.5 top-1 min-w-4 h-4 rounded-full px-1 text-[0.6rem] leading-4 text-black" style={{ background: AMARILLO }}>{n}</span>}
               </button>
@@ -92,6 +88,7 @@ export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () =>
           {pestana === "pagos" && <Pagos t={t} />}
           {pestana === "inventario" && <Inventario t={t} />}
           {pestana === "reparaciones" && <Reparaciones t={t} />}
+          {pestana === "tecnicos" && <Tecnicos t={t} />}
           {pestana === "devoluciones" && <Devoluciones t={t} />}
           <p className="mt-10 text-center text-xs text-black/45">Panel de demostración con datos de ejemplo. Lo que cambie aquí solo se guarda en este navegador.</p>
         </div>
@@ -103,7 +100,7 @@ export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () =>
 function Titulo({ children, sub }: { children: string; sub?: string }) {
   return (
     <div>
-      <h1 className="text-[1.9rem] sm:text-[2.3rem] font-extrabold tracking-[-0.02em] !text-[#0d1117]" style={{ fontFamily: TITULO }}>
+      <h1 className="text-[1.9rem] sm:text-[2.3rem] font-extrabold tracking-[-0.02em] !text-[#1c1230]">
         {children}
       </h1>
       {sub && <p className="text-black/55">{sub}</p>}
@@ -123,14 +120,6 @@ function Tarjeta({ titulo, valor, nota, alerta }: { titulo: string; valor: strin
   );
 }
 
-function Chip({ estado }: { estado: EstadoPedido }) {
-  const e = ESTADOS_PEDIDO[estado];
-  return (
-    <span className="inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-[0.72rem] font-bold" style={{ background: e.fondo, color: e.color }}>
-      {e.texto}
-    </span>
-  );
-}
 
 /* ---------------- resumen ---------------- */
 
@@ -156,7 +145,7 @@ function Resumen({ t, irA, porVerificar, devPend, bajos, repListas }: { t: Tiend
   const porSucursal = SUCURSALES.map((s) => ({ s, q: vendidos.filter((p) => p.sucursal === s.id).reduce((a, p) => a + p.total, 0) }));
   const maxS = Math.max(1, ...porSucursal.map((x) => x.q));
   const tarjeta = vendidos.filter((p) => p.metodo === "tarjeta").reduce((s, p) => s + p.total, 0);
-  const top = PRODUCTOS.map((p) => ({ p, n: vendidos.reduce((s, x) => s + x.lineas.filter((l) => l.id === p.id).reduce((a, l) => a + l.cantidad, 0), 0) }))
+  const top = t.productos.map((p) => ({ p, n: vendidos.reduce((s, x) => s + x.lineas.filter((l) => l.id === p.id).reduce((a, l) => a + l.cantidad, 0), 0) }))
     .filter((x) => x.n)
     .sort((a, b) => b.n - a.n)
     .slice(0, 4);
@@ -198,7 +187,7 @@ function Resumen({ t, irA, porVerificar, devPend, bajos, repListas }: { t: Tiend
             {dias.map(({ d, q }) => (
               <div key={d.toDateString()} className="flex-1 h-full flex flex-col justify-end items-center gap-1.5">
                 <span className="text-[0.62rem] font-semibold text-black/50">{q ? `Q${Math.round(q / 1000)}k` : ""}</span>
-                <div className="w-full rounded-t-lg" style={{ height: `${(q / max) * 100}%`, minHeight: 4, background: d.toDateString() === new Date().toDateString() ? COBALTO : "#c9d4f5" }} />
+                <div className="w-full rounded-t-lg" style={{ height: `${(q / max) * 100}%`, minHeight: 4, background: d.toDateString() === new Date().toDateString() ? PRIMARIO : "#c9d4f5" }} />
                 <span className="text-[0.68rem] text-black/50">{d.toLocaleDateString("es-GT", { weekday: "short" })}</span>
               </div>
             ))}
@@ -221,12 +210,12 @@ function Resumen({ t, irA, porVerificar, devPend, bajos, repListas }: { t: Tiend
           </ul>
           <p className="mt-5 font-bold">Cómo pagan</p>
           <div className="mt-2 flex h-3 overflow-hidden rounded-full bg-black/5">
-            <div style={{ width: `${total7 ? (tarjeta / total7) * 100 : 0}%`, background: COBALTO }} />
+            <div style={{ width: `${total7 ? (tarjeta / total7) * 100 : 0}%`, background: PRIMARIO }} />
             <div className="flex-1" style={{ background: AMARILLO }} />
           </div>
           <div className="mt-2 flex justify-between text-[0.8rem]">
             <span>
-              <span className="inline-block w-2 h-2 rounded-full mr-1" style={{ background: COBALTO }} />
+              <span className="inline-block w-2 h-2 rounded-full mr-1" style={{ background: PRIMARIO }} />
               Tarjeta {qz(tarjeta)}
             </span>
             <span>
@@ -257,73 +246,91 @@ function Resumen({ t, irA, porVerificar, devPend, bajos, repListas }: { t: Tiend
 /* ---------------- pedidos ---------------- */
 
 const SIGUIENTE: Partial<Record<EstadoPedido, { a: EstadoPedido; texto: string }>> = {
-  pagado: { a: "preparando", texto: "Empezar a preparar" },
-  preparando: { a: "en-camino", texto: "Marcar enviado" },
-  "en-camino": { a: "entregado", texto: "Marcar entregado" },
+  "pago-pendiente": { a: "pagado", texto: "Confirmar pago" },
+  pagado: { a: "preparando", texto: "Preparar" },
+  preparando: { a: "en-camino", texto: "Enviar" },
+  "en-camino": { a: "entregado", texto: "Entregado" },
 };
+const ESTADOS_ELEGIBLES: EstadoPedido[] = ["pago-pendiente", "pagado", "preparando", "en-camino", "entregado", "rechazado", "devuelto"];
+const textoMetodo = (p: Pedido) => (p.metodo === "tarjeta" ? `Tarjeta ···${p.tarjeta}` : p.metodo === "transferencia" ? "Transferencia" : "Paga al recibir");
 
 function Pedidos({ t }: { t: Tienda }) {
-  const [filtro, setFiltro] = useState<EstadoPedido | "todos">("todos");
+  const [filtro, setFiltro] = useState<EstadoPedido | "activos" | "todos">("activos");
   const [abierto, setAbierto] = useState<string | null>(null);
-  const lista = t.pedidos.filter((p) => filtro === "todos" || p.estado === filtro);
-  const avanzar = (p: Pedido) => {
-    const s = SIGUIENTE[p.estado];
-    if (!s) return;
-    t.setPedidos((ps) => ps.map((x) => (x.id === p.id ? { ...x, estado: s.a, guia: s.a === "en-camino" ? `GT-${String(Date.now()).slice(-6)}` : x.guia, nuevo: false } : x)));
-  };
+  const activos: EstadoPedido[] = ["pago-pendiente", "pagado", "preparando", "en-camino"];
+  const lista = t.pedidos.filter((p) => filtro === "todos" || (filtro === "activos" ? activos.includes(p.estado) : p.estado === filtro));
+  const mover = (p: Pedido, a: EstadoPedido) =>
+    t.setPedidos((ps) => ps.map((x) => (x.id === p.id ? { ...x, estado: a, guia: a === "en-camino" && !x.guia ? `GT-${String(Date.now()).slice(-6)}` : x.guia, nuevo: false } : x)));
   return (
     <>
-      <Titulo sub="Toque un pedido para ver el detalle y moverlo de estado. El cliente lo ve en Rastreo.">Pedidos</Titulo>
+      <Titulo sub="Cada pedido avanza con un toque. El cliente lo ve al instante en Rastreo.">Pedidos</Titulo>
       <div className="mt-5 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
-        {(["todos", "pago-pendiente", "pagado", "preparando", "en-camino", "entregado", "rechazado", "devuelto"] as const).map((f) => (
+        {(["activos", "todos", ...ESTADOS_ELEGIBLES] as const).map((f) => (
           <button key={f} type="button" onClick={() => setFiltro(f)} className={`shrink-0 rounded-full px-3.5 py-1.5 text-[0.82rem] font-semibold ${filtro === f ? "text-white" : "bg-white"}`} style={filtro === f ? { background: TINTA } : undefined}>
-            {f === "todos" ? "Todos" : ESTADOS_PEDIDO[f].texto} ({f === "todos" ? t.pedidos.length : t.pedidos.filter((p) => p.estado === f).length})
+            {f === "todos" ? "Todos" : f === "activos" ? "Por atender" : ESTADOS_PEDIDO[f].texto} (
+            {f === "todos" ? t.pedidos.length : f === "activos" ? t.pedidos.filter((p) => activos.includes(p.estado)).length : t.pedidos.filter((p) => p.estado === f).length})
           </button>
         ))}
       </div>
       <ul className="mt-4 space-y-2">
-        {lista.map((p) => (
-          <li key={p.id} className={`rounded-2xl bg-white ${p.nuevo ? "ring-2" : ""}`} style={p.nuevo ? { ["--tw-ring-color" as string]: AMARILLO } : undefined}>
-            <button type="button" onClick={() => setAbierto(abierto === p.id ? null : p.id)} className="w-full flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3 text-left">
-              <span className="font-mono font-bold">{p.id}</span>
-              <span className="flex-1 min-w-[140px]">
-                <span className="block font-semibold">{p.cliente}</span>
-                <span className="block text-[0.8rem] text-black/55">
-                  {fechaCorta(p.fecha)} · {p.metodo === "tarjeta" ? `Tarjeta ···${p.tarjeta}` : "Transferencia"}
-                </span>
-              </span>
-              <span className="font-bold">{qz(p.total)}</span>
-              <Chip estado={p.estado} />
-              {p.nuevo && <span className="rounded-full px-2 text-[0.7rem] font-bold text-black" style={{ background: AMARILLO }}>Nuevo</span>}
-            </button>
-            {abierto === p.id && (
-              <div className="border-t border-black/8 px-4 py-4 text-[0.9rem]">
-                <ul className="space-y-1">
-                  {p.lineas.map((l) => (
-                    <li key={l.id + l.detalle} className="flex justify-between gap-3">
-                      <span>
-                        {l.cantidad} × {l.nombre} <span className="text-black/50">{l.detalle}</span>
-                      </span>
-                      <span>{qz(l.precio * l.cantidad)}</span>
-                    </li>
+        {lista.map((p) => {
+          const sig = SIGUIENTE[p.estado];
+          return (
+            <li key={p.id} className={`rounded-2xl bg-white ${p.nuevo ? "ring-2" : ""}`} style={p.nuevo ? { ["--tw-ring-color" as string]: PRIMARIO } : undefined}>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3">
+                <button type="button" onClick={() => setAbierto(abierto === p.id ? null : p.id)} className="flex-1 min-w-[180px] text-left">
+                  <span className="flex items-center gap-2">
+                    <span className="font-mono font-bold">{p.id}</span>
+                    {p.nuevo && <span className="rounded-full px-2 text-[0.68rem] font-bold text-white" style={{ background: PRIMARIO }}>Nuevo</span>}
+                  </span>
+                  <span className="block font-semibold">{p.cliente}</span>
+                  <span className="block text-[0.8rem] text-black/55">
+                    {fechaCorta(p.fecha)} · {textoMetodo(p)} · <b className="text-black/80">{qz(p.total)}</b>
+                  </span>
+                </button>
+                <select
+                  value={p.estado}
+                  onChange={(e) => mover(p, e.target.value as EstadoPedido)}
+                  aria-label={`Estado del pedido ${p.id}`}
+                  className="rounded-full border-0 px-3 py-1.5 text-[0.8rem] font-bold"
+                  style={{ background: ESTADOS_PEDIDO[p.estado].fondo, color: ESTADOS_PEDIDO[p.estado].color }}
+                >
+                  {ESTADOS_ELEGIBLES.map((e) => (
+                    <option key={e} value={e}>
+                      {ESTADOS_PEDIDO[e].texto}
+                    </option>
                   ))}
-                </ul>
-                <p className="mt-2 text-black/60">
-                  {p.entrega.tipo === "envio" ? `Envío a: ${p.entrega.direccion}` : `Recoge en ${sucursalPor(p.entrega.sucursal).nombre}`} · Tel. {p.telefono}
-                  {p.cuotas && p.cuotas > 1 ? ` · ${p.cuotas} cuotas` : ""}
-                  {p.guia ? ` · Guía ${p.guia}` : ""}
-                </p>
-                {p.motivoRechazo && <p className="mt-1 font-semibold text-[#b42318]">Motivo del rechazo: {p.motivoRechazo}</p>}
-                {SIGUIENTE[p.estado] && (
-                  <button type="button" onClick={() => avanzar(p)} className="mt-3 rounded-full px-4 py-2 font-bold text-white" style={{ background: COBALTO }}>
-                    {SIGUIENTE[p.estado]!.texto}
+                </select>
+                {sig && (
+                  <button type="button" onClick={() => mover(p, sig.a)} className="rounded-full px-4 py-1.5 text-[0.85rem] font-bold text-white active:scale-95 transition" style={{ background: PRIMARIO }}>
+                    {sig.texto} →
                   </button>
                 )}
               </div>
-            )}
-          </li>
-        ))}
-        {!lista.length && <li className="rounded-2xl bg-white px-4 py-8 text-center text-black/50">No hay pedidos en este estado.</li>}
+              {abierto === p.id && (
+                <div className="border-t border-black/8 px-4 py-3 text-[0.9rem]">
+                  <ul className="space-y-1">
+                    {p.lineas.map((l) => (
+                      <li key={l.id + l.detalle} className="flex justify-between gap-3">
+                        <span>
+                          {l.cantidad} × {l.nombre} <span className="text-black/50">{l.detalle}</span>
+                        </span>
+                        <span>{qz(l.precio * l.cantidad)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-2 text-black/60">
+                    {p.entrega.tipo === "envio" ? `Envío a: ${p.entrega.direccion}` : `Recoge en ${sucursalPor(p.entrega.sucursal).nombre}`} · Tel. {p.telefono}
+                    {p.cuotas && p.cuotas > 1 ? ` · ${p.cuotas} cuotas` : ""}
+                    {p.guia ? ` · Guía ${p.guia}` : ""}
+                  </p>
+                  {p.motivoRechazo && <p className="mt-1 font-semibold text-[#b42318]">Motivo del rechazo: {p.motivoRechazo}</p>}
+                </div>
+              )}
+            </li>
+          );
+        })}
+        {!lista.length && <li className="rounded-2xl bg-white px-4 py-8 text-center text-black/50">No hay pedidos aquí.</li>}
       </ul>
     </>
   );
@@ -378,7 +385,7 @@ function Pagos({ t }: { t: Tienda }) {
             <span className="flex-1 min-w-[140px]">
               <span className="block font-semibold">{p.cliente}</span>
               <span className="block text-[0.8rem] text-black/55">
-                {fechaCorta(p.fecha)} · {p.metodo === "tarjeta" ? `Tarjeta ···${p.tarjeta}` : "Transferencia"}
+                {fechaCorta(p.fecha)} · {textoMetodo(p)}
               </span>
             </span>
             <span className="font-bold">{qz(p.total)}</span>
@@ -390,109 +397,281 @@ function Pagos({ t }: { t: Tienda }) {
   );
 }
 
-/* ---------------- inventario ---------------- */
+/* ---------------- productos: fotos, precios, stock y visibilidad ---------------- */
+
+/* la foto que sube el dueño se achica en el navegador antes de guardarla */
+function achicarFoto(archivo: File): Promise<string> {
+  return new Promise((ok, mal) => {
+    const lector = new FileReader();
+    lector.onerror = mal;
+    lector.onload = () => {
+      const img = new Image();
+      img.onerror = mal;
+      img.onload = () => {
+        const max = 700;
+        const k = Math.min(1, max / Math.max(img.width, img.height));
+        const c = document.createElement("canvas");
+        c.width = Math.round(img.width * k);
+        c.height = Math.round(img.height * k);
+        c.getContext("2d")!.drawImage(img, 0, 0, c.width, c.height);
+        ok(c.toDataURL("image/jpeg", 0.8));
+      };
+      img.src = String(lector.result);
+    };
+    lector.readAsDataURL(archivo);
+  });
+}
 
 function Inventario({ t }: { t: Tienda }) {
-  const cambiar = (id: string, suc: string, d: number) => t.setStock((s) => ({ ...s, [id]: { ...s[id], [suc]: Math.max(0, (s[id]?.[suc] ?? 0) + d) } }));
-  const valor = PRODUCTOS.reduce((s, p) => s + Object.values(t.stock[p.id] ?? {}).reduce((a, n) => a + n, 0) * p.variantes[0].precio, 0);
+  const [buscar, setBuscar] = useState("");
+  const [nuevo, setNuevo] = useState(false);
+  const total = (id: string) => Object.values(t.stock[id] ?? {}).reduce((a, n) => a + n, 0);
+  const cambiarStock = (id: string, suc: string, d: number) => t.setStock((s) => ({ ...s, [id]: { ...(s[id] ?? {}), [suc]: Math.max(0, (s[id]?.[suc] ?? 0) + d) } }));
+  const editar = (id: string, cambio: Partial<Producto>) => t.setProductos((ps) => ps.map((p) => (p.id === id ? { ...p, ...cambio } : p)));
+  const lista = t.productos.filter((p) => `${p.marca} ${p.nombre}`.toLowerCase().includes(buscar.toLowerCase().trim()));
+  const valor = t.productos.reduce((s, p) => s + total(p.id) * p.variantes[0].precio, 0);
   return (
     <>
-      <Titulo sub="Solo usted ve los números. El cliente solo ve si hay, si quedan pocas o si está agotado.">Inventario</Titulo>
-      <div className="mt-5 grid grid-cols-2 lg:grid-cols-3 gap-3">
-        <Tarjeta titulo="Unidades en tienda" valor={PRODUCTOS.reduce((s, p) => s + Object.values(t.stock[p.id] ?? {}).reduce((a, n) => a + n, 0), 0)} />
-        <Tarjeta titulo="Valor del inventario" valor={qz(valor)} nota="A precio de venta" />
-        <Tarjeta titulo="Sucursales" valor={SUCURSALES.length} />
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <Titulo sub="Cambie fotos, precios y existencias. El cliente nunca ve los números, solo si hay.">Productos</Titulo>
+        <button type="button" onClick={() => setNuevo(true)} className="inline-flex items-center gap-1.5 rounded-full px-4 py-2.5 font-bold text-white" style={{ background: PRIMARIO }}>
+          <Plus size={17} /> Nuevo producto
+        </button>
       </div>
-      <div className="mt-4 overflow-x-auto rounded-2xl bg-white">
-        <table className="w-full min-w-[620px] text-[0.9rem]">
-          <thead>
-            <tr className="border-b border-black/8 text-left text-[0.78rem] text-black/50">
-              <th className="px-4 py-3 font-semibold">Producto</th>
-              {SUCURSALES.map((s) => (
-                <th key={s.id} className="px-2 py-3 font-semibold text-center">
-                  {s.nombre}
-                </th>
-              ))}
-              <th className="px-4 py-3 font-semibold text-right">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {PRODUCTOS.map((p) => {
-              const total = Object.values(t.stock[p.id] ?? {}).reduce((a, n) => a + n, 0);
-              return (
-                <tr key={p.id} className="border-b border-black/5 last:border-0">
-                  <td className="px-4 py-2.5">
-                    <span className="flex items-center gap-2.5">
-                      <img src={p.foto} alt="" className="w-9 h-10 shrink-0 rounded-md object-cover" />
-                      <span>
-                        <span className="block font-semibold">{p.nombre}</span>
-                        <span className="block text-[0.75rem] text-black/50">{p.condicion}</span>
-                      </span>
-                    </span>
-                  </td>
+      <div className="mt-5 grid grid-cols-2 lg:grid-cols-3 gap-3">
+        <Tarjeta titulo="Unidades en tienda" valor={t.productos.reduce((s, p) => s + total(p.id), 0)} />
+        <Tarjeta titulo="Valor del inventario" valor={qz(valor)} nota="A precio con tarjeta" />
+        <Tarjeta titulo="Productos" valor={t.productos.length} nota={`${t.productos.filter((p) => p.visible === false).length} ocultos`} />
+      </div>
+      {nuevo && <NuevoProducto t={t} alCerrar={() => setNuevo(false)} />}
+      <input value={buscar} onChange={(e) => setBuscar(e.target.value)} placeholder="Buscar producto…" className="mt-4 w-full rounded-xl border border-black/10 bg-white px-4 py-2.5 focus:outline-none focus:border-[#6d28d9]" />
+      <ul className="mt-3 space-y-2">
+        {lista.map((p) => {
+          const n = total(p.id);
+          return (
+            <li key={p.id} className={`rounded-2xl bg-white p-3 sm:p-4 ${p.visible === false ? "opacity-60" : ""}`}>
+              <div className="flex flex-wrap items-center gap-3">
+                <label className="group relative w-16 h-16 shrink-0 cursor-pointer overflow-hidden rounded-xl" title="Cambiar foto">
+                  <img src={p.foto} alt="" className="w-full h-full object-cover" />
+                  <span className="absolute inset-0 grid place-items-center bg-black/45 text-white opacity-0 group-hover:opacity-100 transition">
+                    <Camera size={18} />
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    onChange={async (e) => {
+                      const f = e.target.files?.[0];
+                      if (f) editar(p.id, { foto: await achicarFoto(f) });
+                    }}
+                  />
+                </label>
+                <div className="flex-1 min-w-[160px]">
+                  <p className="font-semibold leading-tight">{p.nombre}</p>
+                  <p className="text-[0.78rem] text-black/50">
+                    {p.marca} · {p.categoria} · {p.condicion}
+                  </p>
+                  <label className="mt-1 inline-flex items-center gap-1 text-[0.82rem]">
+                    <span className="text-black/50">Precio Q</span>
+                    <input
+                      type="number"
+                      value={p.variantes[0].precio}
+                      onChange={(e) => editar(p.id, { variantes: p.variantes.map((v, i) => (i === 0 ? { ...v, precio: Math.max(0, Number(e.target.value) || 0) } : v)) })}
+                      className="w-24 rounded-lg border border-black/10 px-2 py-1 font-semibold"
+                    />
+                  </label>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
                   {SUCURSALES.map((s) => {
-                    const n = t.stock[p.id]?.[s.id] ?? 0;
+                    const k = t.stock[p.id]?.[s.id] ?? 0;
                     return (
-                      <td key={s.id} className="px-2 py-2.5">
-                        <span className="mx-auto flex w-fit items-center gap-1">
-                          <button type="button" aria-label={`Quitar uno de ${p.nombre} en ${s.nombre}`} onClick={() => cambiar(p.id, s.id, -1)} className="grid place-items-center w-6 h-6 rounded-full bg-black/5 hover:bg-black/10">
-                            <Minus size={12} />
-                          </button>
-                          <span className={`w-7 text-center font-bold tabular-nums ${n === 0 ? "text-[#b42318]" : ""}`}>{n}</span>
-                          <button type="button" aria-label={`Agregar uno de ${p.nombre} en ${s.nombre}`} onClick={() => cambiar(p.id, s.id, 1)} className="grid place-items-center w-6 h-6 rounded-full bg-black/5 hover:bg-black/10">
-                            <Plus size={12} />
-                          </button>
-                        </span>
-                      </td>
+                      <span key={s.id} className="flex items-center gap-1 rounded-full bg-black/[0.04] px-1.5 py-1 text-[0.78rem]">
+                        <span className="px-1 text-black/55">{s.nombre}</span>
+                        <button type="button" aria-label={`Quitar uno en ${s.nombre}`} onClick={() => cambiarStock(p.id, s.id, -1)} className="grid place-items-center w-6 h-6 rounded-full bg-white">
+                          <Minus size={12} />
+                        </button>
+                        <span className={`w-6 text-center font-bold tabular-nums ${k === 0 ? "text-[#b42318]" : ""}`}>{k}</span>
+                        <button type="button" aria-label={`Agregar uno en ${s.nombre}`} onClick={() => cambiarStock(p.id, s.id, 1)} className="grid place-items-center w-6 h-6 rounded-full bg-white">
+                          <Plus size={12} />
+                        </button>
+                      </span>
                     );
                   })}
-                  <td className="px-4 py-2.5 text-right">
-                    <span className={`font-bold ${total <= 3 ? "text-[#c2410c]" : ""}`}>{total}</span>
-                    {total <= 3 && <span className="block text-[0.7rem] font-semibold text-[#c2410c]">{total === 0 ? "Agotado" : "Pedir más"}</span>}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      <p className="mt-3 text-sm text-black/50">Pruebe a dejar un producto en 0 y vea cómo aparece "Agotado" en la tienda.</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`text-[0.8rem] font-bold ${n <= 3 ? "text-[#c2410c]" : "text-black/60"}`}>{n === 0 ? "Agotado" : n <= 3 ? `Quedan ${n}` : `${n} en total`}</span>
+                  <button
+                    type="button"
+                    onClick={() => editar(p.id, { visible: p.visible === false })}
+                    title={p.visible === false ? "Mostrar en la tienda" : "Ocultar de la tienda"}
+                    className="grid place-items-center w-9 h-9 rounded-full bg-black/5 hover:bg-black/10"
+                  >
+                    {p.visible === false ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+      <p className="mt-3 text-sm text-black/50">Toque la foto para cambiarla. El ojo oculta o muestra el producto en la tienda.</p>
     </>
   );
 }
 
-/* ---------------- reparaciones ---------------- */
+function NuevoProducto({ t, alCerrar }: { t: Tienda; alCerrar: () => void }) {
+  const [f, setF] = useState({ nombre: "", marca: "", categoria: "Celulares" as Producto["categoria"], condicion: "Nuevo" as Producto["condicion"], precio: "", stock: "1", foto: "" });
+  const [error, setError] = useState("");
+  const campo = "mt-1 w-full rounded-lg border border-black/15 px-3 py-2 focus:outline-none focus:border-[#6d28d9]";
+  return (
+    <form
+      className="mt-4 rounded-2xl bg-white p-4 sm:p-5 grid sm:grid-cols-[120px_1fr] gap-4"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!f.nombre.trim() || !Number(f.precio)) return setError("Escriba al menos el nombre y el precio.");
+        if (!f.foto) return setError("Suba una foto del producto.");
+        const id = `p${Date.now()}`;
+        t.setProductos((ps) => [
+          { id, nombre: f.nombre.trim(), marca: f.marca.trim() || "Órbita", categoria: f.categoria, condicion: f.condicion, foto: f.foto, colores: [{ nombre: "Único", hex: "#999" }], variantes: [{ precio: Number(f.precio) }], resumen: "", detalles: [], garantia: f.condicion === "Nuevo" ? "1 año con nosotros" : "6 meses con nosotros", origen: "Inventario de la tienda", visible: true },
+          ...ps,
+        ]);
+        t.setStock((s) => ({ ...s, [id]: { z10: Number(f.stock) || 0, mix: 0, xela: 0 } }));
+        alCerrar();
+      }}
+    >
+      <label className="grid place-items-center aspect-square cursor-pointer overflow-hidden rounded-xl border-2 border-dashed border-black/15 text-center text-[0.8rem] text-black/50">
+        {f.foto ? <img src={f.foto} alt="" className="w-full h-full object-cover" /> : (<span className="px-2"><Camera size={22} className="mx-auto mb-1" />Subir foto</span>)}
+        <input type="file" accept="image/*" className="sr-only" onChange={async (e) => { const x = e.target.files?.[0]; if (x) setF({ ...f, foto: await achicarFoto(x) }); }} />
+      </label>
+      <div className="grid sm:grid-cols-2 gap-3 text-sm font-semibold">
+        <label>Nombre<input value={f.nombre} onChange={(e) => setF({ ...f, nombre: e.target.value })} placeholder="iPhone 18 Pro Max" className={campo} /></label>
+        <label>Marca<input value={f.marca} onChange={(e) => setF({ ...f, marca: e.target.value })} placeholder="Apple" className={campo} /></label>
+        <label>Categoría
+          <select value={f.categoria} onChange={(e) => setF({ ...f, categoria: e.target.value as Producto["categoria"] })} className={`${campo} bg-white`}>
+            {["Celulares", "Tablets", "Laptops", "Accesorios"].map((c) => <option key={c}>{c}</option>)}
+          </select>
+        </label>
+        <label>Condición
+          <select value={f.condicion} onChange={(e) => setF({ ...f, condicion: e.target.value as Producto["condicion"] })} className={`${campo} bg-white`}>
+            <option>Nuevo</option>
+            <option>Seminuevo</option>
+          </select>
+        </label>
+        <label>Precio con tarjeta (Q)<input type="number" value={f.precio} onChange={(e) => setF({ ...f, precio: e.target.value })} className={campo} /></label>
+        <label>Unidades en Zona 10<input type="number" value={f.stock} onChange={(e) => setF({ ...f, stock: e.target.value })} className={campo} /></label>
+        {error && <p className="sm:col-span-2 text-[#b42318]">{error}</p>}
+        <div className="sm:col-span-2 flex gap-2">
+          <button type="submit" className="rounded-full px-5 py-2.5 font-bold text-white" style={{ background: PRIMARIO }}>Publicar en la tienda</button>
+          <button type="button" onClick={alCerrar} className="rounded-full px-5 py-2.5 font-bold bg-black/5">Cancelar</button>
+        </div>
+      </div>
+    </form>
+  );
+}
+
+/* ---------------- reparaciones: un toque para avanzar y técnico asignado ---------------- */
 
 function Reparaciones({ t }: { t: Tienda }) {
-  const avanzar = (id: string) =>
-    t.setReparaciones((rs) => rs.map((r) => (r.id === id ? { ...r, estado: PASOS_REPARACION[Math.min(PASOS_REPARACION.length - 1, PASOS_REPARACION.indexOf(r.estado) + 1)], nueva: false } : r)));
+  const editar = (id: string, cambio: Partial<Reparacion>) => t.setReparaciones((rs) => rs.map((r) => (r.id === id ? { ...r, ...cambio, nueva: false } : r)));
   return (
     <>
-      <Titulo sub="Mueva cada equipo de estado. El cliente lo ve con su código en Rastreo.">Reparaciones</Titulo>
+      <Titulo sub="Asigne un técnico y avance cada equipo con un toque. El cliente lo ve con su código en Rastreo.">Reparaciones</Titulo>
       <div className="mt-5 grid md:grid-cols-2 lg:grid-cols-3 gap-3">
-        {t.reparaciones.map((r) => (
-          <div key={r.id} className={`flex flex-col rounded-2xl bg-white p-4 ${r.nueva ? "ring-2" : ""}`} style={r.nueva ? { ["--tw-ring-color" as string]: AMARILLO } : undefined}>
-            <div className="flex items-center justify-between">
-              <span className="font-mono font-bold">{r.id}</span>
-              <span className="rounded-full px-2.5 py-0.5 text-[0.72rem] font-bold" style={r.estado === "listo" ? { background: "#e1f5e6", color: "#1f7a3a" } : { background: "#e3ebff", color: COBALTO }}>
-                {TEXTO_REPARACION[r.estado]}
-              </span>
+        {t.reparaciones.map((r) => {
+          const i = PASOS_REPARACION.indexOf(r.estado);
+          const sig = PASOS_REPARACION[i + 1];
+          return (
+            <div key={r.id} className={`flex flex-col rounded-2xl bg-white p-4 ${r.nueva ? "ring-2" : ""}`} style={r.nueva ? { ["--tw-ring-color" as string]: PRIMARIO } : undefined}>
+              <div className="flex items-center justify-between">
+                <span className="font-mono font-bold">{r.id}</span>
+                <span className="rounded-full px-2.5 py-0.5 text-[0.72rem] font-bold" style={r.estado === "listo" ? { background: "#e1f5e6", color: "#1f7a3a" } : { background: LAVANDA, color: PRIMARIO }}>
+                  {TEXTO_REPARACION[r.estado]}
+                </span>
+              </div>
+              <p className="mt-2 font-semibold">{r.cliente}</p>
+              <p className="text-[0.85rem] text-black/60">
+                {r.modelo} · {r.falla}
+              </p>
+              <p className="text-[0.8rem] text-black/50">
+                {sucursalPor(r.sucursal).nombre} · {fechaCorta(r.fecha)} · {qz(r.precio)}
+              </p>
+              <label className="mt-3 text-[0.78rem] font-semibold text-black/55">
+                Técnico
+                <select value={r.tecnico ?? ""} onChange={(e) => editar(r.id, { tecnico: e.target.value || undefined })} className="mt-1 w-full rounded-lg border border-black/10 bg-white px-2 py-2 text-[0.88rem] font-semibold text-black">
+                  <option value="">Sin asignar</option>
+                  {t.tecnicos.filter((x) => x.activo).map((x) => (
+                    <option key={x.id} value={x.id}>
+                      {x.nombre} · {x.especialidad}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {sig && (
+                <button type="button" onClick={() => editar(r.id, { estado: sig })} className="mt-3 rounded-full py-2 text-[0.85rem] font-bold text-white active:scale-95 transition" style={{ background: PRIMARIO }}>
+                  {TEXTO_REPARACION[sig]} →
+                </button>
+              )}
             </div>
-            <p className="mt-2 font-semibold">{r.cliente}</p>
-            <p className="text-[0.85rem] text-black/60">
-              {r.modelo} · {r.falla}
-            </p>
-            <p className="text-[0.8rem] text-black/50">
-              {sucursalPor(r.sucursal).nombre} · {fechaCorta(r.fecha)} · {qz(r.precio)}
-            </p>
-            {r.estado !== "entregado" && (
-              <button type="button" onClick={() => avanzar(r.id)} className="mt-3 rounded-full py-2 text-[0.85rem] font-bold text-white" style={{ background: TINTA }}>
-                Pasar a: {TEXTO_REPARACION[PASOS_REPARACION[PASOS_REPARACION.indexOf(r.estado) + 1]]}
-              </button>
-            )}
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+/* ---------------- red de técnicos ---------------- */
+
+function Tecnicos({ t }: { t: Tienda }) {
+  const [f, setF] = useState({ nombre: "", especialidad: "", sucursal: SUCURSALES[0].id, telefono: "" });
+  const carga = (id: string) => t.reparaciones.filter((r) => r.tecnico === id && r.estado !== "entregado").length;
+  return (
+    <>
+      <Titulo sub="Su red de técnicos: quién repara qué, en qué sucursal y cuánto trabajo tiene ahora.">Técnicos</Titulo>
+      <div className="mt-5 grid md:grid-cols-2 gap-3">
+        {t.tecnicos.map((x) => (
+          <div key={x.id} className={`flex items-center gap-3 rounded-2xl bg-white p-4 ${x.activo ? "" : "opacity-55"}`}>
+            <span className="grid place-items-center w-11 h-11 shrink-0 rounded-full font-bold text-white" style={{ background: PRIMARIO }}>
+              {x.nombre.split(" ").map((p) => p[0]).slice(0, 2).join("")}
+            </span>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold">{x.nombre}</p>
+              <p className="text-[0.8rem] text-black/55">
+                {x.especialidad} · {sucursalPor(x.sucursal).nombre}
+              </p>
+              <p className="text-[0.8rem] text-black/55 inline-flex items-center gap-1">
+                <Phone size={12} /> {x.telefono} · {carga(x.id)} {carga(x.id) === 1 ? "equipo" : "equipos"} en curso
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => t.setTecnicos((ts) => ts.map((y) => (y.id === x.id ? { ...y, activo: !y.activo } : y)))}
+              className="rounded-full px-3 py-1.5 text-[0.78rem] font-bold"
+              style={x.activo ? { background: "#e1f5e6", color: "#1f7a3a" } : { background: "#eceef1", color: "#5b5f66" }}
+            >
+              {x.activo ? "Disponible" : "No disponible"}
+            </button>
           </div>
         ))}
       </div>
+      <form
+        className="mt-4 rounded-2xl bg-white p-4 grid sm:grid-cols-[1fr_1fr_auto_auto_auto] gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!f.nombre.trim()) return;
+          t.setTecnicos((ts) => [...ts, { id: `T${Date.now()}`, nombre: f.nombre.trim(), especialidad: f.especialidad.trim() || "General", sucursal: f.sucursal, telefono: f.telefono.trim(), activo: true }]);
+          setF({ nombre: "", especialidad: "", sucursal: SUCURSALES[0].id, telefono: "" });
+        }}
+      >
+        <input value={f.nombre} onChange={(e) => setF({ ...f, nombre: e.target.value })} placeholder="Nombre del técnico" className="rounded-lg border border-black/15 px-3 py-2" />
+        <input value={f.especialidad} onChange={(e) => setF({ ...f, especialidad: e.target.value })} placeholder="Especialidad" className="rounded-lg border border-black/15 px-3 py-2" />
+        <select value={f.sucursal} onChange={(e) => setF({ ...f, sucursal: e.target.value })} className="rounded-lg border border-black/15 bg-white px-3 py-2">
+          {SUCURSALES.map((s) => <option key={s.id} value={s.id}>{s.nombre}</option>)}
+        </select>
+        <input value={f.telefono} onChange={(e) => setF({ ...f, telefono: e.target.value })} placeholder="Teléfono" className="rounded-lg border border-black/15 px-3 py-2 sm:w-32" />
+        <button type="submit" className="inline-flex items-center justify-center gap-1 rounded-full px-4 py-2 font-bold text-white" style={{ background: PRIMARIO }}>
+          <Plus size={16} /> Agregar
+        </button>
+      </form>
     </>
   );
 }
@@ -525,7 +704,7 @@ function Devoluciones({ t }: { t: Tienda }) {
         {t.devoluciones.map((d) => {
           const p = t.pedidos.find((x) => x.id === d.pedido);
           return (
-            <li key={d.id} className={`rounded-2xl bg-white px-4 py-3 ${d.nueva ? "ring-2" : ""}`} style={d.nueva ? { ["--tw-ring-color" as string]: AMARILLO } : undefined}>
+            <li key={d.id} className={`rounded-2xl bg-white px-4 py-3 ${d.nueva ? "ring-2" : ""}`} style={d.nueva ? { ["--tw-ring-color" as string]: PRIMARIO } : undefined}>
               <div className="flex flex-wrap items-center gap-3">
                 <span className="font-mono font-bold">{d.id}</span>
                 <span className="flex-1 min-w-[160px]">

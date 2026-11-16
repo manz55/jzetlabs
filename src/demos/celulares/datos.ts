@@ -29,10 +29,17 @@ import fundasImg from "@/assets/demo-celulares/fundas-magsafe.jpg";
 import bateriaImg from "@/assets/demo-celulares/bateria.jpg";
 import relojImg from "@/assets/demo-celulares/reloj.jpg";
 
-export const TINTA = "#111318";
-export const COBALTO = "#1f4fe0";
+/* morado de marca, como lo usan las tiendas de celulares de aquí */
+export const TINTA = "#1c1230";
+export const PRIMARIO = "#6d28d9";
+export const LAVANDA = "#f1eaff";
 export const AMARILLO = "#ffd23f";
-export const FONDO = "#f3f3f1";
+export const FONDO = "#f6f4fa";
+/* letra del sistema para el panel: la del celular o la compu de cada quien */
+export const LETRA_SISTEMA = 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+
+/* precio en efectivo o transferencia (como "Oferta efectivo" vs "Precio normal Visacuotas") */
+export const efectivo = (precio: number) => Math.max(1, Math.round((precio * 0.9) / 10) * 10 - 1);
 export const TITULO = "var(--font-titulo)";
 
 
@@ -54,6 +61,7 @@ export type Producto = {
   garantia: string;
   origen: string;
   etiqueta?: string;
+  visible?: boolean;
 };
 
 /* cada foto es del modelo real que dice el nombre */
@@ -199,6 +207,8 @@ export const PRODUCTOS: Producto[] = [
 ];
 export const FOTO_CELULARES = ip17proImg;
 export const productoPor = (id: string) => PRODUCTOS.find((p) => p.id === id)!;
+/* busca primero en los productos que el dueño editó */
+export const enLista = (lista: Producto[], id: string) => lista.find((p) => p.id === id) ?? productoPor(id);
 
 export const SUCURSALES = [
   { id: "z10", nombre: "Zona 10", direccion: "Centro comercial de ejemplo, local 12", horario: "Lun a sáb 10:00 a 20:00" },
@@ -227,7 +237,7 @@ export const MODELOS_REPARACION = [
 /* ---------- estado compartido: pedidos, devoluciones, reparaciones, stock ---------- */
 
 export type EstadoPedido = "pago-pendiente" | "pagado" | "preparando" | "en-camino" | "entregado" | "rechazado" | "devuelto";
-export type Metodo = "tarjeta" | "transferencia";
+export type Metodo = "tarjeta" | "transferencia" | "contra-entrega";
 export type Linea = { id: string; nombre: string; detalle: string; precio: number; cantidad: number };
 export type Pedido = {
   id: string;
@@ -248,7 +258,8 @@ export type Pedido = {
   nuevo?: boolean;
 };
 export type Devolucion = { id: string; pedido: string; motivo: string; detalle: string; fecha: string; estado: "pendiente" | "aprobada" | "rechazada"; nueva?: boolean };
-export type Reparacion = { id: string; cliente: string; modelo: string; falla: string; precio: number; fecha: string; estado: "recibido" | "diagnostico" | "reparando" | "listo" | "entregado"; sucursal: string; nueva?: boolean };
+export type Reparacion = { id: string; cliente: string; modelo: string; falla: string; precio: number; fecha: string; estado: "recibido" | "diagnostico" | "reparando" | "listo" | "entregado"; sucursal: string; tecnico?: string; nueva?: boolean };
+export type Tecnico = { id: string; nombre: string; especialidad: string; sucursal: string; telefono: string; activo: boolean };
 export type Stock = Record<string, Record<string, number>>; // producto -> sucursal -> unidades
 
 export const ESTADOS_PEDIDO: Record<EstadoPedido, { texto: string; color: string; fondo: string }> = {
@@ -332,9 +343,15 @@ const DEVOLUCIONES_EJEMPLO: Devolucion[] = [
   { id: "DV-209", pedido: "OR-1035", motivo: "Llegó con falla", detalle: "La pantalla tiene un pixel muerto.", fecha: hace(1), estado: "pendiente" },
 ];
 const REPARACIONES_EJEMPLO: Reparacion[] = [
-  { id: "RP-512", cliente: "Mario Solís", modelo: "iPhone 11 o 12", falla: "Pantalla rota", precio: 750, fecha: hace(0, 9), estado: "reparando", sucursal: "z10" },
-  { id: "RP-511", cliente: "Ana Barrios", modelo: "Samsung Galaxy A", falla: "Batería que no dura", precio: 400, fecha: hace(0, 8), estado: "listo", sucursal: "mix" },
+  { id: "RP-512", cliente: "Mario Solís", modelo: "iPhone 11 o 12", falla: "Pantalla rota", precio: 750, fecha: hace(0, 9), estado: "reparando", sucursal: "z10", tecnico: "T1" },
+  { id: "RP-511", cliente: "Ana Barrios", modelo: "Samsung Galaxy A", falla: "Batería que no dura", precio: 400, fecha: hace(0, 8), estado: "listo", sucursal: "mix", tecnico: "T3" },
   { id: "RP-510", cliente: "Luis Pineda", modelo: "Xiaomi o Motorola", falla: "Se mojó", precio: 300, fecha: hace(1), estado: "diagnostico", sucursal: "xela" },
+];
+const TECNICOS_EJEMPLO: Tecnico[] = [
+  { id: "T1", nombre: "Byron Gómez", especialidad: "Pantallas y baterías", sucursal: "z10", telefono: "5555 0101", activo: true },
+  { id: "T2", nombre: "Erick Ajú", especialidad: "Placas y daños por agua", sucursal: "z10", telefono: "5555 0102", activo: true },
+  { id: "T3", nombre: "Mónica Lux", especialidad: "Samsung y Android", sucursal: "mix", telefono: "5555 0103", activo: true },
+  { id: "T4", nombre: "José Tzoc", especialidad: "iPad y MacBook", sucursal: "xela", telefono: "5555 0104", activo: false },
 ];
 
 function useGuardado<T>(clave: string, inicial: () => T) {
@@ -356,18 +373,29 @@ function useGuardado<T>(clave: string, inicial: () => T) {
   return [v, setV] as const;
 }
 
+const productosIniciales = () => PRODUCTOS.map((p) => ({ ...p, visible: true }));
+
 export function useTienda() {
-  const [pedidos, setPedidos] = useGuardado("orbita-pedidos-v3", pedidosEjemplo);
-  const [devoluciones, setDevoluciones] = useGuardado("orbita-devoluciones-v3", () => DEVOLUCIONES_EJEMPLO);
-  const [reparaciones, setReparaciones] = useGuardado("orbita-reparaciones-v3", () => REPARACIONES_EJEMPLO);
-  const [stock, setStock] = useGuardado("orbita-stock-v3", () => STOCK_INICIAL);
+  const [pedidos, setPedidos] = useGuardado("orbita-pedidos-v4", pedidosEjemplo);
+  const [devoluciones, setDevoluciones] = useGuardado("orbita-devoluciones-v4", () => DEVOLUCIONES_EJEMPLO);
+  const [reparaciones, setReparaciones] = useGuardado("orbita-reparaciones-v4", () => REPARACIONES_EJEMPLO);
+  const [stock, setStock] = useGuardado("orbita-stock-v4", () => STOCK_INICIAL);
+  const [tecnicos, setTecnicos] = useGuardado("orbita-tecnicos-v4", () => TECNICOS_EJEMPLO);
+  const [guardados, setProductos] = useGuardado("orbita-productos-v4", productosIniciales);
+  // las fotos de ejemplo se toman siempre del sitio (su dirección cambia al publicar); las que sube el dueño se guardan tal cual
+  const productos = guardados.map((p) => {
+    const base = PRODUCTOS.find((x) => x.id === p.id);
+    return base && !p.foto.startsWith("data:") ? { ...p, foto: base.foto } : p;
+  });
   const reiniciar = () => {
     setPedidos(pedidosEjemplo());
     setDevoluciones(DEVOLUCIONES_EJEMPLO);
     setReparaciones(REPARACIONES_EJEMPLO);
     setStock(STOCK_INICIAL);
+    setTecnicos(TECNICOS_EJEMPLO);
+    setProductos(productosIniciales());
   };
-  return { pedidos, setPedidos, devoluciones, setDevoluciones, reparaciones, setReparaciones, stock, setStock, reiniciar };
+  return { pedidos, setPedidos, devoluciones, setDevoluciones, reparaciones, setReparaciones, stock, setStock, tecnicos, setTecnicos, productos, setProductos, reiniciar };
 }
 export type Tienda = ReturnType<typeof useTienda>;
 
