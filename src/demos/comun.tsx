@@ -43,7 +43,7 @@ export function BandaDemos() {
     if (n && a) n.scrollLeft = a.offsetLeft - n.clientWidth / 2 + a.offsetWidth / 2;
   }, []);
   return (
-    <div className="relative z-40 bg-[#1c1714] text-white/85 text-[0.8rem]">
+    <div className="banda-demos relative z-40 bg-[#1c1714] text-white/85 text-[0.8rem]">
       <div className="mx-auto max-w-7xl px-4 py-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <a href="/" className="hover:text-white">
           ← Demo de <b className="text-white">Jzet Labs</b> · datos de ejemplo
@@ -59,7 +59,7 @@ export function BandaDemos() {
                     key={d.href}
                     href={d.href}
                     aria-current={activa ? "page" : undefined}
-                    className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1 transition ${activa ? "bg-white text-[#1c1714] font-semibold" : "hover:text-white"}`}
+                    className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1 transition ${activa ? "pastilla-demo-activa bg-white text-[#1c1714] font-semibold" : "hover:text-white"}`}
                   >
                     {d.nombre}
                   </a>

@@ -179,3 +179,20 @@
   .btn:active { transform: none; }
   .demo-hero, .demo-sube, .cinta, .cajon[open] .cajon-caja, .plato-gira { animation: none; }
 }
+
+/* Cambio suave entre demos (Chrome, Edge y Safari; en los demás navegadores cambia normal).
+   La barra de demos se queda quieta, la pastilla blanca se desliza a la demo nueva
+   y la página se desvanece y entra desde abajo. */
+@view-transition { navigation: auto; }
+.banda-demos { view-transition-name: banda-demos; }
+.pastilla-demo-activa { view-transition-name: pastilla-demo; }
+::view-transition-old(banda-demos) { display: none; }
+::view-transition-new(banda-demos) { animation: none; }
+::view-transition-group(pastilla-demo) { animation-duration: 0.42s; animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1); }
+::view-transition-old(root) { animation: 0.2s ease-in both vt-sale; }
+::view-transition-new(root) { animation: 0.36s cubic-bezier(0.2, 0.8, 0.2, 1) 0.06s both vt-entra; }
+@keyframes vt-sale { to { opacity: 0; transform: translateY(-6px); } }
+@keyframes vt-entra { from { opacity: 0; transform: translateY(14px); } }
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+}

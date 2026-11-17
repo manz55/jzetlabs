@@ -7,8 +7,19 @@ import { dirname, resolve } from 'path'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
+// En las demos, el navegador espera a que la página esté lista antes de pintarla,
+// para que el cambio suave entre demos (view transitions) muestre la página nueva y no una en blanco.
+const pinturaCompleta = {
+  name: 'pintura-completa',
+  transformIndexHtml: {
+    order: 'post' as const,
+    handler: (html: string, ctx: { path: string }) =>
+      ctx.path.startsWith('/demos/') ? html.replace(/<script type="module" crossorigin/g, '<script type="module" blocking="render" crossorigin') : html,
+  },
+}
+
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), pinturaCompleta],
   resolve: {
     alias: { '@': resolve(__dirname, './src') },
   },
