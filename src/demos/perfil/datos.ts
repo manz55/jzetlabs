@@ -27,6 +27,10 @@ export type Fecha = { d: string; m: string; a: string };
 export type Contacto = { nombre: string; parentesco: string; tel: string };
 export type Amiga = { nombre: string; tel: string };
 
+/* El pedido de cada clienta: por entregar → entregado (se descuenta del inventario) → pagado */
+export type Estado = "por-entregar" | "entregado" | "pagado";
+export const ESTADOS: Record<Estado, string> = { "por-entregar": "Por entregar", entregado: "Entregado, falta cobrar", pagado: "Pagado" };
+
 export type Perfil = {
   id: string;
   creado: string;
@@ -64,6 +68,8 @@ export type Perfil = {
   amigas: Amiga[];
   permisoAmigas: boolean;
   notas: string;
+  estado: Estado;
+  abonos: { monto: number; fecha: string }[];
 };
 
 export const VACIO: Perfil = {
@@ -103,6 +109,8 @@ export const VACIO: Perfil = {
   amigas: [{ nombre: "", tel: "" }],
   permisoAmigas: false,
   notas: "",
+  estado: "por-entregar",
+  abonos: [],
 };
 
 export type Opcion = { valor: string; ayuda?: string };
@@ -192,19 +200,25 @@ export const SABER_MAS: Opcion[] = [
   { valor: "Cómo ganar dinero extra vendiendo" },
 ];
 /* Lo que la consultora lleva a la reunión (productos de ejemplo, sin marca) */
-export type Producto = { id: string; nombre: string; corto: string; precio: number; foto: string; piel?: boolean };
+/* precio: lo que paga la clienta · costo: lo que le cuesta a la consultora (de ejemplo) */
+export type Producto = { id: string; nombre: string; corto: string; precio: number; costo: number; marca: string; foto: string; piel?: boolean; uso: string[] };
+export const MARCAS = [
+  { nombre: "Lumière", que: "Cuidado de la piel" },
+  { nombre: "Nativa Color", que: "Maquillaje" },
+  { nombre: "Casa Ámbar", que: "Fragancias y cuerpo" },
+];
 export const PRODUCTOS: Producto[] = [
-  { id: "limpiador", nombre: "Limpiador en gel", corto: "Limpia sin resecar", precio: 145, foto: fotoLimpiador, piel: true },
-  { id: "serum", nombre: "Sérum de vitamina C", corto: "Para manchas y piel opaca", precio: 245, foto: fotoAceite, piel: true },
-  { id: "crema-dia", nombre: "Crema de día con FPS 30", corto: "Hidrata y protege del sol", precio: 210, foto: fotoCrema, piel: true },
-  { id: "crema-noche", nombre: "Sérum de noche reafirmante", corto: "Para líneas y firmeza", precio: 265, foto: fotoSerum, piel: true },
-  { id: "base", nombre: "Base líquida", corto: "Cobertura que se ajusta", precio: 195, foto: fotoBase },
-  { id: "polvo", nombre: "Polvo traslúcido", corto: "Quita el brillo", precio: 150, foto: fotoPolvo },
-  { id: "rubor", nombre: "Rubor", corto: "Color que se difumina fácil", precio: 120, foto: fotoRubor },
-  { id: "paleta", nombre: "Paleta de sombras", corto: "6 tonos, edición de temporada", precio: 230, foto: fotoPaleta },
-  { id: "labial-nude", nombre: "Labial nude", corto: "Para todos los días", precio: 110, foto: fotoLabialNude },
-  { id: "labial-rojo", nombre: "Labial rojo", corto: "El clásico de las fiestas", precio: 110, foto: fotoLabialRojo },
-  { id: "brochas", nombre: "Set de brochas", corto: "5 brochas para empezar", precio: 285, foto: fotoBrochas },
+  { id: "limpiador", nombre: "Limpiador en gel", corto: "Limpia sin resecar", precio: 145, costo: 85, marca: "Lumière", foto: fotoLimpiador, piel: true , uso: ["Moja tu cara con agua tibia.", "Masajea una gota del tamaño de una moneda por 30 segundos.", "Enjuaga y seca a toquecitos, sin jalar."] },
+  { id: "serum", nombre: "Sérum de vitamina C", corto: "Para manchas y piel opaca", precio: 245, costo: 145, marca: "Lumière", foto: fotoAceite, piel: true , uso: ["Después de limpiar, en la mañana.", "Pon 3 gotas en la palma y aplica a toquecitos.", "Espera un minuto y sigue con tu crema con FPS."] },
+  { id: "crema-dia", nombre: "Crema de día con FPS 30", corto: "Hidrata y protege del sol", precio: 210, costo: 125, marca: "Lumière", foto: fotoCrema, piel: true , uso: ["Último paso de la mañana.", "Del centro de la cara hacia afuera, también en el cuello.", "Vuelve a ponerla al mediodía si estás al sol."] },
+  { id: "crema-noche", nombre: "Sérum de noche reafirmante", corto: "Para líneas y firmeza", precio: 265, costo: 160, marca: "Lumière", foto: fotoSerum, piel: true , uso: ["Solo en la noche, sobre la piel limpia.", "3 gotas en cara y cuello, de abajo hacia arriba.", "Los primeros días úsalo noche de por medio."] },
+  { id: "base", nombre: "Base líquida", corto: "Cobertura que se ajusta", precio: 195, costo: 115, marca: "Nativa Color", foto: fotoBase , uso: ["Sobre la crema ya absorbida.", "Poquita cantidad del centro hacia afuera, con esponja húmeda.", "Si quieres más cobertura, otra capa delgada a los 2 minutos."] },
+  { id: "polvo", nombre: "Polvo traslúcido", corto: "Quita el brillo", precio: 150, costo: 90, marca: "Nativa Color", foto: fotoPolvo , uso: ["Después de la base.", "Con brocha grande, solo en frente, nariz y barbilla.", "Para retocar en el día, a toquecitos."] },
+  { id: "rubor", nombre: "Rubor", corto: "Color que se difumina fácil", precio: 120, costo: 70, marca: "Nativa Color", foto: fotoRubor , uso: ["Sonríe y busca la parte alta del pómulo.", "Aplica poco y difumina hacia la sien.", "Si te pasaste, pasa la brocha limpia encima."] },
+  { id: "paleta", nombre: "Paleta de sombras", corto: "6 tonos, edición de temporada", precio: 230, costo: 140, marca: "Nativa Color", foto: fotoPaleta , uso: ["El tono claro en todo el párpado.", "El medio en la línea del ojo, difuminado.", "El oscuro pegado a las pestañas."] },
+  { id: "labial-nude", nombre: "Labial nude", corto: "Para todos los días", precio: 110, costo: 65, marca: "Nativa Color", foto: fotoLabialNude , uso: ["Hidrata tus labios antes.", "Aplica directo desde el centro hacia afuera.", "Para que dure más, una segunda capa."] },
+  { id: "labial-rojo", nombre: "Labial rojo", corto: "El clásico de las fiestas", precio: 110, costo: 65, marca: "Nativa Color", foto: fotoLabialRojo , uso: ["Delinea primero el contorno.", "Rellena con el labial.", "Quita el exceso con un pañuelo y repite."] },
+  { id: "brochas", nombre: "Set de brochas", corto: "5 brochas para empezar", precio: 285, costo: 170, marca: "Nativa Color", foto: fotoBrochas , uso: ["Una para base, una para polvo, una para rubor y dos para ojos.", "Lávalas cada semana con jabón neutro.", "Sécalas acostadas, nunca paradas."] },
 ];
 export const producto = (id: string) => PRODUCTOS.find((p) => p.id === id);
 export const qz = (n: number) => `Q${n.toLocaleString("en-US")}`;
@@ -291,6 +305,7 @@ export const EJEMPLOS: Perfil[] = [
       { nombre: "Daniela Ortiz", tel: "47719022" },
     ],
     permisoAmigas: true,
+    estado: "pagado",
   },
   {
     ...VACIO,
@@ -323,6 +338,7 @@ export const EJEMPLOS: Perfil[] = [
     compartir: [{ nombre: "Gabriela Castillo", parentesco: "Hija", tel: "42139988" }],
     amigas: [{ nombre: "Ana Lucía Pérez", tel: "56104420" }],
     permisoAmigas: true,
+    estado: "pagado",
     notas: "Le encantó el sérum de noche. Para su cumpleaños le llevo la muestra del labial rojo.",
   },
   {
@@ -358,11 +374,11 @@ export const EJEMPLOS: Perfil[] = [
 ];
 
 /* Guardado en el teléfono */
-const CLAVE = "perfil-belleza:perfiles-v3";
+const CLAVE = "perfil-belleza:perfiles-v5";
 const leer = (): Perfil[] => {
   try {
     const t = localStorage.getItem(CLAVE);
-    return t ? (JSON.parse(t) as Perfil[]) : EJEMPLOS;
+    return t ? (JSON.parse(t) as Perfil[]).map((p) => ({ ...VACIO, ...p })) : EJEMPLOS;
   } catch {
     return EJEMPLOS;
   }
@@ -420,3 +436,95 @@ export function mensajePerfil(p: Perfil) {
   if (am.length) linea("Amigas para un facial", am.map((a) => `${a.nombre} ${telTexto(a.tel)}`.trim()));
   return l.join("\n");
 }
+
+/* Inventario de la consultora: lo que tiene en mano (datos de ejemplo) */
+const STOCK_INICIAL: Record<string, number> = {
+  limpiador: 4, serum: 2, "crema-dia": 3, "crema-noche": 1, base: 3, polvo: 1, rubor: 2, paleta: 1, "labial-nude": 4, "labial-rojo": 3, brochas: 1,
+};
+const CLAVE_STOCK = "perfil-belleza:stock-v1";
+export function useInventario() {
+  const [stock, setStock] = useState<Record<string, number>>(() => {
+    try {
+      const t = localStorage.getItem(CLAVE_STOCK);
+      return t ? { ...STOCK_INICIAL, ...JSON.parse(t) } : STOCK_INICIAL;
+    } catch {
+      return STOCK_INICIAL;
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem(CLAVE_STOCK, JSON.stringify(stock));
+    } catch {
+      /* nada */
+    }
+  }, [stock]);
+  return {
+    stock,
+    sumar: (id: string, n: number) => setStock((s) => ({ ...s, [id]: Math.max(0, (s[id] ?? 0) + n) })),
+    descontar: (ids: string[]) =>
+      setStock((s) => {
+        const c = { ...s };
+        ids.forEach((id) => (c[id] = Math.max(0, (c[id] ?? 0) - 1)));
+        return c;
+      }),
+  };
+}
+
+/* Lo que falta por cobrar de un pedido, ya con los abonos */
+export const abonado = (p: Perfil) => (p.abonos ?? []).reduce((t, a) => t + a.monto, 0);
+export const saldo = (p: Perfil) => Math.max(0, totalDe(p.llevo) - abonado(p));
+
+/* Envío por zona, como lo cobran las consultoras */
+export const ENVIOS = [
+  { id: "capital", nombre: "Ciudad de Guatemala", precio: 25, dias: "24 a 48 horas" },
+  { id: "aledanos", nombre: "Mixco, Villa Nueva y alrededores", precio: 30, dias: "24 a 48 horas" },
+  { id: "departamentos", nombre: "Otros departamentos", precio: 45, dias: "3 a 5 días" },
+  { id: "recoger", nombre: "Paso a recogerlo", precio: 0, dias: "cuando quieras" },
+];
+
+/* Promos de la campaña (cambian cada tres semanas) */
+export const CAMPANA = { nombre: "Campaña 17", fin: new Date(Date.now() + 9 * 864e5) };
+export const PROMOS = [
+  { t: "Rutina completa de piel", d: "Limpiador, sérum de vitamina C y crema de día", antes: 600, ahora: 499, ids: ["limpiador", "serum", "crema-dia"], limitada: false },
+  { t: "Dos labiales", d: "El nude y el rojo, para el día y la noche", antes: 220, ahora: 175, ids: ["labial-nude", "labial-rojo"], limitada: false },
+  { t: "Paleta de temporada", d: "Edición limitada: cuando se acabe, ya no vuelve", antes: 0, ahora: 230, ids: ["paleta"], limitada: true },
+];
+
+export const OPINIONES = [
+  { quien: "Ana Lucía, 58 años", d: "Me daba pena preguntar cómo se usaba todo. Sofía me lo explicó con calma y ahora ya no se me reseca la cara." },
+  { quien: "Karla, 24 años", d: "Pedí el lunes y el martes ya lo tenía. Le pagué al recibir, sin complicaciones." },
+  { quien: "Rosa María, 41 años", d: "Encontré mi tono de base a la primera. Antes compraba en la farmacia y nunca me quedaba." },
+];
+
+/* Listas que llena la gente desde la página: avisos de promos y las que quieren entrar al equipo */
+export type Aviso = { id: string; nombre: string; telefono: string; temas: string[]; fecha: string };
+export type Interesada = { id: string; nombre: string; telefono: string; por: string; fecha: string };
+export const TEMAS_AVISO = ["Cuidado de la piel", "Maquillaje", "Perfumes"];
+export const RAZONES_EQUIPO = ["Quiero ganar dinero extra", "Quiero descuento en mis productos", "Me gusta el maquillaje y enseñar"];
+const EJ_AVISOS: Aviso[] = [
+  { id: "av-1", nombre: "Sandra López", telefono: "53318890", temas: ["Maquillaje", "Perfumes"], fecha: hace(3) },
+  { id: "av-2", nombre: "Gabriela Castillo", telefono: "42139988", temas: ["Cuidado de la piel"], fecha: hace(5) },
+  { id: "av-3", nombre: "Karla Méndez", telefono: "50021934", temas: ["Maquillaje"], fecha: hace(6) },
+];
+const EJ_INTERESADAS: Interesada[] = [{ id: "in-1", nombre: "Paola Méndez", telefono: "31207745", por: "Quiero ganar dinero extra", fecha: hace(1) }];
+function useLista<T>(clave: string, inicial: T[]) {
+  const [lista, setLista] = useState<T[]>(() => {
+    try {
+      const t = localStorage.getItem(clave);
+      return t ? (JSON.parse(t) as T[]) : inicial;
+    } catch {
+      return inicial;
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem(clave, JSON.stringify(lista));
+    } catch {
+      /* nada */
+    }
+  }, [clave, lista]);
+  return { lista, agregar: (x: T) => setLista((l) => [x, ...l]) };
+}
+export const useAvisos = () => useLista<Aviso>("perfil-belleza:avisos-v1", EJ_AVISOS);
+export const useInteresadas = () => useLista<Interesada>("perfil-belleza:interesadas-v1", EJ_INTERESADAS);
+export const nuevoId = () => crypto.randomUUID?.() ?? String(Date.now() + Math.random());

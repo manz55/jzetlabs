@@ -10,10 +10,11 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { ArrowLeft, ArrowRight, Check, ChevronRight, ClipboardList, LayoutDashboard, MessageCircle, Pencil, Plus, Printer, Search, Trash2, X } from "lucide-react";
 import { BandaDemos, CierreJzet, MensajeWhatsApp } from "../comun";
 import maquillista from "@/assets/demo-cosmeticos/maquillista.jpg";
+import { PaginaSofia } from "./Pagina";
 import {
   ACABADOS, CONSULTORA, COBERTURAS, EDADES, HORAS, LABIOS, LINEA, LOOKS, MEDIOS, MESES, NECESIDADES, OJOS, PAPEL, PARENTESCOS, PIELES,
   PREOCUPACIONES, PRODUCTOS, SABER_MAS, SUAVE, SUBTONOS, TINTA, TONOS, VACIO, VINO,
-  fechaTexto, mensajePerfil, producto, qz, rutinaPara, telTexto, totalDe, usePerfiles,
+  ESTADOS, MARCAS, TEMAS_AVISO, abonado, fechaTexto, saldo, useAvisos, useInteresadas, mensajePerfil, producto, qz, rutinaPara, telTexto, totalDe, useInventario, usePerfiles,
   type Fecha, type Opcion, type Perfil,
 } from "./datos";
 
@@ -671,6 +672,7 @@ function Formulario({ alGuardar }: { alGuardar: (p: Perfil) => void }) {
   if (paso === -1) {
     const muestra = [producto("limpiador")!, producto("serum")!, producto("crema-dia")!];
     return (
+      <>
       <div className="mx-auto grid max-w-5xl gap-10 px-5 pb-16 pt-8 perfil-portada md:items-center md:gap-14 md:pt-14">
         <div>
           <div className="flex items-center gap-3">
@@ -692,6 +694,9 @@ function Formulario({ alGuardar }: { alGuardar: (p: Perfil) => void }) {
             Empezar <ArrowRight size={22} />
           </button>
           <p className="mt-4 text-[0.98rem] opacity-60">17 preguntas, unos 3 minutos. Tus datos solo los veo yo.</p>
+          <a href="#catalogo" className="mt-3 inline-flex items-center gap-1 text-[1.05rem] font-semibold underline decoration-1 underline-offset-4">
+            O mira mi catálogo y las promos <ArrowRight size={17} />
+          </a>
           <div className="mt-8 border-t pt-4" style={{ borderColor: LINEA }}>
             <p className="text-[1rem] font-semibold">Al terminar te llevas</p>
             <ul className="mt-2 grid gap-1.5 text-[1.02rem] opacity-80">
@@ -720,6 +725,8 @@ function Formulario({ alGuardar }: { alGuardar: (p: Perfil) => void }) {
           </div>
         </figure>
       </div>
+      <PaginaSofia alEmpezar={() => setPaso(0)} />
+      </>
     );
   }
 
@@ -857,7 +864,10 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
   const [abierto, setAbierto] = useState<string | null>(null);
   const [buscar, setBuscar] = useState("");
   const [aviso, setAviso] = useState("");
-  const [hechos, setHechos] = useState<string[]>([]);
+  const [pestana, setPestana] = useState<"resumen" | "pedidos" | "inventario" | "clientas">("resumen");
+  const inv = useInventario();
+  const avisos = useAvisos().lista;
+  const interesadas = useInteresadas().lista;
 
   useEffect(() => {
     if (!aviso) return;
@@ -886,18 +896,39 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
     .filter(({ x, piel }) => piel.length && dias(x) >= 40);
   // seguimiento después de la venta: a los 2 días, a las 2 semanas y a los 2 meses
   const ETAPAS = [
-    { desde: 2, hasta: 6, cuando: "a los 2 días", texto: (n: string, pr: string) => `Hola, ${n}. Soy ${CONSULTORA.corto}. ¿Cómo te fue con ${pr}? Si tienes alguna duda de cómo usarlo, aquí estoy.` },
-    { desde: 13, hasta: 20, cuando: "a las 2 semanas", texto: (n: string, pr: string) => `Hola, ${n}. Ya llevas dos semanas con ${pr}. ¿Ya notas tu piel diferente? Te paso un tip para sacarle más provecho.` },
-    { desde: 55, hasta: 70, cuando: "a los 2 meses", texto: (n: string, pr: string) => `Hola, ${n}. Ya se te debe estar acabando ${pr}. ¿Te aparto otro? Te lo llevo a tu casa.` },
+    { desde: 2, hasta: 6, cuando: "2 días", que: "preguntarle cómo le fue" },
+    { desde: 13, hasta: 20, cuando: "2 semanas", que: "ver si ya nota cambios" },
+    { desde: 55, hasta: 70, cuando: "2 meses", que: "ofrecerle otro, ya se le debe acabar" },
   ];
-  const escribir = perfiles.flatMap((x) => {
-    if (!x.llevo.length || hechos.includes(x.id)) return [];
+  const seguimiento = perfiles.flatMap((x) => {
+    if (!x.llevo.length) return [];
     const d = dias(x);
     const e = ETAPAS.find((t) => d >= t.desde && d <= t.hasta);
-    if (!e) return [];
-    const pr = producto(x.llevo[0])!.nombre.toLowerCase();
-    return [{ x, d, e, msg: e.texto(x.nombre.split(" ")[0], `el ${pr}`.replace("el crema", "la crema")) }];
+    return e ? [{ x, e }] : [];
   });
+  // pedidos e inventario
+  const conPedido = perfiles.filter((x) => x.llevo.length);
+  const porEntregar = conPedido.filter((x) => x.estado === "por-entregar");
+  const porCobrar = conPedido.filter((x) => x.estado !== "pagado");
+  const costoDe = (ids: string[]) => ids.reduce((t, id) => t + (producto(id)?.costo ?? 0), 0);
+  const ganancia = delMes.reduce((t, x) => t + totalDe(x.llevo) - costoDe(x.llevo), 0);
+  const apartado = (id: string) => porEntregar.reduce((t, x) => t + x.llevo.filter((y) => y === id).length, 0);
+  const disponible = (id: string) => (inv.stock[id] ?? 0) - apartado(id);
+  const faltan = PRODUCTOS.filter((pr) => disponible(pr.id) <= 1).map((pr) => ({ pr, pedir: Math.max(1, 3 - disponible(pr.id)) }));
+  const vendidos = PRODUCTOS.map((pr) => ({ pr, n: conPedido.reduce((t, x) => t + x.llevo.filter((y) => y === pr.id).length, 0) }))
+    .filter((v) => v.n)
+    .sort((a, b) => b.n - a.n);
+  const porMarca = MARCAS.map((m) => ({ m, total: conPedido.reduce((t, x) => t + x.llevo.filter((id) => producto(id)?.marca === m.nombre).reduce((u, id) => u + (producto(id)?.precio ?? 0), 0), 0) })).filter((v) => v.total);
+  const totalMarcas = porMarca.reduce((t, v) => t + v.total, 0) || 1;
+  const entregar = (x: Perfil) => {
+    const falta = x.llevo.find((id) => (inv.stock[id] ?? 0) < x.llevo.filter((y) => y === id).length);
+    if (falta) {
+      setAviso(`Te falta ${producto(falta)?.nombre.toLowerCase()} en tu inventario. Agrégalo cuando te llegue.`);
+      return;
+    }
+    inv.descontar(x.llevo);
+    cambiar(x.id, { estado: "entregado" });
+  };
   const negocio = perfiles
     .map((x) => ({
       x,
@@ -919,6 +950,11 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
             <h1 className="mt-1 text-[2.4rem] font-medium leading-tight" style={{ fontFamily: SERIF }}>
               {p.nombre} {p.apellido}
             </h1>
+            {p.llevo.length > 0 && (
+              <p className="mt-1 text-[1rem]">
+                Pedido de {qz(totalDe(p.llevo))} · <b style={{ color: p.estado === "pagado" ? undefined : VINO }}>{ESTADOS[p.estado]}</b>
+              </p>
+            )}
           </div>
           <div className="flex flex-wrap gap-2 print:hidden">
             <button type="button" onClick={() => setAviso(`En su negocio, este botón abre WhatsApp con ${p.nombre}.`)} className="rounded-full px-5 py-2.5 font-semibold text-white" style={{ background: TINTA }}>
@@ -964,76 +1000,311 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
     );
   }
 
+  const PESTANAS = [
+    ["resumen", "Resumen"],
+    ["pedidos", `Pedidos${porCobrar.length ? ` (${porCobrar.length})` : ""}`],
+    ["inventario", "Inventario"],
+    ["clientas", "Clientas"],
+  ] as const;
+  const h2 = "text-[1.6rem] font-medium";
+  const bloque = (titulo: string, valor: string, nota: string) => (
+    <div className="px-2.5 py-4 sm:px-3">
+      <p className="text-[0.92rem] leading-tight opacity-65 sm:text-[0.98rem]">{titulo}</p>
+      <p className="mt-1 text-[1.5rem] leading-none sm:text-[2rem]" style={{ fontFamily: SERIF }}>{valor}</p>
+      <p className="mt-1.5 text-[0.92rem] leading-tight opacity-60">{nota}</p>
+    </div>
+  );
+
   return (
     <div className="mx-auto max-w-4xl px-5 pb-16 pt-8">
       <p className="text-[1.05rem] opacity-65">Hola, {CONSULTORA.corto}</p>
       <h1 className="mt-2 text-[2.8rem] font-medium leading-none" style={{ fontFamily: SERIF }}>
-        Mis clientas
+        Mi negocio
       </h1>
 
-      <div className="mt-8 border-y" style={{ borderColor: TINTA }}>
-        <div className="border-b px-3 py-4" style={{ borderColor: LINEA }}>
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <p className="text-[1rem] opacity-65">Vendido en {MESES[ahora.getMonth()]}</p>
-            <p className="text-[0.95rem] opacity-65">Meta {qz(META)}</p>
-          </div>
-          <p className="mt-1 text-[2.4rem] leading-none" style={{ fontFamily: SERIF }}>{qz(vendido)}</p>
-          <div className="mt-3" style={{ background: LINEA, height: 6 }}>
-            <div className="h-full" style={{ width: `${Math.min(100, (vendido / META) * 100)}%`, background: VINO }} />
-          </div>
-          <p className="mt-2 text-[0.95rem] opacity-65">
-            {vendido >= META ? "¡Meta cumplida!" : `Te faltan ${qz(META - vendido)} para tu meta del mes.`}
-          </p>
-        </div>
-        <div className="grid grid-cols-3">
-          {[
-            [perfiles.length, "fichas"],
-            [cumples.length, "cumplen este mes"],
-            [referidas.length, "amigas para facial"],
-          ].map(([n, t], i) => (
-            <div key={t} className={`px-3 py-4 ${i ? "border-l" : ""}`} style={{ borderColor: LINEA }}>
-              <p className="text-[2.2rem] leading-none" style={{ fontFamily: SERIF }}>{n}</p>
-              <p className="mt-1.5 text-[0.95rem] leading-tight opacity-65">{t}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+      <nav className="mt-6 flex gap-1 overflow-x-auto border-b [scrollbar-width:none]" style={{ borderColor: LINEA }} aria-label="Partes del panel">
+        {PESTANAS.map(([v, t]) => (
+          <button
+            key={v}
+            type="button"
+            aria-current={pestana === v ? "page" : undefined}
+            onClick={() => setPestana(v)}
+            className={`-mb-px shrink-0 border-b-2 px-3 py-2.5 text-[1.05rem] font-semibold transition ${pestana === v ? "" : "border-transparent opacity-55 hover:opacity-100"}`}
+            style={pestana === v ? { borderColor: VINO, color: VINO } : undefined}
+          >
+            {t}
+          </button>
+        ))}
+      </nav>
 
-      {escribir.length > 0 && (
-        <section className="mt-10">
-          <h2 className="text-[1.6rem] font-medium" style={{ fontFamily: SERIF }}>A quién escribirle hoy</h2>
-          <p className="mt-1 text-[0.98rem] opacity-60">Seguimiento después de cada venta: a los 2 días, a las 2 semanas y a los 2 meses. El mensaje ya va escrito.</p>
-          <ul className="mt-4 grid gap-4 md:grid-cols-2">
-            {escribir.map(({ x, d, e, msg }) => (
-              <li key={x.id} className="border-t-2 pt-3" style={{ borderColor: TINTA }}>
-                <div className="flex items-baseline justify-between gap-3">
-                  <b className="text-[1.1rem]">{x.nombre} {x.apellido}</b>
-                  <span className="shrink-0 text-[0.95rem]" style={{ color: VINO }}>
-                    {e.cuando}
-                  </span>
+      {pestana === "resumen" && (
+        <div className="mt-8 grid gap-12">
+          <section>
+            <div className="border-y" style={{ borderColor: TINTA }}>
+              <div className="border-b px-3 py-4" style={{ borderColor: LINEA }}>
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <p className="text-[1rem] opacity-65">Vendido en {MESES[ahora.getMonth()]}</p>
+                  <p className="text-[0.95rem] opacity-65">Meta {qz(META)}</p>
                 </div>
-                <p className="text-[0.95rem] opacity-60">Compró hace {d} días</p>
-                <p className="mt-3 bg-white px-4 py-3 text-[1rem] leading-snug">{msg}</p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <button type="button" onClick={() => setAviso(`En su negocio, se abre WhatsApp con ${x.nombre} y este mensaje ya escrito.`)} className="inline-flex items-center gap-2 rounded-full px-4 py-2.5 font-semibold text-white" style={{ background: TINTA }}>
-                    <MessageCircle size={17} /> Mandar por WhatsApp
-                  </button>
-                  <button type="button" onClick={() => setHechos((h) => [...h, x.id])} className="rounded-full border-2 px-4 py-2.5 font-semibold" style={{ borderColor: "rgba(31,26,23,.3)" }}>
-                    Ya le escribí
-                  </button>
+                <p className="mt-1 text-[2.4rem] leading-none" style={{ fontFamily: SERIF }}>{qz(vendido)}</p>
+                <div className="mt-3" style={{ background: LINEA, height: 6 }}>
+                  <div className="h-full" style={{ width: `${Math.min(100, (vendido / META) * 100)}%`, background: VINO }} />
                 </div>
-              </li>
-            ))}
-          </ul>
-        </section>
+                <p className="mt-2 text-[0.95rem] opacity-65">{vendido >= META ? "¡Meta cumplida!" : `Te faltan ${qz(META - vendido)} para tu meta del mes.`}</p>
+              </div>
+              <div className="grid grid-cols-3 [&>*]:border-l [&>*:first-child]:border-l-0" style={{ borderColor: LINEA }}>
+                {bloque("Te queda de ganancia", qz(ganancia), "lo vendido menos lo que te costó")}
+                {bloque("Por cobrar", qz(porCobrar.reduce((t, x) => t + saldo(x), 0)), `${porCobrar.length} ${porCobrar.length === 1 ? "pedido" : "pedidos"}`)}
+                {bloque("Por entregar", String(porEntregar.length), porEntregar.length === 1 ? "pedido pendiente" : "pedidos pendientes")}
+              </div>
+            </div>
+          </section>
+
+          <div className="grid gap-12 perfil-panel">
+            <section className="min-w-0">
+              <h2 className={h2} style={{ fontFamily: SERIF }}>Lo que más vendes</h2>
+              <ul className="mt-3 border-t" style={{ borderColor: LINEA }}>
+                {vendidos.slice(0, 5).map(({ pr, n }) => (
+                  <li key={pr.id} className="flex items-center gap-3 border-b py-3" style={{ borderColor: LINEA }}>
+                    <img src={pr.foto} alt="" className="h-11 w-11 shrink-0 object-cover" />
+                    <span className="min-w-0 flex-1 leading-tight">
+                      <b className="block truncate">{pr.nombre}</b>
+                      <span className="text-[0.92rem] opacity-60">{pr.marca}</span>
+                    </span>
+                    <span className="shrink-0 tabular-nums">{n} {n === 1 ? "vendido" : "vendidos"}</span>
+                  </li>
+                ))}
+              </ul>
+              <h3 className="mt-8 text-[1.15rem] font-semibold">Por marca</h3>
+              <ul className="mt-3 grid gap-3">
+                {porMarca.map(({ m, total }) => (
+                  <li key={m.nombre}>
+                    <div className="flex items-baseline justify-between gap-3 text-[1rem]">
+                      <span>{m.nombre}</span>
+                      <span className="tabular-nums opacity-75">{qz(total)}</span>
+                    </div>
+                    <div className="mt-1.5" style={{ background: LINEA, height: 6 }}>
+                      <div className="h-full" style={{ width: `${(total / totalMarcas) * 100}%`, background: TINTA }} />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+            <aside className="grid min-w-0 content-start gap-10">
+              {faltan.length > 0 && (
+                <section>
+                  <h2 className={h2} style={{ fontFamily: SERIF }}>Se te está acabando</h2>
+                  <ul className="mt-3 border-t" style={{ borderColor: LINEA }}>
+                    {faltan.slice(0, 4).map(({ pr }) => (
+                      <li key={pr.id} className="flex items-baseline justify-between gap-3 border-b py-3" style={{ borderColor: LINEA }}>
+                        <span className="min-w-0 truncate font-semibold">{pr.nombre}</span>
+                        <span className="shrink-0 text-[0.98rem]" style={{ color: VINO }}>
+                          {disponible(pr.id) <= 0 ? "ya no tienes" : `te queda ${disponible(pr.id)}`}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                  <button type="button" onClick={() => setPestana("inventario")} className="mt-3 inline-flex items-center gap-1 font-semibold underline decoration-1 underline-offset-4">
+                    Ver qué pedir <ArrowRight size={16} />
+                  </button>
+                </section>
+              )}
+              {avisos.length > 0 && (
+                <section>
+                  <h2 className={h2} style={{ fontFamily: SERIF }}>Quieren saber de promos</h2>
+                  <p className="mt-1 text-[0.98rem] opacity-60">Se anotaron en tu página. Cuando salga la campaña, avísales solo de lo que pidieron.</p>
+                  <ul className="mt-3 border-t" style={{ borderColor: LINEA }}>
+                    {TEMAS_AVISO.map((t) => {
+                      const quienes = avisos.filter((a) => a.temas.includes(t));
+                      if (!quienes.length) return null;
+                      return (
+                        <li key={t} className="border-b py-3" style={{ borderColor: LINEA }}>
+                          <div className="flex items-baseline justify-between gap-3">
+                            <b>{t}</b>
+                            <button type="button" onClick={() => setAviso(`En su negocio, este botón le manda la promo de ${t.toLowerCase()} a ${quienes.length} ${quienes.length === 1 ? "clienta" : "clientas"} por WhatsApp.`)} className="inline-flex shrink-0 items-center gap-1 text-[0.98rem] font-semibold" style={{ color: VINO }}>
+                              <MessageCircle size={16} /> Avisarles ({quienes.length})
+                            </button>
+                          </div>
+                          <p className="text-[0.95rem] opacity-65">{quienes.map((q) => q.nombre.split(" ")[0]).join(", ")}</p>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </section>
+              )}
+              {seguimiento.length > 0 && (
+                <section>
+                  <h2 className={h2} style={{ fontFamily: SERIF }}>Para dar seguimiento</h2>
+                  <ul className="mt-3 border-t" style={{ borderColor: LINEA }}>
+                    {seguimiento.map(({ x, e }) => (
+                      <li key={x.id} className="border-b py-3" style={{ borderColor: LINEA }}>
+                        <div className="flex items-baseline justify-between gap-3">
+                          <button type="button" onClick={() => setAbierto(x.id)} className="min-w-0 truncate text-left font-semibold">
+                            {x.nombre} {x.apellido}
+                          </button>
+                          <button type="button" onClick={() => setAviso(`En su negocio, este botón abre WhatsApp con ${x.nombre}.`)} className="inline-flex shrink-0 items-center gap-1 text-[0.98rem] font-semibold" style={{ color: VINO }}>
+                            <MessageCircle size={16} /> Escribirle
+                          </button>
+                        </div>
+                        <p className="text-[0.95rem] opacity-65">
+                          Compró hace {e.cuando}: {e.que}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+              <section>
+                <h2 className={h2} style={{ fontFamily: SERIF }}>Cumpleaños</h2>
+                {cumples.length === 0 ? (
+                  <p className="mt-3 opacity-55">Nadie cumple este mes.</p>
+                ) : (
+                  <ul className="mt-3 border-t" style={{ borderColor: LINEA }}>
+                    {cumples.map((c) => {
+                      const d = diasParaCumple(c);
+                      return (
+                        <li key={c.id} className="flex items-baseline justify-between gap-3 border-b py-3" style={{ borderColor: LINEA }}>
+                          <span className="font-semibold">{c.nombre} {c.apellido}</span>
+                          <span className="shrink-0 text-[0.98rem]" style={{ color: VINO }}>
+                            {d === 0 ? "hoy" : d === 1 ? "mañana" : `en ${d} días`}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </section>
+            </aside>
+          </div>
+        </div>
       )}
 
-      <div className="mt-10 grid gap-10 perfil-panel">
+      {pestana === "pedidos" && (
+        <div className="mt-8">
+          <p className="text-[1.02rem] opacity-70">Al marcar un pedido como entregado, se descuenta de tu inventario.</p>
+          {(["por-entregar", "entregado", "pagado"] as const).map((est) => {
+            const grupo = conPedido.filter((x) => x.estado === est);
+            if (!grupo.length) return null;
+            return (
+              <section key={est} className="mt-8">
+                <h2 className={h2} style={{ fontFamily: SERIF }}>
+                  {ESTADOS[est]} <span className="opacity-50">({grupo.length})</span>
+                </h2>
+                <ul className="mt-3 border-t" style={{ borderColor: TINTA }}>
+                  {grupo.map((x) => (
+                    <li key={x.id} className={`grid gap-3 border-b py-4 sm:grid-cols-[1fr_auto] sm:items-center ${est === "pagado" ? "opacity-60" : ""}`} style={{ borderColor: LINEA }}>
+                      <div className="min-w-0">
+                        <div className="flex items-baseline justify-between gap-3 sm:justify-start">
+                          <button type="button" onClick={() => setAbierto(x.id)} className="truncate text-left text-[1.1rem] font-semibold">
+                            {x.nombre} {x.apellido}
+                          </button>
+                          <span className="shrink-0 text-[1.1rem]" style={{ fontFamily: SERIF }}>{qz(totalDe(x.llevo))}</span>
+                        </div>
+                        <p className="mt-0.5 text-[0.98rem] opacity-65">{x.llevo.map((id) => producto(id)?.nombre).join(", ")}</p>
+                        <p className="text-[0.9rem] opacity-50">
+                          {[x.direccion, x.municipio].filter(Boolean).join(", ") || "Sin dirección"} · {telTexto(x.telefono)}
+                        </p>
+                      </div>
+                      {est === "por-entregar" && (
+                        <button type="button" onClick={() => entregar(x)} className="rounded-full px-5 py-2.5 font-semibold text-white" style={{ background: TINTA }}>
+                          Marcar entregado
+                        </button>
+                      )}
+                      {est === "entregado" && (
+                        <Abonar
+                          x={x}
+                          alAbonar={(monto) => {
+                            const abonos = [...x.abonos, { monto, fecha: new Date().toISOString() }];
+                            const pagado = abonos.reduce((t, a) => t + a.monto, 0) >= totalDe(x.llevo);
+                            cambiar(x.id, { abonos, estado: pagado ? "pagado" : "entregado" });
+                          }}
+                        />
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            );
+          })}
+        </div>
+      )}
+
+      {pestana === "inventario" && (
+        <div className="mt-8 grid gap-12">
+          <section>
+            <div className="grid grid-cols-2 border-y [&>*]:border-l [&>*:first-child]:border-l-0" style={{ borderColor: TINTA }}>
+              {bloque("Lo que tienes en mano", qz(PRODUCTOS.reduce((t, pr) => t + (inv.stock[pr.id] ?? 0) * pr.costo, 0)), "a lo que te costó")}
+              {bloque("Si lo vendes todo", qz(PRODUCTOS.reduce((t, pr) => t + (inv.stock[pr.id] ?? 0) * pr.precio, 0)), "a precio de clienta")}
+            </div>
+          </section>
+
+          {faltan.length > 0 && (
+            <section>
+              <h2 className={h2} style={{ fontFamily: SERIF }}>Para pedir a la empresa</h2>
+              <p className="mt-1 text-[0.98rem] opacity-60">Lo que tienes en 1 o menos, contando lo que ya está apartado. Te sugiero tener 3 de cada uno.</p>
+              <ul className="mt-3 border-t" style={{ borderColor: TINTA }}>
+                {faltan.map(({ pr, pedir }) => (
+                  <li key={pr.id} className="flex items-baseline justify-between gap-3 border-b py-3" style={{ borderColor: LINEA }}>
+                    <span className="min-w-0 truncate">
+                      {pedir} × {pr.nombre}
+                    </span>
+                    <span className="shrink-0 tabular-nums opacity-75">{qz(pedir * pr.costo)}</span>
+                  </li>
+                ))}
+                <li className="flex items-baseline justify-between gap-3 py-3 text-[1.1rem] font-semibold">
+                  <span>Total del pedido</span>
+                  <span style={{ fontFamily: SERIF }}>{qz(faltan.reduce((t, f) => t + f.pedir * f.pr.costo, 0))}</span>
+                </li>
+              </ul>
+              <button type="button" onClick={() => setAviso("En su negocio, este botón copia la lista para pasarla a la empresa.")} className="rounded-full border-2 px-5 py-2.5 font-semibold" style={{ borderColor: "rgba(31,26,23,.3)" }}>
+                Copiar la lista
+              </button>
+            </section>
+          )}
+
+          <section>
+            <h2 className={h2} style={{ fontFamily: SERIF }}>Todos tus productos</h2>
+            <p className="mt-1 text-[0.98rem] opacity-60">Cuando te llegue mercadería, súmala con el +.</p>
+            <ul className="mt-3 border-t" style={{ borderColor: TINTA }}>
+              {PRODUCTOS.map((pr) => {
+                const d = disponible(pr.id);
+                return (
+                  <li key={pr.id} className="grid items-center gap-3 border-b py-3" style={{ borderColor: LINEA, gridTemplateColumns: "3rem 1fr auto" }}>
+                    <img src={pr.foto} alt="" className="h-12 w-12 object-cover" />
+                    <span className="min-w-0 leading-tight">
+                      <b className="block truncate">{pr.nombre}</b>
+                      <span className="block text-[0.9rem] opacity-60">
+                        {pr.marca} · {qz(pr.precio)}
+                        {apartado(pr.id) ? ` · ${apartado(pr.id)} apartado` : ""}
+                      </span>
+                      {d <= 1 && (
+                        <span className="block text-[0.9rem] font-semibold" style={{ color: VINO }}>
+                          {d <= 0 ? "No te queda disponible" : "Te queda 1 disponible"}
+                        </span>
+                      )}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <button type="button" aria-label={`Uno menos de ${pr.nombre}`} onClick={() => inv.sumar(pr.id, -1)} className="grid h-10 w-10 place-items-center rounded-full border-2 text-[1.2rem]" style={{ borderColor: "rgba(31,26,23,.25)" }}>
+                        −
+                      </button>
+                      <span className="w-8 text-center text-[1.15rem] tabular-nums">{inv.stock[pr.id] ?? 0}</span>
+                      <button type="button" aria-label={`Uno más de ${pr.nombre}`} onClick={() => inv.sumar(pr.id, 1)} className="grid h-10 w-10 place-items-center rounded-full border-2 text-[1.2rem]" style={{ borderColor: "rgba(31,26,23,.25)" }}>
+                        +
+                      </button>
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        </div>
+      )}
+
+      {pestana === "clientas" && (
+      <div className="mt-8 grid gap-10 perfil-panel">
         <section className="min-w-0">
-          <div className="flex items-end justify-between gap-3">
-            <h2 className="text-[1.6rem] font-medium" style={{ fontFamily: SERIF }}>Fichas</h2>
-          </div>
-          <div className="relative mt-3">
+          <div className="relative">
             <Search size={19} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 opacity-45" />
             <input value={buscar} onChange={(e) => setBuscar(e.target.value)} placeholder="Buscar por nombre o anfitriona" className={claseInput} style={{ paddingLeft: "2.75rem" }} />
           </div>
@@ -1057,7 +1328,7 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
                 </button>
               </li>
             ))}
-            {lista.length === 0 && <li className="py-6 text-[1.05rem] italic opacity-55">No hay clientas con ese nombre.</li>}
+            {lista.length === 0 && <li className="py-6 text-[1.05rem] opacity-55">No hay clientas con ese nombre.</li>}
           </ul>
         </section>
 
@@ -1080,11 +1351,20 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
               </ul>
             </section>
           )}
-          {negocio.length > 0 && (
+          {negocio.length + interesadas.length > 0 && (
             <section>
               <h2 className="text-[1.6rem] font-medium" style={{ fontFamily: SERIF }}>Les interesa el negocio</h2>
               <p className="mt-1 text-[0.98rem] opacity-60">Marcaron que quieren saber más. Invítalas a tu próxima reunión.</p>
               <ul className="mt-3 border-t" style={{ borderColor: LINEA }}>
+                {interesadas.map((x) => (
+                  <li key={x.id} className="flex items-baseline justify-between gap-3 border-b py-3" style={{ borderColor: LINEA }}>
+                    <span className="min-w-0">
+                      <b className="block truncate">{x.nombre}</b>
+                      <span className="block text-[0.95rem] opacity-65">Desde tu página: {x.por.toLowerCase()}</span>
+                    </span>
+                    <span className="shrink-0 tabular-nums opacity-80">{telTexto(x.telefono)}</span>
+                  </li>
+                ))}
                 {negocio.map(({ x, quiere }) => (
                   <li key={x.id} className="flex items-baseline justify-between gap-3 border-b py-3" style={{ borderColor: LINEA }}>
                     <span className="min-w-0">
@@ -1097,26 +1377,6 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
               </ul>
             </section>
           )}
-          <section>
-            <h2 className="text-[1.6rem] font-medium" style={{ fontFamily: SERIF }}>Cumpleaños</h2>
-            {cumples.length === 0 ? (
-              <p className="mt-3 italic opacity-55">Nadie cumple este mes.</p>
-            ) : (
-              <ul className="mt-3 border-t" style={{ borderColor: LINEA }}>
-                {cumples.map((c) => {
-                  const d = diasParaCumple(c);
-                  return (
-                    <li key={c.id} className="flex items-baseline justify-between gap-3 border-b py-3" style={{ borderColor: LINEA }}>
-                      <span className="font-semibold">{c.nombre} {c.apellido}</span>
-                      <span className="shrink-0 text-[0.98rem]" style={{ color: VINO }}>
-                        {d === 0 ? "hoy" : d === 1 ? "mañana" : `en ${d} días`}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </section>
           {referidas.length > 0 && (
             <section>
               <h2 className="text-[1.6rem] font-medium" style={{ fontFamily: SERIF }}>Amigas para facial</h2>
@@ -1136,7 +1396,32 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
           )}
         </aside>
       </div>
+      )}
       {aviso && <Toast texto={aviso} />}
+    </div>
+  );
+}
+
+/* Anotar lo que la clienta va pagando; cuando completa, el pedido pasa a pagado */
+function Abonar({ x, alAbonar }: { x: Perfil; alAbonar: (monto: number) => void }) {
+  const [monto, setMonto] = useState("");
+  const falta = saldo(x);
+  const n = Math.min(falta, Number(monto) || 0);
+  return (
+    <div className="grid gap-2 sm:justify-items-end">
+      <p className="text-[0.95rem]">
+        {abonado(x) > 0 && <span className="opacity-60">Abonó {qz(abonado(x))} · </span>}
+        <b style={{ color: VINO }}>Falta {qz(falta)}</b>
+      </p>
+      <div className="flex gap-2">
+        <input value={monto} onChange={(e) => setMonto(e.target.value.replace(/\D/g, "").slice(0, 5))} inputMode="numeric" placeholder="Q" aria-label={`Abono de ${x.nombre}`} className="w-20 min-w-0 rounded-full border-2 border-black/20 bg-white px-3 py-2 outline-none focus:border-black/70" />
+        <button type="button" disabled={!n} onClick={() => { alAbonar(n); setMonto(""); }} className="whitespace-nowrap rounded-full border-2 px-3 py-2 font-semibold disabled:opacity-40" style={{ borderColor: TINTA }}>
+          Anotar abono
+        </button>
+        <button type="button" onClick={() => alAbonar(falta)} className="whitespace-nowrap rounded-full px-3 py-2 font-semibold text-white" style={{ background: VINO }}>
+          Pagó todo
+        </button>
+      </div>
     </div>
   );
 }
