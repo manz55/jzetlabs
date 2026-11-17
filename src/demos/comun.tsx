@@ -6,6 +6,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { ArrowRight, Minus, Plus } from "lucide-react";
 import { Modal } from "@/components/Modal";
 import { whatsappLink } from "@/data/site";
+import { irADemo, precargar } from "./navegar";
 
 export const GRUPOS_DEMOS = [
   {
@@ -59,6 +60,14 @@ export function BandaDemos() {
                     key={d.href}
                     href={d.href}
                     aria-current={activa ? "page" : undefined}
+                    onMouseEnter={() => precargar(d.href)}
+                    onFocus={() => precargar(d.href)}
+                    onTouchStart={() => precargar(d.href)}
+                    onClick={(e) => {
+                      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+                      if (activa) return e.preventDefault();
+                      if (irADemo(d.href)) e.preventDefault();
+                    }}
                     className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1 transition ${activa ? "pastilla-demo-activa bg-white text-[#1c1714] font-semibold" : "hover:text-white"}`}
                   >
                     {d.nombre}

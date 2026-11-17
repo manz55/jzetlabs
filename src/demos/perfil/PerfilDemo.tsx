@@ -934,6 +934,9 @@ export default function PerfilDemo() {
     } catch {
       /* nada */
     }
+    return () => {
+      document.documentElement.style.fontSize = "";
+    };
   }, [grande]);
 
   useEffect(() => {
