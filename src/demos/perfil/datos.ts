@@ -259,7 +259,7 @@ export const EJEMPLOS: Perfil[] = [
   {
     ...VACIO,
     id: "ej-1",
-    creado: hace(1),
+    creado: hace(14),
     anfitriona: "Lucía Paz",
     nombre: "Andrea",
     apellido: "Gómez Ruiz",
@@ -295,7 +295,7 @@ export const EJEMPLOS: Perfil[] = [
   {
     ...VACIO,
     id: "ej-2",
-    creado: hace(48),
+    creado: hace(58),
     anfitriona: "Lucía Paz",
     nombre: "Rosa Elena",
     apellido: "Castillo",
@@ -358,7 +358,7 @@ export const EJEMPLOS: Perfil[] = [
 ];
 
 /* Guardado en el teléfono */
-const CLAVE = "perfil-belleza:perfiles-v2";
+const CLAVE = "perfil-belleza:perfiles-v3";
 const leer = (): Perfil[] => {
   try {
     const t = localStorage.getItem(CLAVE);

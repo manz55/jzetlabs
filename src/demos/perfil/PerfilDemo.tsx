@@ -7,7 +7,7 @@
  * Estética de papel: crema, tinta y vino, Fraunces y líneas finas, como una ficha impresa.
  */
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { ArrowLeft, ArrowRight, Check, ChevronRight, Pencil, Plus, Printer, Search, Trash2, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, ChevronRight, ClipboardList, LayoutDashboard, MessageCircle, Pencil, Plus, Printer, Search, Trash2, X } from "lucide-react";
 import { BandaDemos, CierreJzet, MensajeWhatsApp } from "../comun";
 import maquillista from "@/assets/demo-cosmeticos/maquillista.jpg";
 import {
@@ -19,7 +19,6 @@ import {
 
 const SERIF = '"Fraunces", Georgia, serif';
 const MANO = '"Caveat", cursive';
-const MAYUS = "uppercase tracking-[0.18em]";
 
 type Vista = "clienta" | "panel";
 
@@ -116,7 +115,7 @@ function FechaCampo({ valor, alCambiar }: { valor: Fecha; alCambiar: (f: Fecha) 
 
 function Subtitulo({ children }: { children: ReactNode }) {
   return (
-    <p className={`mb-3 mt-8 text-[0.85rem] font-semibold first:mt-0 ${MAYUS}`} style={{ color: VINO }}>
+    <p className="mb-3 mt-8 text-[1.12rem] font-semibold first:mt-0" style={{ color: VINO }}>
       {children}
     </p>
   );
@@ -208,16 +207,16 @@ function Rutina({ p, consultora = false }: { p: Perfil; consultora?: boolean }) 
   const { pasos, tip } = rutinaPara(p);
   return (
     <section className="break-inside-avoid">
-      <p className={`text-[0.85rem] font-semibold ${MAYUS}`} style={{ color: VINO }}>
+      <h2 className="text-[1.6rem] font-medium leading-tight" style={{ fontFamily: SERIF }}>
         {consultora ? "La rutina que le salió" : "Tu rutina en 3 pasos"}
-      </p>
+      </h2>
       <ol className="mt-3 border-t" style={{ borderColor: TINTA }}>
         {pasos.map((r, i) => (
           <li key={r.paso} className="grid items-center gap-4 border-b py-4" style={{ borderColor: LINEA, gridTemplateColumns: "4.75rem 1fr" }}>
             <img src={r.producto.foto} alt="" className="h-[4.75rem] w-[4.75rem] object-cover" loading="lazy" />
             <div>
-              <p className={`text-[0.75rem] ${MAYUS} opacity-60`}>
-                {i + 1} · {r.paso} · {r.cuando}
+              <p className="text-[0.95rem] opacity-60">
+                Paso {i + 1}: {r.paso.toLowerCase()}, {r.cuando.toLowerCase()}
               </p>
               <p className="mt-0.5 text-[1.15rem] font-semibold leading-tight">{r.producto.nombre}</p>
               <p className="mt-1 text-[1rem] leading-snug opacity-70">{r.por}</p>
@@ -225,10 +224,10 @@ function Rutina({ p, consultora = false }: { p: Perfil; consultora?: boolean }) 
           </li>
         ))}
       </ol>
-      <p className="mt-5 -rotate-1 text-[1.6rem] leading-[1.1]" style={{ fontFamily: MANO, color: VINO }}>
-        {consultora ? "Tip que le di: " : "Mi tip para ti: "}
-        {tip}
-      </p>
+      <div className="mt-5 border-l-4 bg-white px-5 py-4" style={{ borderColor: VINO }}>
+        <p className="text-[1.1rem] font-semibold">{consultora ? "El tip que le di" : "Mi tip para ti"}</p>
+        <p className="mt-1 text-[1.02rem] leading-snug opacity-75">{tip}</p>
+      </div>
     </section>
   );
 }
@@ -532,7 +531,7 @@ function Ficha({ p, alEditar }: { p: Perfil; alEditar?: (paso: number) => void }
     return (
       <section className="break-inside-avoid border-t-2 pt-4" style={{ borderColor: TINTA }}>
         <div className="flex items-baseline justify-between gap-2">
-          <h3 className={`text-[0.85rem] font-semibold ${MAYUS}`} style={{ color: VINO }}>
+          <h3 className="text-[1.3rem] font-medium" style={{ fontFamily: SERIF }}>
             {titulo}
           </h3>
           {alEditar && (
@@ -607,7 +606,6 @@ const leerBorrador = (): { p: Perfil; paso: number } | null => {
     return null;
   }
 };
-const dosDigitos = (n: number) => String(n).padStart(2, "0");
 
 function Formulario({ alGuardar }: { alGuardar: (p: Perfil) => void }) {
   const inicial = useMemo(leerBorrador, []);
@@ -671,42 +669,56 @@ function Formulario({ alGuardar }: { alGuardar: (p: Perfil) => void }) {
 
   /* portada */
   if (paso === -1) {
+    const muestra = [producto("limpiador")!, producto("serum")!, producto("crema-dia")!];
     return (
-      <div className="mx-auto grid max-w-5xl gap-8 px-5 pb-16 pt-6 perfil-portada md:items-center md:gap-14 md:pt-14">
-        <figure className="relative md:order-2">
-          <img src={maquillista} alt="Consultora aplicando maquillaje a una clienta" className="aspect-[16/10] w-full object-cover md:aspect-[4/5]" />
-          <figcaption className={`mt-2 text-[0.72rem] opacity-55 ${MAYUS}`}>Reunión de belleza</figcaption>
-        </figure>
+      <div className="mx-auto grid max-w-5xl gap-10 px-5 pb-16 pt-8 perfil-portada md:items-center md:gap-14 md:pt-14">
         <div>
-          <p className={`text-[0.8rem] font-semibold ${MAYUS}`} style={{ color: VINO }}>
-            Perfil de la clienta
-          </p>
-          <h1 className="mt-3 text-[2.6rem] font-medium leading-[1.02] tracking-[-0.01em] sm:text-[3.4rem]" style={{ fontFamily: SERIF }}>
-            Cuéntame de tu piel, <em style={{ color: VINO }}>una pregunta a la vez.</em>
+          <div className="flex items-center gap-3">
+            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-[1.05rem] font-semibold text-white" style={{ background: VINO }}>
+              SM
+            </span>
+            <p className="leading-tight">
+              <span className="block text-[1.1rem] font-semibold">Hola, soy {CONSULTORA.corto}</span>
+              <span className="block text-[0.98rem] opacity-65">Tu consultora de belleza</span>
+            </p>
+          </div>
+          <h1 className="mt-6 text-[2.5rem] font-medium leading-[1.05] tracking-[-0.01em] sm:text-[3.3rem]" style={{ fontFamily: SERIF }}>
+            Tu rutina de piel, hecha para ti en 3 minutos.
           </h1>
           <p className="mt-5 max-w-md text-[1.2rem] leading-relaxed opacity-80">
-            Con esto sé qué productos te van de verdad, y no te ofrezco lo que no necesitas. Solo tocas la respuesta que va contigo; si no sabes algo, sigues adelante.
-          </p>
-          <div className="mt-7 grid grid-cols-3 border-y" style={{ borderColor: LINEA }}>
-            {[
-              ["Tu rutina", "en 3 pasos, para tu piel"],
-              ["Una muestra", "gratis, para probar en casa"],
-              ["Un detalle", "el día de tu cumpleaños"],
-            ].map(([t, d], i) => (
-              <div key={t} className={`py-3 ${i ? "border-l pl-3" : "pr-3"}`} style={{ borderColor: LINEA }}>
-                <p className="text-[1.15rem] leading-tight" style={{ fontFamily: SERIF }}>{t}</p>
-                <p className="mt-1 text-[0.9rem] leading-snug opacity-65">{d}</p>
-              </div>
-            ))}
-          </div>
-          <p className="mt-6 max-w-sm -rotate-1 text-[1.9rem] leading-[1.05]" style={{ fontFamily: MANO, color: VINO }}>
-            Gracias por venir hoy. Tus datos solo los veo yo. — {CONSULTORA.corto}
+            Contestas unas preguntas sencillas en tu teléfono y al final te sale qué usar en la mañana y en la noche, con lo que probaste hoy. Si no sabes algo, sigues adelante.
           </p>
           <button type="button" onClick={() => setPaso(0)} className="mt-8 flex w-full items-center justify-center gap-2 rounded-full px-6 py-5 text-[1.25rem] font-semibold text-white transition active:scale-[0.99] sm:w-auto sm:px-10" style={{ background: TINTA }}>
-            Empezar mi perfil <ArrowRight size={22} />
+            Empezar <ArrowRight size={22} />
           </button>
-          <p className={`mt-4 text-[0.78rem] opacity-55 ${MAYUS}`}>17 preguntas · unos 3 minutos</p>
+          <p className="mt-4 text-[0.98rem] opacity-60">17 preguntas, unos 3 minutos. Tus datos solo los veo yo.</p>
+          <div className="mt-8 border-t pt-4" style={{ borderColor: LINEA }}>
+            <p className="text-[1rem] font-semibold">Al terminar te llevas</p>
+            <ul className="mt-2 grid gap-1.5 text-[1.02rem] opacity-80">
+              <li>Tu rutina en 3 pasos, según tu piel</li>
+              <li>Una muestra gratis para probar en casa</li>
+              <li>Un detalle de mi parte el día de tu cumpleaños</li>
+            </ul>
+          </div>
         </div>
+        <figure className="relative">
+          <img src={maquillista} alt="Consultora maquillando a una clienta en una reunión" className="aspect-[16/11] w-full object-cover md:aspect-[4/5]" />
+          {/* adelanto de lo que le va a salir */}
+          <div className="relative -mt-14 ml-4 mr-4 bg-white p-4 shadow-[0_18px_40px_-24px_rgba(0,0,0,.55)] md:absolute md:-left-10 md:bottom-8 md:m-0 md:w-[19rem]">
+            <p className="text-[1rem] font-semibold">Así se ve tu rutina al terminar</p>
+            <ol className="mt-3 grid gap-2.5">
+              {muestra.map((pr, i) => (
+                <li key={pr.id} className="flex items-center gap-3">
+                  <img src={pr.foto} alt="" className="h-11 w-11 shrink-0 object-cover" />
+                  <span className="leading-tight">
+                    <span className="block text-[0.85rem] opacity-60">Paso {i + 1}</span>
+                    <span className="block text-[0.98rem] font-medium">{pr.nombre}</span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </figure>
       </div>
     );
   }
@@ -715,10 +727,7 @@ function Formulario({ alGuardar }: { alGuardar: (p: Perfil) => void }) {
   if (paso === ENVIADO) {
     return (
       <div className="mx-auto max-w-xl px-5 pb-16 pt-12">
-        <p className={`text-[0.8rem] font-semibold ${MAYUS}`} style={{ color: VINO }}>
-          Perfil enviado
-        </p>
-        <h1 className="mt-3 text-[2.6rem] font-medium leading-[1.05]" style={{ fontFamily: SERIF }}>
+        <h1 className="text-[2.6rem] font-medium leading-[1.05]" style={{ fontFamily: SERIF }}>
           ¡Listo, {perfil.nombre.split(" ")[0]}!
         </h1>
         <p className="mt-4 text-[1.2rem] leading-relaxed opacity-80">Ya tengo tu perfil. Con lo que me contaste te armé esta rutina; guárdala o tómale captura.</p>
@@ -731,9 +740,9 @@ function Formulario({ alGuardar }: { alGuardar: (p: Perfil) => void }) {
         </div>
         {perfil.llevo.length > 0 && (
           <div className="mt-8">
-            <p className={`text-[0.85rem] font-semibold ${MAYUS}`} style={{ color: VINO }}>
+            <h2 className="text-[1.6rem] font-medium leading-tight" style={{ fontFamily: SERIF }}>
               Tu pedido de hoy
-            </p>
+            </h2>
             <ul className="mt-3 border-t" style={{ borderColor: TINTA }}>
               {perfil.llevo.map((id) => (
                 <li key={id} className="flex items-baseline justify-between gap-3 border-b py-2.5 text-[1.05rem]" style={{ borderColor: LINEA }}>
@@ -770,9 +779,9 @@ function Formulario({ alGuardar }: { alGuardar: (p: Perfil) => void }) {
   return (
     <div className="mx-auto max-w-xl px-5 pb-40 pt-6">
       {/* avance */}
-      <div className={`flex items-baseline justify-between gap-3 text-[0.8rem] ${MAYUS}`}>
+      <div className="flex items-baseline justify-between gap-3 text-[1rem]">
         <span className="font-semibold" style={{ color: VINO }}>{actual ? actual.seccion : "Revisar"}</span>
-        <span className="opacity-60">{actual ? `${paso + 1} de ${total}` : "Último paso"}</span>
+        <span className="opacity-60">{actual ? `Pregunta ${paso + 1} de ${total}` : "Último paso"}</span>
       </div>
       <div className="mt-2" style={{ background: LINEA, height: 3 }} role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={Math.min(paso, total)}>
         <div className="h-full transition-all duration-300" style={{ width: `${(Math.min(paso, total) / total) * 100}%`, background: TINTA }} />
@@ -780,10 +789,7 @@ function Formulario({ alGuardar }: { alGuardar: (p: Perfil) => void }) {
 
       {actual ? (
         <div key={paso} className="mt-8 animate-[aparece_.25s_ease-out]">
-          <p className="text-[2.4rem] italic leading-none" style={{ fontFamily: SERIF, color: VINO }}>
-            {dosDigitos(paso + 1)}
-          </p>
-          <h1 className="mt-2 text-[2rem] font-medium leading-[1.12] sm:text-[2.3rem]" style={{ fontFamily: SERIF }}>
+          <h1 className="text-[2rem] font-medium leading-[1.12] sm:text-[2.3rem]" style={{ fontFamily: SERIF }}>
             {actual.titulo}
           </h1>
           {actual.ayuda && <p className="mt-2 text-[1.12rem] leading-relaxed opacity-70">{actual.ayuda}</p>}
@@ -851,6 +857,7 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
   const [abierto, setAbierto] = useState<string | null>(null);
   const [buscar, setBuscar] = useState("");
   const [aviso, setAviso] = useState("");
+  const [hechos, setHechos] = useState<string[]>([]);
 
   useEffect(() => {
     if (!aviso) return;
@@ -877,6 +884,20 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
   const reofrecer = perfiles
     .map((x) => ({ x, piel: x.llevo.map(producto).filter((pr) => pr?.piel) }))
     .filter(({ x, piel }) => piel.length && dias(x) >= 40);
+  // seguimiento después de la venta: a los 2 días, a las 2 semanas y a los 2 meses
+  const ETAPAS = [
+    { desde: 2, hasta: 6, cuando: "a los 2 días", texto: (n: string, pr: string) => `Hola, ${n}. Soy ${CONSULTORA.corto}. ¿Cómo te fue con ${pr}? Si tienes alguna duda de cómo usarlo, aquí estoy.` },
+    { desde: 13, hasta: 20, cuando: "a las 2 semanas", texto: (n: string, pr: string) => `Hola, ${n}. Ya llevas dos semanas con ${pr}. ¿Ya notas tu piel diferente? Te paso un tip para sacarle más provecho.` },
+    { desde: 55, hasta: 70, cuando: "a los 2 meses", texto: (n: string, pr: string) => `Hola, ${n}. Ya se te debe estar acabando ${pr}. ¿Te aparto otro? Te lo llevo a tu casa.` },
+  ];
+  const escribir = perfiles.flatMap((x) => {
+    if (!x.llevo.length || hechos.includes(x.id)) return [];
+    const d = dias(x);
+    const e = ETAPAS.find((t) => d >= t.desde && d <= t.hasta);
+    if (!e) return [];
+    const pr = producto(x.llevo[0])!.nombre.toLowerCase();
+    return [{ x, d, e, msg: e.texto(x.nombre.split(" ")[0], `el ${pr}`.replace("el crema", "la crema")) }];
+  });
   const negocio = perfiles
     .map((x) => ({
       x,
@@ -892,7 +913,7 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
         </button>
         <div className="mt-6 flex flex-wrap items-end justify-between gap-4 border-b pb-5" style={{ borderColor: LINEA }}>
           <div>
-            <p className={`text-[0.78rem] ${MAYUS} opacity-60`}>
+            <p className="text-[0.98rem] opacity-60">
               Ficha del {new Date(p.creado).toLocaleDateString("es-GT", { day: "numeric", month: "long", year: "numeric" })}
             </p>
             <h1 className="mt-1 text-[2.4rem] font-medium leading-tight" style={{ fontFamily: SERIF }}>
@@ -915,16 +936,14 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
           </div>
         </div>
         <section className="mt-10 border-l-4 bg-white p-5 print:border" style={{ borderColor: VINO }}>
-          <h3 className={`text-[0.85rem] font-semibold ${MAYUS}`} style={{ color: VINO }}>
-            Mis notas · la clienta no las ve
-          </h3>
+          <h3 className="text-[1.1rem] font-semibold">Mis notas</h3>
+          <p className="text-[0.95rem] opacity-60">La clienta no las ve.</p>
           <textarea
             value={p.notas}
             onChange={(e) => cambiar(p.id, { notas: e.target.value })}
             rows={4}
             placeholder="Qué se llevó, cuándo entregar, qué le recomendé…"
-            className="mt-3 w-full resize-y bg-transparent text-[1.5rem] leading-snug outline-none placeholder:text-black/30"
-            style={{ fontFamily: MANO }}
+            className="mt-3 w-full resize-y bg-transparent text-[1.1rem] leading-snug outline-none placeholder:text-black/30"
           />
           <p className="mt-1 text-[0.9rem] opacity-55 print:hidden">Se guarda sola.</p>
         </section>
@@ -947,9 +966,7 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
 
   return (
     <div className="mx-auto max-w-4xl px-5 pb-16 pt-8">
-      <p className={`text-[0.8rem] font-semibold ${MAYUS}`} style={{ color: VINO }}>
-        Panel de {CONSULTORA.nombre}
-      </p>
+      <p className="text-[1.05rem] opacity-65">Hola, {CONSULTORA.corto}</p>
       <h1 className="mt-2 text-[2.8rem] font-medium leading-none" style={{ fontFamily: SERIF }}>
         Mis clientas
       </h1>
@@ -981,6 +998,35 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
           ))}
         </div>
       </div>
+
+      {escribir.length > 0 && (
+        <section className="mt-10">
+          <h2 className="text-[1.6rem] font-medium" style={{ fontFamily: SERIF }}>A quién escribirle hoy</h2>
+          <p className="mt-1 text-[0.98rem] opacity-60">Seguimiento después de cada venta: a los 2 días, a las 2 semanas y a los 2 meses. El mensaje ya va escrito.</p>
+          <ul className="mt-4 grid gap-4 md:grid-cols-2">
+            {escribir.map(({ x, d, e, msg }) => (
+              <li key={x.id} className="border-t-2 pt-3" style={{ borderColor: TINTA }}>
+                <div className="flex items-baseline justify-between gap-3">
+                  <b className="text-[1.1rem]">{x.nombre} {x.apellido}</b>
+                  <span className="shrink-0 text-[0.95rem]" style={{ color: VINO }}>
+                    {e.cuando}
+                  </span>
+                </div>
+                <p className="text-[0.95rem] opacity-60">Compró hace {d} días</p>
+                <p className="mt-3 bg-white px-4 py-3 text-[1rem] leading-snug">{msg}</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button type="button" onClick={() => setAviso(`En su negocio, se abre WhatsApp con ${x.nombre} y este mensaje ya escrito.`)} className="inline-flex items-center gap-2 rounded-full px-4 py-2.5 font-semibold text-white" style={{ background: TINTA }}>
+                    <MessageCircle size={17} /> Mandar por WhatsApp
+                  </button>
+                  <button type="button" onClick={() => setHechos((h) => [...h, x.id])} className="rounded-full border-2 px-4 py-2.5 font-semibold" style={{ borderColor: "rgba(31,26,23,.3)" }}>
+                    Ya le escribí
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <div className="mt-10 grid gap-10 perfil-panel">
         <section className="min-w-0">
@@ -1129,6 +1175,13 @@ export default function PerfilDemo() {
   }, [grande]);
 
   useEffect(() => {
+    // los links con #panel (por ejemplo desde la página principal) cambian de vista sin recargar
+    const cambio = () => setVista(location.hash === "#panel" ? "panel" : "clienta");
+    addEventListener("hashchange", cambio);
+    return () => removeEventListener("hashchange", cambio);
+  }, []);
+
+  useEffect(() => {
     history.replaceState(null, "", vista === "panel" ? "#panel" : location.pathname);
     document.title = vista === "panel" ? "Mis clientas · Sofía Morales" : "Tu perfil de belleza · Demo de Jzet Labs";
     window.scrollTo({ top: 0 });
@@ -1142,46 +1195,44 @@ export default function PerfilDemo() {
       <div className="print:hidden">
         <BandaDemos />
       </div>
-      <header className="sticky top-0 z-20 border-b print:hidden" style={{ borderColor: LINEA, background: PAPEL }}>
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 py-3">
-          <button type="button" onClick={() => setVista("clienta")} className="text-left leading-none">
-            <span className="block text-[1.45rem] font-semibold" style={{ fontFamily: SERIF }}>
-              Sofía Morales
-            </span>
-            <span className="mt-1 block text-[0.6rem] uppercase tracking-[0.32em] opacity-70">consultora de belleza</span>
-          </button>
-          <nav className="order-last flex w-full gap-6 sm:order-none sm:ml-auto sm:w-auto" aria-label="Quién lo usa">
+      {/* franja de la demo: las dos partes, como en las otras demos */}
+      <div className="text-white print:hidden" style={{ background: "#2b2622" }}>
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-2 px-4 py-2 text-[0.82rem] sm:justify-between">
+          <p className="hidden text-white/65 sm:block">Dos partes: lo que llena la clienta en su teléfono y el panel de la consultora.</p>
+          <div className="flex rounded-full bg-white/10 p-0.5">
             {(
               [
-                ["clienta", "Soy clienta"],
-                ["panel", "Soy la consultora"],
+                ["clienta", "Perfil de la clienta", ClipboardList, "Clienta"],
+                ["panel", "Panel de la consultora", LayoutDashboard, "Consultora"],
               ] as const
-            ).map(([v, t]) => (
-              <button
-                key={v}
-                type="button"
-                aria-current={vista === v ? "page" : undefined}
-                onClick={() => setVista(v)}
-                className={`border-b-2 pb-1 text-[1rem] font-semibold transition ${vista === v ? "" : "border-transparent opacity-55 hover:opacity-100"}`}
-                style={vista === v ? { borderColor: VINO, color: VINO } : undefined}
-              >
-                {t}
+            ).map(([v, t, I, corto]) => (
+              <button key={v} type="button" onClick={() => setVista(v)} aria-pressed={vista === v} className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 font-semibold transition ${vista === v ? "bg-white text-black" : "text-white/80"}`}>
+                <I size={14} /> <span className="sm:hidden">{corto}</span>
+                <span className="hidden sm:inline">{t}</span>
               </button>
             ))}
-          </nav>
+          </div>
+        </div>
+      </div>
+      <header className="sticky top-0 z-20 border-b print:hidden" style={{ borderColor: LINEA, background: PAPEL }}>
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-3">
+          <button type="button" onClick={() => setVista("clienta")} className="text-left leading-tight">
+            <span className="block text-[1.4rem] font-semibold" style={{ fontFamily: SERIF }}>
+              Sofía Morales
+            </span>
+            <span className="block text-[0.9rem] opacity-60">Consultora de belleza</span>
+          </button>
           <button
             type="button"
             onClick={() => setGrande((g) => !g)}
             aria-pressed={grande}
             aria-label={grande ? "Letra más chica" : "Letra más grande"}
             className="flex items-baseline gap-1.5 rounded-full border-2 px-4 py-2 font-semibold"
-            style={{ borderColor: "rgba(31,26,23,.3)", fontFamily: SERIF }}
+            style={{ borderColor: "rgba(31,26,23,.3)" }}
           >
             <span className="text-[0.95rem]">A</span>
             <span className="text-[1.35rem] leading-none">A</span>
-            <span className="ml-1 hidden text-[0.9rem] sm:inline" style={{ fontFamily: "inherit" }}>
-              {grande ? "Letra normal" : "Letra grande"}
-            </span>
+            <span className="ml-1 hidden text-[0.9rem] sm:inline">{grande ? "Letra normal" : "Letra grande"}</span>
           </button>
         </div>
       </header>
