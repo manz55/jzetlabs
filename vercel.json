@@ -49,12 +49,12 @@
       "destination": "/demos/celulares/index.html"
     },
     {
-      "source": "/demos/lujo",
-      "destination": "/demos/lujo/index.html"
+      "source": "/demos/boutique",
+      "destination": "/demos/boutique/index.html"
     },
     {
-      "source": "/demos/lujo/",
-      "destination": "/demos/lujo/index.html"
+      "source": "/demos/boutique/",
+      "destination": "/demos/boutique/index.html"
     },
     {
       "source": "/demos/restaurante",
@@ -79,6 +79,18 @@
     {
       "source": "/demos/clinica/",
       "destination": "/demos/clinica/index.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/demos/lujo",
+      "destination": "/demos/boutique/",
+      "permanent": true
+    },
+    {
+      "source": "/demos/lujo/",
+      "destination": "/demos/boutique/",
+      "permanent": true
     }
   ]
 }
