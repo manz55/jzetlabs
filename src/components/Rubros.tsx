@@ -15,12 +15,14 @@ import fotoComida from "@/assets/demos/comida.jpg";
 import fotoResort from "@/assets/demos/resort.jpg";
 import fotoCosmeticos from "@/assets/demo-cosmeticos/kit.jpg";
 import fotoCelulares from "@/assets/demo-celulares/ip17promax.jpg";
+import fotoPerfil from "@/assets/demo-cosmeticos/maquillista.jpg";
+import fotoBoutique from "@/assets/demo-lujo/percha.jpg";
 import { whatsappLink } from "@/data/site";
 import { Titulo } from "./Titulo";
 
 const DEMOS = "https://latienda-jzetlabs.vercel.app/";
 
-/* Tiendas tiene tipos de negocio: cada uno cambia el antes y después y lo que se ve a la derecha */
+/* Belleza y Tiendas tienen tipos de negocio: cada uno cambia el antes y después y lo que se ve a la derecha */
 type Variante = {
   id: string;
   nombre: string;
@@ -32,7 +34,18 @@ type Variante = {
   demo: { texto: string; tipo: string };
 };
 
-const VARIANTES_TIENDA: Variante[] = [
+/* Belleza y moda: consultoras, cosméticos, ropa y boutique */
+const VARIANTES_BELLEZA: Variante[] = [
+  {
+    id: "perfil",
+    nombre: "Consultoras",
+    foto: fotoPerfil,
+    problema: "La hoja de perfil de la clienta confunde, y al final nadie la vuelve a ver.",
+    hoy: ["La clienta llena una hoja de papel con casillas chiquitas.", "Cumpleaños, tonos y amigas recomendadas se quedan en un fólder."],
+    sistema: ["La clienta responde en su teléfono, una pregunta a la vez y con letra grande.", "Su perfil le llega ordenado por WhatsApp.", "Usted ve sus clientas, los cumpleaños del mes y a quién ofrecerle un facial."],
+    visual: "foto",
+    demo: { texto: "Pruebe el perfil de la clienta", tipo: "perfil" },
+  },
   {
     id: "ropa",
     nombre: "Ropa",
@@ -53,6 +66,19 @@ const VARIANTES_TIENDA: Variante[] = [
     visual: "foto",
     demo: { texto: "Pruebe la demo de cosméticos", tipo: "cosmeticos" },
   },
+  {
+    id: "boutique",
+    nombre: "Boutique",
+    foto: fotoBoutique,
+    problema: "Apartados, consignaciones y piezas únicas anotados en el chat.",
+    hoy: ["Cada pieza se ofrece por historia y se aparta por mensaje.", "Las consignaciones y los abonos se llevan en un cuaderno."],
+    sistema: ["Cada pieza con fotos, estado y su precio a la vista.", "Apartados con abonos y fecha límite, sin perder la cuenta.", "Consignaciones claras: qué se vendió y cuánto le toca a cada quien."],
+    visual: "foto",
+    demo: { texto: "Pruebe la demo de la boutique", tipo: "boutique" },
+  },
+];
+
+const VARIANTES_TIENDA: Variante[] = [
   {
     id: "celulares",
     nombre: "Celulares",
@@ -85,14 +111,21 @@ const VARIANTES_TIENDA: Variante[] = [
   },
 ];
 
-const RUTA_DEMO: Record<string, string> = { ropa: "/demos/ropa/", cosmeticos: "/demos/cosmeticos/", celulares: "/demos/celulares/", restaurante: "/demos/restaurante/", tiempo: "/demos/tiempo-compartido/" };
+const VARIANTES: Record<string, Variante[]> = { belleza: VARIANTES_BELLEZA, tiendas: VARIANTES_TIENDA };
+
+const RUTA_DEMO: Record<string, string> = { perfil: "/demos/perfil-belleza/", boutique: "/demos/boutique/", ropa: "/demos/ropa/", cosmeticos: "/demos/cosmeticos/", celulares: "/demos/celulares/", restaurante: "/demos/restaurante/", tiempo: "/demos/tiempo-compartido/" };
 
 /* Tarjetas con foto: al pasar el mouse por una, las demás se ponen borrosas; sin mouse, todas nítidas */
-function TarjetasFoco({ elegida, alElegir }: { elegida: number; alElegir: (i: number) => void }) {
+function TarjetasFoco({ variantes, elegida, alElegir }: { variantes: Variante[]; elegida: number; alElegir: (i: number) => void }) {
   const [encima, setEncima] = useState<number | null>(null);
   return (
-    <div className="md:col-span-2 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4" onMouseLeave={() => setEncima(null)} role="group" aria-label="Tipo de tienda">
-      {VARIANTES_TIENDA.map((v, i) => {
+    <div
+      className={`md:col-span-2 grid grid-cols-2 gap-3 sm:gap-4 ${variantes.length === 4 ? "lg:grid-cols-4" : variantes.length === 3 ? "sm:grid-cols-3" : "sm:grid-cols-3 lg:grid-cols-5"}`}
+      onMouseLeave={() => setEncima(null)}
+      role="group"
+      aria-label="Tipo de negocio"
+    >
+      {variantes.map((v, i) => {
         const borrosa = encima !== null && encima !== i;
         return (
           <button
@@ -205,6 +238,15 @@ const RUBROS: Rubro[] = [
     demo: { texto: "Pruebe la demo del gimnasio", href: `${DEMOS}gimnasio/socio.html` },
   },
   {
+    id: "belleza",
+    nombre: "Belleza y moda",
+    problema: "",
+    hoy: [],
+    sistema: [],
+    img: fotoPerfil,
+    alt: "",
+  },
+  {
     id: "tiendas",
     nombre: "Tiendas",
     problema: "No sabe bien cuánto vendió ni qué se le está acabando.",
@@ -264,7 +306,8 @@ export function Rubros() {
     else if (l.scrollLeft < der) l.scrollTo({ left: der, behavior: "smooth" });
   }, [activo]);
   const r = RUBROS[activo];
-  const v = r.id === "tiendas" ? VARIANTES_TIENDA[tipo] : null;
+  const variantes = VARIANTES[r.id];
+  const v = variantes ? variantes[Math.min(tipo, variantes.length - 1)] : null;
   const problema = v?.problema ?? r.problema;
   const hoy = v?.hoy ?? r.hoy;
   const sistema = v?.sistema ?? r.sistema;
@@ -286,6 +329,7 @@ export function Rubros() {
     else return;
     e.preventDefault();
     setActivo(n);
+    setTipo(0);
     botones.current[n]?.focus();
   }
 
@@ -321,7 +365,10 @@ export function Rubros() {
               aria-selected={i === activo}
               aria-controls={`panel-${x.id}`}
               tabIndex={i === activo ? 0 : -1}
-              onClick={() => setActivo(i)}
+              onClick={() => {
+                setActivo(i);
+                setTipo(0);
+              }}
               onMouseEnter={() => setEncima(i)}
               className={`relative z-10 shrink-0 rounded-full px-4 sm:px-5 py-2 sm:py-2.5 text-[0.95rem] font-semibold transition-colors duration-200 active:scale-95 ${
                 i === objetivo ? "text-white" : "text-suave hover:text-tinta"
@@ -339,7 +386,7 @@ export function Rubros() {
           aria-labelledby={`tab-${r.id}`}
           className="panel-rubro mt-6 grid md:grid-cols-[1.4fr_1fr] gap-8 md:gap-12 items-center rounded-2xl border border-linea portada-papel p-6 sm:p-10"
         >
-          {v && <TarjetasFoco elegida={tipo} alElegir={setTipo} />}
+          {variantes && v && <TarjetasFoco variantes={variantes} elegida={variantes.indexOf(v)} alElegir={setTipo} />}
           <div key={v?.id}>
             <h3 className="text-[1.5rem] sm:text-[1.9rem]">{problema}</h3>
             <div className="mt-6 grid sm:grid-cols-2 gap-6">
@@ -402,7 +449,7 @@ export function Rubros() {
             </figure>
           ) : v ? (
             <figure className="justify-self-center">
-              <img src={v.foto} alt={`Ejemplo de tienda de ${v.nombre.toLowerCase()}`} className="w-[230px] sm:w-[270px] aspect-[4/5] object-cover rounded-[1.4rem] shadow-lg" loading="lazy" />
+              <img src={v.foto} alt={`Foto de ejemplo: ${v.nombre.toLowerCase()}`} className="w-[230px] sm:w-[270px] aspect-[4/5] object-cover rounded-[1.4rem] shadow-lg" loading="lazy" />
               <figcaption className="mt-3 max-w-[270px] text-center text-xs text-suave">Foto de ejemplo. La demo usa datos de prueba.</figcaption>
             </figure>
           ) : (

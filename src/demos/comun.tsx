@@ -7,42 +7,66 @@ import { ArrowRight, Minus, Plus } from "lucide-react";
 import { Modal } from "@/components/Modal";
 import { whatsappLink } from "@/data/site";
 
-export const DEMOS = [
-  { nombre: "Clínica", href: "/demos/clinica/" },
-  { nombre: "Tienda de ropa", href: "/demos/ropa/" },
-  { nombre: "Cosméticos", href: "/demos/cosmeticos/" },
-  { nombre: "Fundadora", href: "/demos/fundadora/" },
-  { nombre: "Celulares", href: "/demos/celulares/" },
-  { nombre: "Boutique", href: "/demos/boutique/" },
-  { nombre: "Restaurante", href: "/demos/restaurante/" },
-  { nombre: "Tiempo compartido", href: "/demos/tiempo-compartido/" },
+export const GRUPOS_DEMOS = [
+  {
+    grupo: "Belleza y moda",
+    demos: [
+      { nombre: "Perfil de belleza", href: "/demos/perfil-belleza/" },
+      { nombre: "Cosméticos", href: "/demos/cosmeticos/" },
+      { nombre: "Tienda de ropa", href: "/demos/ropa/" },
+      { nombre: "Boutique", href: "/demos/boutique/" },
+      { nombre: "Fundadora", href: "/demos/fundadora/" },
+    ],
+  },
+  { grupo: "Salud", demos: [{ nombre: "Clínica", href: "/demos/clinica/" }] },
+  {
+    grupo: "Tiendas y servicios",
+    demos: [
+      { nombre: "Celulares", href: "/demos/celulares/" },
+      { nombre: "Restaurante", href: "/demos/restaurante/" },
+      { nombre: "Tiempo compartido", href: "/demos/tiempo-compartido/" },
+    ],
+  },
 ];
+export const DEMOS = GRUPOS_DEMOS.flatMap((g) => g.demos);
 
 export const qz = (n: number) => `Q${n.toLocaleString("en-US")}`;
 
 /* Banda de arriba: dice que es demo y lleva a las otras */
 export function BandaDemos() {
   const aqui = location.pathname.endsWith("/") ? location.pathname : location.pathname + "/";
+  const barra = useRef<HTMLElement>(null);
+  // en celular, que la demo abierta quede a la vista dentro de la barra
+  useEffect(() => {
+    const n = barra.current;
+    const a = n?.querySelector<HTMLElement>('[aria-current="page"]');
+    if (n && a) n.scrollLeft = a.offsetLeft - n.clientWidth / 2 + a.offsetWidth / 2;
+  }, []);
   return (
     <div className="relative z-40 bg-[#1c1714] text-white/85 text-[0.8rem]">
       <div className="mx-auto max-w-7xl px-4 py-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <a href="/" className="hover:text-white">
           ← Demo de <b className="text-white">Jzet Labs</b> · datos de ejemplo
         </a>
-        <nav className="flex max-w-full items-center gap-1 overflow-x-auto rounded-full bg-white/10 p-0.5 [scrollbar-width:none]" aria-label="Otras demos">
-          {DEMOS.map((d) => {
-            const activa = aqui === d.href;
-            return (
-              <a
-                key={d.href}
-                href={d.href}
-                aria-current={activa ? "page" : undefined}
-                className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1 transition ${activa ? "bg-white text-[#1c1714] font-semibold" : "hover:text-white"}`}
-              >
-                {d.nombre}
-              </a>
-            );
-          })}
+        <nav ref={barra} className="relative flex max-w-full items-center gap-1 overflow-x-auto rounded-full bg-white/10 p-0.5 [scrollbar-width:none]" aria-label="Otras demos">
+          {GRUPOS_DEMOS.map((g, gi) => (
+            <div key={g.grupo} className={`flex shrink-0 items-center gap-1 ${gi ? "ml-1 border-l border-white/15 pl-2" : "pl-2"}`}>
+              <span className="shrink-0 whitespace-nowrap pr-1 text-[0.68rem] uppercase tracking-wider text-white/45">{g.grupo}</span>
+              {g.demos.map((d) => {
+                const activa = aqui === d.href;
+                return (
+                  <a
+                    key={d.href}
+                    href={d.href}
+                    aria-current={activa ? "page" : undefined}
+                    className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1 transition ${activa ? "bg-white text-[#1c1714] font-semibold" : "hover:text-white"}`}
+                  >
+                    {d.nombre}
+                  </a>
+                );
+              })}
+            </div>
+          ))}
         </nav>
       </div>
     </div>
