@@ -23,6 +23,7 @@ export default defineConfig({
         demoCosmeticos: resolve(__dirname, 'demos/cosmeticos/index.html'),
         demoFundadora: resolve(__dirname, 'demos/fundadora/index.html'),
         demoCelulares: resolve(__dirname, 'demos/celulares/index.html'),
+        demoLujo: resolve(__dirname, 'demos/lujo/index.html'),
         demoRestaurante: resolve(__dirname, 'demos/restaurante/index.html'),
         demoTiempo: resolve(__dirname, 'demos/tiempo-compartido/index.html'),
         demoClinica: resolve(__dirname, 'demos/clinica/index.html'),

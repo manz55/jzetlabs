@@ -49,6 +49,14 @@
       "destination": "/demos/celulares/index.html"
     },
     {
+      "source": "/demos/lujo",
+      "destination": "/demos/lujo/index.html"
+    },
+    {
+      "source": "/demos/lujo/",
+      "destination": "/demos/lujo/index.html"
+    },
+    {
       "source": "/demos/restaurante",
       "destination": "/demos/restaurante/index.html"
     },
