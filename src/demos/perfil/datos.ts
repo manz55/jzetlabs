@@ -3,6 +3,17 @@
  * Todo vive en el teléfono (localStorage). Los perfiles de ejemplo son inventados.
  */
 import { useEffect, useState } from "react";
+import fotoLimpiador from "@/assets/demo-cosmeticos/limpiador.jpg";
+import fotoAceite from "@/assets/demo-cosmeticos/aceite.jpg";
+import fotoSerum from "@/assets/demo-cosmeticos/serum.jpg";
+import fotoCrema from "@/assets/demo-cosmeticos/crema.jpg";
+import fotoBase from "@/assets/demo-cosmeticos/kit.jpg";
+import fotoPolvo from "@/assets/demo-cosmeticos/polvo.jpg";
+import fotoRubor from "@/assets/demo-cosmeticos/rubor.jpg";
+import fotoPaleta from "@/assets/demo-cosmeticos/paleta.jpg";
+import fotoLabialNude from "@/assets/demo-cosmeticos/labial-nude.jpg";
+import fotoLabialRojo from "@/assets/demo-cosmeticos/labial-rojo.jpg";
+import fotoBrochas from "@/assets/demo-cosmeticos/brochas.jpg";
 
 export const VINO = "#8a2c43";
 export const SUAVE = "#f1e7de";
@@ -44,6 +55,8 @@ export type Perfil = {
   tono: string;
   subtono: string;
   looks: string[];
+  llevo: string[];
+  quiero: string[];
   llevar: string;
   deseos: string;
   saberMas: string[];
@@ -81,6 +94,8 @@ export const VACIO: Perfil = {
   tono: "",
   subtono: "",
   looks: [],
+  llevo: [],
+  quiero: [],
   llevar: "",
   deseos: "",
   saberMas: [],
@@ -176,6 +191,55 @@ export const SABER_MAS: Opcion[] = [
   { valor: "Cómo ganar regalos por ser anfitriona" },
   { valor: "Cómo ganar dinero extra vendiendo" },
 ];
+/* Lo que la consultora lleva a la reunión (productos de ejemplo, sin marca) */
+export type Producto = { id: string; nombre: string; corto: string; precio: number; foto: string; piel?: boolean };
+export const PRODUCTOS: Producto[] = [
+  { id: "limpiador", nombre: "Limpiador en gel", corto: "Limpia sin resecar", precio: 145, foto: fotoLimpiador, piel: true },
+  { id: "serum", nombre: "Sérum de vitamina C", corto: "Para manchas y piel opaca", precio: 245, foto: fotoAceite, piel: true },
+  { id: "crema-dia", nombre: "Crema de día con FPS 30", corto: "Hidrata y protege del sol", precio: 210, foto: fotoCrema, piel: true },
+  { id: "crema-noche", nombre: "Sérum de noche reafirmante", corto: "Para líneas y firmeza", precio: 265, foto: fotoSerum, piel: true },
+  { id: "base", nombre: "Base líquida", corto: "Cobertura que se ajusta", precio: 195, foto: fotoBase },
+  { id: "polvo", nombre: "Polvo traslúcido", corto: "Quita el brillo", precio: 150, foto: fotoPolvo },
+  { id: "rubor", nombre: "Rubor", corto: "Color que se difumina fácil", precio: 120, foto: fotoRubor },
+  { id: "paleta", nombre: "Paleta de sombras", corto: "6 tonos, edición de temporada", precio: 230, foto: fotoPaleta },
+  { id: "labial-nude", nombre: "Labial nude", corto: "Para todos los días", precio: 110, foto: fotoLabialNude },
+  { id: "labial-rojo", nombre: "Labial rojo", corto: "El clásico de las fiestas", precio: 110, foto: fotoLabialRojo },
+  { id: "brochas", nombre: "Set de brochas", corto: "5 brochas para empezar", precio: 285, foto: fotoBrochas },
+];
+export const producto = (id: string) => PRODUCTOS.find((p) => p.id === id);
+export const qz = (n: number) => `Q${n.toLocaleString("en-US")}`;
+export const totalDe = (ids: string[]) => ids.reduce((s, id) => s + (producto(id)?.precio ?? 0), 0);
+
+/* La rutina que le sale a cada clienta según lo que contestó */
+export type PasoRutina = { paso: string; cuando: string; producto: Producto; por: string };
+export function rutinaPara(p: Perfil) {
+  const seca = p.piel === "Reseca" || p.preocupaciones.includes("Piel muy reseca");
+  const grasa = p.piel === "Grasosa" || p.piel === "Mixta" || p.preocupaciones.includes("Quitar el brillo") || p.necesidades.includes("Acné o granitos");
+  const edad =
+    p.necesidades.includes("Primeras arrugas") ||
+    p.necesidades.includes("Arrugas marcadas") ||
+    p.preocupaciones.includes("Piel más firme") ||
+    p.preocupaciones.includes("Arrugas y líneas de expresión");
+  const pasos: PasoRutina[] = [
+    {
+      paso: "Limpia",
+      cuando: "Mañana y noche",
+      producto: producto("limpiador")!,
+      por: seca ? "Limpia sin jalar ni resecar, que en piel seca se irrita fácil." : grasa ? "Controla el brillo desde temprano sin dejarte la piel tirante." : "Deja la piel lista para que lo demás funcione.",
+    },
+    edad
+      ? { paso: "Trata", cuando: "En la noche", producto: producto("crema-noche")!, por: "Mientras duermes ayuda con las líneas y la firmeza." }
+      : { paso: "Trata", cuando: "En la mañana", producto: producto("serum")!, por: "Empareja el tono y le da luz a la piel opaca." },
+    { paso: "Hidrata y protege", cuando: "Todas las mañanas", producto: producto("crema-dia")!, por: "El sol es lo que más envejece la piel, aunque esté nublado." },
+  ];
+  const tip = seca
+    ? "Ponte la crema con la piel todavía un poco húmeda: así guarda mejor la hidratación, sobre todo con este frío."
+    : grasa
+      ? "Usa poquita base y el polvo solo en frente, nariz y barbilla. Así no se ve pesada a medio día."
+      : "Empieza con poca base y, si necesitas más, agrega otra capa delgada después de un par de minutos.";
+  return { pasos, tip };
+}
+
 export const PARENTESCOS = ["Mamá", "Papá", "Esposo", "Hija", "Hijo", "Hermana", "Amiga", "Otro"];
 export const MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
 
@@ -218,8 +282,8 @@ export const EJEMPLOS: Perfil[] = [
     tono: "Medio",
     subtono: "Neutro",
     looks: ["Natural, para el día a día", "A la moda"],
-    llevar: "Limpiador y gel para poros",
-    deseos: "Labial rosado",
+    llevo: ["limpiador", "polvo"],
+    quiero: ["labial-nude", "paleta"],
     saberMas: ["Cómo aplicarme el maquillaje", "Cómo ganar dinero extra vendiendo"],
     compartir: [{ nombre: "Marta Ruiz", parentesco: "Mamá", tel: "41203387" }],
     amigas: [
@@ -231,7 +295,7 @@ export const EJEMPLOS: Perfil[] = [
   {
     ...VACIO,
     id: "ej-2",
-    creado: hace(3),
+    creado: hace(48),
     anfitriona: "Lucía Paz",
     nombre: "Rosa Elena",
     apellido: "Castillo",
@@ -253,17 +317,48 @@ export const EJEMPLOS: Perfil[] = [
     tono: "Claro",
     subtono: "Cálido",
     looks: ["Para boda u ocasión especial"],
-    llevar: "Crema de noche",
+    llevo: ["crema-noche", "crema-dia"],
+    quiero: ["labial-rojo"],
     saberMas: ["Más productos para el cuidado de la piel", "Regalos"],
     compartir: [{ nombre: "Gabriela Castillo", parentesco: "Hija", tel: "42139988" }],
     amigas: [{ nombre: "Ana Lucía Pérez", tel: "56104420" }],
     permisoAmigas: true,
-    notas: "Le encantó la crema de noche. Llamarla el lunes para entregar.",
+    notas: "Le encantó el sérum de noche. Para su cumpleaños le llevo la muestra del labial rojo.",
+  },
+  {
+    ...VACIO,
+    id: "ej-3",
+    creado: hace(2),
+    anfitriona: "Andrea Gómez",
+    nombre: "Mónica",
+    apellido: "Herrera",
+    telefono: "46027715",
+    medio: "WhatsApp",
+    hora: "A cualquier hora",
+    cumple: { d: "19", m: "3", a: "" },
+    sinAniversario: true,
+    ocupacion: "Maestra",
+    municipio: "Villa Nueva",
+    edad: "30 a 39",
+    necesidades: ["Primeras arrugas"],
+    piel: "Normal",
+    preocupaciones: ["Tono más parejo y luminoso", "Más hidratación"],
+    ojos: ["Ojeras y ojos hinchados"],
+    acabado: "Natural",
+    tipoBase: "Media",
+    tono: "Moreno",
+    subtono: "Cálido",
+    looks: ["Natural, para el día a día"],
+    llevo: ["serum", "base", "rubor"],
+    quiero: ["brochas"],
+    saberMas: ["Cómo ganar dinero extra vendiendo", "Cómo ganar regalos por ser anfitriona"],
+    amigas: [{ nombre: "Sandra López", tel: "53318890" }],
+    permisoAmigas: true,
   },
 ];
 
 /* Guardado en el teléfono */
-const CLAVE = "perfil-belleza:perfiles";
+const CLAVE = "perfil-belleza:perfiles-v2";
 const leer = (): Perfil[] => {
   try {
     const t = localStorage.getItem(CLAVE);
@@ -314,8 +409,10 @@ export function mensajePerfil(p: Perfil) {
   linea("Labios", p.labios);
   linea("Base", [p.acabado, p.tipoBase && `cobertura ${p.tipoBase.toLowerCase()}`, p.tono && `tono ${p.tono.toLowerCase()}`, p.subtono && p.subtono !== "No sé" ? p.subtono.toLowerCase() : ""].filter(Boolean).join(", "));
   linea("Looks", p.looks);
-  linea("Me llevo", p.llevar);
-  linea("Lista de deseos", p.deseos);
+  const llevo = p.llevo.map((id) => producto(id)?.nombre).filter(Boolean) as string[];
+  if (llevo.length) linea("Me llevo", `${llevo.join(", ")} (${qz(totalDe(p.llevo))})`);
+  linea("Para después", p.quiero.map((id) => producto(id)?.nombre ?? "").filter(Boolean));
+  linea("Nota", p.llevar);
   linea("Quiero saber de", p.saberMas);
   const comp = p.compartir.filter((c) => c.nombre);
   if (comp.length) linea("Compartir mi lista con", comp.map((c) => `${c.nombre}${c.parentesco ? ` (${c.parentesco})` : ""} ${telTexto(c.tel)}`.trim()));

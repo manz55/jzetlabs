@@ -12,8 +12,8 @@ import { BandaDemos, CierreJzet, MensajeWhatsApp } from "../comun";
 import maquillista from "@/assets/demo-cosmeticos/maquillista.jpg";
 import {
   ACABADOS, CONSULTORA, COBERTURAS, EDADES, HORAS, LABIOS, LINEA, LOOKS, MEDIOS, MESES, NECESIDADES, OJOS, PAPEL, PARENTESCOS, PIELES,
-  PREOCUPACIONES, SABER_MAS, SUAVE, SUBTONOS, TINTA, TONOS, VACIO, VINO,
-  fechaTexto, mensajePerfil, telTexto, usePerfiles,
+  PREOCUPACIONES, PRODUCTOS, SABER_MAS, SUAVE, SUBTONOS, TINTA, TONOS, VACIO, VINO,
+  fechaTexto, mensajePerfil, producto, qz, rutinaPara, telTexto, totalDe, usePerfiles,
   type Fecha, type Opcion, type Perfil,
 } from "./datos";
 
@@ -143,6 +143,93 @@ function Quitar({ onClick }: { onClick: () => void }) {
     <button type="button" onClick={onClick} className="inline-flex items-center gap-1 text-[0.95rem] font-medium opacity-60 hover:opacity-100">
       <X size={17} /> Quitar
     </button>
+  );
+}
+
+/* Los productos de la reunión, con foto y precio: se toca, no se escribe */
+function ElegirProductos({ p, set }: { p: Perfil; set: (c: Partial<Perfil>) => void }) {
+  const marcar = (id: string, lista: "llevo" | "quiero") => {
+    const otra = lista === "llevo" ? "quiero" : "llevo";
+    const ya = p[lista].includes(id);
+    set({ [lista]: ya ? p[lista].filter((x) => x !== id) : [...p[lista], id], [otra]: p[otra].filter((x) => x !== id) } as Partial<Perfil>);
+  };
+  const boton = (si: boolean, color: string) => (si ? { background: color, borderColor: color, color: "#fff" } : { borderColor: "rgba(31,26,23,.28)" });
+  return (
+    <div>
+      <div className="grid grid-cols-2 gap-x-3 gap-y-7 sm:grid-cols-3">
+        {PRODUCTOS.map((pr) => {
+          const llevo = p.llevo.includes(pr.id);
+          const quiero = p.quiero.includes(pr.id);
+          return (
+            <div key={pr.id} className="flex flex-col">
+              <div className="relative">
+                <img src={pr.foto} alt="" className="aspect-square w-full object-cover" loading="lazy" />
+                {(llevo || quiero) && (
+                  <span className="absolute left-0 top-2 px-2.5 py-1 text-[0.82rem] font-semibold text-white" style={{ background: llevo ? VINO : TINTA }}>
+                    {llevo ? "Me lo llevo" : "Para después"}
+                  </span>
+                )}
+              </div>
+              <p className="mt-2 text-[1.05rem] font-semibold leading-tight">{pr.nombre}</p>
+              <p className="mt-0.5 text-[0.92rem] leading-snug opacity-60">
+                {pr.corto} · {qz(pr.precio)}
+              </p>
+              <div className="mt-auto grid gap-1.5 pt-2.5">
+                <button type="button" aria-pressed={llevo} onClick={() => marcar(pr.id, "llevo")} className="inline-flex items-center justify-center gap-1 rounded-full border-2 px-2 py-2 text-[0.98rem] font-semibold transition" style={boton(llevo, VINO)}>
+                  {llevo && <Check size={16} strokeWidth={3} />} Me lo llevo
+                </button>
+                <button type="button" aria-pressed={quiero} onClick={() => marcar(pr.id, "quiero")} className="inline-flex items-center justify-center gap-1 rounded-full border-2 px-2 py-2 text-[0.98rem] font-semibold transition" style={boton(quiero, TINTA)}>
+                  {quiero && <Check size={16} strokeWidth={3} />} Para después
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {p.llevo.length > 0 && (
+        <p className="mt-8 flex items-baseline justify-between border-y py-3 text-[1.1rem]" style={{ borderColor: TINTA }}>
+          <span>
+            Te llevas {p.llevo.length} {p.llevo.length === 1 ? "producto" : "productos"}
+          </span>
+          <b className="text-[1.3rem]" style={{ fontFamily: SERIF }}>{qz(totalDe(p.llevo))}</b>
+        </p>
+      )}
+      <div className="mt-7">
+        <Campo etiqueta="¿Algo más que te gustó?" ayuda="Escríbelo como lo recuerdes, yo lo encuentro.">
+          <textarea value={p.llevar} onChange={(e) => set({ llevar: e.target.value })} rows={2} placeholder="Ej. El perfume de flores" className={claseInput} />
+        </Campo>
+      </div>
+    </div>
+  );
+}
+
+/* La rutina que le toca según lo que contestó: la ve ella al terminar y la consultora en la ficha */
+function Rutina({ p, consultora = false }: { p: Perfil; consultora?: boolean }) {
+  const { pasos, tip } = rutinaPara(p);
+  return (
+    <section className="break-inside-avoid">
+      <p className={`text-[0.85rem] font-semibold ${MAYUS}`} style={{ color: VINO }}>
+        {consultora ? "La rutina que le salió" : "Tu rutina en 3 pasos"}
+      </p>
+      <ol className="mt-3 border-t" style={{ borderColor: TINTA }}>
+        {pasos.map((r, i) => (
+          <li key={r.paso} className="grid items-center gap-4 border-b py-4" style={{ borderColor: LINEA, gridTemplateColumns: "4.75rem 1fr" }}>
+            <img src={r.producto.foto} alt="" className="h-[4.75rem] w-[4.75rem] object-cover" loading="lazy" />
+            <div>
+              <p className={`text-[0.75rem] ${MAYUS} opacity-60`}>
+                {i + 1} · {r.paso} · {r.cuando}
+              </p>
+              <p className="mt-0.5 text-[1.15rem] font-semibold leading-tight">{r.producto.nombre}</p>
+              <p className="mt-1 text-[1rem] leading-snug opacity-70">{r.por}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+      <p className="mt-5 -rotate-1 text-[1.6rem] leading-[1.1]" style={{ fontFamily: MANO, color: VINO }}>
+        {consultora ? "Tip que le di: " : "Mi tip para ti: "}
+        {tip}
+      </p>
+    </section>
   );
 }
 
@@ -342,18 +429,9 @@ const PASOS: Paso[] = [
   },
   {
     seccion: "Tu maquillaje",
-    titulo: "De lo que probaste hoy…",
-    ayuda: "Escribe el nombre como lo recuerdes, yo lo encuentro.",
-    cuerpo: (p, set) => (
-      <div className="grid gap-5">
-        <Campo etiqueta="¿Qué te quieres llevar a casa?">
-          <textarea value={p.llevar} onChange={(e) => set({ llevar: e.target.value })} rows={3} placeholder="Ej. La crema de noche y el labial rojo" className={claseInput} />
-        </Campo>
-        <Campo etiqueta="¿Qué te gustaría tener más adelante?" ayuda="Tu lista de deseos">
-          <textarea value={p.deseos} onChange={(e) => set({ deseos: e.target.value })} rows={3} placeholder="Ej. El perfume de flores" className={claseInput} />
-        </Campo>
-      </div>
-    ),
+    titulo: "De lo que probaste hoy, ¿qué te gustó?",
+    ayuda: "Toca «Me lo llevo» o «Para después». Lo de después queda en tu lista de deseos.",
+    cuerpo: (p, set) => <ElegirProductos p={p} set={set} />,
   },
   {
     seccion: "Para terminar",
@@ -505,8 +583,9 @@ function Ficha({ p, alEditar }: { p: Perfil; alEditar?: (paso: number) => void }
         ["Base", [p.acabado, p.tipoBase && `cobertura ${p.tipoBase.toLowerCase()}`].filter(Boolean).join(", ")],
         ["Tono", [p.tono, p.subtono && p.subtono !== "No sé" ? `subtono ${p.subtono.toLowerCase()}` : p.subtono ? "subtono por ver" : ""].filter(Boolean).join(", ")],
         ["Looks", p.looks],
-        ["Se lleva", p.llevar],
-        ["Lista de deseos", p.deseos],
+        ["Se lleva", p.llevo.length ? `${p.llevo.map((id) => producto(id)?.nombre).join(", ")} · ${qz(totalDe(p.llevo))}` : ""],
+        ["Para después", p.quiero.map((id) => producto(id)?.nombre ?? "")],
+        ["También le gustó", p.llevar],
       ])}
       {bloque("Para terminar", 14, [
         ["Quiere saber de", p.saberMas],
@@ -532,7 +611,7 @@ const dosDigitos = (n: number) => String(n).padStart(2, "0");
 
 function Formulario({ alGuardar }: { alGuardar: (p: Perfil) => void }) {
   const inicial = useMemo(leerBorrador, []);
-  const [perfil, setPerfil] = useState<Perfil>(inicial?.p ?? VACIO);
+  const [perfil, setPerfil] = useState<Perfil>(inicial?.p ? { ...VACIO, ...inicial.p } : VACIO);
   // -1 = bienvenida, PASOS.length = revisar, PASOS.length + 1 = enviado
   const [paso, setPaso] = useState<number>(inicial ? inicial.paso : -1);
   const [aviso, setAviso] = useState("");
@@ -608,6 +687,18 @@ function Formulario({ alGuardar }: { alGuardar: (p: Perfil) => void }) {
           <p className="mt-5 max-w-md text-[1.2rem] leading-relaxed opacity-80">
             Con esto sé qué productos te van de verdad, y no te ofrezco lo que no necesitas. Solo tocas la respuesta que va contigo; si no sabes algo, sigues adelante.
           </p>
+          <div className="mt-7 grid grid-cols-3 border-y" style={{ borderColor: LINEA }}>
+            {[
+              ["Tu rutina", "en 3 pasos, para tu piel"],
+              ["Una muestra", "gratis, para probar en casa"],
+              ["Un detalle", "el día de tu cumpleaños"],
+            ].map(([t, d], i) => (
+              <div key={t} className={`py-3 ${i ? "border-l pl-3" : "pr-3"}`} style={{ borderColor: LINEA }}>
+                <p className="text-[1.15rem] leading-tight" style={{ fontFamily: SERIF }}>{t}</p>
+                <p className="mt-1 text-[0.9rem] leading-snug opacity-65">{d}</p>
+              </div>
+            ))}
+          </div>
           <p className="mt-6 max-w-sm -rotate-1 text-[1.9rem] leading-[1.05]" style={{ fontFamily: MANO, color: VINO }}>
             Gracias por venir hoy. Tus datos solo los veo yo. — {CONSULTORA.corto}
           </p>
@@ -630,8 +721,35 @@ function Formulario({ alGuardar }: { alGuardar: (p: Perfil) => void }) {
         <h1 className="mt-3 text-[2.6rem] font-medium leading-[1.05]" style={{ fontFamily: SERIF }}>
           ¡Listo, {perfil.nombre.split(" ")[0]}!
         </h1>
-        <p className="mt-4 text-[1.2rem] leading-relaxed opacity-80">Ya tengo tu perfil. Te escribo para ayudarte con tus productos y, si anotaste amigas, para invitarlas a su facial.</p>
-        <p className="mt-5 -rotate-1 text-[1.65rem]" style={{ fontFamily: MANO, color: VINO }}>
+        <p className="mt-4 text-[1.2rem] leading-relaxed opacity-80">Ya tengo tu perfil. Con lo que me contaste te armé esta rutina; guárdala o tómale captura.</p>
+        <div className="mt-8">
+          <Rutina p={perfil} />
+        </div>
+        <div className="mt-8 border-l-4 bg-white px-5 py-4" style={{ borderColor: VINO }}>
+          <p className="text-[1.15rem] font-semibold">Tu muestra gratis</p>
+          <p className="mt-1 text-[1.02rem] leading-snug opacity-75">Cuando te entregue, te llevo una muestra de {rutinaPara(perfil).pasos[1].producto.nombre.toLowerCase()} para que la pruebes en casa.</p>
+        </div>
+        {perfil.llevo.length > 0 && (
+          <div className="mt-8">
+            <p className={`text-[0.85rem] font-semibold ${MAYUS}`} style={{ color: VINO }}>
+              Tu pedido de hoy
+            </p>
+            <ul className="mt-3 border-t" style={{ borderColor: TINTA }}>
+              {perfil.llevo.map((id) => (
+                <li key={id} className="flex items-baseline justify-between gap-3 border-b py-2.5 text-[1.05rem]" style={{ borderColor: LINEA }}>
+                  <span>{producto(id)?.nombre}</span>
+                  <span className="tabular-nums">{qz(producto(id)?.precio ?? 0)}</span>
+                </li>
+              ))}
+              <li className="flex items-baseline justify-between gap-3 py-3 text-[1.15rem] font-semibold">
+                <span>Total</span>
+                <span style={{ fontFamily: SERIF }}>{qz(totalDe(perfil.llevo))}</span>
+              </li>
+            </ul>
+            <p className="text-[0.98rem] opacity-65">Pagas cuando te lo entregue. Envíos a toda Guatemala.</p>
+          </div>
+        )}
+        <p className="mt-8 -rotate-1 text-[1.65rem]" style={{ fontFamily: MANO, color: VINO }}>
           Gracias por tu confianza. — {CONSULTORA.corto}
         </p>
         <div className="mt-8 grid gap-3">
@@ -748,6 +866,23 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
   const cumples = perfiles.filter((p) => diasParaCumple(p) <= 30).sort((a, b) => diasParaCumple(a) - diasParaCumple(b));
   const referidas = perfiles.flatMap((p) => p.amigas.filter((a) => a.nombre.trim()).map((a) => ({ ...a, de: `${p.nombre} ${p.apellido}`.trim() })));
   const p = perfiles.find((x) => x.id === abierto);
+  const ahora = new Date();
+  const delMes = perfiles.filter((x) => {
+    const d = new Date(x.creado);
+    return d.getMonth() === ahora.getMonth() && d.getFullYear() === ahora.getFullYear();
+  });
+  const vendido = delMes.reduce((s, x) => s + totalDe(x.llevo), 0);
+  const META = 3000;
+  const dias = (x: Perfil) => Math.floor((Date.now() - new Date(x.creado).getTime()) / 864e5);
+  const reofrecer = perfiles
+    .map((x) => ({ x, piel: x.llevo.map(producto).filter((pr) => pr?.piel) }))
+    .filter(({ x, piel }) => piel.length && dias(x) >= 40);
+  const negocio = perfiles
+    .map((x) => ({
+      x,
+      quiere: [x.saberMas.includes("Cómo ganar dinero extra vendiendo") && "vender", x.saberMas.includes("Cómo ganar regalos por ser anfitriona") && "ser anfitriona"].filter(Boolean) as string[],
+    }))
+    .filter(({ quiere }) => quiere.length);
 
   if (p) {
     return (
@@ -775,6 +910,9 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
         </div>
         <div className="mt-8">
           <Ficha p={p} />
+          <div className="mt-10 max-w-xl">
+            <Rutina p={p} consultora />
+          </div>
         </div>
         <section className="mt-10 border-l-4 bg-white p-5 print:border" style={{ borderColor: VINO }}>
           <h3 className={`text-[0.85rem] font-semibold ${MAYUS}`} style={{ color: VINO }}>
@@ -816,21 +954,36 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
         Mis clientas
       </h1>
 
-      <div className="mt-8 grid grid-cols-3 border-y" style={{ borderColor: TINTA }}>
-        {[
-          [perfiles.length, "fichas"],
-          [cumples.length, "cumplen este mes"],
-          [referidas.length, "amigas para facial"],
-        ].map(([n, t], i) => (
-          <div key={t} className={`px-3 py-4 ${i ? "border-l" : ""}`} style={{ borderColor: LINEA }}>
-            <p className="text-[2.2rem] leading-none" style={{ fontFamily: SERIF }}>{n}</p>
-            <p className="mt-1.5 text-[0.95rem] leading-tight opacity-65">{t}</p>
+      <div className="mt-8 border-y" style={{ borderColor: TINTA }}>
+        <div className="border-b px-3 py-4" style={{ borderColor: LINEA }}>
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <p className="text-[1rem] opacity-65">Vendido en {MESES[ahora.getMonth()]}</p>
+            <p className="text-[0.95rem] opacity-65">Meta {qz(META)}</p>
           </div>
-        ))}
+          <p className="mt-1 text-[2.4rem] leading-none" style={{ fontFamily: SERIF }}>{qz(vendido)}</p>
+          <div className="mt-3" style={{ background: LINEA, height: 6 }}>
+            <div className="h-full" style={{ width: `${Math.min(100, (vendido / META) * 100)}%`, background: VINO }} />
+          </div>
+          <p className="mt-2 text-[0.95rem] opacity-65">
+            {vendido >= META ? "¡Meta cumplida!" : `Te faltan ${qz(META - vendido)} para tu meta del mes.`}
+          </p>
+        </div>
+        <div className="grid grid-cols-3">
+          {[
+            [perfiles.length, "fichas"],
+            [cumples.length, "cumplen este mes"],
+            [referidas.length, "amigas para facial"],
+          ].map(([n, t], i) => (
+            <div key={t} className={`px-3 py-4 ${i ? "border-l" : ""}`} style={{ borderColor: LINEA }}>
+              <p className="text-[2.2rem] leading-none" style={{ fontFamily: SERIF }}>{n}</p>
+              <p className="mt-1.5 text-[0.95rem] leading-tight opacity-65">{t}</p>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="mt-10 grid gap-10 perfil-panel">
-        <section>
+        <section className="min-w-0">
           <div className="flex items-end justify-between gap-3">
             <h2 className="text-[1.6rem] font-medium" style={{ fontFamily: SERIF }}>Fichas</h2>
           </div>
@@ -853,6 +1006,7 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
                       {[c.piel && `Piel ${c.piel.toLowerCase()}`, c.edad && `${c.edad} años`, c.anfitriona && `invitó ${c.anfitriona}`].filter(Boolean).join(" · ")}
                     </span>
                   </span>
+                  {c.llevo.length > 0 && <span className="shrink-0 text-[1rem] tabular-nums opacity-70">{qz(totalDe(c.llevo))}</span>}
                   <ChevronRight size={20} className="opacity-35" />
                 </button>
               </li>
@@ -861,7 +1015,42 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
           </ul>
         </section>
 
-        <aside className="grid content-start gap-10">
+        <aside className="grid min-w-0 content-start gap-10">
+          {reofrecer.length > 0 && (
+            <section>
+              <h2 className="text-[1.6rem] font-medium" style={{ fontFamily: SERIF }}>Para volver a ofrecer</h2>
+              <p className="mt-1 text-[0.98rem] opacity-60">Lo que se llevaron ya se les debe estar acabando.</p>
+              <ul className="mt-3 border-t" style={{ borderColor: LINEA }}>
+                {reofrecer.map(({ x, piel }) => (
+                  <li key={x.id}>
+                    <button type="button" onClick={() => setAbierto(x.id)} className="w-full border-b py-3 text-left" style={{ borderColor: LINEA }}>
+                      <b className="block">{x.nombre} {x.apellido}</b>
+                      <span className="block text-[0.95rem] opacity-65">
+                        {piel.map((pr) => pr!.nombre.toLowerCase()).join(" y ")}, hace {dias(x)} días
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+          {negocio.length > 0 && (
+            <section>
+              <h2 className="text-[1.6rem] font-medium" style={{ fontFamily: SERIF }}>Les interesa el negocio</h2>
+              <p className="mt-1 text-[0.98rem] opacity-60">Marcaron que quieren saber más. Invítalas a tu próxima reunión.</p>
+              <ul className="mt-3 border-t" style={{ borderColor: LINEA }}>
+                {negocio.map(({ x, quiere }) => (
+                  <li key={x.id} className="flex items-baseline justify-between gap-3 border-b py-3" style={{ borderColor: LINEA }}>
+                    <span className="min-w-0">
+                      <b className="block truncate">{x.nombre} {x.apellido}</b>
+                      <span className="block text-[0.95rem] opacity-65">Quiere {quiere.join(" y ")}</span>
+                    </span>
+                    <span className="shrink-0 tabular-nums opacity-80">{telTexto(x.telefono)}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
           <section>
             <h2 className="text-[1.6rem] font-medium" style={{ fontFamily: SERIF }}>Cumpleaños</h2>
             {cumples.length === 0 ? (
