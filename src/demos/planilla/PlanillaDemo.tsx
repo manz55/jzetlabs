@@ -1,70 +1,78 @@
 /*
  * Demo: "Constructora Los Cedros" (empresa inventada, datos de ejemplo).
- * Tres partes: el marcaje en la obra (PIN + foto + ubicación), la planilla de la semana
- * en la oficina (se calcula sola y explica cada quetzal) y la boleta en el teléfono del trabajador.
+ * Tres partes: el marcaje en la obra (PIN + foto + ubicación), el panel de la oficina
+ * (resumen, planilla, personal, prestaciones e IGSS, solicitudes) y el portal del empleado,
+ * donde cada quien entra con su código y su PIN y ve solo lo suyo.
  */
-import { useEffect, useState } from "react";
-import { AlertTriangle, ArrowRight, Camera, Check, Clock, Delete, FileText, HandCoins, MapPin, X } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
+import { AlertTriangle, Calendar, Camera, Check, ChevronRight, Delete, FileText, HandCoins, Home, Inbox, LogOut, MapPin, Shield, Users, X } from "lucide-react";
 import { BandaDemos, Cajon, CierreJzet, MensajeWhatsApp, PartesDemo } from "../comun";
 import {
-  BONIF_MES, CASCO, IGSS, OBRAS, PAPEL, PIN_EJEMPLO, PLANO, PLANO2, ROJO, TINTA, TITULO, TRABAJADORES, VERDE,
-  calcular, diaCorto, hora, iniciales, jornada, obraDe, qz, usePlanilla,
-  type Planilla, type Trabajador,
+  AMARILLO, AZUL, BONIF_MES, BORDE, FONDO, IGSS_LAB, IGSS_PAT, NARANJA, OBRAS, PIN_EJEMPLO, ROJO, SUAVE, TEXTO, TRABAJADORES, VERDE,
+  antiguedad, diaCorto, fechaLarga, fechaLimiteIgss, hora, igssMes, iniciales, iso, jornada, mesNombre, obraDe, prestacionesDe, qz, semanaDe, usePlanilla,
+  type Planilla, type Solicitud, type Tipo, type Trabajador,
 } from "./datos";
 
 const ESTILOS = `
 .plan h1, .plan h2, .plan h3 { color: inherit; }
-.plan-titulo { font-family: ${TITULO}; font-weight: 800; line-height: .95; letter-spacing: -.005em; }
-/* papel de plano: cuadrícula fina y gruesa */
-.plano { background-color: ${PAPEL}; background-image:
-  linear-gradient(rgba(23,58,94,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(23,58,94,.07) 1px, transparent 1px),
-  linear-gradient(rgba(23,58,94,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(23,58,94,.035) 1px, transparent 1px);
-  background-size: 80px 80px, 80px 80px, 16px 16px, 16px 16px; }
-/* línea de cota, como en los planos: |—— texto ——| */
-.cota { display: flex; align-items: center; gap: .6rem; color: ${PLANO}; font-size: .85rem; font-weight: 600; }
-.cota::before, .cota::after { content: ""; flex: 1; height: 1px; background: currentColor; opacity: .5; }
-.cota > span { white-space: nowrap; }
-.cota-borde { border-left: 1.5px solid ${PLANO}; border-right: 1.5px solid ${PLANO}; padding: 0 .4rem; }
-.ficha { background: #fff; border: 1px solid rgba(23,58,94,.14); border-radius: 10px; }
-.num { font-variant-numeric: tabular-nums; }
+.plan .num { font-variant-numeric: tabular-nums; }
+.plan .caja { background: #fff; border: 1px solid ${BORDE}; border-radius: 12px; }
+.plan table th { font-weight: 600; color: ${SUAVE}; font-size: .8rem; text-align: left; padding: .6rem .75rem; border-bottom: 1px solid ${BORDE}; white-space: nowrap; }
+.plan table td { padding: .65rem .75rem; border-bottom: 1px solid ${BORDE}; }
+.plan table tr:last-child td { border-bottom: 0; }
 `;
 
-function Casco({ size = 34 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden>
-      <rect width="40" height="40" rx="8" fill={CASCO} />
-      <path d="M8 27h24v3H8z" fill={TINTA} />
-      <path d="M10 27c0-6.6 4.5-11.5 10-11.5S30 20.4 30 27z" fill={TINTA} />
-      <path d="M18.4 15.6h3.2v6.4h-3.2z" fill={CASCO} />
-    </svg>
-  );
-}
+const fmtFecha = (d: Date) => fechaLarga(iso(d));
+const faltan = (d: Date) => Math.max(0, Math.ceil((d.getTime() - Date.now()) / 86400000));
 
-function Marca() {
+function Logo() {
   return (
     <span className="flex items-center gap-2.5">
-      <Casco />
-      <span className="leading-none">
-        <span className="plan-titulo block text-[1.35rem]">Los Cedros</span>
-        <span className="block text-[0.72rem] font-semibold opacity-70">Constructora</span>
-      </span>
+      <svg width="30" height="30" viewBox="0 0 40 40" aria-hidden>
+        <rect width="40" height="40" rx="8" fill={AZUL} />
+        <path d="M8 27h24v3H8z" fill={AMARILLO} />
+        <path d="M10 27c0-6.6 4.5-11.5 10-11.5S30 20.4 30 27z" fill={AMARILLO} />
+      </svg>
+      <span className="font-bold leading-tight">Constructora Los Cedros</span>
     </span>
   );
 }
 
-function Avatar({ t, size = 44 }: { t: Trabajador; size?: number }) {
+function Avatar({ t, size = 40 }: { t: Trabajador; size?: number }) {
   return (
-    <span className="grid shrink-0 place-items-center rounded-full font-bold text-white" style={{ width: size, height: size, background: t.color, fontSize: size * 0.36 }}>
+    <span className="grid shrink-0 place-items-center rounded-full font-semibold" style={{ width: size, height: size, background: "#e6ebf1", color: AZUL, fontSize: size * 0.36 }}>
       {iniciales(t.nombre)}
     </span>
   );
 }
 
-type Vista = "obra" | "oficina" | "boleta";
+function Seccion({ titulo, nota, children }: { titulo: string; nota?: string; children: ReactNode }) {
+  return (
+    <section className="caja">
+      <div className="border-b px-4 py-3" style={{ borderColor: BORDE }}>
+        <h2 className="font-bold">{titulo}</h2>
+        {nota && <p className="text-[0.85rem]" style={{ color: SUAVE }}>{nota}</p>}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function Dato({ etiqueta, valor, nota, color }: { etiqueta: string; valor: string; nota?: string; color?: string }) {
+  return (
+    <div className="caja p-4">
+      <p className="text-[0.85rem]" style={{ color: SUAVE }}>{etiqueta}</p>
+      <p className="num mt-1 text-[1.5rem] font-bold leading-tight" style={{ color }}>{valor}</p>
+      {nota && <p className="mt-0.5 text-[0.82rem]" style={{ color: SUAVE }}>{nota}</p>}
+    </div>
+  );
+}
+
+type Vista = "obra" | "oficina" | "empleado";
 
 export default function PlanillaDemo() {
   const p = usePlanilla();
-  const leer = (): Vista => (location.hash === "#oficina" ? "oficina" : location.hash === "#boleta" ? "boleta" : "obra");
+  const leer = (): Vista => (location.hash.startsWith("#oficina") ? "oficina" : location.hash === "#empleado" ? "empleado" : "obra");
   const [vista, setVista] = useState<Vista>(leer);
   useEffect(() => {
     const cambio = () => setVista(leer());
@@ -73,33 +81,33 @@ export default function PlanillaDemo() {
   }, []);
   useEffect(() => {
     history.replaceState(null, "", vista === "obra" ? location.pathname : `#${vista}`);
-    document.title = vista === "oficina" ? "Planilla · Los Cedros" : vista === "boleta" ? "Mi boleta · Los Cedros" : "Constructora Los Cedros · Demo de Jzet Labs";
+    document.title = vista === "oficina" ? "Oficina · Los Cedros" : vista === "empleado" ? "Mi portal · Los Cedros" : "Constructora Los Cedros · Demo de Jzet Labs";
     window.scrollTo(0, 0);
   }, [vista]);
 
   return (
-    <div className="plan plano min-h-screen" style={{ color: TINTA }}>
+    <div className="plan min-h-screen" style={{ background: FONDO, color: TEXTO }}>
       <style>{ESTILOS}</style>
       <BandaDemos />
       <PartesDemo
-        fondo={PLANO2}
+        fondo={AZUL}
         actual={vista}
         alCambiar={setVista}
         partes={[
           { id: "obra", nombre: "Marcaje en la obra", quien: "Cada trabajador marca con PIN y foto" },
-          { id: "oficina", nombre: "Planilla de la semana", quien: "La oficina la ve calculada sola" },
-          { id: "boleta", nombre: "Mi boleta", quien: "El trabajador ve su pago y pide vales" },
+          { id: "oficina", nombre: "Panel de la oficina", quien: "Planilla, prestaciones, IGSS y solicitudes" },
+          { id: "empleado", nombre: "Portal del empleado", quien: "Cada quien entra y ve solo lo suyo" },
         ] as const}
       />
       {vista === "obra" && <Obra p={p} />}
       {vista === "oficina" && <Oficina p={p} />}
-      {vista === "boleta" && <Boleta p={p} />}
+      {vista === "empleado" && <Portal p={p} />}
       <CierreJzet demo="planilla y control de empleados" />
     </div>
   );
 }
 
-/* ───────────── Marcaje en la obra ───────────── */
+/* ═════════════ Marcaje en la obra ═════════════ */
 
 function Reloj() {
   const [ahora, setAhora] = useState(new Date());
@@ -109,9 +117,11 @@ function Reloj() {
   }, []);
   return (
     <div className="text-center">
-      <p className="font-semibold opacity-70">{ahora.toLocaleDateString("es-GT", { weekday: "long", day: "numeric", month: "long" })}</p>
-      <p className="plan-titulo num mt-1 text-[4.5rem] sm:text-[5.5rem]" style={{ color: PLANO }}>
+      <p className="num text-[3.5rem] font-bold leading-none sm:text-[4.5rem]" style={{ color: AZUL }}>
         {ahora.toLocaleTimeString("es-GT", { hour: "2-digit", minute: "2-digit", hour12: false })}
+      </p>
+      <p className="mt-2" style={{ color: SUAVE }}>
+        {ahora.toLocaleDateString("es-GT", { weekday: "long", day: "numeric", month: "long" })}
       </p>
     </div>
   );
@@ -122,80 +132,75 @@ function Obra({ p }: { p: Planilla }) {
   const [quien, setQuien] = useState<Trabajador | null>(null);
   const gente = TRABAJADORES.filter((t) => t.obra === obra);
   const o = obraDe(obra);
-  const estado = (t: Trabajador) => p.diasDe(t).find((d) => d.fecha === p.hoy)?.marca ?? null;
-  const adentro = gente.filter((t) => {
-    const m = estado(t);
-    return m && m.salida === null;
-  }).length;
 
   return (
-    <main className="mx-auto max-w-5xl px-4 pb-16 pt-6">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <Marca />
-        <p className="flex items-center gap-1.5 text-[0.9rem] font-semibold">
-          <MapPin size={16} style={{ color: ROJO }} /> Tablet de la obra
-        </p>
-      </header>
-
-      <div className="mt-6 flex flex-wrap gap-2" role="group" aria-label="Obra">
-        {OBRAS.map((x) => (
-          <button
-            key={x.id}
-            type="button"
-            onClick={() => setObra(x.id)}
-            aria-pressed={obra === x.id}
-            className="rounded-lg border px-3.5 py-2 text-left transition"
-            style={obra === x.id ? { background: PLANO, color: "#fff", borderColor: PLANO } : { background: "#fff", borderColor: "rgba(23,58,94,.2)" }}
-          >
-            <span className="block font-bold leading-tight">{x.nombre}</span>
-            <span className="block text-[0.8rem] opacity-75">{x.lugar}</span>
-          </button>
-        ))}
+    <main className="mx-auto max-w-4xl px-4 pb-16 pt-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Logo />
+        <label className="flex items-center gap-2 text-[0.9rem]" style={{ color: SUAVE }}>
+          <MapPin size={16} /> Obra
+          <select value={obra} onChange={(e) => setObra(e.target.value)} className="rounded-lg border bg-white px-3 py-2 font-semibold" style={{ borderColor: BORDE, color: TEXTO }}>
+            {OBRAS.map((x) => (
+              <option key={x.id} value={x.id}>
+                {x.nombre} · {x.lugar}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
 
-      <div className="mt-8">
+      <div className="caja mt-6 px-4 py-8">
         <Reloj />
-        <h1 className="plan-titulo mt-3 text-center text-[2.4rem] sm:text-[3rem]">Toque su nombre para marcar</h1>
-        <p className="mt-2 text-center opacity-75">
-          {o.nombre} · {adentro} de {gente.length} adentro ahorita
+        <h1 className="mt-6 text-center text-[1.6rem] font-bold sm:text-[1.9rem]">Toque su nombre para marcar</h1>
+        <p className="mt-1 text-center" style={{ color: SUAVE }}>
+          Le pedirá su PIN y una foto. Queda la hora y la ubicación de {o.nombre}.
         </p>
+        <ul className="mx-auto mt-6 grid max-w-3xl gap-2 sm:grid-cols-2">
+          {gente.map((t) => {
+            const m = p.hoyDe(t);
+            const tarde = m && m.entrada > jornada(p.hoy).entra + 10;
+            return (
+              <li key={t.id}>
+                <button type="button" onClick={() => setQuien(t)} className="flex w-full items-center gap-3 rounded-lg border bg-white p-3 text-left transition hover:border-[#9fb0c4] active:scale-[0.99]" style={{ borderColor: BORDE }}>
+                  <Avatar t={t} />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-semibold">{t.nombre}</span>
+                    <span className="block text-[0.85rem]" style={{ color: SUAVE }}>{t.puesto}</span>
+                  </span>
+                  <span className="num shrink-0 text-[0.85rem] font-semibold" style={{ color: !m ? SUAVE : m.salida !== null ? AZUL : tarde ? ROJO : VERDE }}>
+                    {!m ? "Sin marcar" : m.salida !== null ? `Salió ${hora(m.salida)}` : `Entró ${hora(m.entrada)}`}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
       </div>
-
-      <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {gente.map((t) => {
-          const m = estado(t);
-          const j = jornada(p.hoy);
-          const tarde = m && m.entrada > j.entra + 10;
-          return (
-            <li key={t.id}>
-              <button type="button" onClick={() => setQuien(t)} className="ficha flex w-full items-center gap-3 p-3 text-left transition hover:shadow-md active:scale-[0.99]">
-                <Avatar t={t} />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-bold">{t.nombre}</span>
-                  <span className="block text-[0.85rem] opacity-70">{t.puesto}</span>
-                </span>
-                <span
-                  className="num shrink-0 rounded-md px-2 py-1 text-[0.8rem] font-bold"
-                  style={
-                    !m ? { background: "#eef1f4", color: "#5b6672" } : m.salida !== null ? { background: "#e6eef7", color: PLANO } : tarde ? { background: "#fbe6e3", color: ROJO } : { background: "#e3f2e8", color: VERDE }
-                  }
-                >
-                  {!m ? "Sin marcar" : m.salida !== null ? `Salió ${hora(m.salida)}` : `Entró ${hora(m.entrada)}`}
-                </span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-
-      <p className="mt-6 text-center text-[0.9rem] opacity-70">
-        Cada marca guarda la hora, una foto y la ubicación. Nadie puede marcar por otro.
-      </p>
 
       <Cajon abierto={quien !== null} alCerrar={() => setQuien(null)} fondo="#fff">
-        {quien && <Marcar t={quien} p={p} obra={o.nombre} alCerrar={() => setQuien(null)} />}
+        {quien && <Marcar key={quien.id} t={quien} p={p} obra={o.nombre} alCerrar={() => setQuien(null)} />}
       </Cajon>
     </main>
+  );
+}
+
+function Teclado({ alTocar, alBorrar }: { alTocar: (k: string) => void; alBorrar: () => void }) {
+  const tecla = "num h-14 rounded-lg border text-[1.3rem] font-semibold active:bg-[#eef1f5]";
+  return (
+    <div className="mx-auto grid max-w-[16rem] grid-cols-3 gap-2">
+      {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((k) => (
+        <button key={k} type="button" onClick={() => alTocar(k)} className={tecla} style={{ borderColor: BORDE }}>
+          {k}
+        </button>
+      ))}
+      <span />
+      <button type="button" onClick={() => alTocar("0")} className={tecla} style={{ borderColor: BORDE }}>
+        0
+      </button>
+      <button type="button" onClick={alBorrar} aria-label="Borrar" className="grid h-14 place-items-center rounded-lg">
+        <Delete size={20} />
+      </button>
+    </div>
   );
 }
 
@@ -205,11 +210,11 @@ function Marcar({ t, p, obra, alCerrar }: { t: Trabajador; p: Planilla; obra: st
   const [error, setError] = useState(false);
   const [hecho, setHecho] = useState<{ tipo: "entrada" | "salida"; min: number } | null>(null);
   const [toca] = useState(() => {
-    const m = p.diasDe(t).find((d) => d.fecha === p.hoy)?.marca ?? null;
+    const m = p.hoyDe(t);
     return m && m.salida === null ? "salida" : "entrada";
   });
 
-  const tecla = (k: string) => {
+  const tocar = (k: string) => {
     setError(false);
     const nuevo = (pin + k).slice(0, 4);
     setPin(nuevo);
@@ -223,14 +228,14 @@ function Marcar({ t, p, obra, alCerrar }: { t: Trabajador; p: Planilla; obra: st
   };
 
   return (
-    <div className="flex h-full flex-col p-6">
+    <div className="flex h-full flex-col p-6" style={{ color: TEXTO }}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <Avatar t={t} size={52} />
+          <Avatar t={t} size={48} />
           <div>
-            <p className="text-[1.15rem] font-bold">{t.nombre}</p>
-            <p className="text-[0.9rem] opacity-70">
-              {t.puesto} · marca su {toca}
+            <p className="text-[1.1rem] font-bold">{t.nombre}</p>
+            <p className="text-[0.9rem]" style={{ color: SUAVE }}>
+              Marca su {toca} en {obra}
             </p>
           </div>
         </div>
@@ -242,40 +247,25 @@ function Marcar({ t, p, obra, alCerrar }: { t: Trabajador; p: Planilla; obra: st
       {paso === "pin" && (
         <div className="mt-8">
           <p className="font-semibold">Ponga su PIN</p>
-          <p className="text-[0.85rem] opacity-60">En la demo es {PIN_EJEMPLO}.</p>
-          <div className="mt-4 flex justify-center gap-3" aria-live="polite">
+          <p className="text-[0.85rem]" style={{ color: SUAVE }}>En la demo es {PIN_EJEMPLO}.</p>
+          <div className="my-5 flex justify-center gap-3" aria-live="polite">
             {[0, 1, 2, 3].map((i) => (
-              <span key={i} className="h-4 w-4 rounded-full border-2" style={{ borderColor: error ? ROJO : PLANO, background: pin.length > i ? (error ? ROJO : PLANO) : "transparent" }} />
+              <span key={i} className="h-3.5 w-3.5 rounded-full border-2" style={{ borderColor: error ? ROJO : AZUL, background: pin.length > i ? (error ? ROJO : AZUL) : "transparent" }} />
             ))}
           </div>
-          {error && <p className="mt-2 text-center text-[0.9rem] font-semibold" style={{ color: ROJO }}>Ese PIN no es. Intente otra vez.</p>}
-          <div className="mx-auto mt-6 grid max-w-[16rem] grid-cols-3 gap-2.5">
-            {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((k) => (
-              <button key={k} type="button" onClick={() => tecla(k)} className="num h-14 rounded-xl border text-[1.4rem] font-bold active:scale-95" style={{ borderColor: "rgba(23,58,94,.2)" }}>
-                {k}
-              </button>
-            ))}
-            <span />
-            <button type="button" onClick={() => tecla("0")} className="num h-14 rounded-xl border text-[1.4rem] font-bold active:scale-95" style={{ borderColor: "rgba(23,58,94,.2)" }}>
-              0
-            </button>
-            <button type="button" onClick={() => setPin((x) => x.slice(0, -1))} aria-label="Borrar" className="grid h-14 place-items-center rounded-xl active:scale-95">
-              <Delete size={22} />
-            </button>
-          </div>
+          {error && <p className="mb-3 text-center text-[0.9rem] font-semibold" style={{ color: ROJO }}>Ese PIN no es. Intente otra vez.</p>}
+          <Teclado alTocar={tocar} alBorrar={() => setPin((x) => x.slice(0, -1))} />
         </div>
       )}
 
       {paso === "foto" && (
         <div className="mt-8">
           <p className="font-semibold">Ahora una foto</p>
-          <p className="text-[0.85rem] opacity-60">Así se sabe que de verdad es usted.</p>
-          <div className="relative mx-auto mt-4 grid aspect-[3/4] w-full max-w-[15rem] place-items-center overflow-hidden rounded-2xl" style={{ background: PLANO2 }}>
-            <span className="rounded-full ring-4 ring-white/80">
-              <Avatar t={t} size={110} />
-            </span>
-            <span className="absolute inset-6 rounded-[45%] border-2 border-dashed border-white/50" aria-hidden />
-            <span className="absolute bottom-3 left-3 flex items-center gap-1 rounded bg-black/40 px-2 py-0.5 text-[0.75rem] text-white">
+          <p className="text-[0.85rem]" style={{ color: SUAVE }}>Así queda claro que de verdad es usted quien marca.</p>
+          <div className="relative mx-auto mt-4 grid aspect-[3/4] w-full max-w-[14rem] place-items-center rounded-xl" style={{ background: "#dfe5ec" }}>
+            <Avatar t={t} size={96} />
+            <span className="absolute inset-5 rounded-[45%] border-2 border-dashed" style={{ borderColor: "#9fb0c4" }} aria-hidden />
+            <span className="absolute bottom-2 left-2 flex items-center gap-1 rounded bg-white px-2 py-0.5 text-[0.75rem]">
               <MapPin size={12} /> {obra}
             </span>
           </div>
@@ -285,8 +275,8 @@ function Marcar({ t, p, obra, alCerrar }: { t: Trabajador; p: Planilla; obra: st
               setHecho(p.marcar(t));
               setPaso("listo");
             }}
-            className="mx-auto mt-5 flex w-full max-w-[15rem] items-center justify-center gap-2 rounded-xl py-3.5 font-bold active:scale-[0.98]"
-            style={{ background: CASCO, color: TINTA }}
+            className="mx-auto mt-5 flex w-full max-w-[14rem] items-center justify-center gap-2 rounded-lg py-3 font-semibold text-white"
+            style={{ background: AZUL }}
           >
             <Camera size={18} /> Tomar foto y marcar
           </button>
@@ -295,15 +285,14 @@ function Marcar({ t, p, obra, alCerrar }: { t: Trabajador; p: Planilla; obra: st
 
       {paso === "listo" && hecho && (
         <div className="mt-10 text-center">
-          <span className="mx-auto grid h-16 w-16 place-items-center rounded-full text-white" style={{ background: VERDE }}>
-            <Check size={32} />
+          <span className="mx-auto grid h-14 w-14 place-items-center rounded-full text-white" style={{ background: VERDE }}>
+            <Check size={28} />
           </span>
-          <p className="plan-titulo mt-4 text-[2.2rem]">
-            {hecho.tipo === "entrada" ? "Entrada" : "Salida"} a las {hora(hecho.min)}
+          <p className="mt-4 text-[1.5rem] font-bold">
+            {hecho.tipo === "entrada" ? "Entrada" : "Salida"} registrada a las {hora(hecho.min)}
           </p>
-          <p className="mt-2 opacity-75">Con foto y ubicación en {obra}.</p>
-          <p className="mt-1 text-[0.9rem] opacity-60">La oficina ya lo ve en la planilla.</p>
-          <button type="button" onClick={alCerrar} className="mt-8 w-full rounded-xl py-3.5 font-bold text-white" style={{ background: PLANO }}>
+          <p className="mt-1" style={{ color: SUAVE }}>Con foto y ubicación en {obra}. La oficina ya lo ve.</p>
+          <button type="button" onClick={alCerrar} className="mt-8 w-full rounded-lg py-3 font-semibold text-white" style={{ background: AZUL }}>
             Listo
           </button>
         </div>
@@ -312,193 +301,261 @@ function Marcar({ t, p, obra, alCerrar }: { t: Trabajador; p: Planilla; obra: st
   );
 }
 
-/* ───────────── Planilla de la semana (oficina) ───────────── */
+/* ═════════════ Panel de la oficina ═════════════ */
+
+type Sec = "inicio" | "planilla" | "personal" | "prestaciones" | "solicitudes";
 
 function Oficina({ p }: { p: Planilla }) {
-  const [obra, setObra] = useState<string>("todas");
+  const [sec, setSec] = useState<Sec>("inicio");
   const [detalle, setDetalle] = useState<Trabajador | null>(null);
-  const [msg, setMsg] = useState<string | null>(null);
-  const filas = TRABAJADORES.map((t) => ({ t, c: calcular(t, p.diasDe(t), p.vales) }));
-  const visibles = filas.filter((f) => obra === "todas" || f.t.obra === obra);
-  const total = visibles.reduce((s, f) => s + f.c.total, 0);
-  const horasExtra = visibles.reduce((s, f) => s + f.c.horasExtra, 0);
-  const adentro = TRABAJADORES.filter((t) => {
-    const m = p.diasDe(t).find((d) => d.fecha === p.hoy)?.marca;
-    return m && m.salida === null;
-  }).length;
-  const alertas = filas.flatMap(({ t, c }) => [
-    ...(c.faltas ? [{ t, texto: `faltó ${c.faltas === 1 ? "un día" : `${c.faltas} días`} y pierde el séptimo`, color: ROJO }] : []),
-    ...(c.tardes >= 2 ? [{ t, texto: `llegó tarde ${c.tardes} veces esta semana`, color: "#b26a00" }] : []),
-    ...(c.lejos ? [{ t, texto: "marcó lejos de su obra un día; revise la ubicación", color: ROJO }] : []),
-  ]);
-  const porObra = OBRAS.map((o) => ({ o, total: filas.filter((f) => f.t.obra === o.id).reduce((s, f) => s + f.c.total + f.c.igss + f.c.descVales, 0) }));
-  const maxObra = Math.max(...porObra.map((x) => x.total));
-  const rango = `${diaCorto(p.dias[0])} ${p.dias[0].slice(8)} al ${diaCorto(p.dias[5])} ${p.dias[5].slice(8)}`;
+  const pendientes = p.solicitudes.filter((s) => s.estado === "pendiente").length;
+  const menu: [Sec, string, typeof Home, number?][] = [
+    ["inicio", "Resumen", Home],
+    ["planilla", "Planilla de la semana", FileText],
+    ["personal", "Personal", Users],
+    ["prestaciones", "Prestaciones e IGSS", Shield],
+    ["solicitudes", "Solicitudes", Inbox, pendientes],
+  ];
+  const ir = (s: Sec) => {
+    setSec(s);
+    window.scrollTo({ top: 0 });
+  };
 
   return (
-    <main className="mx-auto max-w-6xl px-4 pb-16 pt-6">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <Marca />
-        <button type="button" onClick={p.reiniciar} className="text-[0.85rem] font-semibold underline underline-offset-4 opacity-70">
+    <main className="mx-auto max-w-7xl px-4 pb-16 pt-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Logo />
+        <button type="button" onClick={p.reiniciar} className="text-[0.85rem] underline underline-offset-4" style={{ color: SUAVE }}>
           Volver a los datos de ejemplo
         </button>
-      </header>
-
-      <h1 className="plan-titulo mt-6 text-[2.6rem] sm:text-[3.2rem]">Planilla de la semana</h1>
-      <p className="cota mt-2 max-w-md">
-        <span className="cota-borde">{rango}</span>
-      </p>
-
-      <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {[
-          ["A pagar esta semana", qz(total)],
-          ["Trabajadores", String(visibles.length)],
-          ["En obra ahorita", String(adentro)],
-          ["Horas extra", `${horasExtra} h`],
-        ].map(([a, b]) => (
-          <div key={a} className="ficha p-4">
-            <p className="text-[0.85rem] opacity-70">{a}</p>
-            <p className="plan-titulo num mt-1 text-[1.9rem]">{b}</p>
-          </div>
-        ))}
       </div>
 
-      {alertas.length > 0 && (
-        <section className="mt-6 ficha p-4">
-          <h2 className="flex items-center gap-2 font-bold">
-            <AlertTriangle size={18} style={{ color: ROJO }} /> Para revisar antes de pagar
-          </h2>
-          <ul className="mt-2 grid gap-1.5">
-            {alertas.map((a, i) => (
-              <li key={i}>
-                <button type="button" onClick={() => setDetalle(a.t)} className="text-left hover:underline">
-                  <b>{a.t.nombre}</b> <span style={{ color: a.color }}>{a.texto}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      <div className="mt-6 grid gap-6 lg:grid-cols-[14rem_1fr]">
+        <nav aria-label="Secciones" className="-mx-4 flex gap-1 overflow-x-auto px-4 lg:mx-0 lg:flex-col lg:self-start lg:overflow-visible lg:px-0">
+          {menu.map(([id, texto, Icono, badge]) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => ir(id)}
+              aria-current={sec === id ? "page" : undefined}
+              className="flex shrink-0 items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-[0.95rem] font-semibold transition"
+              style={sec === id ? { background: AZUL, color: "#fff" } : { color: TEXTO }}
+            >
+              <Icono size={17} />
+              <span className="whitespace-nowrap">{texto}</span>
+              {!!badge && (
+                <span className="ml-auto rounded-full px-2 text-[0.75rem] font-bold" style={{ background: sec === id ? "#fff" : ROJO, color: sec === id ? AZUL : "#fff" }}>
+                  {badge}
+                </span>
+              )}
+            </button>
+          ))}
+        </nav>
 
-      <div className="mt-6 flex flex-wrap gap-2" role="group" aria-label="Filtrar por obra">
-        {[{ id: "todas", nombre: "Todas las obras" }, ...OBRAS].map((x) => (
-          <button
-            key={x.id}
-            type="button"
-            onClick={() => setObra(x.id)}
-            aria-pressed={obra === x.id}
-            className="rounded-full border px-3.5 py-1.5 text-[0.9rem] font-semibold"
-            style={obra === x.id ? { background: PLANO, color: "#fff", borderColor: PLANO } : { background: "#fff", borderColor: "rgba(23,58,94,.2)" }}
-          >
-            {x.nombre}
-          </button>
-        ))}
+        <div className="min-w-0">
+          {sec === "inicio" && <Resumen p={p} ir={ir} verTrabajador={setDetalle} />}
+          {sec === "planilla" && <PlanillaSemana p={p} verTrabajador={setDetalle} />}
+          {sec === "personal" && <Personal verTrabajador={setDetalle} />}
+          {sec === "prestaciones" && <Prestaciones />}
+          {sec === "solicitudes" && <Solicitudes p={p} />}
+        </div>
       </div>
 
-      {/* tabla en compu */}
-      <div className="ficha mt-4 hidden overflow-x-auto md:block">
-        <table className="num w-full text-[0.92rem]">
-          <thead>
-            <tr className="text-left" style={{ background: PLANO, color: "#fff" }}>
-              {["Trabajador", "Días", "H. extra", "Ordinario", "Séptimo", "Extras", "Bonificación", "IGSS", "Vales", "A pagar"].map((h) => (
-                <th key={h} className="px-3 py-2.5 font-semibold">
-                  {h}
-                </th>
+      <Cajon abierto={detalle !== null} alCerrar={() => setDetalle(null)} fondo="#fff">
+        {detalle && <FichaTrabajador t={detalle} p={p} alCerrar={() => setDetalle(null)} />}
+      </Cajon>
+    </main>
+  );
+}
+
+function Resumen({ p, ir, verTrabajador }: { p: Planilla; ir: (s: Sec) => void; verTrabajador: (t: Trabajador) => void }) {
+  const filas = TRABAJADORES.map((t) => ({ t, c: semanaDe(t, p.diasDe(t), p.solicitudes) }));
+  const totalSemana = filas.reduce((a, f) => a + f.c.liquido, 0);
+  const adentro = TRABAJADORES.filter((t) => {
+    const m = p.hoyDe(t);
+    return m && m.salida === null;
+  });
+  const pendientes = p.solicitudes.filter((s) => s.estado === "pendiente");
+  const aguinaldo = TRABAJADORES.reduce((a, t) => a + prestacionesDe(t).aguinaldo, 0);
+  const pagoAgu = prestacionesDe(TRABAJADORES[0]).pagoAgu;
+  const igss = TRABAJADORES.reduce((a, t) => {
+    const x = igssMes(t);
+    return a + x.laboral + x.patronal;
+  }, 0);
+  const alertas = filas.flatMap(({ t, c }) => {
+    const vac = prestacionesDe(t).vacDisponibles;
+    return [
+      ...(c.faltas ? [{ t, texto: `Faltó ${c.faltas === 1 ? "un día" : `${c.faltas} días`} esta semana y pierde el séptimo.` }] : []),
+      ...(c.tardes >= 2 ? [{ t, texto: `Llegó tarde ${c.tardes} veces esta semana.` }] : []),
+      ...(c.lejos ? [{ t, texto: "Un día marcó lejos de su obra. Revise la ubicación." }] : []),
+      ...(vac >= 12 ? [{ t, texto: `Tiene ${vac} días de vacaciones sin tomar.` }] : []),
+    ];
+  });
+
+  return (
+    <div className="grid gap-5">
+      <div>
+        <h1 className="text-[1.6rem] font-bold">Resumen</h1>
+        <p style={{ color: SUAVE }}>Al {fechaLarga(p.hoy)}</p>
+      </div>
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        <Dato etiqueta="Planilla de esta semana" valor={qz(totalSemana)} nota="Lo trabajado hasta hoy" />
+        <Dato etiqueta="Trabajando ahorita" valor={`${adentro.length} de ${TRABAJADORES.length}`} nota="Según el marcaje en las obras" />
+        <Dato etiqueta="Solicitudes por aprobar" valor={String(pendientes.length)} nota="Vales, permisos y vacaciones" color={pendientes.length ? ROJO : undefined} />
+        <Dato etiqueta="Aguinaldo acumulado" valor={qz(aguinaldo)} nota={`Se paga el 15 de diciembre (faltan ${faltan(pagoAgu)} días)`} />
+      </div>
+
+      <div className="grid gap-5 xl:grid-cols-2">
+        <Seccion titulo="Para revisar" nota="Lo que conviene ver antes de pagar">
+          {alertas.length === 0 ? (
+            <p className="px-4 py-3" style={{ color: SUAVE }}>Todo en orden.</p>
+          ) : (
+            <ul>
+              {alertas.map((a, i) => (
+                <li key={i} className="border-b last:border-0" style={{ borderColor: BORDE }}>
+                  <button type="button" onClick={() => verTrabajador(a.t)} className="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-[#f7f8fa]">
+                    <AlertTriangle size={17} className="mt-0.5 shrink-0" style={{ color: NARANJA }} />
+                    <span className="flex-1">
+                      <b>{a.t.nombre}</b>
+                      <span className="block text-[0.9rem]" style={{ color: SUAVE }}>{a.texto}</span>
+                    </span>
+                    <ChevronRight size={17} className="mt-0.5" style={{ color: SUAVE }} />
+                  </button>
+                </li>
               ))}
+            </ul>
+          )}
+        </Seccion>
+
+        <Seccion titulo="Hoy en cada obra" nota="Quién marcó entrada">
+          <ul>
+            {OBRAS.map((o) => {
+              const gente = TRABAJADORES.filter((t) => t.obra === o.id);
+              const sin = gente.filter((t) => !p.hoyDe(t));
+              return (
+                <li key={o.id} className="border-b px-4 py-3 last:border-0" style={{ borderColor: BORDE }}>
+                  <div className="flex justify-between gap-3">
+                    <span>
+                      <b>{o.nombre}</b> <span className="text-[0.85rem]" style={{ color: SUAVE }}>· {o.lugar}</span>
+                    </span>
+                    <span className="num font-semibold">
+                      {gente.length - sin.length}/{gente.length}
+                    </span>
+                  </div>
+                  {sin.length > 0 && <p className="mt-0.5 text-[0.88rem]" style={{ color: ROJO }}>Sin marcar: {sin.map((t) => t.nombre).join(", ")}</p>}
+                </li>
+              );
+            })}
+          </ul>
+        </Seccion>
+      </div>
+
+      <Seccion titulo="Próximos pagos" nota="Para que no se le pase ninguno">
+        <ul>
+          {(
+            [
+              ["Planilla de la semana", "Este sábado", qz(totalSemana), "planilla"],
+              [`IGSS de ${mesNombre(new Date())}`, `A más tardar el ${fmtFecha(fechaLimiteIgss())}`, qz(igss), "prestaciones"],
+              ["Aguinaldo", `A más tardar el ${fmtFecha(pagoAgu)}`, qz(aguinaldo), "prestaciones"],
+            ] as [string, string, string, Sec][]
+          ).map(([a, b, c, s]) => (
+            <li key={a} className="border-b last:border-0" style={{ borderColor: BORDE }}>
+              <button type="button" onClick={() => ir(s)} className="flex w-full flex-wrap items-center justify-between gap-2 px-4 py-3 text-left hover:bg-[#f7f8fa]">
+                <span>
+                  <b>{a}</b>
+                  <span className="block text-[0.88rem]" style={{ color: SUAVE }}>{b}</span>
+                </span>
+                <span className="num font-semibold">{c}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </Seccion>
+    </div>
+  );
+}
+
+function PlanillaSemana({ p, verTrabajador }: { p: Planilla; verTrabajador: (t: Trabajador) => void }) {
+  const [obra, setObra] = useState("todas");
+  const [msg, setMsg] = useState<string | null>(null);
+  const filas = TRABAJADORES.filter((t) => obra === "todas" || t.obra === obra).map((t) => ({ t, c: semanaDe(t, p.diasDe(t), p.solicitudes) }));
+  const suma = (k: "afecto" | "bonificacion" | "igss" | "descVales" | "liquido") => filas.reduce((a, f) => a + f.c[k], 0);
+
+  return (
+    <div className="grid gap-5">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-[1.6rem] font-bold">Planilla de la semana</h1>
+          <p style={{ color: SUAVE }}>
+            Del {diaCorto(p.dias[0]).toLowerCase()} {Number(p.dias[0].slice(8))} al {diaCorto(p.dias[5]).toLowerCase()} {Number(p.dias[5].slice(8))}, calculada con el marcaje
+          </p>
+        </div>
+        <select value={obra} onChange={(e) => setObra(e.target.value)} className="rounded-lg border bg-white px-3 py-2 font-semibold" style={{ borderColor: BORDE }}>
+          <option value="todas">Todas las obras</option>
+          {OBRAS.map((o) => (
+            <option key={o.id} value={o.id}>
+              {o.nombre}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="caja overflow-x-auto">
+        <table className="num w-full min-w-[46rem] text-[0.92rem]">
+          <thead>
+            <tr>
+              <th>Trabajador</th>
+              <th>Días</th>
+              <th>H. extra</th>
+              <th>Salario afecto</th>
+              <th>Bonificación</th>
+              <th>IGSS 4.83%</th>
+              <th>Vales</th>
+              <th>Líquido a pagar</th>
             </tr>
           </thead>
           <tbody>
-            {visibles.map(({ t, c }) => (
-              <tr key={t.id} onClick={() => setDetalle(t)} className="cursor-pointer border-t hover:bg-[#f4f7fa]" style={{ borderColor: "rgba(23,58,94,.1)" }}>
-                <td className="px-3 py-2.5">
-                  <span className="font-bold">{t.nombre}</span>
-                  <span className="block text-[0.8rem] opacity-60">
+            {filas.map(({ t, c }) => (
+              <tr key={t.id} onClick={() => verTrabajador(t)} className="cursor-pointer hover:bg-[#f7f8fa]">
+                <td>
+                  <span className="font-semibold">{t.nombre}</span>
+                  <span className="block text-[0.8rem]" style={{ color: SUAVE }}>
                     {t.puesto} · {obraDe(t.obra).nombre}
                   </span>
                 </td>
-                <td className="px-3">{c.diasTrab}/6</td>
-                <td className="px-3">{c.horasExtra || "—"}</td>
-                <td className="px-3">{qz(c.ordinario)}</td>
-                <td className="px-3" style={{ color: c.septimoEstado === "no" ? ROJO : undefined, opacity: c.septimoEstado === "pendiente" ? 0.55 : 1 }}>
-                  {c.septimoEstado === "si" ? qz(c.septimo) : c.septimoEstado === "no" ? "Lo perdió" : "Pendiente"}
+                <td>
+                  {c.diasTrab}/6
+                  {c.septimoEstado === "no" && <span className="block text-[0.78rem]" style={{ color: ROJO }}>sin séptimo</span>}
                 </td>
-                <td className="px-3">{c.extras ? qz(c.extras) : "—"}</td>
-                <td className="px-3">{qz(c.bonificacion)}</td>
-                <td className="px-3">−{qz(c.igss)}</td>
-                <td className="px-3">{c.descVales ? `−${qz(c.descVales)}` : "—"}</td>
-                <td className="px-3 font-bold">{qz(c.total)}</td>
+                <td>{c.horasExtra || "—"}</td>
+                <td>{qz(c.afecto)}</td>
+                <td>{qz(c.bonificacion)}</td>
+                <td>−{qz(c.igss)}</td>
+                <td>{c.descVales ? `−${qz(c.descVales)}` : "—"}</td>
+                <td className="font-bold">{qz(c.liquido)}</td>
               </tr>
             ))}
+            <tr style={{ background: "#f7f8fa" }}>
+              <td className="font-bold">Total</td>
+              <td />
+              <td />
+              <td className="font-semibold">{qz(suma("afecto"))}</td>
+              <td className="font-semibold">{qz(suma("bonificacion"))}</td>
+              <td className="font-semibold">−{qz(suma("igss"))}</td>
+              <td className="font-semibold">{suma("descVales") ? `−${qz(suma("descVales"))}` : "—"}</td>
+              <td className="font-bold">{qz(suma("liquido"))}</td>
+            </tr>
           </tbody>
         </table>
       </div>
+      <p className="text-[0.88rem]" style={{ color: SUAVE }}>
+        El salario afecto incluye días, séptimo y horas extra; sobre eso se calcula el IGSS. La bonificación de Q{BONIF_MES} al mes va aparte porque no paga IGSS. El séptimo se suma el sábado a quien complete la semana. Toque a un trabajador para ver el detalle.
+      </p>
 
-      {/* tarjetas en teléfono */}
-      <ul className="mt-4 grid gap-2.5 md:hidden">
-        {visibles.map(({ t, c }) => (
-          <li key={t.id}>
-            <button type="button" onClick={() => setDetalle(t)} className="ficha flex w-full items-center gap-3 p-3 text-left">
-              <Avatar t={t} size={40} />
-              <span className="min-w-0 flex-1">
-                <span className="block truncate font-bold">{t.nombre}</span>
-                <span className="num block text-[0.82rem] opacity-70">
-                  {c.diasTrab}/6 días{c.horasExtra ? ` · ${c.horasExtra} h extra` : ""}
-                  {c.septimoEstado === "no" ? " · sin séptimo" : ""}
-                </span>
-              </span>
-              <span className="num font-bold">{qz(c.total)}</span>
-            </button>
-          </li>
-        ))}
-      </ul>
-
-      <section className="mt-8 grid gap-4 lg:grid-cols-2">
-        <div className="ficha p-4">
-          <h2 className="font-bold">Lo que cuesta la mano de obra en cada obra</h2>
-          <ul className="mt-3 grid gap-3">
-            {porObra.map(({ o, total: x }) => (
-              <li key={o.id}>
-                <div className="flex justify-between text-[0.92rem]">
-                  <span>{o.nombre}</span>
-                  <b className="num">{qz(x)}</b>
-                </div>
-                <div className="mt-1 h-2.5 rounded-full bg-[#e3e9f0]">
-                  <div className="h-full rounded-full" style={{ width: `${(x / maxObra) * 100}%`, background: PLANO }} />
-                </div>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-3 text-[0.82rem] opacity-60">Incluye IGSS y vales, para que sepa cuánto le está costando cada proyecto.</p>
-        </div>
-        <div className="ficha p-4">
-          <h2 className="flex items-center gap-2 font-bold">
-            <HandCoins size={18} /> Vales y adelantos de la semana
-          </h2>
-          {p.vales.length === 0 ? (
-            <p className="mt-2 opacity-70">Nadie ha pedido vale esta semana.</p>
-          ) : (
-            <ul className="mt-2 grid gap-1.5 text-[0.92rem]">
-              {p.vales.map((v) => {
-                const t = TRABAJADORES.find((x) => x.id === v.trabajador)!;
-                return (
-                  <li key={v.id} className="flex justify-between gap-3">
-                    <span>
-                      <b>{t.nombre}</b> <span className="opacity-70">· {v.motivo}</span>
-                    </span>
-                    <span className="num font-semibold">{qz(v.monto)}</span>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-          <p className="mt-3 text-[0.82rem] opacity-60">Se descuentan solos de la planilla. Ya no se olvida ninguno.</p>
-        </div>
-      </section>
-
-      <div className="mt-8 flex flex-wrap items-center gap-3">
+      <div>
         {p.cerrada ? (
           <p className="flex items-center gap-2 font-semibold" style={{ color: VERDE }}>
-            <Check size={18} /> Planilla cerrada. Cada trabajador ya tiene su boleta en el teléfono.
+            <Check size={18} /> Planilla cerrada. Cada trabajador ya tiene su boleta en su portal.
           </p>
         ) : (
           <button
@@ -506,86 +563,241 @@ function Oficina({ p }: { p: Planilla }) {
             onClick={() => {
               p.cerrar();
               const t = TRABAJADORES[1];
-              const c = calcular(t, p.diasDe(t), p.vales);
-              setMsg(`Hola ${t.nombre.split(" ")[0]}, ya está su boleta de esta semana.\n\nDías: ${c.diasTrab}\nHoras extra: ${c.horasExtra}\nA recibir: ${qz(c.total)}\n\nVea el detalle aquí: loscedros.gt/boleta`);
+              const c = semanaDe(t, p.diasDe(t), p.solicitudes);
+              setMsg(`Constructora Los Cedros\nBoleta de ${t.nombre}, semana del ${Number(p.dias[0].slice(8))} al ${Number(p.dias[5].slice(8))}.\n\nDías trabajados: ${c.diasTrab}\nLíquido a recibir: ${qz(c.liquido)}\n\nEl detalle está en su portal con su código y su PIN.`);
             }}
-            className="inline-flex items-center gap-2 rounded-lg px-5 py-3 font-bold active:scale-[0.98]"
-            style={{ background: CASCO, color: TINTA }}
+            className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 font-semibold text-white"
+            style={{ background: AZUL }}
           >
-            <FileText size={18} /> Cerrar planilla y mandar boletas
+            <FileText size={17} /> Cerrar planilla y mandar boletas
           </button>
         )}
       </div>
-
-      <Cajon abierto={detalle !== null} alCerrar={() => setDetalle(null)} fondo="#fff">
-        {detalle && <Detalle t={detalle} p={p} alCerrar={() => setDetalle(null)} />}
-      </Cajon>
       <MensajeWhatsApp mensaje={msg} alCerrar={() => setMsg(null)} demo="planilla y control de empleados" que="la boleta" />
-    </main>
+    </div>
   );
 }
 
-function Desglose({ t, p }: { t: Trabajador; p: Planilla }) {
-  const c = calcular(t, p.diasDe(t), p.vales);
-  const filas: [string, string, number, boolean?][] = [
-    ["Días trabajados", `${c.diasTrab} × ${qz(t.diario)}`, c.ordinario],
-    ["Séptimo día", c.septimoEstado === "si" ? "Trabajó la semana completa" : c.septimoEstado === "no" ? "No se paga: le faltó un día" : `Se suma si completa la semana (faltan ${c.pendientes} días)`, c.septimo],
-    ["Horas extra", c.horasExtra ? `${c.horasExtra} h × ${qz((t.diario / 8) * 1.5)} (hora y media)` : "No hizo", c.extras],
-    ["Bonificación incentivo", `Q${BONIF_MES} al mes, por días trabajados`, c.bonificacion],
-    ["IGSS", `${(IGSS * 100).toFixed(2)}% de lo ganado`, -c.igss, true],
-    ...c.misVales.map((v) => [`Vale: ${v.motivo}`, `Pedido el ${diaCorto(v.fecha)}`, -v.monto, true] as [string, string, number, boolean]),
-  ];
+function Personal({ verTrabajador }: { verTrabajador: (t: Trabajador) => void }) {
   return (
-    <div className="ficha overflow-hidden">
-      <ul>
-        {filas.map(([a, b, n, menos]) => (
-          <li key={a} className="flex items-start justify-between gap-3 border-b px-4 py-2.5" style={{ borderColor: "rgba(23,58,94,.1)" }}>
-            <span>
-              <span className="block font-semibold">{a}</span>
-              <span className="block text-[0.82rem] opacity-65">{b}</span>
-            </span>
-            <span className="num font-semibold" style={{ color: menos ? ROJO : undefined }}>
-              {menos ? `−${qz(-n)}` : qz(n)}
-            </span>
-          </li>
-        ))}
-      </ul>
-      <div className="flex justify-between px-4 py-3 text-white" style={{ background: PLANO }}>
-        <span className="font-bold">A recibir</span>
-        <span className="plan-titulo num text-[1.5rem]">{qz(c.total)}</span>
+    <div className="grid gap-5">
+      <div>
+        <h1 className="text-[1.6rem] font-bold">Personal</h1>
+        <p style={{ color: SUAVE }}>{TRABAJADORES.length} trabajadores en {OBRAS.length} obras. Toque a uno para ver su ficha.</p>
+      </div>
+      <div className="caja overflow-x-auto">
+        <table className="num w-full min-w-[44rem] text-[0.92rem]">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Trabajador</th>
+              <th>Obra</th>
+              <th>Ingreso</th>
+              <th>Salario diario</th>
+              <th>Vacaciones disponibles</th>
+            </tr>
+          </thead>
+          <tbody>
+            {TRABAJADORES.map((t) => {
+              const pr = prestacionesDe(t);
+              return (
+                <tr key={t.id} onClick={() => verTrabajador(t)} className="cursor-pointer hover:bg-[#f7f8fa]">
+                  <td style={{ color: SUAVE }}>{t.codigo}</td>
+                  <td>
+                    <span className="font-semibold">{t.nombre}</span>
+                    <span className="block text-[0.8rem]" style={{ color: SUAVE }}>{t.puesto}</span>
+                  </td>
+                  <td>{obraDe(t.obra).nombre}</td>
+                  <td>
+                    {fechaLarga(t.ingreso)}
+                    <span className="block text-[0.8rem]" style={{ color: SUAVE }}>{antiguedad(t)}</span>
+                  </td>
+                  <td>{qz(t.diario)}</td>
+                  <td style={{ color: pr.vacDisponibles >= 12 ? NARANJA : undefined }}>{pr.vacDisponibles} días</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </div>
   );
 }
+
+function Prestaciones() {
+  const filas = TRABAJADORES.map((t) => ({ t, pr: prestacionesDe(t), ig: igssMes(t) }));
+  const s = (f: (x: (typeof filas)[number]) => number) => filas.reduce((a, x) => a + f(x), 0);
+  const pagoAgu = filas[0].pr.pagoAgu;
+  const pagoB14 = filas[0].pr.pagoB14;
+
+  return (
+    <div className="grid gap-5">
+      <div>
+        <h1 className="text-[1.6rem] font-bold">Prestaciones e IGSS</h1>
+        <p style={{ color: SUAVE }}>Lo que la empresa va debiendo, calculado al día de hoy</p>
+      </div>
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        <Dato etiqueta={`IGSS de ${mesNombre(new Date())}`} valor={qz(s((x) => x.ig.laboral + x.ig.patronal))} nota={`Pagar a más tardar el ${fmtFecha(fechaLimiteIgss())}`} />
+        <Dato etiqueta="Aguinaldo acumulado" valor={qz(s((x) => x.pr.aguinaldo))} nota={`Se paga el ${fmtFecha(pagoAgu)}`} />
+        <Dato etiqueta="Bono 14 acumulado" valor={qz(s((x) => x.pr.bono14))} nota={`Se paga el ${fmtFecha(pagoB14)}`} />
+        <Dato etiqueta="Indemnizaciones" valor={qz(s((x) => x.pr.indemnizacion))} nota="Si todos se fueran hoy" />
+      </div>
+
+      <Seccion titulo={`IGSS de ${mesNombre(new Date())}`} nota={`Laboral ${(IGSS_LAB * 100).toFixed(2)}%, que se descuenta al trabajador, y patronal ${(IGSS_PAT * 100).toFixed(2)}%, que pone la empresa (incluye IRTRA e INTECAP). Estimado con 26 días.`}>
+        <div className="overflow-x-auto">
+          <table className="num w-full min-w-[34rem] text-[0.92rem]">
+            <thead>
+              <tr>
+                <th>Trabajador</th>
+                <th>Salario del mes</th>
+                <th>Laboral</th>
+                <th>Patronal</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filas.map(({ t, ig }) => (
+                <tr key={t.id}>
+                  <td className="font-semibold">{t.nombre}</td>
+                  <td>{qz(ig.base)}</td>
+                  <td>{qz(ig.laboral)}</td>
+                  <td>{qz(ig.patronal)}</td>
+                  <td className="font-semibold">{qz(ig.laboral + ig.patronal)}</td>
+                </tr>
+              ))}
+              <tr style={{ background: "#f7f8fa" }}>
+                <td className="font-bold">Total</td>
+                <td className="font-semibold">{qz(s((x) => x.ig.base))}</td>
+                <td className="font-semibold">{qz(s((x) => x.ig.laboral))}</td>
+                <td className="font-semibold">{qz(s((x) => x.ig.patronal))}</td>
+                <td className="font-bold">{qz(s((x) => x.ig.laboral + x.ig.patronal))}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Seccion>
+
+      <Seccion titulo="Prestaciones por trabajador" nota="Aguinaldo y Bono 14: un salario al año, proporcional a lo trabajado. Vacaciones: 15 días hábiles por año.">
+        <div className="overflow-x-auto">
+          <table className="num w-full min-w-[40rem] text-[0.92rem]">
+            <thead>
+              <tr>
+                <th>Trabajador</th>
+                <th>Aguinaldo</th>
+                <th>Bono 14</th>
+                <th>Vacaciones</th>
+                <th>Indemnización estimada</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filas.map(({ t, pr }) => (
+                <tr key={t.id}>
+                  <td>
+                    <span className="font-semibold">{t.nombre}</span>
+                    <span className="block text-[0.8rem]" style={{ color: SUAVE }}>{antiguedad(t)}</span>
+                  </td>
+                  <td>
+                    {qz(pr.aguinaldo)}
+                    <span className="block text-[0.78rem]" style={{ color: SUAVE }}>{pr.diasAgu} días</span>
+                  </td>
+                  <td>
+                    {qz(pr.bono14)}
+                    <span className="block text-[0.78rem]" style={{ color: SUAVE }}>{pr.diasB14} días</span>
+                  </td>
+                  <td>{pr.vacDisponibles} días</td>
+                  <td>{qz(pr.indemnizacion)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Seccion>
+      <p className="text-[0.85rem]" style={{ color: SUAVE }}>
+        Montos de referencia para la demo. En su empresa se configuran con su contador: salarios, fechas y criterios.
+      </p>
+    </div>
+  );
+}
+
+const NOMBRE_TIPO: Record<Tipo, string> = { vale: "Vale", permiso: "Permiso", vacaciones: "Vacaciones" };
+
+function EstadoChip({ s }: { s: Solicitud }) {
+  const c = s.estado === "aprobada" ? VERDE : s.estado === "rechazada" ? ROJO : NARANJA;
+  return (
+    <span className="shrink-0 rounded-full px-2 py-0.5 text-[0.78rem] font-semibold" style={{ color: c, background: `${c}14` }}>
+      {s.estado === "pendiente" ? "Pendiente" : s.estado === "aprobada" ? "Aprobada" : "Rechazada"}
+    </span>
+  );
+}
+
+function Solicitudes({ p }: { p: Planilla }) {
+  const orden = [...p.solicitudes].sort((a, b) => Number(b.estado === "pendiente") - Number(a.estado === "pendiente"));
+  return (
+    <div className="grid gap-5">
+      <div>
+        <h1 className="text-[1.6rem] font-bold">Solicitudes</h1>
+        <p style={{ color: SUAVE }}>Lo que piden los trabajadores desde su portal. Los vales aprobados se descuentan solos en la planilla.</p>
+      </div>
+      <div className="caja">
+        <ul>
+          {orden.map((s) => {
+            const t = TRABAJADORES.find((x) => x.id === s.trabajador)!;
+            return (
+              <li key={s.id} className="flex flex-wrap items-center gap-3 border-b px-4 py-3 last:border-0" style={{ borderColor: BORDE }}>
+                <Avatar t={t} size={36} />
+                <span className="min-w-[12rem] flex-1">
+                  <b>{t.nombre}</b>{" "}
+                  <span style={{ color: SUAVE }}>
+                    · {NOMBRE_TIPO[s.tipo]}
+                    {s.monto ? ` de ${qz(s.monto)}` : ""}
+                    {s.dias ? ` · ${s.dias} días` : ""}
+                  </span>
+                  <span className="block text-[0.88rem]" style={{ color: SUAVE }}>
+                    {s.detalle} · pedido el {diaCorto(s.fecha).toLowerCase()} {Number(s.fecha.slice(8))}
+                  </span>
+                </span>
+                {s.estado === "pendiente" ? (
+                  <span className="flex gap-2">
+                    <button type="button" onClick={() => p.resolver(s.id, "rechazada")} className="rounded-lg border px-3 py-1.5 text-[0.9rem] font-semibold" style={{ borderColor: BORDE }}>
+                      Rechazar
+                    </button>
+                    <button type="button" onClick={() => p.resolver(s.id, "aprobada")} className="rounded-lg px-3 py-1.5 text-[0.9rem] font-semibold text-white" style={{ background: VERDE }}>
+                      Aprobar
+                    </button>
+                  </span>
+                ) : (
+                  <EstadoChip s={s} />
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+/* ═════════════ Piezas compartidas ═════════════ */
 
 function Dias({ t, p }: { t: Trabajador; p: Planilla }) {
   return (
     <ul className="grid grid-cols-3 gap-2 sm:grid-cols-6">
       {p.diasDe(t).map((d) => {
         const futuro = d.fecha > p.hoy;
-        const j = jornada(d.fecha);
-        const tarde = d.marca && d.marca.entrada > j.entra + 10;
+        const tarde = d.marca && d.marca.entrada > jornada(d.fecha).entra + 10;
         return (
-          <li key={d.fecha} className="ficha p-2 text-center" style={!d.marca && !futuro ? { borderColor: ROJO } : undefined}>
-            <p className="text-[0.8rem] font-semibold opacity-70">
-              {diaCorto(d.fecha)} {d.fecha.slice(8)}
+          <li key={d.fecha} className="rounded-lg border p-2 text-center" style={{ borderColor: !d.marca && !futuro && d.fecha < p.hoy ? ROJO : BORDE }}>
+            <p className="text-[0.8rem] font-semibold" style={{ color: SUAVE }}>
+              {diaCorto(d.fecha)} {Number(d.fecha.slice(8))}
             </p>
             {d.marca ? (
               <>
-                <p className="num mt-1 text-[0.85rem] font-bold" style={{ color: tarde ? ROJO : undefined }}>
-                  {hora(d.marca.entrada)}
-                </p>
-                <p className="num text-[0.85rem] opacity-75">{d.marca.salida !== null ? hora(d.marca.salida) : "adentro"}</p>
-                {d.marca.lejos && (
-                  <p className="mt-1 flex items-center justify-center gap-0.5 text-[0.7rem] font-semibold" style={{ color: ROJO }}>
-                    <MapPin size={10} /> lejos
-                  </p>
-                )}
+                <p className="num mt-1 text-[0.88rem] font-semibold" style={{ color: tarde ? ROJO : undefined }}>{hora(d.marca.entrada)}</p>
+                <p className="num text-[0.85rem]" style={{ color: SUAVE }}>{d.marca.salida !== null ? hora(d.marca.salida) : "adentro"}</p>
+                {d.marca.lejos && <p className="mt-0.5 text-[0.7rem] font-semibold" style={{ color: ROJO }}>fuera de la obra</p>}
               </>
             ) : (
-              <p className="mt-2 text-[0.82rem] font-semibold" style={{ color: futuro ? undefined : ROJO, opacity: futuro ? 0.4 : 1 }}>
-                {futuro ? "—" : "Faltó"}
-              </p>
+              <p className="mt-2 text-[0.82rem] font-semibold" style={{ color: d.fecha < p.hoy ? ROJO : SUAVE }}>{d.fecha < p.hoy ? "Faltó" : "—"}</p>
             )}
           </li>
         );
@@ -594,16 +806,50 @@ function Dias({ t, p }: { t: Trabajador; p: Planilla }) {
   );
 }
 
-function Detalle({ t, p, alCerrar }: { t: Trabajador; p: Planilla; alCerrar: () => void }) {
+function Desglose({ t, p }: { t: Trabajador; p: Planilla }) {
+  const c = semanaDe(t, p.diasDe(t), p.solicitudes);
+  const filas: [string, string, number][] = [
+    ["Días trabajados", `${c.diasTrab} × ${qz(t.diario)}`, c.ordinario],
+    ["Séptimo día", c.septimoEstado === "si" ? "Completó la semana" : c.septimoEstado === "no" ? "No se paga: faltó un día" : `Se suma si completa la semana (faltan ${c.pendientes} días)`, c.septimo],
+    ["Horas extra", c.horasExtra ? `${c.horasExtra} h × ${qz((t.diario / 8) * 1.5)} (hora y media)` : "No hizo", c.extras],
+    ["Bonificación incentivo", `Q${BONIF_MES} al mes, no paga IGSS`, c.bonificacion],
+    ["IGSS laboral", `${(IGSS_LAB * 100).toFixed(2)}% de ${qz(c.afecto)}`, -c.igss],
+    ...c.vales.map((v) => [`Vale: ${v.detalle}`, `Aprobado, pedido el ${diaCorto(v.fecha).toLowerCase()}`, -(v.monto ?? 0)] as [string, string, number]),
+  ];
   return (
-    <div className="h-full overflow-y-auto p-6">
+    <div className="overflow-hidden rounded-lg border" style={{ borderColor: BORDE }}>
+      <ul>
+        {filas.map(([a, b, n]) => (
+          <li key={a} className="flex items-start justify-between gap-3 border-b px-4 py-2.5" style={{ borderColor: BORDE }}>
+            <span>
+              <span className="block font-semibold">{a}</span>
+              <span className="block text-[0.82rem]" style={{ color: SUAVE }}>{b}</span>
+            </span>
+            <span className="num shrink-0 font-semibold" style={{ color: n < 0 ? ROJO : undefined }}>
+              {n < 0 ? `−${qz(-n)}` : qz(n)}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <div className="flex items-center justify-between px-4 py-3" style={{ background: "#f7f8fa" }}>
+        <span className="font-bold">Líquido a recibir</span>
+        <span className="num text-[1.2rem] font-bold">{qz(c.liquido)}</span>
+      </div>
+    </div>
+  );
+}
+
+function FichaTrabajador({ t, p, alCerrar }: { t: Trabajador; p: Planilla; alCerrar: () => void }) {
+  const pr = prestacionesDe(t);
+  return (
+    <div className="h-full overflow-y-auto p-6" style={{ color: TEXTO }}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <Avatar t={t} size={52} />
+          <Avatar t={t} size={48} />
           <div>
-            <p className="text-[1.15rem] font-bold">{t.nombre}</p>
-            <p className="text-[0.9rem] opacity-70">
-              {t.puesto} · {obraDe(t.obra).nombre} · {qz(t.diario)} al día
+            <p className="text-[1.1rem] font-bold">{t.nombre}</p>
+            <p className="text-[0.9rem]" style={{ color: SUAVE }}>
+              Código {t.codigo} · {t.puesto} · {obraDe(t.obra).nombre}
             </p>
           </div>
         </div>
@@ -611,112 +857,225 @@ function Detalle({ t, p, alCerrar }: { t: Trabajador; p: Planilla; alCerrar: () 
           <X size={18} />
         </button>
       </div>
-      <h3 className="mt-6 flex items-center gap-2 font-bold">
-        <Clock size={16} /> Entradas y salidas
-      </h3>
+      <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-2 text-[0.92rem]">
+        <dt style={{ color: SUAVE }}>Ingreso</dt>
+        <dd className="text-right">{fechaLarga(t.ingreso)}</dd>
+        <dt style={{ color: SUAVE }}>Salario diario</dt>
+        <dd className="num text-right">{qz(t.diario)}</dd>
+        <dt style={{ color: SUAVE }}>DPI</dt>
+        <dd className="text-right">{t.dpi}</dd>
+      </dl>
+      <h3 className="mt-6 font-bold">Esta semana</h3>
       <div className="mt-2">
         <Dias t={t} p={p} />
       </div>
-      <h3 className="mt-6 font-bold">De dónde sale cada quetzal</h3>
-      <div className="mt-2">
+      <div className="mt-3">
         <Desglose t={t} p={p} />
       </div>
+      <h3 className="mt-6 font-bold">Prestaciones al día de hoy</h3>
+      <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2 text-[0.92rem]">
+        <dt style={{ color: SUAVE }}>Aguinaldo acumulado</dt>
+        <dd className="num text-right">{qz(pr.aguinaldo)}</dd>
+        <dt style={{ color: SUAVE }}>Bono 14 acumulado</dt>
+        <dd className="num text-right">{qz(pr.bono14)}</dd>
+        <dt style={{ color: SUAVE }}>Vacaciones disponibles</dt>
+        <dd className="text-right">{pr.vacDisponibles} días</dd>
+        <dt style={{ color: SUAVE }}>Indemnización estimada</dt>
+        <dd className="num text-right">{qz(pr.indemnizacion)}</dd>
+      </dl>
     </div>
   );
 }
 
-/* ───────────── Mi boleta (teléfono del trabajador) ───────────── */
+/* ═════════════ Portal del empleado ═════════════ */
 
-function Boleta({ p }: { p: Planilla }) {
-  const [id, setId] = useState("ko");
-  const t = TRABAJADORES.find((x) => x.id === id)!;
-  const [pidiendo, setPidiendo] = useState(false);
+function Portal({ p }: { p: Planilla }) {
+  const [sesion, setSesion] = useState<string | null>(null);
+  const t = TRABAJADORES.find((x) => x.id === sesion);
+  return t ? <MiPortal key={t.id} t={t} p={p} salir={() => setSesion(null)} /> : <Entrar alEntrar={setSesion} />;
+}
+
+function Entrar({ alEntrar }: { alEntrar: (id: string) => void }) {
+  const [codigo, setCodigo] = useState("");
+  const [pin, setPin] = useState("");
+  const [error, setError] = useState("");
+  return (
+    <main className="mx-auto max-w-sm px-4 pb-16 pt-10">
+      <div className="caja p-6">
+        <Logo />
+        <h1 className="mt-6 text-[1.4rem] font-bold">Mi portal</h1>
+        <p style={{ color: SUAVE }}>Entre con su código de empleado y su PIN. Solo usted ve su información.</p>
+        <form
+          className="mt-5 grid gap-3"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const t = TRABAJADORES.find((x) => x.codigo === codigo.trim());
+            if (!t) return setError("No encontramos ese código.");
+            if (pin !== PIN_EJEMPLO) return setError("El PIN no es correcto.");
+            alEntrar(t.id);
+          }}
+        >
+          <label className="text-[0.9rem] font-semibold">
+            Código de empleado
+            <input inputMode="numeric" value={codigo} onChange={(e) => { setCodigo(e.target.value); setError(""); }} className="mt-1 block w-full rounded-lg border px-3 py-2.5 text-[1rem]" style={{ borderColor: BORDE }} placeholder="Ej. 102" />
+          </label>
+          <label className="text-[0.9rem] font-semibold">
+            PIN
+            <input type="password" inputMode="numeric" maxLength={4} value={pin} onChange={(e) => { setPin(e.target.value); setError(""); }} className="mt-1 block w-full rounded-lg border px-3 py-2.5 text-[1rem]" style={{ borderColor: BORDE }} placeholder="••••" />
+          </label>
+          {error && <p className="text-[0.9rem] font-semibold" style={{ color: ROJO }}>{error}</p>}
+          <button type="submit" className="mt-1 rounded-lg py-3 font-semibold text-white" style={{ background: AZUL }}>
+            Entrar
+          </button>
+        </form>
+        <p className="mt-4 rounded-lg px-3 py-2 text-[0.88rem]" style={{ background: "#f7f8fa", color: SUAVE }}>
+          Para probar: código <b>102</b> y PIN <b>{PIN_EJEMPLO}</b>. Cualquier código del 101 al 112 funciona.
+        </p>
+      </div>
+    </main>
+  );
+}
+
+function MiPortal({ t, p, salir }: { t: Trabajador; p: Planilla; salir: () => void }) {
+  const c = semanaDe(t, p.diasDe(t), p.solicitudes);
+  const pr = prestacionesDe(t);
+  const m = p.hoyDe(t);
+  const mias = p.solicitudes.filter((s) => s.trabajador === t.id);
+  const [tipo, setTipo] = useState<Tipo | null>(null);
   const [monto, setMonto] = useState(150);
-  const [motivo, setMotivo] = useState("");
-  const [listo, setListo] = useState(false);
-  const c = calcular(t, p.diasDe(t), p.vales);
+  const [dias, setDias] = useState(1);
+  const [detalle, setDetalle] = useState("");
 
   return (
-    <main className="mx-auto max-w-md px-4 pb-16 pt-6">
-      <label className="block text-[0.85rem] font-semibold opacity-70">
-        Ver como
-        <select value={id} onChange={(e) => { setId(e.target.value); setListo(false); }} className="mt-1 block w-full rounded-lg border bg-white px-3 py-2.5 text-[1rem] font-semibold" style={{ borderColor: "rgba(23,58,94,.25)", color: TINTA }}>
-          {TRABAJADORES.map((x) => (
-            <option key={x.id} value={x.id}>
-              {x.nombre} ({x.puesto})
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <div className="mt-5 rounded-2xl p-5 text-white" style={{ background: PLANO }}>
-        <div className="flex items-center gap-3">
-          <Avatar t={t} size={48} />
-          <div>
-            <p className="text-[0.9rem] opacity-75">Hola,</p>
-            <p className="plan-titulo text-[1.8rem]">{t.nombre.split(" ")[0]}</p>
+    <main className="mx-auto max-w-2xl px-4 pb-16 pt-6">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <Avatar t={t} size={44} />
+          <div className="min-w-0">
+            <p className="font-bold">Hola, {t.nombre.split(" ")[0]}</p>
+            <p className="truncate text-[0.85rem]" style={{ color: SUAVE }}>
+              Código {t.codigo} · {t.puesto} · {obraDe(t.obra).nombre}
+            </p>
           </div>
         </div>
-        <p className="mt-4 text-[0.9rem] opacity-75">Lo que lleva ganado esta semana, hasta hoy</p>
-        <p className="plan-titulo num text-[3rem]" style={{ color: CASCO }}>
-          {qz(c.total)}
-        </p>
-        <p className="num text-[0.9rem] opacity-75">
-          {c.diasTrab} de 6 días · {c.horasExtra} h extra · {c.septimoEstado === "si" ? "con séptimo" : c.septimoEstado === "no" ? "sin séptimo" : "séptimo pendiente"}
-        </p>
+        <button type="button" onClick={salir} className="flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-2 text-[0.9rem] font-semibold" style={{ borderColor: BORDE }}>
+          <LogOut size={16} /> Salir
+        </button>
       </div>
 
-      <h2 className="mt-6 font-bold">Mis días</h2>
-      <div className="mt-2">
-        <Dias t={t} p={p} />
+      <div className="mt-5 grid grid-cols-2 gap-3">
+        <Dato etiqueta="Lleva ganado esta semana" valor={qz(c.liquido)} nota={`${c.diasTrab} de 6 días`} />
+        <Dato etiqueta="Hoy" valor={!m ? "Sin marcar" : m.salida !== null ? `Salió ${hora(m.salida)}` : `Entró ${hora(m.entrada)}`} nota={obraDe(t.obra).nombre} />
       </div>
 
-      <h2 className="mt-6 font-bold">Mi boleta</h2>
-      <div className="mt-2">
-        <Desglose t={t} p={p} />
-      </div>
+      <div className="mt-5 grid gap-5">
+        <Seccion titulo="Mi semana" nota="Sus entradas y salidas, y de dónde sale su pago">
+          <div className="grid gap-3 p-4">
+            <Dias t={t} p={p} />
+            <Desglose t={t} p={p} />
+          </div>
+        </Seccion>
 
-      <div className="mt-6 ficha p-4">
-        {listo ? (
-          <p className="flex items-start gap-2 font-semibold" style={{ color: VERDE }}>
-            <Check size={18} className="mt-0.5 shrink-0" /> Listo. La oficina ya ve su vale y se descuenta solo en la planilla.
-          </p>
-        ) : !pidiendo ? (
-          <button type="button" onClick={() => setPidiendo(true)} className="flex w-full items-center justify-between font-bold">
-            <span className="flex items-center gap-2">
-              <HandCoins size={18} /> Pedir un vale o adelanto
-            </span>
-            <ArrowRight size={18} />
-          </button>
-        ) : (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              p.pedirVale(t, monto, motivo.trim() || "Adelanto");
-              setPidiendo(false);
-              setMotivo("");
-              setListo(true);
-            }}
-          >
-            <p className="font-bold">¿Cuánto necesita?</p>
-            <div className="mt-2 flex gap-2">
-              {[100, 150, 200, 300].map((m) => (
-                <button key={m} type="button" onClick={() => setMonto(m)} aria-pressed={monto === m} className="num flex-1 rounded-lg border py-2 font-bold" style={monto === m ? { background: PLANO, color: "#fff", borderColor: PLANO } : { borderColor: "rgba(23,58,94,.2)" }}>
-                  Q{m}
-                </button>
-              ))}
-            </div>
-            <label className="mt-3 block text-[0.9rem] font-semibold">
-              ¿Para qué? (opcional)
-              <input value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder="Pasaje, medicina…" className="mt-1 block w-full rounded-lg border px-3 py-2.5" style={{ borderColor: "rgba(23,58,94,.25)" }} />
-            </label>
-            <button type="submit" className="mt-3 w-full rounded-lg py-3 font-bold" style={{ background: CASCO, color: TINTA }}>
-              Pedir {`Q${monto}`}
-            </button>
-          </form>
-        )}
+        <Seccion titulo="Mis prestaciones" nota="Lo que lleva acumulado a hoy">
+          <dl className="grid grid-cols-[1fr_auto] gap-x-4 gap-y-3 p-4 text-[0.95rem]">
+            <dt>
+              Aguinaldo
+              <span className="block text-[0.82rem]" style={{ color: SUAVE }}>Se paga el {fmtFecha(pr.pagoAgu)}</span>
+            </dt>
+            <dd className="num text-right font-semibold">{qz(pr.aguinaldo)}</dd>
+            <dt>
+              Bono 14
+              <span className="block text-[0.82rem]" style={{ color: SUAVE }}>Se paga el {fmtFecha(pr.pagoB14)}</span>
+            </dt>
+            <dd className="num text-right font-semibold">{qz(pr.bono14)}</dd>
+            <dt>
+              Vacaciones disponibles
+              <span className="block text-[0.82rem]" style={{ color: SUAVE }}>15 días hábiles por año trabajado</span>
+            </dt>
+            <dd className="text-right font-semibold">{pr.vacDisponibles} días</dd>
+          </dl>
+        </Seccion>
+
+        <Seccion titulo="Mis solicitudes" nota="Pida vales, permisos o vacaciones; la oficina le responde aquí">
+          <div className="p-4">
+            {tipo === null ? (
+              <div className="grid grid-cols-3 gap-2">
+                {(
+                  [
+                    ["vale", "Vale", HandCoins],
+                    ["permiso", "Permiso", Calendar],
+                    ["vacaciones", "Vacaciones", Calendar],
+                  ] as const
+                ).map(([id, txt, I]) => (
+                  <button key={id} type="button" onClick={() => setTipo(id)} className="flex flex-col items-center gap-1 rounded-lg border py-3 font-semibold" style={{ borderColor: BORDE }}>
+                    <I size={18} style={{ color: AZUL }} /> {txt}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <form
+                className="grid gap-3"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  p.pedir({
+                    trabajador: t.id,
+                    tipo,
+                    detalle: detalle.trim() || (tipo === "vale" ? "Adelanto" : tipo === "permiso" ? "Permiso" : "Vacaciones"),
+                    monto: tipo === "vale" ? monto : undefined,
+                    dias: tipo === "vacaciones" ? dias : undefined,
+                  });
+                  setTipo(null);
+                  setDetalle("");
+                }}
+              >
+                <p className="font-semibold">{NOMBRE_TIPO[tipo]}</p>
+                {tipo === "vale" && (
+                  <div className="flex gap-2">
+                    {[100, 150, 200, 300].map((x) => (
+                      <button key={x} type="button" onClick={() => setMonto(x)} aria-pressed={monto === x} className="num flex-1 rounded-lg border py-2 font-semibold" style={monto === x ? { background: AZUL, color: "#fff", borderColor: AZUL } : { borderColor: BORDE }}>
+                        Q{x}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {tipo === "vacaciones" && (
+                  <label className="text-[0.9rem] font-semibold">
+                    ¿Cuántos días? (tiene {pr.vacDisponibles})
+                    <input type="number" min={1} max={Math.max(1, Math.floor(pr.vacDisponibles))} value={dias} onChange={(e) => setDias(Number(e.target.value))} className="mt-1 block w-full rounded-lg border px-3 py-2.5" style={{ borderColor: BORDE }} />
+                  </label>
+                )}
+                <label className="text-[0.9rem] font-semibold">
+                  {tipo === "vale" ? "¿Para qué? (opcional)" : "¿Qué día y por qué?"}
+                  <input value={detalle} onChange={(e) => setDetalle(e.target.value)} className="mt-1 block w-full rounded-lg border px-3 py-2.5" style={{ borderColor: BORDE }} placeholder={tipo === "vale" ? "Pasaje, medicina…" : "Ej. viernes en la mañana, cita médica"} />
+                </label>
+                <div className="flex gap-2">
+                  <button type="button" onClick={() => setTipo(null)} className="flex-1 rounded-lg border py-2.5 font-semibold" style={{ borderColor: BORDE }}>
+                    Cancelar
+                  </button>
+                  <button type="submit" className="flex-1 rounded-lg py-2.5 font-semibold text-white" style={{ background: AZUL }}>
+                    Enviar a la oficina
+                  </button>
+                </div>
+              </form>
+            )}
+            {mias.length > 0 && (
+              <ul className="mt-4 grid gap-2">
+                {mias.map((s) => (
+                  <li key={s.id} className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2" style={{ borderColor: BORDE }}>
+                    <span className="text-[0.92rem]">
+                      <b>{NOMBRE_TIPO[s.tipo]}</b>
+                      {s.monto ? ` de ${qz(s.monto)}` : ""}
+                      {s.dias ? ` · ${s.dias} días` : ""}
+                      <span className="block text-[0.82rem]" style={{ color: SUAVE }}>{s.detalle}</span>
+                    </span>
+                    <EstadoChip s={s} />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </Seccion>
       </div>
-      <p className="mt-4 text-center text-[0.85rem] opacity-60">Sin papeles: su boleta queda aquí cada semana.</p>
     </main>
   );
 }
