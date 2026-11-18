@@ -10,7 +10,7 @@ import { EMAIL, WHATSAPP_DISPLAY, WA_DIAGNOSTICO, WA_HOLA, laTienda } from "@/da
 import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import { cambiarTema, useTema } from "@/lib/tema";
-import { topesDeSecciones } from "@/lib/hojas";
+import { irASeccion, topesDeSecciones } from "@/lib/hojas";
 import { abrirChat } from "./ChatWhatsApp";
 import { Logo } from "./Logo";
 import { Titulo } from "./Titulo";
@@ -52,6 +52,26 @@ function BotonTema() {
 
 export function Encabezado() {
   const [activo, setActivo] = useState("");
+
+  // los enlaces a secciones de la Home (#trabajos, #rubros...) llegan con un solo clic
+  useEffect(() => {
+    const alClic = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const a = (e.target as HTMLElement).closest("a");
+      if (!a || a.target === "_blank") return;
+      const url = new URL(a.href, location.href);
+      if (url.origin !== location.origin || url.pathname !== location.pathname || !url.hash) return;
+      const id = decodeURIComponent(url.hash.slice(1));
+      if (irASeccion(id)) {
+        e.preventDefault();
+        history.replaceState(null, "", url.hash);
+      }
+    };
+    document.addEventListener("click", alClic);
+    // si se llega a la Home con #seccion desde otra página
+    if (location.hash) setTimeout(() => irASeccion(decodeURIComponent(location.hash.slice(1)), false), 350);
+    return () => document.removeEventListener("click", alClic);
+  }, []);
 
   // marcar en el menú la sección que se está viendo (las secciones están pegadas: se usa su lugar original)
   useEffect(() => {
