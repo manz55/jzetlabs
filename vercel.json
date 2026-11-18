@@ -113,6 +113,14 @@
       "destination": "/demos/pasteleria/index.html"
     },
     {
+      "source": "/muestras/tustore",
+      "destination": "/muestras/tustore/index.html"
+    },
+    {
+      "source": "/muestras/tustore/",
+      "destination": "/muestras/tustore/index.html"
+    },
+    {
       "source": "/demos/planilla",
       "destination": "/demos/planilla/index.html"
     },

@@ -44,6 +44,7 @@ export default defineConfig({
         demoGimnasio: resolve(__dirname, 'demos/gimnasio/index.html'),
         demoDistribuidora: resolve(__dirname, 'demos/distribuidora/index.html'),
         demoPlanilla: resolve(__dirname, 'demos/planilla/index.html'),
+        muestraTuStore: resolve(__dirname, 'muestras/tustore/index.html'),
         demoEventos: resolve(__dirname, 'demos/eventos/index.html'),
         demoPediatria: resolve(__dirname, 'demos/pediatria/index.html'),
         demoMedicina: resolve(__dirname, 'demos/medicina/index.html'),
