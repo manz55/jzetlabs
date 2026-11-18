@@ -27,6 +27,7 @@ export function IconoWhatsApp() {
 
 const MENU = [
   { href: "/#trabajos", id: "trabajos", texto: "Trabajos" },
+  { href: "/#rubros", id: "rubros", texto: "Demos" },
   { href: "/#que-hago", id: "que-hago", texto: "Lo que hago" },
   { href: "/#como-trabajo", id: "como-trabajo", texto: "Cómo trabajo" },
   { href: "/web", id: "", texto: "Páginas web" },

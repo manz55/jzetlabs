@@ -7,7 +7,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from
 import clinicaPanel from "@/assets/demos/clinica-panel.jpg";
 import gimnasio from "@/assets/demo-gimnasio/sentadilla.jpg";
 import tienda from "@/assets/demos/tienda-dueno.jpg";
-import marcaje from "@/assets/sistema/cel-marcaje.jpg";
+import marcaje from "@/assets/sistema/obra-cuadrilla.jpg";
 // fotos libres de Unsplash (licencia Unsplash): photo-1624353656309, photo-1621996346565, photo-1623718649591
 import fotoRopa from "@/assets/demos/ropa.jpg";
 import fotoComida from "@/assets/demos/comida.jpg";
@@ -194,37 +194,38 @@ const VARIANTES: Record<string, Variante[]> = { belleza: VARIANTES_BELLEZA, tien
 
 const RUTA_DEMO: Record<string, string> = { distribuidora: "/demos/distribuidora/", asistencia: "/demos/planilla/", clinica: "/demos/clinica/", pediatria: "/demos/pediatria/", medicina: "/demos/medicina/", perfil: "/demos/perfil-belleza/", salon: "/demos/salon/", boutique: "/demos/boutique/", ropa: "/demos/ropa/", cosmeticos: "/demos/cosmeticos/", celulares: "/demos/celulares/", restaurante: "/demos/restaurante/", tiempo: "/demos/tiempo-compartido/" };
 
-/* Tarjetas con foto: al pasar el mouse por una, las demás se ponen borrosas; sin mouse, todas nítidas */
+/* Tipos de negocio: tarjetas que se ven claramente como opciones para escoger */
 function TarjetasFoco({ variantes, elegida, alElegir }: { variantes: Variante[]; elegida: number; alElegir: (i: number) => void }) {
-  const [encima, setEncima] = useState<number | null>(null);
+  const columnas = variantes.length === 2 ? "sm:grid-cols-2" : variantes.length === 3 ? "sm:grid-cols-3" : variantes.length === 4 ? "sm:grid-cols-2 xl:grid-cols-4" : "sm:grid-cols-2 lg:grid-cols-3";
   return (
-    <div
-      className={`md:col-span-2 grid grid-cols-2 gap-3 sm:gap-4 ${variantes.length === 4 ? "lg:grid-cols-4" : variantes.length === 3 ? "sm:grid-cols-3" : variantes.length === 2 ? "" : "sm:grid-cols-3 lg:grid-cols-5"}`}
-      onMouseLeave={() => setEncima(null)}
-      role="group"
-      aria-label="Tipo de negocio"
-    >
-      {variantes.map((v, i) => {
-        const borrosa = encima !== null && encima !== i;
-        return (
-          <button
-            key={v.id}
-            type="button"
-            onClick={() => alElegir(i)}
-            onMouseEnter={() => setEncima(i)}
-            onFocus={() => setEncima(i)}
-            onBlur={() => setEncima(null)}
-            aria-pressed={i === elegida}
-            className={`group relative overflow-hidden rounded-2xl aspect-[4/5] sm:aspect-[16/10] text-left transition-all duration-300 ease-out active:scale-[0.98] ${
-              borrosa ? "blur-[3px] scale-[0.98] opacity-80" : ""
-            } ${i === elegida ? "ring-[3px] ring-acento ring-offset-2 ring-offset-papel" : ""}`}
-          >
-            <img src={v.foto} alt="" className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
-            <span className="absolute inset-0 bg-[linear-gradient(to_top,rgba(28,23,20,.75),transparent_60%)]" />
-            <span className="absolute left-3 right-3 bottom-2.5 sm:left-4 sm:bottom-3.5 text-white font-semibold text-[0.85rem] sm:text-[1.15rem] leading-tight">{v.nombre}</span>
-          </button>
-        );
-      })}
+    <div className="md:col-span-2">
+      <p className="font-semibold text-tinta">
+        Escoja su tipo de negocio <span className="font-normal text-suave">· {variantes.length} opciones</span>
+      </p>
+      <div className={`mt-3 grid gap-2.5 ${columnas}`} role="radiogroup" aria-label="Tipo de negocio">
+        {variantes.map((v, i) => {
+          const activa = i === elegida;
+          return (
+            <button
+              key={v.id}
+              type="button"
+              role="radio"
+              aria-checked={activa}
+              onClick={() => alElegir(i)}
+              className={`flex items-center gap-3 rounded-xl border bg-blanco p-2.5 pr-3.5 text-left transition active:scale-[0.99] ${activa ? "border-acento shadow-[0_0_0_2px_var(--color-acento)]" : "border-linea hover:border-tinta/30"}`}
+            >
+              <img src={v.foto} alt="" className="h-14 w-14 shrink-0 rounded-lg object-cover" loading="lazy" />
+              <span className="min-w-0 flex-1">
+                <span className="block font-semibold leading-tight text-tinta">{v.nombre}</span>
+                <span className="mt-0.5 block text-[0.8rem] leading-snug text-suave line-clamp-2">{v.problema}</span>
+              </span>
+              <span aria-hidden className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 ${activa ? "border-acento" : "border-linea"}`}>
+                {activa && <span className="h-2.5 w-2.5 rounded-full bg-acento" />}
+              </span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -284,7 +285,7 @@ const RUBROS: Rubro[] = [
       "Caja chica y viáticos, todo en el mismo lugar.",
     ],
     img: marcaje,
-    alt: "Pantalla de marcaje en el celular con datos de prueba",
+    alt: "Cuadrilla de trabajadores en una obra",
     demo: { texto: "Ver el panel de la oficina", href: "/demos/planilla/" }, demo2: { texto: "Ver el portal del empleado", href: "/demos/planilla/#empleado" },
   },
   {
@@ -423,13 +424,14 @@ export function Rubros() {
           <p className="mt-4 text-suave text-[1.05rem]">¿Qué problema tiene su negocio? Elija su rubro: el problema de hoy, cómo lo resuelve el sistema y una demo para probar.</p>
         </div>
 
+        <p className="mt-8 font-semibold text-tinta aparece">Escoja su rubro</p>
         <div
           ref={lista}
           role="tablist"
           aria-label="Rubros"
           onKeyDown={teclas}
           onMouseLeave={() => setEncima(null)}
-          className="relative mt-8 flex w-fit max-w-full overflow-x-auto rounded-full border border-linea bg-crema p-1 [scrollbar-width:none] aparece"
+          className="relative mt-3 flex w-fit max-w-full overflow-x-auto rounded-full border border-linea bg-crema p-1 [scrollbar-width:none] aparece"
         >
           <span
             aria-hidden
