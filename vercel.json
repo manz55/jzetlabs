@@ -97,6 +97,14 @@
       "destination": "/demos/salon/index.html"
     },
     {
+      "source": "/demos/gimnasio",
+      "destination": "/demos/gimnasio/index.html"
+    },
+    {
+      "source": "/demos/gimnasio/",
+      "destination": "/demos/gimnasio/index.html"
+    },
+    {
       "source": "/demos/pasteleria",
       "destination": "/demos/pasteleria/index.html"
     },

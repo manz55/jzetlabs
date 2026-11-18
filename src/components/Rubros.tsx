@@ -5,7 +5,7 @@
  */
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
 import clinicaPanel from "@/assets/demos/clinica-panel.jpg";
-import gimnasio from "@/assets/demos/gimnasio-dueno.jpg";
+import gimnasio from "@/assets/demo-gimnasio/sentadilla.jpg";
 import tienda from "@/assets/demos/tienda-dueno.jpg";
 import ventas from "@/assets/demos/ventas-dueno.jpg";
 import marcaje from "@/assets/sistema/cel-marcaje.jpg";
@@ -245,8 +245,9 @@ const RUBROS: Rubro[] = [
       "Cobros e ingresos del mes, de un vistazo.",
     ],
     img: gimnasio,
-    alt: "Panel de un gimnasio de prueba con las entradas de hoy",
-    demo: { texto: "Pruebe la demo del gimnasio", href: `${DEMOS}gimnasio/socio.html` },
+    alt: "Socia entrenando con la barra en el gimnasio",
+    demo: { texto: "Pruebe la recepción del gimnasio", href: "/demos/gimnasio/#recepcion" },
+    demo2: { texto: "Ver la página del gimnasio", href: "/demos/gimnasio/" },
   },
   {
     id: "belleza",

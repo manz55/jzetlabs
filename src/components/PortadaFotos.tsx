@@ -31,7 +31,7 @@ const RUBROS = [
   { t: "Clínicas", href: "/demos/clinica/" },
   { t: "Tiendas", href: "/demos/ropa/" },
   { t: "Restaurantes", href: "/demos/restaurante/" },
-  { t: "Gimnasios", href: `${LATIENDA}gimnasio/socio.html` },
+  { t: "Gimnasios", href: "/demos/gimnasio/" },
   { t: "Empresas", href: `${LATIENDA}asistencia/empleado.html` },
 ];
 

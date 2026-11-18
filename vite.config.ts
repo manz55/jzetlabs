@@ -41,6 +41,7 @@ export default defineConfig({
         demoPerfil: resolve(__dirname, 'demos/perfil-belleza/index.html'),
         demoSalon: resolve(__dirname, 'demos/salon/index.html'),
         demoPasteleria: resolve(__dirname, 'demos/pasteleria/index.html'),
+        demoGimnasio: resolve(__dirname, 'demos/gimnasio/index.html'),
       },
     },
   },
