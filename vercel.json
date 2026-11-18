@@ -87,6 +87,14 @@
     {
       "source": "/demos/perfil-belleza/",
       "destination": "/demos/perfil-belleza/index.html"
+    },
+    {
+      "source": "/demos/salon",
+      "destination": "/demos/salon/index.html"
+    },
+    {
+      "source": "/demos/salon/",
+      "destination": "/demos/salon/index.html"
     }
   ],
   "redirects": [

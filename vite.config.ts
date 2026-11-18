@@ -39,6 +39,7 @@ export default defineConfig({
         demoTiempo: resolve(__dirname, 'demos/tiempo-compartido/index.html'),
         demoClinica: resolve(__dirname, 'demos/clinica/index.html'),
         demoPerfil: resolve(__dirname, 'demos/perfil-belleza/index.html'),
+        demoSalon: resolve(__dirname, 'demos/salon/index.html'),
       },
     },
   },

@@ -17,6 +17,7 @@ import fotoCosmeticos from "@/assets/demo-cosmeticos/kit.jpg";
 import fotoCelulares from "@/assets/demo-celulares/ip17promax.jpg";
 import fotoPerfil from "@/assets/demo-cosmeticos/maquillista.jpg";
 import fotoBoutique from "@/assets/demo-lujo/percha.jpg";
+import fotoSalon from "@/assets/demo-cosmeticos/estudio.jpg";
 import { whatsappLink } from "@/data/site";
 import { Titulo } from "./Titulo";
 
@@ -67,6 +68,16 @@ const VARIANTES_BELLEZA: Variante[] = [
     demo: { texto: "Pruebe la demo de cosméticos", tipo: "cosmeticos" },
   },
   {
+    id: "salon",
+    nombre: "Salones",
+    foto: fotoSalon,
+    problema: "Cada sucursal agenda por su propio WhatsApp, y las citas se cruzan.",
+    hoy: ["La clienta escribe para preguntar si hay hora y espera a que le contesten.", "Las que no llegan dejan huecos, y nadie se acuerda de invitar a las que ya les toca retoque."],
+    sistema: ["La clienta elige sucursal, servicio, con quién y la hora libre, sola y a cualquier hora.", "Recordatorio por WhatsApp un día antes de cada cita.", "La agenda del día por estilista y la lista de quién ya necesita retoque."],
+    visual: "foto",
+    demo: { texto: "Pruebe la demo del salón", tipo: "salon" },
+  },
+  {
     id: "boutique",
     nombre: "Boutique",
     foto: fotoBoutique,
@@ -113,7 +124,7 @@ const VARIANTES_TIENDA: Variante[] = [
 
 const VARIANTES: Record<string, Variante[]> = { belleza: VARIANTES_BELLEZA, tiendas: VARIANTES_TIENDA };
 
-const RUTA_DEMO: Record<string, string> = { perfil: "/demos/perfil-belleza/", boutique: "/demos/boutique/", ropa: "/demos/ropa/", cosmeticos: "/demos/cosmeticos/", celulares: "/demos/celulares/", restaurante: "/demos/restaurante/", tiempo: "/demos/tiempo-compartido/" };
+const RUTA_DEMO: Record<string, string> = { perfil: "/demos/perfil-belleza/", salon: "/demos/salon/", boutique: "/demos/boutique/", ropa: "/demos/ropa/", cosmeticos: "/demos/cosmeticos/", celulares: "/demos/celulares/", restaurante: "/demos/restaurante/", tiempo: "/demos/tiempo-compartido/" };
 
 /* Tarjetas con foto: al pasar el mouse por una, las demás se ponen borrosas; sin mouse, todas nítidas */
 function TarjetasFoco({ variantes, elegida, alElegir }: { variantes: Variante[]; elegida: number; alElegir: (i: number) => void }) {

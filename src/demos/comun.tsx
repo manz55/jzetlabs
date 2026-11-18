@@ -13,6 +13,7 @@ export const GRUPOS_DEMOS = [
     grupo: "Belleza y moda",
     demos: [
       { nombre: "Perfil de belleza", href: "/demos/perfil-belleza/" },
+      { nombre: "Salón", href: "/demos/salon/" },
       { nombre: "Cosméticos", href: "/demos/cosmeticos/" },
       { nombre: "Tienda de ropa", href: "/demos/ropa/" },
       { nombre: "Boutique", href: "/demos/boutique/" },

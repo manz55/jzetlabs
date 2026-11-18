@@ -9,6 +9,7 @@ type Demo = { titulo: string; carga: () => Promise<{ default: ComponentType }> }
 
 export const RUTAS: Record<string, Demo> = {
   "/demos/perfil-belleza/": { titulo: "Tu perfil de belleza · Demo de Jzet Labs", carga: () => import("./perfil/PerfilDemo") },
+  "/demos/salon/": { titulo: "Lirio Salón · Demo de Jzet Labs", carga: () => import("./salon/SalonDemo") },
   "/demos/cosmeticos/": { titulo: "Ámbar Cosmetics · Demo de Jzet Labs", carga: () => import("./cosmeticos/CosmeticosDemo") },
   "/demos/ropa/": { titulo: "Nómada Studio · Demo de Jzet Labs", carga: () => import("./ropa/RopaDemo") },
   "/demos/boutique/": { titulo: "Maison Solène · Demo de Jzet Labs", carga: () => import("./lujo/LujoDemo") },
