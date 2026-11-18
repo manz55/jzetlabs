@@ -1,15 +1,9 @@
 /*
  * Datos de la muestra para Tu Store (Xela). Equipos y precios tomados de su
- * Instagram (Black Week, nov 2026). Especificaciones de referencia. Las fotos
- * son de referencia (Unsplash); en su página real van las suyas.
+ * Instagram (Black Week, nov 2026). Las fotos son las de sus propias publicaciones.
+ * El S23 queda sin foto: en su publicación subieron la imagen del iPhone 16.
  * Accesorios, reparaciones y testimonios son de ejemplo para enseñar la idea.
  */
-import ip16 from "@/assets/demo-celulares/ip17.jpg";
-import ip15pro from "@/assets/demo-celulares/ip15pro.jpg";
-import ip13 from "@/assets/demo-celulares/ip13.jpg";
-import s24u from "@/assets/demo-celulares/s24ultra.jpg";
-import s26 from "@/assets/demo-celulares/s26.jpg";
-import pixel from "@/assets/demo-celulares/pixel9.jpg";
 import airpods from "@/assets/demo-celulares/airpods.jpg";
 import audifonos from "@/assets/demo-celulares/audifonos.jpg";
 import cargador from "@/assets/demo-celulares/cargador.jpg";
@@ -17,15 +11,28 @@ import cable from "@/assets/demo-celulares/cable.jpg";
 import fundas from "@/assets/demo-celulares/fundas-magsafe.jpg";
 import bateria from "@/assets/demo-celulares/bateria.jpg";
 import reloj from "@/assets/demo-celulares/reloj.jpg";
-import appleAtras from "@/assets/muestra-tustore/apple-atras.jpg";
-import appleCamara from "@/assets/muestra-tustore/apple-camara.jpg";
-import applePlata from "@/assets/muestra-tustore/apple-plata.jpg";
-import appleNaranja from "@/assets/muestra-tustore/apple-naranja.jpg";
-import appleMano from "@/assets/muestra-tustore/apple-mano.jpg";
-import samsungUltra from "@/assets/muestra-tustore/samsung-ultra.jpg";
-import samsungSpen from "@/assets/muestra-tustore/samsung-spen.jpg";
-import samsungColores from "@/assets/muestra-tustore/samsung-colores.jpg";
-import samsungAtras from "@/assets/muestra-tustore/samsung-atras.jpg";
+import r_ip16 from "@/assets/muestra-tustore/ig/rec-ip16.jpg";
+import f_ip16 from "@/assets/muestra-tustore/ig/ip16.jpg";
+import r_ip15p from "@/assets/muestra-tustore/ig/rec-ip15p.jpg";
+import f_ip15p from "@/assets/muestra-tustore/ig/ip15p.jpg";
+import r_ip13pm from "@/assets/muestra-tustore/ig/rec-ip13pm.jpg";
+import f_ip13pm from "@/assets/muestra-tustore/ig/ip13pm.jpg";
+import r_ip13p from "@/assets/muestra-tustore/ig/rec-ip13p.jpg";
+import f_ip13p from "@/assets/muestra-tustore/ig/ip13p.jpg";
+import r_ip13 from "@/assets/muestra-tustore/ig/rec-ip13.jpg";
+import f_ip13 from "@/assets/muestra-tustore/ig/ip13.jpg";
+import r_ip12 from "@/assets/muestra-tustore/ig/rec-ip12.jpg";
+import f_ip12 from "@/assets/muestra-tustore/ig/ip12.jpg";
+import r_s24u from "@/assets/muestra-tustore/ig/rec-s24u.jpg";
+import f_s24u from "@/assets/muestra-tustore/ig/s24u.jpg";
+import r_s23u from "@/assets/muestra-tustore/ig/rec-s23u.jpg";
+import f_s23u from "@/assets/muestra-tustore/ig/s23u.jpg";
+import r_s22 from "@/assets/muestra-tustore/ig/rec-s22.jpg";
+import f_s22 from "@/assets/muestra-tustore/ig/s22.jpg";
+import r_px10 from "@/assets/muestra-tustore/ig/rec-px10.jpg";
+import f_px10 from "@/assets/muestra-tustore/ig/px10.jpg";
+import r_g06 from "@/assets/muestra-tustore/ig/rec-g06.jpg";
+import f_g06 from "@/assets/muestra-tustore/ig/g06.jpg";
 export { default as fotoReparacion } from "@/assets/muestra-tustore/reparacion.jpg";
 export { default as fotoPiezas } from "@/assets/muestra-tustore/reparacion-piezas.jpg";
 
@@ -47,29 +54,29 @@ export type Equipo = {
 };
 
 export const EQUIPOS: Equipo[] = [
-  { id: "ip16", nombre: "iPhone 16", marca: "Apple", estado: "Seminuevo", color: "Negro", nuevo: true, fotos: [ip16, appleAtras, appleCamara], opciones: [{ cap: "256 GB", efectivo: 5650, cuotas: 6900 }],
+  { id: "ip16", nombre: "iPhone 16", marca: "Apple", estado: "Seminuevo", color: "Negro", nuevo: true, fotos: [r_ip16, f_ip16], opciones: [{ cap: "256 GB", efectivo: 5650, cuotas: 6900 }],
     specs: [["Pantalla", '6.1" Super Retina XDR'], ["Procesador", "A18"], ["Cámaras", "48 MP + 12 MP gran angular"], ["Batería", "Hasta 22 h de video"], ["Carga", "USB-C"]] },
-  { id: "ip15p", nombre: "iPhone 15 Pro", marca: "Apple", estado: "Seminuevo · eSIM", color: "Gris", fotos: [ip15pro, appleCamara, applePlata], opciones: [{ cap: "256 GB", efectivo: 5799 }],
+  { id: "ip15p", nombre: "iPhone 15 Pro", marca: "Apple", estado: "Seminuevo · eSIM", color: "Titanio natural", fotos: [r_ip15p, f_ip15p], opciones: [{ cap: "256 GB", efectivo: 5799 }],
     specs: [["Pantalla", '6.1" ProMotion 120 Hz'], ["Procesador", "A17 Pro"], ["Cámaras", "48 MP + 12 MP + 12 MP (3x)"], ["Cuerpo", "Titanio"], ["Carga", "USB-C"]] },
-  { id: "ip13pm", nombre: "iPhone 13 Pro Max", marca: "Apple", estado: "Seminuevo", color: "Celeste", fotos: [appleMano, ip13, appleAtras], opciones: [{ cap: "Consulte capacidad", efectivo: 4399 }],
+  { id: "ip13pm", nombre: "iPhone 13 Pro Max", marca: "Apple", estado: "Seminuevo", color: "Celeste", fotos: [r_ip13pm, f_ip13pm], opciones: [{ cap: "Consulte capacidad", efectivo: 4399 }],
     specs: [["Pantalla", '6.7" ProMotion 120 Hz'], ["Procesador", "A15 Bionic"], ["Cámaras", "12 MP + 12 MP + 12 MP (3x)"], ["Batería", "Hasta 28 h de video"]] },
-  { id: "ip13p", nombre: "iPhone 13 Pro", marca: "Apple", estado: "Seminuevo", color: "Grafito", fotos: [appleAtras, ip13, appleCamara], opciones: [{ cap: "128 GB", efectivo: 3600, cuotas: 4300 }],
+  { id: "ip13p", nombre: "iPhone 13 Pro", marca: "Apple", estado: "Seminuevo", color: "Dorado", fotos: [r_ip13p, f_ip13p], opciones: [{ cap: "128 GB", efectivo: 3600, cuotas: 4300 }],
     specs: [["Pantalla", '6.1" ProMotion 120 Hz'], ["Procesador", "A15 Bionic"], ["Cámaras", "12 MP + 12 MP + 12 MP (3x)"], ["Batería", "Hasta 22 h de video"]] },
-  { id: "ip13", nombre: "iPhone 13", marca: "Apple", estado: "Seminuevo", color: "Blanco", fotos: [ip13, applePlata], opciones: [{ cap: "Consulte capacidad", efectivo: 2750 }],
+  { id: "ip13", nombre: "iPhone 13", marca: "Apple", estado: "Seminuevo", color: "Blanco", fotos: [r_ip13, f_ip13], opciones: [{ cap: "Consulte capacidad", efectivo: 2750 }],
     specs: [["Pantalla", '6.1" Super Retina XDR'], ["Procesador", "A15 Bionic"], ["Cámaras", "12 MP + 12 MP"], ["Batería", "Hasta 19 h de video"]] },
-  { id: "ip12", nombre: "iPhone 12", marca: "Apple", estado: "Seminuevo", color: "Negro", fotos: [appleNaranja, ip13], opciones: [{ cap: "64 GB", efectivo: 1999 }],
+  { id: "ip12", nombre: "iPhone 12", marca: "Apple", estado: "Seminuevo", color: "6 colores", fotos: [r_ip12, f_ip12], opciones: [{ cap: "64 GB", efectivo: 1999 }],
     specs: [["Pantalla", '6.1" Super Retina XDR'], ["Procesador", "A14 Bionic"], ["Cámaras", "12 MP + 12 MP"], ["Batería", "Hasta 17 h de video"]] },
-  { id: "s24u", nombre: "Galaxy S24 Ultra", marca: "Samsung", estado: "Seminuevo", color: "Gris", nuevo: true, fotos: [s24u, samsungAtras, samsungSpen], opciones: [{ cap: "256 GB", efectivo: 5700 }, { cap: "512 GB", efectivo: 6100 }],
+  { id: "s24u", nombre: "Galaxy S24 Ultra", marca: "Samsung", estado: "Seminuevo", color: "Gris", nuevo: true, fotos: [r_s24u, f_s24u], opciones: [{ cap: "256 GB", efectivo: 5700 }, { cap: "512 GB", efectivo: 6100 }],
     specs: [["Pantalla", '6.8" QHD+ 120 Hz'], ["Procesador", "Snapdragon 8 Gen 3"], ["Cámaras", "200 MP + 50 MP (5x) + 10 MP (3x) + 12 MP"], ["Batería", "5,000 mAh"], ["Extra", "S Pen incluido"]] },
-  { id: "s23u", nombre: "Galaxy S23 Ultra", marca: "Samsung", estado: "Seminuevo", color: "Negro", fotos: [samsungUltra, samsungSpen, samsungColores], opciones: [{ cap: "256 GB", efectivo: 4600 }, { cap: "512 GB", efectivo: 5100 }],
+  { id: "s23u", nombre: "Galaxy S23 Ultra", marca: "Samsung", estado: "Seminuevo", color: "Negro", fotos: [r_s23u, f_s23u], opciones: [{ cap: "256 GB", efectivo: 4600 }, { cap: "512 GB", efectivo: 5100 }],
     specs: [["Pantalla", '6.8" QHD+ 120 Hz'], ["Procesador", "Snapdragon 8 Gen 2"], ["Cámaras", "200 MP + 10 MP (10x) + 10 MP (3x) + 12 MP"], ["Batería", "5,000 mAh"], ["Extra", "S Pen integrado"]] },
-  { id: "s23", nombre: "Galaxy S23", marca: "Samsung", estado: "Seminuevo", color: "Negro", fotos: [s26, samsungColores], opciones: [{ cap: "Consulte capacidad", efectivo: 2800, cuotas: 3600 }],
+  { id: "s23", nombre: "Galaxy S23", marca: "Samsung", estado: "Seminuevo", color: "Negro", fotos: [], opciones: [{ cap: "Consulte capacidad", efectivo: 2800, cuotas: 3600 }],
     specs: [["Pantalla", '6.1" FHD+ 120 Hz'], ["Procesador", "Snapdragon 8 Gen 2"], ["Cámaras", "50 MP + 12 MP + 10 MP (3x)"], ["Batería", "3,900 mAh"]] },
-  { id: "s22", nombre: "Galaxy S22", marca: "Samsung", estado: "Seminuevo", color: "Rosado", fotos: [samsungColores, s26], opciones: [{ cap: "128 GB", efectivo: 1999, cuotas: 2250 }, { cap: "256 GB", efectivo: 2250, cuotas: 2450 }],
+  { id: "s22", nombre: "Galaxy S22", marca: "Samsung", estado: "Seminuevo", color: "Rosado", fotos: [r_s22, f_s22], opciones: [{ cap: "128 GB", efectivo: 1999, cuotas: 2250 }, { cap: "256 GB", efectivo: 2250, cuotas: 2450 }],
     specs: [["Pantalla", '6.1" FHD+ 120 Hz'], ["Procesador", "Snapdragon 8 Gen 1"], ["Cámaras", "50 MP + 12 MP + 10 MP (3x)"], ["Batería", "3,700 mAh"]] },
-  { id: "px10", nombre: "Pixel 10 Pro", marca: "Google", estado: "eSIM", color: "Celeste", nuevo: true, fotos: [pixel], opciones: [{ cap: "Consulte capacidad", efectivo: 5999, cuotas: 7300 }],
+  { id: "px10", nombre: "Pixel 10 Pro", marca: "Google", estado: "eSIM", color: "Celeste", nuevo: true, fotos: [r_px10, f_px10], opciones: [{ cap: "Consulte capacidad", efectivo: 5999, cuotas: 7300 }],
     specs: [["Pantalla", '6.3" LTPO 120 Hz'], ["Procesador", "Google Tensor G5"], ["Cámaras", "50 MP + 48 MP + 48 MP (5x)"], ["Extra", "Funciones de IA de Google"]] },
-  { id: "g06", nombre: "Moto G06", marca: "Motorola", estado: "Nuevo", color: "Varios", fotos: [], opciones: [{ cap: "Consulte capacidad", efectivo: 1300 }],
+  { id: "g06", nombre: "Moto G06", marca: "Motorola", estado: "Nuevo", color: "Verde", fotos: [r_g06, f_g06], opciones: [{ cap: "Consulte capacidad", efectivo: 1300 }],
     specs: [["Pantalla", '6.88" 120 Hz'], ["Procesador", "MediaTek Helio G81"], ["Cámara", "50 MP"], ["Batería", "5,200 mAh"]] },
 ];
 

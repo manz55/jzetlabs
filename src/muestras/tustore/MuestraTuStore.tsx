@@ -31,7 +31,7 @@ export default function MuestraTuStore() {
       <style>{`.ts h1,.ts h2,.ts h3{color:inherit}`}</style>
       <div className="ts">
         <div className="bg-[#1c1714] px-4 py-2 text-center text-[0.85rem] text-white/85">
-          Muestra hecha por <b className="text-white">Jzet Labs</b> para Tu Store, con sus equipos y precios de Instagram. Las fotos son de referencia.
+          Muestra hecha por <b className="text-white">Jzet Labs</b> para Tu Store, con sus equipos, fotos y precios de Instagram.
         </div>
 
         {/* encabezado */}
@@ -155,7 +155,7 @@ function TarjetaEquipo({ e, alAbrir }: { e: Equipo; alAbrir: () => void }) {
   return (
     <button type="button" onClick={alAbrir} className="flex h-full w-full flex-col overflow-hidden rounded-2xl bg-white text-left shadow-[0_1px_0_rgba(0,0,0,.06)] transition hover:shadow-md">
       <span className="relative grid aspect-square place-items-center bg-[#eee]">
-        {e.fotos[0] ? <img src={e.fotos[0]} alt="" className="h-full w-full object-cover" loading="lazy" /> : <span className="text-[0.9rem] font-bold text-black/40">{e.marca}</span>}
+        {e.fotos[0] ? <img src={e.fotos[0]} alt="" className="h-full w-full object-cover" loading="lazy" /> : <span className="px-3 text-center text-[0.85rem] font-bold text-black/40">Foto pendiente</span>}
         <span className="absolute left-2 top-2 rounded-md px-2 py-0.5 text-[0.7rem] font-black text-white" style={{ background: e.nuevo ? NEGRO : ROJO }}>{e.nuevo ? "RECIÉN LLEGADO" : "OFERTA"}</span>
         {e.fotos.length > 1 && <span className="absolute bottom-2 right-2 rounded-md bg-black/60 px-1.5 py-0.5 text-[0.7rem] font-bold text-white">{e.fotos.length} fotos</span>}
       </span>
@@ -188,9 +188,9 @@ function Ficha({ e, alCerrar, alPedir }: { e: Equipo; alCerrar: () => void; alPe
       <div className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white sm:rounded-3xl" onClick={(ev) => ev.stopPropagation()}>
         <div className="relative bg-[#eee]">
           {fotos.length ? (
-            <img src={fotos[foto]} alt={`${e.nombre}, foto ${foto + 1}`} className="aspect-[4/3] w-full object-cover" />
+            <img src={fotos[foto]} alt={`${e.nombre}, foto ${foto + 1}`} className="aspect-[4/3] w-full object-contain bg-black" />
           ) : (
-            <div className="grid aspect-[4/3] place-items-center font-bold text-black/40">{e.marca}</div>
+            <div className="grid aspect-[4/3] place-items-center px-6 text-center font-bold text-black/40">Foto pendiente: aquí va la foto real de su equipo</div>
           )}
           {fotos.length > 1 && (
             <>
@@ -242,7 +242,7 @@ function Ficha({ e, alCerrar, alPedir }: { e: Equipo; alCerrar: () => void; alPe
               </div>
             ))}
           </dl>
-          <p className="mt-2 text-[0.78rem] text-black/45">Especificaciones de referencia del modelo.</p>
+          <p className="mt-2 text-[0.78rem] text-black/45">Especificaciones de referencia del modelo. En su página pueden subir varias fotos de cada equipo: frente, atrás y lados.</p>
           <button
             type="button"
             onClick={() =>
