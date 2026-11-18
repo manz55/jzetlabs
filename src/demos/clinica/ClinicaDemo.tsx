@@ -6,11 +6,11 @@
  * Fotos libres de Unsplash (src/assets/demo-clinica).
  */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, CalendarCheck, ChevronsLeftRight, Clock, CreditCard, Eye, HeartHandshake, LayoutDashboard, MapPin, Phone, Smile, Target } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarCheck, ChevronsLeftRight, Clock, CreditCard, Eye, HeartHandshake, MapPin, Phone, Target } from "lucide-react";
 import paciente from "@/assets/demo-clinica/paciente.jpg";
 import sonrisa from "@/assets/demo-clinica/sonrisa.jpg";
 import consultorio from "@/assets/demo-clinica/consultorio.jpg";
-import { BandaDemos, CierreJzet, MensajeWhatsApp, qz } from "../comun";
+import { BandaDemos, PartesDemo, CierreJzet, MensajeWhatsApp, qz } from "../comun";
 import {
   AZUL, CIELO, DOCTORES, ESMALTE, LETRA, MENTA, TITULO, SERVICIOS_PAGINA as SERVICIOS, TINTA,
   DIAS_CORTOS, ROLES, fechaLarga, horasDelDia, iso, mayus, proximosDias, tomado, useCitas, useExtras, usePermisos, yaPaso,
@@ -339,29 +339,15 @@ export default function ClinicaDemo() {
 /* Cambia entre la página que ven los pacientes y el panel que usa la clínica */
 function SelectorVista({ vista, irA }: { vista: "pacientes" | "panel"; irA: (v: "pacientes" | "panel") => void }) {
   return (
-    <div className="bg-[#12344a] text-white">
-      <div className="mx-auto max-w-7xl px-4 py-2 flex flex-wrap items-center justify-center sm:justify-between gap-2 text-[0.82rem]">
-        <p className="hidden sm:block text-white/70">Esta demo tiene dos partes: la página que ve el público y el sistema por dentro.</p>
-        <div className="flex rounded-full bg-white/10 p-0.5" role="group" aria-label="Vista de la demo">
-          {(
-            [
-              ["pacientes", "Página de pacientes", Smile],
-              ["panel", "Sistema de la clínica", LayoutDashboard],
-            ] as const
-          ).map(([v, t, Icono]) => (
-            <button
-              key={v}
-              type="button"
-              onClick={() => irA(v)}
-              aria-pressed={vista === v}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 font-semibold transition ${vista === v ? "bg-white text-[#12344a]" : "text-white/80 hover:text-white"}`}
-            >
-              <Icono size={14} /> {t}
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
+    <PartesDemo
+      fondo="#12344a"
+      actual={vista}
+      alCambiar={irA}
+      partes={[
+        { id: "pacientes", nombre: "Página de pacientes", quien: "El paciente ve precios y agenda su cita" },
+        { id: "panel", nombre: "Sistema de la clínica", quien: "La clínica ve agenda, expedientes y saldos" },
+      ] as const}
+    />
   );
 }
 

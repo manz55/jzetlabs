@@ -7,8 +7,8 @@
  * Estética de papel: crema, tinta y vino, Fraunces y líneas finas, como una ficha impresa.
  */
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { ArrowLeft, ArrowRight, Check, ChevronRight, ClipboardList, LayoutDashboard, MessageCircle, Pencil, Plus, Printer, Search, Trash2, X } from "lucide-react";
-import { BandaDemos, CierreJzet, MensajeWhatsApp } from "../comun";
+import { ArrowLeft, ArrowRight, Check, ChevronRight, MessageCircle, Pencil, Plus, Printer, Search, Trash2, X } from "lucide-react";
+import { BandaDemos, PartesDemo, CierreJzet, MensajeWhatsApp } from "../comun";
 import maquillista from "@/assets/demo-cosmeticos/maquillista.jpg";
 import { PaginaSofia } from "./Pagina";
 import {
@@ -1480,25 +1480,7 @@ export default function PerfilDemo() {
       <div className="print:hidden">
         <BandaDemos />
       </div>
-      {/* franja de la demo: las dos partes, como en las otras demos */}
-      <div className="text-white print:hidden" style={{ background: "#2b2622" }}>
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-2 px-4 py-2 text-[0.82rem] sm:justify-between">
-          <p className="hidden text-white/65 sm:block">Dos partes: lo que llena la clienta en su teléfono y el panel de la consultora.</p>
-          <div className="flex rounded-full bg-white/10 p-0.5">
-            {(
-              [
-                ["clienta", "Perfil de la clienta", ClipboardList, "Clienta"],
-                ["panel", "Panel de la consultora", LayoutDashboard, "Consultora"],
-              ] as const
-            ).map(([v, t, I, corto]) => (
-              <button key={v} type="button" onClick={() => setVista(v)} aria-pressed={vista === v} className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 font-semibold transition ${vista === v ? "bg-white text-black" : "text-white/80"}`}>
-                <I size={14} /> <span className="sm:hidden">{corto}</span>
-                <span className="hidden sm:inline">{t}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+      <PartesDemo fondo={"#2b2622"} actual={vista} alCambiar={setVista} partes={[{ id: "clienta", nombre: "Perfil de la clienta", quien: "Contesta en su teléfono y recibe su rutina" }, { id: "panel", nombre: "Panel de la consultora", quien: "Usted ve a cada clienta y qué le toca" }] as const} />
       <header className="sticky top-0 z-20 border-b print:hidden" style={{ borderColor: LINEA, background: PAPEL }}>
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-3">
           <button type="button" onClick={() => setVista("clienta")} className="text-left leading-tight">

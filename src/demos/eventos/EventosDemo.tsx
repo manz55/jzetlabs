@@ -5,7 +5,7 @@
  */
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, CalendarDays, Check, Minus, Plus, Truck } from "lucide-react";
-import { BandaDemos, CierreJzet, MensajeWhatsApp } from "../comun";
+import { BandaDemos, PartesDemo, CierreJzet, MensajeWhatsApp } from "../comun";
 import {
   ANIL, ANIL2, CIELO, COLORES, FOTOS, HOJA, INVENTARIO, MAIZ, PASADO, ROSA, SERIF, TINTA, TURQ, ZONAS,
   armar, clave, fechaCorta, fechaLarga, finesDeSemana, porId, qz, subtotal, useEventos,
@@ -107,23 +107,7 @@ export default function EventosDemo() {
     <div className="fiesta min-h-screen" style={{ background: CIELO, color: TINTA }}>
       <style>{ESTILOS}</style>
       <BandaDemos />
-      <div style={{ background: ANIL2 }} className="text-white">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-2 px-4 py-2 text-[0.82rem] sm:justify-between">
-          <p className="hidden text-white/65 sm:block">Dos partes: la página para sus clientes y la bodega.</p>
-          <div className="flex rounded-full bg-white/10 p-0.5">
-            {(
-              [
-                ["pagina", "Página"],
-                ["bodega", "Bodega y calendario"],
-              ] as const
-            ).map(([v, t]) => (
-              <button key={v} type="button" onClick={() => setVista(v)} aria-pressed={vista === v} className={`rounded-full px-3.5 py-1.5 font-semibold transition ${vista === v ? "bg-white" : "text-white/80"}`} style={vista === v ? { color: ANIL } : undefined}>
-                {t}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+      <PartesDemo fondo={ANIL2} actual={vista} alCambiar={setVista} partes={[{ id: "pagina", nombre: "Página del cliente", quien: "Cotiza su fiesta y ve si la fecha está libre" }, { id: "bodega", nombre: "Bodega y calendario", quien: "Usted ve los eventos y qué mobiliario sale" }] as const} />
       {vista === "pagina" ? <Pagina ev={ev} alApartar={() => setVista("bodega")} /> : <Bodega ev={ev} />}
       <CierreJzet demo="alquiler de mobiliario para eventos" />
     </div>

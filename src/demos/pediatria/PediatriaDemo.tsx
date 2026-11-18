@@ -5,7 +5,7 @@
  */
 import { useEffect, useState } from "react";
 import { ArrowRight, Baby, CalendarCheck, Check, Phone, Syringe, Thermometer } from "lucide-react";
-import { BandaDemos, CierreJzet, MensajeWhatsApp } from "../comun";
+import { BandaDemos, PartesDemo, CierreJzet, MensajeWhatsApp } from "../comun";
 import {
   ATRASADOS, CIELO, CIELO2, CORAL, CURVA, FOTOS, HORAS, LIMA, MARINO, REDONDA, SOL, VACUNAS,
   edadTexto, mesesDe, toMin, usePediatria,
@@ -75,24 +75,7 @@ export default function PediatriaDemo() {
     <div className="pedi min-h-screen" style={{ background: CIELO, color: MARINO }}>
       <style>{ESTILOS}</style>
       <BandaDemos />
-      <div style={{ background: MARINO }} className="text-white">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-2 px-4 py-2 text-[0.82rem] sm:justify-between">
-          <p className="hidden text-white/65 sm:block">Tres partes: la página, la app de la mamá y el consultorio.</p>
-          <div className="flex rounded-full bg-white/10 p-0.5">
-            {(
-              [
-                ["pagina", "Página"],
-                ["hijos", "Mis hijos"],
-                ["consultorio", "Consultorio"],
-              ] as const
-            ).map(([v, t]) => (
-              <button key={v} type="button" onClick={() => setVista(v)} aria-pressed={vista === v} className={`rounded-full px-3.5 py-1.5 font-semibold transition ${vista === v ? "bg-white" : "text-white/80"}`} style={vista === v ? { color: MARINO } : undefined}>
-                {t}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+      <PartesDemo fondo={MARINO} actual={vista} alCambiar={setVista} partes={[{ id: "pagina", nombre: "Página", quien: "Las familias ven vacunas y apartan cita" }, { id: "hijos", nombre: "App de la mamá", quien: "Vacunas, peso y carné de cada hijo" }, { id: "consultorio", nombre: "Consultorio", quien: "La doctora ve la agenda y anota peso" }] as const} />
       {vista === "pagina" && <Pagina p={p} alAgendar={() => setVista("hijos")} />}
       {vista === "hijos" && <MisHijos p={p} />}
       {vista === "consultorio" && <Consultorio p={p} />}

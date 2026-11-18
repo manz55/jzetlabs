@@ -15,7 +15,7 @@ import mayor from "@/assets/demo-medicina/mayor.jpg";
 import tension from "@/assets/demo-medicina/tension.jpg";
 import lab from "@/assets/demo-medicina/lab.jpg";
 import historia from "@/assets/demo-medicina/historia.jpg";
-import { BandaDemos, CierreJzet, MensajeWhatsApp } from "../comun";
+import { BandaDemos, PartesDemo, CierreJzet, MensajeWhatsApp } from "../comun";
 
 /* piedra fría de consultorio, verde pino y el ocre de los sobres de laboratorio */
 const PIEDRA = "#e4eae7";
@@ -162,24 +162,7 @@ export default function MedicinaDemo() {
     <div className="medi min-h-screen" style={{ background: PIEDRA, color: TINTA, fontFamily: LETRA }}>
       <style>{ESTILOS}</style>
       <BandaDemos />
-      <div style={{ background: PINO }} className="text-white">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-2 px-4 py-2 text-[0.82rem] sm:justify-between">
-          <p className="hidden text-white/65 sm:block">Tres partes: la página, la app del paciente y el consultorio.</p>
-          <div className="flex rounded-lg bg-white/10 p-0.5">
-            {(
-              [
-                ["pagina", "Página"],
-                ["control", "Mi control"],
-                ["consultorio", "Consultorio"],
-              ] as const
-            ).map(([v, t]) => (
-              <button key={v} type="button" onClick={() => setVista(v)} aria-pressed={vista === v} className={`rounded-md px-3.5 py-1.5 font-semibold transition ${vista === v ? "bg-white" : "text-white/80"}`} style={vista === v ? { color: PINO } : undefined}>
-                {t}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+      <PartesDemo fondo={PINO} actual={vista} alCambiar={setVista} partes={[{ id: "pagina", nombre: "Página", quien: "El paciente ve chequeos y hace su cita" }, { id: "control", nombre: "App del paciente", quien: "Anota su presión y ve su receta" }, { id: "consultorio", nombre: "Consultorio", quien: "El doctor ve la agenda y a sus pacientes" }] as const} />
       {vista === "pagina" && <Pagina m={m} alAgendar={() => setVista("consultorio")} />}
       {vista === "control" && <MiControl m={m} />}
       {vista === "consultorio" && <Consultorio m={m} />}

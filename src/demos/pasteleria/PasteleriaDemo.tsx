@@ -6,8 +6,8 @@
  * entregas, cobros y lo que queda en la vitrina.
  */
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, CalendarDays, Check, ChefHat, Clock, MapPin, Store, Truck, X } from "lucide-react";
-import { BandaDemos, Cajon, CierreJzet, Contador, MensajeWhatsApp } from "../comun";
+import { ArrowRight, CalendarDays, Check, Clock, MapPin, Truck, X } from "lucide-react";
+import { BandaDemos, PartesDemo, Cajon, CierreJzet, Contador, MensajeWhatsApp } from "../comun";
 import {
   CHOCO, CUPO_DIA, DIAS, ENTREGAS, FRAMBUESA, HORARIOS, LECHE, LINEA, MANTEQUILLA, NATA, OCASIONES, OPINIONES, PASTELES, POSTRES, PREGUNTAS, SABORES, SERIF, TAMANOS,
   anticipacion, desde, fechaLarga, iso, masDias, ocupados, por, precio, qz, usePedidos, useVitrina,
@@ -57,23 +57,7 @@ export default function PasteleriaDemo() {
     <div className="pasteleria min-h-screen" style={{ background: LECHE, color: CHOCO }}>
       <style>{ESTILOS}</style>
       <BandaDemos />
-      <div className="text-white" style={{ background: "#241410" }}>
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-2 px-4 py-2 text-[0.82rem] sm:justify-between">
-          <p className="hidden text-white/65 sm:block">Dos partes: la tienda que ven las clientas y la administración de la pastelería.</p>
-          <div className="flex rounded-full bg-white/10 p-0.5">
-            {(
-              [
-                ["tienda", "La tienda", Store],
-                ["admin", "Administración", ChefHat],
-              ] as const
-            ).map(([v, t, I]) => (
-              <button key={v} type="button" onClick={() => setVista(v)} aria-pressed={vista === v} className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 font-semibold transition ${vista === v ? "bg-white text-black" : "text-white/80"}`}>
-                <I size={14} /> {t}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+      <PartesDemo fondo={"#241410"} actual={vista} alCambiar={setVista} partes={[{ id: "tienda", nombre: "La tienda", quien: "La clienta escoge su pastel y lo aparta" }, { id: "admin", nombre: "Administración", quien: "Usted ve qué hornear y qué entregar" }] as const} />
       {vista === "tienda" ? <Tienda store={store} quedan={vit.quedan} /> : <Administracion store={store} vit={vit} />}
       <CierreJzet demo="pastelería por encargo" />
     </div>

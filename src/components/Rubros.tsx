@@ -50,7 +50,7 @@ const VARIANTES_BELLEZA: Variante[] = [
     hoy: ["La clienta llena una hoja de papel con casillas chiquitas.", "Cumpleaños, tonos y amigas recomendadas se quedan en un fólder."],
     sistema: ["La clienta responde en su teléfono, una pregunta a la vez y con letra grande.", "Su perfil le llega ordenado por WhatsApp.", "Usted ve sus clientas, los cumpleaños del mes y a quién ofrecerle un facial."],
     visual: "foto",
-    demo: { texto: "Pruebe el perfil de la clienta", tipo: "perfil" },
+    demo: { texto: "Ver el cuestionario de la clienta", tipo: "perfil" },
   },
   {
     id: "ropa",
@@ -60,7 +60,7 @@ const VARIANTES_BELLEZA: Variante[] = [
     hoy: ["Fotos en Instagram y el precio “por inbox”.", "Apartados y pagos anotados en el chat, y ahí se pierden."],
     sistema: ["Catálogo con tallas, colores y precios a la vista.", "El cliente arma su pedido y le llega por WhatsApp.", "Ve qué prenda se vende más y qué talla se le acabó."],
     visual: "foto",
-    demo: { texto: "Pruebe la demo de tienda de ropa", tipo: "ropa" },
+    demo: { texto: "Ver la tienda de ropa en línea", tipo: "ropa" },
   },
   {
     id: "cosmeticos",
@@ -70,7 +70,7 @@ const VARIANTES_BELLEZA: Variante[] = [
     hoy: ["Vende por Instagram y cada pedido es una conversación larga.", "Cursos y citas se apartan por mensaje, uno por uno."],
     sistema: ["Precio, tono y cómo usarlo, a la vista.", "La clienta encuentra su tono de base en dos preguntas.", "Cursos con fechas y cupos, y pedidos que le llegan armados a WhatsApp."],
     visual: "foto",
-    demo: { texto: "Pruebe la demo de cosméticos", tipo: "cosmeticos" },
+    demo: { texto: "Ver la tienda de cosméticos", tipo: "cosmeticos" },
   },
   {
     id: "salon",
@@ -80,7 +80,7 @@ const VARIANTES_BELLEZA: Variante[] = [
     hoy: ["La clienta escribe para preguntar si hay hora y espera a que le contesten.", "Las que no llegan dejan huecos, y nadie se acuerda de invitar a las que ya les toca retoque."],
     sistema: ["La clienta elige sucursal, servicio, con quién y la hora libre, sola y a cualquier hora.", "Recordatorio por WhatsApp un día antes de cada cita.", "La agenda del día por estilista y la lista de quién ya necesita retoque."],
     visual: "foto",
-    demo: { texto: "Pruebe la demo del salón", tipo: "salon" },
+    demo: { texto: "Ver la página donde agendan", tipo: "salon" },
   },
   {
     id: "boutique",
@@ -90,7 +90,7 @@ const VARIANTES_BELLEZA: Variante[] = [
     hoy: ["Cada pieza se ofrece por historia y se aparta por mensaje.", "Las consignaciones y los abonos se llevan en un cuaderno."],
     sistema: ["Cada pieza con fotos, estado y su precio a la vista.", "Apartados con abonos y fecha límite, sin perder la cuenta.", "Consignaciones claras: qué se vendió y cuánto le toca a cada quien."],
     visual: "foto",
-    demo: { texto: "Pruebe la demo de la boutique", tipo: "boutique" },
+    demo: { texto: "Ver la boutique en línea", tipo: "boutique" },
   },
 ];
 
@@ -103,7 +103,7 @@ const VARIANTES_TIENDA: Variante[] = [
     hoy: ["El catálogo es una historia que dura 24 horas.", "El stock se lleva en un cuaderno y se vende lo que ya no hay."],
     sistema: ["Tienda con carrito, pago con tarjeta o transferencia y cuotas.", "El cliente rastrea su pedido o su reparación con un código.", "Usted ve ventas, stock por sucursal y devoluciones en su panel."],
     visual: "foto",
-    demo: { texto: "Pruebe la demo de celulares", tipo: "celulares" },
+    demo: { texto: "Ver la tienda de celulares", tipo: "celulares" },
   },
   {
     id: "comida",
@@ -113,7 +113,7 @@ const VARIANTES_TIENDA: Variante[] = [
     hoy: ["El menú es una foto vieja y los precios ya cambiaron.", "Los pedidos se toman a mano entre mensajes y llamadas."],
     sistema: ["Menú en línea con fotos y precios al día.", "El pedido le llega completo, con dirección y forma de pago.", "Sabe qué platillo se vende más cada semana."],
     visual: "foto",
-    demo: { texto: "Pruebe la demo del restaurante", tipo: "restaurante" },
+    demo: { texto: "Ver el menú con pedidos", tipo: "restaurante" },
   },
   {
     id: "tiempos",
@@ -123,7 +123,7 @@ const VARIANTES_TIENDA: Variante[] = [
     hoy: ["Los planes y precios se mandan en PDFs y audios.", "Las semanas apartadas viven en un Excel que nadie actualiza."],
     sistema: ["Planes claros, con lo que incluye cada uno.", "Las semanas disponibles y apartadas, a la vista.", "Recordatorios de pago para cada socio."],
     visual: "planes",
-    demo: { texto: "Pruebe la demo de tiempo compartido", tipo: "tiempo" },
+    demo: { texto: "Ver la página del club", tipo: "tiempo" },
   },
 ];
 
@@ -137,8 +137,8 @@ const VARIANTES_EMPRESAS: Variante[] = [
     hoy: ["El tendero pide por audio y el pedido se apunta mal.", "En la noche nadie sabe cuánto cobró cada piloto ni quién debe."],
     sistema: ["Las tiendas piden desde el teléfono con la lista de precios del día.", "El piloto marca lo entregado y lo cobrado en su ruta.", "La oficina ve lo que hay que cargar, los créditos vencidos y lo que se acaba en bodega."],
     visual: "foto",
-    demo: { texto: "Pruebe la demo de distribuidora", tipo: "distribuidora" },
-    panel: { texto: "Ver la oficina", href: "/demos/distribuidora/#oficina" },
+    demo: { texto: "Ver el pedido de la tienda", tipo: "distribuidora" },
+    panel: { texto: "Ver el sistema de la oficina", href: "/demos/distribuidora/#oficina" },
   },
   {
     id: "personal",
@@ -148,7 +148,7 @@ const VARIANTES_EMPRESAS: Variante[] = [
     hoy: ["La asistencia anda entre papel, Excel y mensajes de WhatsApp.", "Se le van días enteros sumando horas extra, séptimo e IGSS."],
     sistema: ["Su gente marca desde su teléfono, con ubicación y huella, aunque no haya señal.", "La planilla sale sola y las boletas ya quedan listas.", "Caja chica y viáticos, todo en el mismo lugar."],
     visual: "foto",
-    demo: { texto: "Pruebe la demo de asistencia", tipo: "asistencia" },
+    demo: { texto: "Ver la app del empleado", tipo: "asistencia" },
   },
 ];
 
@@ -162,8 +162,8 @@ const VARIANTES_CLINICAS: Variante[] = [
     hoy: ["La agenda vive en un cuaderno o en el teléfono de recepción.", "El paciente no llega porque nadie le recordó."],
     sistema: ["El paciente aparta su cita y ve el precio antes de venir.", "Cada doctor ve su agenda, el odontograma y quién tiene saldo.", "Recordatorio por WhatsApp un día antes."],
     visual: "foto",
-    demo: { texto: "Pruebe la demo de la clínica dental", tipo: "clinica" },
-    panel: { texto: "Ver el panel de la clínica", href: "/demos/clinica/#panel" },
+    demo: { texto: "Ver la página de pacientes", tipo: "clinica" },
+    panel: { texto: "Ver el sistema de la clínica", href: "/demos/clinica/#panel" },
   },
   {
     id: "pediatria",
@@ -173,8 +173,8 @@ const VARIANTES_CLINICAS: Variante[] = [
     hoy: ["El peso y la talla se apuntan en un carné que se pierde.", "Las vacunas atrasadas nadie las recuerda."],
     sistema: ["La mamá ve qué vacuna le toca según la edad y aparta cita.", "La curva de peso de cada hijo, en su teléfono.", "Recepción ve la agenda del día y a quién recordarle su vacuna."],
     visual: "foto",
-    demo: { texto: "Pruebe la demo de pediatría", tipo: "pediatria" },
-    panel: { texto: "Ver el consultorio", href: "/demos/pediatria/#consultorio" },
+    demo: { texto: "Ver la página para las mamás", tipo: "pediatria" },
+    panel: { texto: "Ver el sistema del consultorio", href: "/demos/pediatria/#consultorio" },
   },
   {
     id: "medicina",
@@ -184,8 +184,8 @@ const VARIANTES_CLINICAS: Variante[] = [
     hoy: ["Las lecturas viven en un cuaderno que nunca traen.", "Hay que sacar cita solo para renovar una receta."],
     sistema: ["El paciente anota su presión y su azúcar desde el teléfono.", "Pide su receta y ve sus resultados de laboratorio.", "El doctor ve primero a los que salieron altos."],
     visual: "foto",
-    demo: { texto: "Pruebe la demo de medicina general", tipo: "medicina" },
-    panel: { texto: "Ver el consultorio", href: "/demos/medicina/#consultorio" },
+    demo: { texto: "Ver la página de pacientes", tipo: "medicina" },
+    panel: { texto: "Ver el sistema del consultorio", href: "/demos/medicina/#consultorio" },
   },
 ];
 
@@ -284,7 +284,7 @@ const RUBROS: Rubro[] = [
     ],
     img: marcaje,
     alt: "Pantalla de marcaje en el celular con datos de prueba",
-    demo: { texto: "Pruebe la demo de asistencia", href: `${DEMOS}asistencia/empleado.html` },
+    demo: { texto: "Ver la app del empleado", href: `${DEMOS}asistencia/empleado.html` },
   },
   {
     id: "clinicas",
@@ -298,7 +298,7 @@ const RUBROS: Rubro[] = [
     ],
     img: clinicaPanel,
     alt: "Panel de una clínica dental de prueba con las citas del día por doctor",
-    demo: { texto: "Pruebe el panel de la clínica", href: "/demos/clinica/#panel" },
+    demo: { texto: "Ver el sistema de la clínica", href: "/demos/clinica/#panel" },
     demo2: { texto: "Ver la página de pacientes", href: "/demos/clinica/" },
   },
   {
@@ -313,7 +313,7 @@ const RUBROS: Rubro[] = [
     ],
     img: gimnasio,
     alt: "Socia entrenando con la barra en el gimnasio",
-    demo: { texto: "Pruebe la recepción del gimnasio", href: "/demos/gimnasio/#recepcion" },
+    demo: { texto: "Ver el sistema de recepción", href: "/demos/gimnasio/#recepcion" },
     demo2: { texto: "Ver la página del gimnasio", href: "/demos/gimnasio/" },
   },
   {
@@ -337,7 +337,7 @@ const RUBROS: Rubro[] = [
     ],
     img: tienda,
     alt: "Resumen de una tienda de prueba con ventas y pedidos por atender",
-    demo: { texto: "Pruebe la demo de la tienda", href: `${DEMOS}tienda/cliente.html` },
+    demo: { texto: "Ver la tienda en línea", href: `${DEMOS}tienda/cliente.html` },
   },
   {
     id: "eventos",
@@ -351,8 +351,8 @@ const RUBROS: Rubro[] = [
     ],
     img: fotoEventos,
     alt: "Toldo blanco montado para una recepción",
-    demo: { texto: "Pruebe la demo de eventos", href: "/demos/eventos/" },
-    demo2: { texto: "Ver la bodega", href: "/demos/eventos/#bodega" },
+    demo: { texto: "Ver la página para cotizar", href: "/demos/eventos/" },
+    demo2: { texto: "Ver el sistema de la bodega", href: "/demos/eventos/#bodega" },
     nota: "Foto de ejemplo. La demo usa datos de prueba.",
   },
 ];
@@ -494,7 +494,8 @@ export function Rubros() {
                 </ul>
               </div>
             </div>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <p className="mt-8 text-[0.95rem] text-suave">Se abre en otra pestaña con datos de ejemplo. Puede tocar todo: no se guarda nada real.</p>
+            <div className="mt-3 flex flex-wrap gap-3">
               {v ? (
                 <>
                   <a href={RUTA_DEMO[v.demo.tipo]} target="_blank" rel="noopener" className="btn btn-principal">

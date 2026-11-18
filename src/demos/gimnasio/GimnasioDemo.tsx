@@ -5,7 +5,7 @@
  */
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Car, Check, Clock, IdCard, MapPin, Search, Users, X } from "lucide-react";
-import { BandaDemos, Cajon, CierreJzet, MensajeWhatsApp } from "../comun";
+import { BandaDemos, PartesDemo, Cajon, CierreJzet, MensajeWhatsApp } from "../comun";
 import {
   ACERO, AFORO_BASE, AMARILLO, AVANCES, AZUL, CLASES, COACHES, DIAS, FOTOS, GOMA, GOMA2, HORARIO, INSCRIPCION, PIZARRA, PLANES, PREGUNTAS, ROJO, SEDES, TITULO, TIZA, VERDE,
   aforo, enDias, faltan, fechaCorta, horaAhora, nivel, porId, qz, useGimnasio,
@@ -90,24 +90,7 @@ export default function GimnasioDemo() {
     <div className="gym min-h-screen" style={{ background: GOMA, color: TIZA }}>
       <style>{ESTILOS}</style>
       <BandaDemos />
-      <div className="border-b border-white/10" style={{ background: "#0d0e0f" }}>
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-2 px-4 py-2 text-[0.82rem] sm:justify-between">
-          <p className="hidden text-white/60 sm:block">Tres partes: la página, la app del socio y la recepción del gimnasio.</p>
-          <div className="flex rounded-full bg-white/10 p-0.5">
-            {(
-              [
-                ["pagina", "Página"],
-                ["socio", "Mi membresía"],
-                ["recepcion", "Recepción"],
-              ] as const
-            ).map(([v, t]) => (
-              <button key={v} type="button" onClick={() => setVista(v)} aria-pressed={vista === v} className={`rounded-full px-3.5 py-1.5 font-semibold transition ${vista === v ? "bg-white text-black" : "text-white/80"}`}>
-                {t}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+      <PartesDemo fondo={"#0d0e0f"} actual={vista} alCambiar={setVista} partes={[{ id: "pagina", nombre: "Página", quien: "Cuánta gente hay, planes y clases" }, { id: "socio", nombre: "App del socio", quien: "Su carnet, sus días y su rutina" }, { id: "recepcion", nombre: "Recepción", quien: "Quién entró y a quién se le venció" }] as const} />
       {vista === "pagina" && <Pagina gym={gym} alInscribir={(n) => { setSocio(n); setVista("socio"); }} />}
       {vista === "socio" && <MiMembresia gym={gym} num={socio} setNum={setSocio} />}
       {vista === "recepcion" && <Recepcion gym={gym} />}

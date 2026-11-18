@@ -251,3 +251,48 @@ export function Cajon({ abierto, alCerrar, children, fondo = "#fbf9f6" }: { abie
     </dialog>
   );
 }
+
+/**
+ * Barra para cambiar entre las partes de una demo (lo que ve el cliente, lo que ve el negocio...).
+ * Cada botón dice qué es y quién lo usa, para que se entienda sin explicar nada.
+ */
+export function PartesDemo<T extends string>({
+  partes,
+  actual,
+  alCambiar,
+  fondo,
+}: {
+  partes: readonly { id: T; nombre: string; quien: string }[];
+  actual: T;
+  alCambiar: (id: T) => void;
+  fondo: string;
+}) {
+  const numeros = ["", "", "dos", "tres", "cuatro"];
+  return (
+    <div className="partes-demo text-white print:hidden" style={{ background: fondo }}>
+      <div className="mx-auto max-w-6xl px-4 py-3">
+        <p className="text-[0.85rem] text-white/75">
+          Esta demo tiene {numeros[partes.length] ?? partes.length} partes. Toque una para verla:
+        </p>
+        <div className="mt-2 grid gap-2" style={{ gridTemplateColumns: `repeat(${partes.length}, minmax(0, 1fr))` }} role="group" aria-label="Partes de la demo">
+          {partes.map((p) => {
+            const activa = p.id === actual;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => alCambiar(p.id)}
+                aria-pressed={activa}
+                className={`rounded-xl border px-3 py-2 text-left transition active:scale-[0.98] ${activa ? "border-white bg-white" : "border-white/25 bg-white/5 hover:bg-white/15"}`}
+                style={activa ? { color: fondo } : undefined}
+              >
+                <span className="block text-[0.92rem] font-bold leading-tight sm:text-[1rem]">{p.nombre}</span>
+                <span className={`mt-0.5 block text-[0.75rem] leading-snug sm:text-[0.82rem] ${activa ? "opacity-75" : "text-white/70"}`}>{p.quien}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}

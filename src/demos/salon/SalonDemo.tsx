@@ -6,12 +6,12 @@
  * Fotos libres de Unsplash ya usadas en otras demos.
  */
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, CalendarCheck, Check, Clock, LayoutDashboard, MapPin, MessageCircle, Phone, Scissors } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarCheck, Check, Clock, MapPin, MessageCircle, Phone } from "lucide-react";
 import fotoEstudio from "@/assets/demo-cosmeticos/estudio.jpg";
 import fotoSpa from "@/assets/demo-fundadora/salon.jpg";
 import fotoMaquillaje from "@/assets/demo-cosmeticos/maquillista.jpg";
 import fotoPestanas from "@/assets/demo-cosmeticos/delineado.jpg";
-import { BandaDemos, CierreJzet, MensajeWhatsApp, qz } from "../comun";
+import { BandaDemos, PartesDemo, CierreJzet, MensajeWhatsApp, qz } from "../comun";
 import {
   CATEGORIAS, CREMA, DIAS, ESTILISTAS, LINEA, OPINIONES, SALVIA, SALVIA_SUAVE, SERIF, SERVICIOS, SUCURSALES, TINTA,
   aMin, estilista, fechaLarga, hora12, horasLibres, hoyIso, iso, masDias, puede, servicio, sucursal, useCitas,
@@ -39,23 +39,7 @@ export default function SalonDemo() {
   return (
     <div className="min-h-screen" style={{ background: CREMA, color: TINTA }}>
       <BandaDemos />
-      <div className="text-white" style={{ background: "#2b2622" }}>
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-2 px-4 py-2 text-[0.82rem] sm:justify-between">
-          <p className="hidden text-white/65 sm:block">Dos partes: donde la clienta agenda sola y la agenda que ve el salón.</p>
-          <div className="flex rounded-full bg-white/10 p-0.5">
-            {(
-              [
-                ["salon", "Página del salón", Scissors],
-                ["panel", "Agenda del salón", LayoutDashboard],
-              ] as const
-            ).map(([v, t, I]) => (
-              <button key={v} type="button" onClick={() => setVista(v)} aria-pressed={vista === v} className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 font-semibold transition ${vista === v ? "bg-white text-black" : "text-white/80"}`}>
-                <I size={14} /> {t}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+      <PartesDemo fondo={"#2b2622"} actual={vista} alCambiar={setVista} partes={[{ id: "salon", nombre: "Página del salón", quien: "La clienta agenda sola su cita" }, { id: "panel", nombre: "Agenda del salón", quien: "El salón ve las citas de cada estilista" }] as const} />
       {vista === "salon" ? <Pagina store={store} /> : <Panel store={store} />}
       <CierreJzet demo="salón de belleza" />
     </div>

@@ -8,9 +8,9 @@
  * Todo se guarda en el navegador. Fotos libres de Unsplash, sin marcas.
  */
 import { useEffect, useState } from "react";
-import { ArrowRight, ArrowUpRight, Check, Heart, LayoutDashboard, ShoppingBag, X } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, Heart, X } from "lucide-react";
 import { Modal } from "@/components/Modal";
-import { BandaDemos, CierreJzet, MensajeWhatsApp, qz } from "../comun";
+import { BandaDemos, PartesDemo, CierreJzet, MensajeWhatsApp, qz } from "../comun";
 import percha from "@/assets/demo-lujo/percha.jpg";
 import retrato from "@/assets/demo-lujo/retrato.jpg";
 import bolsoCognac from "@/assets/demo-lujo/bolso-cognac.jpg";
@@ -103,23 +103,7 @@ export default function LujoDemo() {
   return (
     <div>
       <BandaDemos />
-      <div className="text-white" style={{ background: "#2b2622" }}>
-        <div className="mx-auto max-w-7xl px-4 py-2 flex flex-wrap items-center justify-center sm:justify-between gap-2 text-[0.82rem]">
-          <p className="hidden sm:block text-white/65">Dos partes: lo que ve la clienta y lo que solo ve la dueña.</p>
-          <div className="flex rounded-full bg-white/10 p-0.5">
-            {(
-              [
-                ["tienda", "Boutique", ShoppingBag],
-                ["panel", "Panel de la dueña", LayoutDashboard],
-              ] as const
-            ).map(([v, t, I]) => (
-              <button key={v} type="button" onClick={() => irA(v)} aria-pressed={vista === v} className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 font-semibold transition ${vista === v ? "bg-white text-black" : "text-white/80"}`}>
-                <I size={14} /> {t}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+      <PartesDemo fondo={"#2b2622"} actual={vista} alCambiar={irA} partes={[{ id: "tienda", nombre: "Boutique", quien: "La clienta ve las piezas y aparta" }, { id: "panel", nombre: "Panel de la dueña", quien: "Apartados, consignaciones y ventas" }] as const} />
       {vista === "tienda" ? <Boutique d={d} setD={setD} /> : <Panel d={d} setD={setD} alSalir={() => irA("tienda")} />}
       {vista === "tienda" && <CierreJzet demo="boutique de reventa de lujo" />}
     </div>

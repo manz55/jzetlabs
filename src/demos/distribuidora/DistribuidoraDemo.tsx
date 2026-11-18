@@ -5,7 +5,7 @@
  */
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Banknote, Check, ChevronDown, ChevronUp, MapPin, Package, Search, ShoppingCart, Truck, X } from "lucide-react";
-import { BandaDemos, Cajon, CierreJzet, Contador, MensajeWhatsApp } from "../comun";
+import { BandaDemos, PartesDemo, Cajon, CierreJzet, Contador, MensajeWhatsApp } from "../comun";
 import {
   CATEGORIAS, DIAS, ETIQUETA, FOTOS, KRAFT, KRAFT2, PEDIDO_MINIMO, PRODUCTOS, RUTAS, SELLO, STENCIL, TIENDAS, TINTA, VERDE,
   existencia, porId, proximaVisita, qz, totalDe, useDistribuidora,
@@ -79,24 +79,7 @@ export default function DistribuidoraDemo() {
     <div className="dist carton min-h-screen" style={{ color: TINTA }}>
       <style>{ESTILOS}</style>
       <BandaDemos />
-      <div style={{ background: TINTA }} className="text-white">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-2 px-4 py-2 text-[0.82rem] sm:justify-between">
-          <p className="hidden text-white/65 sm:block">Tres partes: el pedido de la tienda, la ruta del piloto y la oficina.</p>
-          <div className="flex rounded-full bg-white/10 p-0.5">
-            {(
-              [
-                ["tienda", "Pedido de la tienda"],
-                ["piloto", "Ruta del piloto"],
-                ["oficina", "Oficina"],
-              ] as const
-            ).map(([v, t]) => (
-              <button key={v} type="button" onClick={() => setVista(v)} aria-pressed={vista === v} className={`rounded-full px-3 py-1.5 font-semibold transition ${vista === v ? "bg-white" : "text-white/80"}`} style={vista === v ? { color: TINTA } : undefined}>
-                {t}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+      <PartesDemo fondo={TINTA} actual={vista} alCambiar={setVista} partes={[{ id: "tienda", nombre: "Pedido de la tienda", quien: "La tienda ve los precios del día y pide" }, { id: "piloto", nombre: "Ruta del piloto", quien: "El piloto marca lo entregado y lo cobrado" }, { id: "oficina", nombre: "Oficina", quien: "Usted ve pedidos, el camión y los créditos" }] as const} />
       {vista === "tienda" && <PaginaTienda d={d} alPedir={() => setVista("oficina")} />}
       {vista === "piloto" && <Piloto d={d} />}
       {vista === "oficina" && <Oficina d={d} />}
