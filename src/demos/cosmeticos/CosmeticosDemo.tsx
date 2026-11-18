@@ -41,7 +41,7 @@ const CREMA = "#f1d4a6";
 const PAPEL = "#fbecd3";
 const DORADO = "#c8781e";
 const SERIF = '"Fraunces", Georgia, serif';
-const MAYUS = "uppercase tracking-[0.22em]";
+const MAYUS = "font-semibold";
 
 type Categoria = "Makeup" | "Skincare" | "Brochas";
 type Tono = { nombre: string; hex: string };
@@ -190,7 +190,7 @@ export default function CosmeticosDemo() {
       <BandaDemos />
 
       {/* cinta con los sellos de la línea */}
-      <div className={`text-center text-[0.7rem] sm:text-[0.72rem] py-2 px-4 text-white/80 ${MAYUS}`} style={{ background: NEGRO }}>
+      <div className={`text-center text-[0.88rem] sm:text-[0.72rem] py-2 px-4 text-white/80 ${MAYUS}`} style={{ background: NEGRO }}>
         Libre de parabenos · Hipoalergénico · No comedogénico
       </div>
 
@@ -203,7 +203,7 @@ export default function CosmeticosDemo() {
             </span>
             <span className="block text-[0.52rem] tracking-[0.42em] uppercase -mt-0.5">cosmetics</span>
           </a>
-          <nav className={`hidden lg:flex gap-7 text-[0.75rem] ${MAYUS}`}>
+          <nav className={`hidden lg:flex gap-7 text-[0.88rem] ${MAYUS}`}>
             <a href="#tienda" className={enlace}>
               Tienda
             </a>
@@ -243,11 +243,11 @@ export default function CosmeticosDemo() {
       <section id="inicio" className="text-white" style={{ background: `radial-gradient(55% 70% at 88% 18%, rgba(200,120,30,.38), transparent 70%), radial-gradient(40% 50% at 5% 95%, rgba(200,120,30,.16), transparent 70%), ${NEGRO}` }}>
         <div className="mx-auto max-w-7xl px-5 pt-12 pb-14 sm:pt-16 sm:pb-20 grid lg:grid-cols-[1.1fr_1fr] gap-10 lg:gap-14 items-center">
           <div>
-            <p className={`text-[0.72rem] ${MAYUS}`} style={{ color: DORADO }}>
+            <p className={`text-[0.88rem] ${MAYUS}`} style={{ color: DORADO }}>
               Cosmetics & Makeup School · Guatemala
             </p>
             <h1 className="mt-5 text-[2.9rem] sm:text-[4.4rem] leading-[0.98] tracking-[-0.02em] font-semibold !text-white" style={{ fontFamily: SERIF }}>
-              Maquillaje que <em style={{ color: DORADO }}>cuida</em> tu piel.
+              Maquillaje que <span>cuida</span> tu piel.
             </h1>
             <p className="mt-6 max-w-lg text-[1.06rem] text-white/70">
               Nuestra propia línea de makeup y skincare, y una academia donde te enseñamos a usarla. Compra en línea, aprende con nosotras o ven a maquillarte al estudio.
@@ -270,7 +270,7 @@ export default function CosmeticosDemo() {
             >
               <img src={baseFoto} alt="" className="w-14 h-14 object-cover" />
               <span>
-                <span className={`block text-[0.62rem] ${MAYUS}`} style={{ color: DORADO }}>
+                <span className={`block text-[0.88rem] ${MAYUS}`} style={{ color: DORADO }}>
                   6 tonos
                 </span>
                 <span className="block font-semibold leading-tight">Base HD líquida</span>
@@ -295,7 +295,7 @@ export default function CosmeticosDemo() {
                 <span className="grid place-items-center w-16 h-16 rounded-full border border-white/25 transition group-hover:border-[#c8781e]">
                   <I size={22} strokeWidth={1.5} />
                 </span>
-                <span className={`text-[0.62rem] ${MAYUS} text-white/75`}>{t}</span>
+                <span className={`text-[0.88rem] ${MAYUS} text-white/75`}>{t}</span>
               </a>
             ))}
           </div>
@@ -306,7 +306,7 @@ export default function CosmeticosDemo() {
       <section id="tienda" className="scroll-mt-20 mx-auto max-w-7xl px-5 py-14 sm:py-20">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className={`text-[0.7rem] ${MAYUS}`} style={{ color: DORADO }}>
+            <p className={`text-[0.88rem] ${MAYUS}`} style={{ color: DORADO }}>
               Nuestra línea
             </p>
             <h2 className="mt-2 text-[2.3rem] sm:text-[3.2rem] leading-none font-semibold !text-[#1b1209]" style={{ fontFamily: SERIF }}>
@@ -333,10 +333,10 @@ export default function CosmeticosDemo() {
             <article key={p.id} className="group flex flex-col">
               <button type="button" onClick={() => setFicha({ p })} className="relative block overflow-hidden bg-white text-left" aria-label={`Ver ${p.nombre}`}>
                 <img src={p.foto} alt={p.nombre} className="w-full aspect-[4/5] object-cover transition duration-500 group-hover:scale-[1.04]" loading="lazy" />
-                {p.etiqueta && <span className={`absolute left-0 top-3 px-2.5 py-1 text-[0.6rem] text-white ${MAYUS}`} style={{ background: NEGRO }}>{p.etiqueta}</span>}
+                {p.etiqueta && <span className={`absolute left-0 top-3 px-2.5 py-1 text-[0.88rem] text-white ${MAYUS}`} style={{ background: NEGRO }}>{p.etiqueta}</span>}
               </button>
               <div className="mt-3 flex-1">
-                <p className={`text-[0.6rem] text-black/45 ${MAYUS}`}>{SELLOS[p.categoria][0]}</p>
+                <p className={`text-[0.88rem] text-black/45 ${MAYUS}`}>{SELLOS[p.categoria][0]}</p>
                 <h3 className="mt-1 text-[1.02rem] font-semibold leading-tight !text-[#1b1209]">{p.nombre}</h3>
                 <p className="mt-0.5 text-[0.86rem] text-black/55">{p.corto}</p>
                 {p.tonos && (
@@ -393,7 +393,7 @@ export default function CosmeticosDemo() {
         <div className="grid lg:grid-cols-[1fr_1.1fr] gap-10 items-center">
           <img src={maquillista} alt="Maquillista aplicando sombra a una clienta" className="w-full aspect-[4/3] object-cover" loading="lazy" />
           <div>
-            <p className={`text-[0.7rem] ${MAYUS}`} style={{ color: DORADO }}>
+            <p className={`text-[0.88rem] ${MAYUS}`} style={{ color: DORADO }}>
               En el estudio
             </p>
             <h2 className="mt-2 text-[2.2rem] sm:text-[3rem] leading-[1.02] font-semibold !text-[#1b1209]" style={{ fontFamily: SERIF }}>
@@ -430,7 +430,7 @@ export default function CosmeticosDemo() {
           <h2 className="text-[2.3rem] sm:text-[3rem] leading-none font-semibold !text-[#1b1209]" style={{ fontFamily: SERIF }}>
             Lo que dicen
           </h2>
-          <span className={`border border-black/15 px-3 py-1 text-[0.62rem] ${MAYUS}`}>Opiniones de ejemplo</span>
+          <span className={`border border-black/15 px-3 py-1 text-[0.88rem] ${MAYUS}`}>Opiniones de ejemplo</span>
         </div>
         <div className="mt-8 grid md:grid-cols-3 gap-4">
           {[
@@ -456,7 +456,7 @@ export default function CosmeticosDemo() {
       <section id="visitenos" className="scroll-mt-20" style={{ background: CREMA }}>
         <div className="mx-auto max-w-7xl px-5 py-14 sm:py-20 grid md:grid-cols-2 gap-10 items-center">
           <div>
-            <p className={`text-[0.7rem] ${MAYUS}`} style={{ color: DORADO }}>
+            <p className={`text-[0.88rem] ${MAYUS}`} style={{ color: DORADO }}>
               Tienda y academia
             </p>
             <h2 className="mt-2 text-[2.2rem] sm:text-[3rem] leading-[1.02] font-semibold !text-[#1b1209]" style={{ fontFamily: SERIF }}>
@@ -656,7 +656,7 @@ function Ficha({ p, tonoInicial, alAgregar }: { p: Producto; tonoInicial?: strin
         )}
       </div>
       <div className="p-6 sm:p-8">
-        <p className={`text-[0.62rem] ${MAYUS}`} style={{ color: DORADO }}>
+        <p className={`text-[0.88rem] ${MAYUS}`} style={{ color: DORADO }}>
           {p.categoria}
         </p>
         <h3 className="mt-1 pr-8 text-[1.9rem] leading-tight font-semibold !text-[#1b1209]" style={{ fontFamily: SERIF }}>
@@ -721,7 +721,7 @@ function BuscadorTono({ alAgregar }: { alAgregar: (base: string, rubor: string) 
       <div className="mx-auto max-w-7xl grid lg:grid-cols-[0.85fr_1.2fr]">
         <img src={polvoNegro} alt="Brochas con polvo en el aire" className="w-full h-56 sm:h-72 lg:h-full object-cover" loading="lazy" />
         <div className="px-5 py-12 sm:p-12">
-          <p className={`text-[0.7rem] ${MAYUS}`} style={{ color: DORADO }}>
+          <p className={`text-[0.88rem] ${MAYUS}`} style={{ color: DORADO }}>
             Encuentra tu tono
           </p>
           <h2 className="mt-2 text-[2rem] sm:text-[2.8rem] leading-[1.04] font-semibold !text-[#1b1209]" style={{ fontFamily: SERIF }}>
@@ -755,7 +755,7 @@ function BuscadorTono({ alAgregar }: { alAgregar: (base: string, rubor: string) 
                 ].map((x) => (
                   <div key={x.t}>
                     <span className="mx-auto block w-14 h-14 rounded-full ring-1 ring-black/10" style={{ background: x.hex }} />
-                    <p className={`mt-2 text-[0.6rem] text-black/45 ${MAYUS}`}>{x.t}</p>
+                    <p className={`mt-2 text-[0.88rem] text-black/45 ${MAYUS}`}>{x.t}</p>
                     <p className="font-semibold leading-tight">{x.v}</p>
                   </div>
                 ))}
@@ -791,7 +791,7 @@ function Tips({ alVerRubor }: { alVerRubor: () => void }) {
     <section id="tips" className="scroll-mt-20 text-white py-14 sm:py-20" style={{ background: NEGRO }}>
       <div className="mx-auto max-w-7xl px-5 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className={`text-[0.7rem] ${MAYUS}`} style={{ color: DORADO }}>
+          <p className={`text-[0.88rem] ${MAYUS}`} style={{ color: DORADO }}>
             Tips de la academia
           </p>
           <h2 className="mt-2 text-[2.2rem] sm:text-[3rem] leading-[1.02] font-semibold !text-white" style={{ fontFamily: SERIF }}>
@@ -823,7 +823,7 @@ function Tips({ alVerRubor }: { alVerRubor: () => void }) {
           </article>
         ))}
         <article className="snap-start shrink-0 w-[78vw] sm:w-[340px] aspect-[4/5] flex flex-col justify-center p-7" style={{ background: CREMA, color: NEGRO }}>
-          <p className={`text-[0.7rem] ${MAYUS}`} style={{ color: DORADO }}>
+          <p className={`text-[0.88rem] ${MAYUS}`} style={{ color: DORADO }}>
             El que usamos en clase
           </p>
           <img src={rubor} alt="" className="mt-4 w-full aspect-[4/3] object-cover" loading="lazy" />
@@ -846,7 +846,7 @@ function Academia({ alReservar }: { alReservar: (curso: string, fecha: string) =
     <section id="academia" className="scroll-mt-20 mx-auto max-w-7xl px-5 py-14 sm:py-20">
       <div className="grid lg:grid-cols-[1fr_1fr] gap-8 items-end">
         <div>
-          <p className={`text-[0.7rem] ${MAYUS}`} style={{ color: DORADO }}>
+          <p className={`text-[0.88rem] ${MAYUS}`} style={{ color: DORADO }}>
             Makeup School
           </p>
           <h2 className="mt-2 text-[2.3rem] sm:text-[3.4rem] leading-[1] font-semibold !text-[#1b1209]" style={{ fontFamily: SERIF }}>
@@ -859,7 +859,7 @@ function Academia({ alReservar }: { alReservar: (curso: string, fecha: string) =
       <div className="mt-10 grid md:grid-cols-3 gap-4">
         {CURSOS.map((c) => (
           <article key={c.id} className={`flex flex-col p-6 ${c.destacado ? "text-white" : "bg-white border border-black/10"}`} style={c.destacado ? { background: NEGRO } : undefined}>
-            <p className={`text-[0.62rem] ${MAYUS}`} style={{ color: DORADO }}>
+            <p className={`text-[0.88rem] ${MAYUS}`} style={{ color: DORADO }}>
               {c.nivel}
             </p>
             <h3 className={`mt-2 text-[1.6rem] leading-tight font-semibold ${c.destacado ? "!text-white" : "!text-[#1b1209]"}`} style={{ fontFamily: SERIF }}>
@@ -933,7 +933,7 @@ function DeInstagram() {
           <p className="mt-3 text-center text-[0.68rem] text-black/45">Perfil de ejemplo</p>
         </div>
         <div>
-          <p className={`text-[0.7rem] ${MAYUS} text-white/55`}>¿Vendes por Instagram?</p>
+          <p className={`text-[0.88rem] ${MAYUS} text-white/55`}>¿Vendes por Instagram?</p>
           <h2 className="mt-2 text-[2rem] sm:text-[2.8rem] leading-[1.05] font-semibold !text-white" style={{ fontFamily: SERIF }}>
             Tus tips atraen. Tu página vende.
           </h2>
@@ -971,11 +971,11 @@ function Graduadas() {
       <div className="mx-auto max-w-7xl px-5">
         <div className="grid lg:grid-cols-[1fr_auto] gap-6 items-end">
           <div>
-            <p className={`text-[0.7rem] ${MAYUS}`} style={{ color: DORADO }}>
+            <p className={`text-[0.88rem] ${MAYUS}`} style={{ color: DORADO }}>
               Nuestras graduadas
             </p>
             <h2 className="mt-2 text-[2.3rem] sm:text-[3.2rem] leading-[1] font-semibold !text-[#1b1209]" style={{ fontFamily: SERIF }}>
-              Se gradúan con toga, <em style={{ color: DORADO }}>y trabajan.</em>
+              Se gradúan con toga, <span>y trabajan.</span>
             </h2>
             <p className="mt-4 max-w-xl text-black/65">Porque esto es una carrera de verdad. Así están hoy algunas de nuestras alumnas.</p>
           </div>
@@ -1000,7 +1000,7 @@ function Graduadas() {
               <img src={g.foto} alt={`${g.n}, graduada`} className="absolute inset-0 w-full h-full object-cover transition duration-500 group-hover:scale-[1.04]" loading="lazy" />
               <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(14,13,12,.85),transparent_55%)]" />
               <figcaption className="absolute inset-x-0 bottom-0 p-3 sm:p-4 text-white">
-                <p className={`text-[0.58rem] ${MAYUS}`} style={{ color: DORADO }}>
+                <p className={`text-[0.88rem] ${MAYUS}`} style={{ color: DORADO }}>
                   {g.g}
                 </p>
                 <p className="mt-0.5 font-semibold sm:text-[1.1rem]">{g.n}</p>
@@ -1039,7 +1039,7 @@ function ListaEspera({ alAvisar }: { alAvisar: (curso: string) => void }) {
       <div className="grid lg:grid-cols-2 border border-black/10">
         {/* lo que ve la alumna */}
         <div className="p-6 sm:p-10 bg-white">
-          <p className={`inline-flex items-center gap-1.5 text-[0.7rem] ${MAYUS}`} style={{ color: DORADO }}>
+          <p className={`inline-flex items-center gap-1.5 text-[0.88rem] ${MAYUS}`} style={{ color: DORADO }}>
             <Bell size={14} /> Lista de espera
           </p>
           <h3 className="mt-2 text-[1.8rem] sm:text-[2.2rem] leading-[1.05] font-semibold !text-[#1b1209]" style={{ fontFamily: SERIF }}>
@@ -1105,7 +1105,7 @@ function ListaEspera({ alAvisar }: { alAvisar: (curso: string) => void }) {
 
         {/* lo que ve la academia */}
         <div className="p-6 sm:p-10 text-white" style={{ background: NEGRO }}>
-          <p className={`text-[0.7rem] ${MAYUS} text-white/55`}>Así lo ve la academia</p>
+          <p className={`text-[0.88rem] ${MAYUS} text-white/55`}>Así lo ve la academia</p>
           <div className="mt-4 grid grid-cols-3 gap-2">
             {porCurso.map((x) => (
               <div key={x.c} className="border border-white/15 p-3">

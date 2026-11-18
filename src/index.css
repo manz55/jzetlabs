@@ -97,7 +97,7 @@
   .oscuro .btn-secundario { background: transparent; color: var(--color-tinta); border-color: #4a3b32; }
   .oscuro .btn-secundario:hover { border-color: var(--color-tinta); }
 
-  .etiqueta { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-acento); }
+  .etiqueta { font-size: 0.95rem; font-weight: 600; color: var(--color-acento); }
 
   /* papel liso (antes llevaba cuadrícula) */
   .portada-papel { background-color: var(--color-papel); }

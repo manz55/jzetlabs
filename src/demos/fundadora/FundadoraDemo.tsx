@@ -25,7 +25,7 @@ const CREMA = "#ecc9c0";
 const PAPEL = "#f7e3de";
 const DORADO = "#c9705a";
 const SERIF = '"Fraunces", Georgia, serif';
-const MAYUS = "uppercase tracking-[0.22em]";
+const MAYUS = "font-semibold";
 
 type Empresa = { nombre: string; tipo: string; desde: string; texto: string; foto: string; href?: string; boton: string };
 const EMPRESAS: Empresa[] = [
@@ -71,7 +71,7 @@ export default function FundadoraDemo() {
           <a href="#inicio" className="text-[1.35rem] font-semibold" style={{ fontFamily: SERIF }}>
             Valeria Ríos
           </a>
-          <nav className={`hidden md:flex gap-7 text-[0.72rem] ${MAYUS}`}>
+          <nav className={`hidden md:flex gap-7 text-[0.88rem] ${MAYUS}`}>
             <a href="#empresas" className={enlace}>
               Empresas
             </a>
@@ -95,13 +95,13 @@ export default function FundadoraDemo() {
       <section id="inicio" className="text-white" style={{ background: NEGRO }}>
         <div className="mx-auto max-w-7xl px-5 pt-10 pb-14 sm:pt-14 sm:pb-20 grid lg:grid-cols-[1.15fr_1fr] gap-10 lg:gap-14 items-center">
           <div>
-            <p className={`text-[0.72rem] ${MAYUS}`} style={{ color: DORADO }}>
+            <p className={`text-[0.88rem] ${MAYUS}`} style={{ color: DORADO }}>
               Fundadora y CEO · Guatemala
             </p>
             <h1 className="mt-5 text-[3rem] sm:text-[4.8rem] leading-[0.95] tracking-[-0.02em] font-semibold !text-white" style={{ fontFamily: SERIF }}>
               Seis empresas.
               <br />
-              <em style={{ color: DORADO }}>Una misma idea.</em>
+              <span>Una misma idea.</span>
             </h1>
             <p className="mt-6 max-w-lg text-[1.08rem] text-white/70">
               Soy Valeria. Empecé maquillando en un cuarto de mi casa y hoy dirijo una academia, una línea de cosméticos, un salón, un spa y un programa para mujeres que quieren emprender.
@@ -118,7 +118,7 @@ export default function FundadoraDemo() {
           <div className="relative mx-auto w-full max-w-[340px] sm:max-w-[420px]">
             <img src={retrato} alt="Valeria Ríos, fundadora, con traje oscuro" className="w-full aspect-[4/5] object-cover object-[50%_30%]" />
             <div className="absolute -left-3 sm:-left-8 bottom-8 bg-white px-4 py-3 text-black shadow-[0_20px_40px_-20px_rgba(0,0,0,.7)]">
-              <p className={`text-[0.6rem] ${MAYUS}`} style={{ color: DORADO }}>
+              <p className={`text-[0.88rem] ${MAYUS}`} style={{ color: DORADO }}>
                 Desde 2014
               </p>
               <p className="font-semibold leading-tight">De un cuarto de su casa</p>
@@ -148,7 +148,7 @@ export default function FundadoraDemo() {
 
       {/* empresas */}
       <section id="empresas" className="scroll-mt-20 mx-auto max-w-7xl px-5 py-14 sm:py-20">
-        <p className={`text-[0.7rem] ${MAYUS}`} style={{ color: DORADO }}>
+        <p className={`text-[0.88rem] ${MAYUS}`} style={{ color: DORADO }}>
           Mis empresas
         </p>
         <h2 className="mt-2 text-[2.3rem] sm:text-[3.3rem] leading-[1] font-semibold !text-[#2b0d16]" style={{ fontFamily: SERIF }}>
@@ -159,7 +159,7 @@ export default function FundadoraDemo() {
             <article key={e.nombre} className="group flex flex-col bg-white border border-black/8">
               <div className="relative overflow-hidden aspect-[16/11]">
                 <img src={e.foto} alt="" className="absolute inset-0 w-full h-full object-cover transition duration-500 group-hover:scale-[1.04]" loading="lazy" />
-                <span className={`absolute left-0 top-3 px-2.5 py-1 text-[0.58rem] text-white ${MAYUS}`} style={{ background: NEGRO }}>
+                <span className={`absolute left-0 top-3 px-2.5 py-1 text-[0.88rem] text-white ${MAYUS}`} style={{ background: NEGRO }}>
                   {e.tipo}
                 </span>
               </div>
@@ -193,7 +193,7 @@ export default function FundadoraDemo() {
       <section id="historia" className="scroll-mt-20" style={{ background: CREMA }}>
         <div className="mx-auto max-w-7xl px-5 py-14 sm:py-20 grid lg:grid-cols-[0.8fr_1.2fr] gap-10 lg:gap-16">
           <div>
-            <p className={`text-[0.7rem] ${MAYUS}`} style={{ color: DORADO }}>
+            <p className={`text-[0.88rem] ${MAYUS}`} style={{ color: DORADO }}>
               Mi historia
             </p>
             <h2 className="mt-2 text-[2.3rem] sm:text-[3.2rem] leading-[1] font-semibold !text-[#2b0d16]" style={{ fontFamily: SERIF }}>
@@ -220,7 +220,7 @@ export default function FundadoraDemo() {
       <section id="prensa" className="scroll-mt-20 mx-auto max-w-7xl px-5 py-14 sm:py-20">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className={`text-[0.7rem] ${MAYUS}`} style={{ color: DORADO }}>
+            <p className={`text-[0.88rem] ${MAYUS}`} style={{ color: DORADO }}>
               Prensa
             </p>
             <h2 className="mt-2 text-[2.3rem] sm:text-[3.2rem] leading-[1] font-semibold !text-[#2b0d16]" style={{ fontFamily: SERIF }}>
@@ -236,7 +236,7 @@ export default function FundadoraDemo() {
             { m: "Periódico nacional", t: "De un cuarto de su casa a seis empresas", a: "Febrero 2024" },
           ].map((n) => (
             <article key={n.t} className="flex flex-col border border-black/10 bg-white p-6">
-              <p className={`inline-flex items-center gap-2 text-[0.62rem] text-black/45 ${MAYUS}`}>
+              <p className={`inline-flex items-center gap-2 text-[0.88rem] text-black/45 ${MAYUS}`}>
                 <Newspaper size={14} /> {n.m}
               </p>
               <h3 className="mt-4 flex-1 text-[1.3rem] leading-snug font-semibold !text-[#2b0d16]" style={{ fontFamily: SERIF }}>
@@ -259,7 +259,7 @@ export default function FundadoraDemo() {
         <div className="mx-auto max-w-7xl grid md:grid-cols-2 overflow-hidden text-white" style={{ background: NEGRO }}>
           <img src={escenario} alt="Valeria dando una charla con micrófono ante un grupo" className="w-full h-64 md:h-full object-cover" loading="lazy" />
           <div className="p-7 sm:p-12">
-            <p className={`inline-flex items-center gap-2 text-[0.7rem] ${MAYUS}`} style={{ color: DORADO }}>
+            <p className={`inline-flex items-center gap-2 text-[0.88rem] ${MAYUS}`} style={{ color: DORADO }}>
               <Mic size={14} /> Conferencias
             </p>
             <h2 className="mt-2 text-[2rem] sm:text-[2.6rem] leading-[1.05] font-semibold !text-white" style={{ fontFamily: SERIF }}>
@@ -285,7 +285,7 @@ export default function FundadoraDemo() {
         <div className="mx-auto max-w-7xl px-5 py-14 sm:py-20">
           <div className="grid lg:grid-cols-[1fr_auto] gap-6 items-end">
             <div>
-              <p className={`text-[0.7rem] ${MAYUS}`} style={{ color: DORADO }}>
+              <p className={`text-[0.88rem] ${MAYUS}`} style={{ color: DORADO }}>
                 Trabaja conmigo
               </p>
               <h2 className="mt-2 text-[2.3rem] sm:text-[3.3rem] leading-[1] font-semibold !text-[#2b0d16]" style={{ fontFamily: SERIF }}>
@@ -364,7 +364,7 @@ function Contacto({ alEnviar }: { alEnviar: (texto: string) => void }) {
   return (
     <section id="contacto" className="scroll-mt-20 mx-auto max-w-7xl px-5 py-14 sm:py-20 grid lg:grid-cols-[0.9fr_1.1fr] gap-10">
       <div>
-        <p className={`text-[0.7rem] ${MAYUS}`} style={{ color: DORADO }}>
+        <p className={`text-[0.88rem] ${MAYUS}`} style={{ color: DORADO }}>
           Contacto
         </p>
         <h2 className="mt-2 text-[2.3rem] sm:text-[3.2rem] leading-[1] font-semibold !text-[#2b0d16]" style={{ fontFamily: SERIF }}>
@@ -429,13 +429,13 @@ function UnSoloLink() {
   return (
     <section className="px-5 pb-14 sm:pb-20">
       <div className="mx-auto max-w-7xl p-7 sm:p-12 text-white" style={{ background: NEGRO }}>
-        <p className={`text-[0.7rem] ${MAYUS} text-white/55`}>¿Tu bio es una lista de enlaces?</p>
+        <p className={`text-[0.88rem] ${MAYUS} text-white/55`}>¿Tu bio es una lista de enlaces?</p>
         <h2 className="mt-2 max-w-3xl text-[2rem] sm:text-[2.8rem] leading-[1.05] font-semibold !text-white" style={{ fontFamily: SERIF }}>
           Una CEO con seis empresas merece algo más que una lista de botones.
         </h2>
         <div className="mt-10 grid md:grid-cols-2 gap-8 items-start">
           <div>
-            <p className={`text-[0.65rem] ${MAYUS} text-white/50`}>Antes</p>
+            <p className={`text-[0.88rem] ${MAYUS} text-white/50`}>Antes</p>
             <div className="mt-3 mx-auto max-w-[280px] rounded-[1.6rem] border border-white/15 p-4">
               <div className="mx-auto w-12 h-12 rounded-full bg-white/15" />
               <p className="mt-2 text-center text-[0.8rem] text-white/60">@valeriarios</p>
@@ -450,7 +450,7 @@ function UnSoloLink() {
             <p className="mt-3 text-center text-sm text-white/50">Igual que la de cualquier otra cuenta. No sale en Google.</p>
           </div>
           <div>
-            <p className={`text-[0.65rem] ${MAYUS}`} style={{ color: DORADO }}>
+            <p className={`text-[0.88rem] ${MAYUS}`} style={{ color: DORADO }}>
               Ahora
             </p>
             <ul className="mt-3 space-y-3 text-white/85">

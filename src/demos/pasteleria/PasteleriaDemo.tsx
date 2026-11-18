@@ -112,14 +112,11 @@ function Tienda({ store, quedan }: { store: ReturnType<typeof usePedidos>; queda
       <section id="inicio" className="text-white" style={{ background: CHOCO }}>
         <div className="pastel-hero mx-auto max-w-6xl px-5 py-12 md:py-16">
           <div>
-            <p className="inline-block rounded-full px-3.5 py-1 text-[0.92rem] font-semibold" style={{ background: MANTEQUILLA, color: CHOCO }}>
-              Hechos a mano, {CUPO_DIA} pasteles por día
-            </p>
-            <h1 className="mt-5 text-[2.7rem] font-semibold leading-[1.02] sm:text-[3.8rem]" style={{ fontFamily: SERIF }}>
-              Escoge tu pastel, mira el precio y apártalo.
+            <h1 className="text-[2.6rem] font-semibold leading-[1.05] sm:text-[3.5rem]" style={{ fontFamily: SERIF }}>
+              Pasteles por encargo, hechos a mano
             </h1>
             <p className="mt-5 max-w-lg text-[1.12rem] leading-relaxed text-white/80">
-              Toda nuestra vitrina con fotos y precios por tamaño. Eliges sabor y mensaje, ves qué días tenemos cupo y lo apartas con la mitad. Sin esperar a que te coticen.
+              Toda nuestra vitrina con fotos y precios por tamaño. Eliges sabor y mensaje, ves qué días tenemos cupo y lo apartas con la mitad. Hacemos {CUPO_DIA} por día, desde {qz(Math.min(...PASTELES.map(desde)))}.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <a href="#vitrina" className={`${btn}`} style={{ background: LECHE, color: CHOCO }}>
@@ -134,9 +131,6 @@ function Tienda({ store, quedan }: { store: ReturnType<typeof usePedidos>; queda
             <img src={portada} alt="Pastel de chocolate con velas encendidas" className="row-span-2 h-full w-full rounded-[1.6rem] object-cover" style={{ aspectRatio: "3/4" }} />
             <img src={PASTELES[1].foto} alt="Pastel de fresas con crema" className="h-full w-full rounded-[1.2rem] object-cover" />
             <img src={PASTELES[6].foto} alt="Pastel con macarons" className="h-full w-full rounded-[1.2rem] object-cover" />
-            <p className="absolute -bottom-3 left-4 rounded-full px-4 py-2 text-[0.95rem] font-semibold shadow-lg" style={{ background: NATA, color: CHOCO }}>
-              {PASTELES.length} pasteles desde {qz(Math.min(...PASTELES.map(desde)))}
-            </p>
           </div>
         </div>
       </section>

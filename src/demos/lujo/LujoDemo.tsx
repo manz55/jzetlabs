@@ -32,7 +32,7 @@ const PIEDRA = "#d3ddd0";
 const HUESO = "#e6ebe3";
 const BRONCE = "#9a7440";
 const DIDONE = '"Bodoni Moda", "Playfair Display", Georgia, serif';
-const CAPS = "uppercase tracking-[0.32em]";
+const CAPS = "tracking-[0.02em]";
 const SISTEMA = 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
 
 type Categoria = "Moda" | "Bolsos" | "Zapatos" | "Joyería" | "Interiores";
@@ -148,7 +148,7 @@ function Boutique({ d, setD }: PropsDatos) {
     <div style={{ background: HUESO, color: TINTA }} className="min-h-screen">
       <header className="sticky top-0 z-30 border-b border-black/10 backdrop-blur" style={{ background: "rgba(230,235,227,.92)" }}>
         <div className="mx-auto max-w-7xl px-5 h-[4.5rem] grid grid-cols-[1fr_auto_1fr] items-center gap-4">
-          <nav className={`hidden md:flex gap-7 text-[0.66rem] ${CAPS}`}>
+          <nav className={`hidden md:flex gap-7 text-[0.88rem] ${CAPS}`}>
             <a href="#piezas" className={enlace}>
               Piezas
             </a>
@@ -157,12 +157,12 @@ function Boutique({ d, setD }: PropsDatos) {
             </a>
           </nav>
           <a href="#inicio" className="col-start-2 text-center leading-none">
-            <span className={`block text-[0.95rem] sm:text-[1.1rem] ${CAPS}`} style={{ fontFamily: DIDONE }}>
+            <span className={`block text-[0.95rem] sm:text-[1.1rem] uppercase tracking-[0.32em]`} style={{ fontFamily: DIDONE }}>
               Maison Solène
             </span>
-            <span className={`mt-1 block text-[0.5rem] ${CAPS} opacity-60`}>Luxury resale · Guatemala</span>
+            <span className={`mt-1 block text-[0.88rem] ${CAPS} opacity-60`}>Luxury resale · Guatemala</span>
           </a>
-          <nav className={`col-start-3 hidden md:flex justify-end gap-7 text-[0.66rem] ${CAPS}`}>
+          <nav className={`col-start-3 hidden md:flex justify-end gap-7 text-[0.88rem] ${CAPS}`}>
             <a href="#curaduria" className={enlace}>
               Curaduría
             </a>
@@ -177,27 +177,27 @@ function Boutique({ d, setD }: PropsDatos) {
       <section id="inicio" className="mx-auto max-w-7xl px-5 pt-10 sm:pt-16 pb-14 sm:pb-20">
         <div className="grid lg:grid-cols-[1.15fr_1fr] gap-10 lg:gap-16 items-end">
           <div>
-            <p className={`text-[0.68rem] ${CAPS}`} style={{ color: BRONCE }}>
+            <p className={`text-[0.88rem] ${CAPS}`} style={{ color: BRONCE }}>
               Moda, joyería e interiores de segunda mano
             </p>
             <h1 className="mt-6 text-[3rem] sm:text-[4.6rem] xl:text-[5.4rem] leading-[0.94] font-normal tracking-[-0.01em] !text-[#0f2a21]" style={{ fontFamily: DIDONE }}>
               Lo excepcional
               <br />
-              merece una <em>segunda historia.</em>
+              merece una <span>segunda historia.</span>
             </h1>
             <p className="mt-7 max-w-md text-[1.05rem] opacity-75">Piezas de lujo elegidas una por una, revisadas y autenticadas. Cada una es única: cuando se va, se va.</p>
             <div className="mt-9 flex flex-wrap items-center gap-6">
-              <a href="#piezas" className={`inline-flex items-center gap-3 px-7 py-4 text-[0.7rem] text-white ${CAPS}`} style={{ background: TINTA }}>
+              <a href="#piezas" className={`inline-flex items-center gap-3 px-7 py-4 text-[0.88rem] text-white ${CAPS}`} style={{ background: TINTA }}>
                 Ver las piezas <ArrowRight size={15} />
               </a>
-              <a href="#consignar" className={`border-b border-current pb-1 text-[0.7rem] ${CAPS}`}>
+              <a href="#consignar" className={`border-b border-current pb-1 text-[0.88rem] ${CAPS}`}>
                 Vende la tuya
               </a>
             </div>
           </div>
           <div className="relative">
             <img src={percha} alt="Perchero con prendas seleccionadas en la boutique" className="w-full aspect-[4/5] object-cover" />
-            <p className={`absolute left-0 bottom-0 px-4 py-3 text-[0.62rem] ${CAPS}`} style={{ background: HUESO }}>
+            <p className={`absolute left-0 bottom-0 px-4 py-3 text-[0.88rem] ${CAPS}`} style={{ background: HUESO }}>
               {disponibles} piezas disponibles hoy
             </p>
           </div>
@@ -206,7 +206,7 @@ function Boutique({ d, setD }: PropsDatos) {
 
       {/* promesas */}
       <section className="border-y border-black/10">
-        <ul className={`mx-auto max-w-7xl px-5 py-5 grid grid-cols-2 lg:grid-cols-4 gap-4 text-center text-[0.62rem] ${CAPS}`}>
+        <ul className={`mx-auto max-w-7xl px-5 py-5 grid grid-cols-2 lg:grid-cols-4 gap-4 text-center text-[0.88rem] ${CAPS}`}>
           {["Autenticidad verificada", "Hasta 40% menos que en tienda", "Aparta 48 horas", "Entrega en toda Guatemala"].map((t) => (
             <li key={t}>{t}</li>
           ))}
@@ -216,14 +216,14 @@ function Boutique({ d, setD }: PropsDatos) {
       {/* piezas */}
       <section id="piezas" className="scroll-mt-24 mx-auto max-w-7xl px-5 py-16 sm:py-24">
         <div className="text-center">
-          <p className={`text-[0.66rem] ${CAPS}`} style={{ color: BRONCE }}>
+          <p className={`text-[0.88rem] ${CAPS}`} style={{ color: BRONCE }}>
             La selección
           </p>
           <h2 className={`mt-3 ${h2}`} style={{ fontFamily: DIDONE }}>
-            Una pieza, <em>una oportunidad</em>
+            Una pieza, <span>una oportunidad</span>
           </h2>
         </div>
-        <div className={`mt-9 flex justify-start sm:justify-center gap-6 sm:gap-9 overflow-x-auto [scrollbar-width:none] text-[0.68rem] ${CAPS}`}>
+        <div className={`mt-9 flex justify-start sm:justify-center gap-6 sm:gap-9 overflow-x-auto [scrollbar-width:none] text-[0.88rem] ${CAPS}`}>
           {CATEGORIAS.map((c) => (
             <button key={c} type="button" onClick={() => setCat(c)} aria-pressed={cat === c} className={`shrink-0 pb-2 border-b transition ${cat === c ? "border-current" : "border-transparent opacity-50 hover:opacity-100"}`}>
               {c}
@@ -237,14 +237,14 @@ function Boutique({ d, setD }: PropsDatos) {
               <button key={p.id} type="button" onClick={() => setFicha(p)} className="group text-left">
                 <div className="relative overflow-hidden" style={{ background: PIEDRA }}>
                   <img src={p.foto} alt={p.nombre} className={`w-full aspect-[4/5] object-cover transition duration-700 group-hover:scale-[1.04] ${e === "vendida" ? "opacity-45 grayscale" : ""}`} loading="lazy" />
-                  <span className={`absolute left-3 top-3 text-[0.58rem] ${CAPS} opacity-70`}>N.º {String(i + 1).padStart(2, "0")}</span>
+                  <span className={`absolute left-3 top-3 text-[0.88rem] ${CAPS} opacity-70`}>N.º {String(i + 1).padStart(2, "0")}</span>
                   {e !== "disponible" && (
-                    <span className={`absolute inset-x-0 bottom-0 py-2.5 text-center text-[0.62rem] text-white ${CAPS}`} style={{ background: e === "vendida" ? TINTA : BRONCE }}>
+                    <span className={`absolute inset-x-0 bottom-0 py-2.5 text-center text-[0.88rem] text-white ${CAPS}`} style={{ background: e === "vendida" ? TINTA : BRONCE }}>
                       {e === "vendida" ? "Vendida" : "Apartada"}
                     </span>
                   )}
                 </div>
-                <p className={`mt-4 text-[0.6rem] ${CAPS} opacity-55`}>
+                <p className={`mt-4 text-[0.88rem] ${CAPS} opacity-55`}>
                   {p.categoria} · {p.condicion}
                 </p>
                 <p className="mt-1.5 text-[1.15rem] sm:text-[1.35rem] leading-tight" style={{ fontFamily: DIDONE }}>
@@ -268,11 +268,11 @@ function Boutique({ d, setD }: PropsDatos) {
         <div className="mx-auto max-w-7xl px-5 py-16 sm:py-24 grid lg:grid-cols-[1fr_1.1fr] gap-12 items-center">
           <img src={retrato} alt="Mujer con collar de perlas y camisa blanca" className="w-full aspect-[4/5] object-cover" loading="lazy" />
           <div>
-            <p className={`text-[0.66rem] ${CAPS}`} style={{ color: BRONCE }}>
+            <p className={`text-[0.88rem] ${CAPS}`} style={{ color: BRONCE }}>
               Nuestra curaduría
             </p>
             <h2 className={`mt-3 ${h2}`} style={{ fontFamily: DIDONE }}>
-              No todo entra a <em>la Maison.</em>
+              No todo entra a <span>la Maison.</span>
             </h2>
             <ol className="mt-9 space-y-7">
               {[
@@ -285,7 +285,7 @@ function Boutique({ d, setD }: PropsDatos) {
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <div>
-                    <p className={`text-[0.72rem] ${CAPS}`}>{t}</p>
+                    <p className={`text-[0.88rem] ${CAPS}`}>{t}</p>
                     <p className="mt-1.5 opacity-70">{x}</p>
                   </div>
                 </li>
@@ -298,7 +298,7 @@ function Boutique({ d, setD }: PropsDatos) {
       {/* vendidas */}
       {vendidas.length > 0 && (
         <section className="mx-auto max-w-7xl px-5 py-14 sm:py-20">
-          <p className={`text-center text-[0.66rem] ${CAPS} opacity-60`}>Ya encontraron nuevo hogar</p>
+          <p className={`text-center text-[0.88rem] ${CAPS} opacity-60`}>Ya encontraron nuevo hogar</p>
           <div className="mt-6 flex justify-center gap-4 overflow-x-auto [scrollbar-width:none]">
             {vendidas.map((p) => (
               <figure key={p.id} className="shrink-0 w-36 sm:w-44">
@@ -319,7 +319,7 @@ function Boutique({ d, setD }: PropsDatos) {
         <p className="mt-8 text-[1.5rem] sm:text-[2rem] leading-snug" style={{ fontFamily: DIDONE }}>
           “Compré mi primer bolso de diseñador aquí. Llegó impecable, con su funda y una nota escrita a mano.”
         </p>
-        <p className={`mt-5 text-[0.62rem] ${CAPS} opacity-55`}>Valeria G. · Opinión de ejemplo</p>
+        <p className={`mt-5 text-[0.88rem] ${CAPS} opacity-55`}>Valeria G. · Opinión de ejemplo</p>
       </section>
 
       {/* ficha de la pieza */}
@@ -355,7 +355,7 @@ function Ficha({ p, estado, alPedir, alApartar }: { p: Pieza; estado: Estado; al
         <img src={p.foto} alt={p.nombre} className="absolute inset-0 w-full h-full object-cover" />
       </div>
       <div className="p-6 sm:p-9">
-        <p className={`text-[0.6rem] ${CAPS}`} style={{ color: BRONCE }}>
+        <p className={`text-[0.88rem] ${CAPS}`} style={{ color: BRONCE }}>
           {p.categoria} · Pieza única
         </p>
         <h3 className="mt-2 pr-8 text-[1.9rem] leading-[1.05] font-normal !text-[#0f2a21]" style={{ fontFamily: DIDONE }}>
@@ -370,7 +370,7 @@ function Ficha({ p, estado, alPedir, alApartar }: { p: Pieza; estado: Estado; al
             ["Ahorras", `${ahorro(p)}%`],
           ].map(([k, v]) => (
             <div key={k as string} className="p-3" style={{ background: HUESO }}>
-              <dt className={`text-[0.56rem] ${CAPS} opacity-55`}>{k}</dt>
+              <dt className={`text-[0.88rem] ${CAPS} opacity-55`}>{k}</dt>
               <dd className="mt-1">{v}</dd>
             </div>
           ))}
@@ -383,11 +383,11 @@ function Ficha({ p, estado, alPedir, alApartar }: { p: Pieza; estado: Estado; al
           ))}
         </ul>
         {estado === "vendida" ? (
-          <p className={`mt-7 py-4 text-center text-[0.68rem] text-white ${CAPS}`} style={{ background: TINTA }}>
+          <p className={`mt-7 py-4 text-center text-[0.88rem] text-white ${CAPS}`} style={{ background: TINTA }}>
             Esta pieza ya se vendió
           </p>
         ) : estado === "apartada" ? (
-          <p className={`mt-7 py-4 text-center text-[0.68rem] text-white ${CAPS}`} style={{ background: BRONCE }}>
+          <p className={`mt-7 py-4 text-center text-[0.88rem] text-white ${CAPS}`} style={{ background: BRONCE }}>
             Apartada por otra clienta
           </p>
         ) : apartando ? (
@@ -400,16 +400,16 @@ function Ficha({ p, estado, alPedir, alApartar }: { p: Pieza; estado: Estado; al
           >
             <p className="text-sm opacity-70">La apartas 48 horas con el 20% ({qz(Math.round(p.precio * 0.2))}). Nadie más la puede comprar mientras tanto.</p>
             <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Tu nombre" required className="w-full border border-black/20 bg-white px-3 py-3 focus:outline-none focus:border-black" />
-            <button type="submit" className={`w-full py-4 text-[0.68rem] text-white ${CAPS}`} style={{ background: BRONCE }}>
+            <button type="submit" className={`w-full py-4 text-[0.88rem] text-white ${CAPS}`} style={{ background: BRONCE }}>
               Apartar la pieza
             </button>
           </form>
         ) : (
           <div className="mt-7 grid gap-2">
-            <button type="button" onClick={alPedir} className={`py-4 text-[0.68rem] text-white ${CAPS}`} style={{ background: TINTA }}>
+            <button type="button" onClick={alPedir} className={`py-4 text-[0.88rem] text-white ${CAPS}`} style={{ background: TINTA }}>
               La quiero
             </button>
-            <button type="button" onClick={() => setApartando(true)} className={`border border-black/25 py-4 text-[0.68rem] ${CAPS} hover:border-black`}>
+            <button type="button" onClick={() => setApartando(true)} className={`border border-black/25 py-4 text-[0.88rem] ${CAPS} hover:border-black`}>
               Apartar 48 horas
             </button>
           </div>
@@ -430,11 +430,11 @@ function Consignar({ setD, alEnviar }: { setD: PropsDatos["setD"]; alEnviar: (t:
     <section id="consignar" className="scroll-mt-24 text-white" style={{ background: TINTA }}>
       <div className="mx-auto max-w-7xl px-5 py-16 sm:py-24 grid lg:grid-cols-2 gap-12">
         <div>
-          <p className={`text-[0.66rem] ${CAPS}`} style={{ color: "#c9a97c" }}>
+          <p className={`text-[0.88rem] ${CAPS}`} style={{ color: "#c9a97c" }}>
             Consignación
           </p>
           <h2 className="mt-3 text-[2.4rem] sm:text-[3.6rem] leading-[1] font-normal !text-white" style={{ fontFamily: DIDONE }}>
-            Tu clóset tiene piezas que <em>merecen otra vida.</em>
+            Tu clóset tiene piezas que <span>merecen otra vida.</span>
           </h2>
           <p className="mt-6 max-w-md text-white/65">Nosotras la fotografiamos, la publicamos y la vendemos. Tú recibes el {PARTE_CONSIGNANTE * 100}% cuando se vende.</p>
           <ol className="mt-8 space-y-3 text-white/80">
@@ -459,16 +459,16 @@ function Consignar({ setD, alEnviar }: { setD: PropsDatos["setD"]; alEnviar: (t:
           <p className="text-[1.6rem]" style={{ fontFamily: DIDONE }}>
             Ofrece tu pieza
           </p>
-          <label className={`mt-6 block text-[0.6rem] ${CAPS}`}>
+          <label className={`mt-6 block text-[0.88rem] ${CAPS}`}>
             Tu nombre
             <input value={f.nombre} onChange={(e) => setF({ ...f, nombre: e.target.value })} required className={`${campo} normal-case tracking-normal text-base`} />
           </label>
-          <label className={`mt-5 block text-[0.6rem] ${CAPS}`}>
+          <label className={`mt-5 block text-[0.88rem] ${CAPS}`}>
             ¿Qué pieza es?
             <input value={f.pieza} onChange={(e) => setF({ ...f, pieza: e.target.value })} required placeholder="Marca, modelo y color" className={`${campo} normal-case tracking-normal text-base`} />
           </label>
           <div className="mt-5 grid grid-cols-2 gap-5">
-            <label className={`block text-[0.6rem] ${CAPS}`}>
+            <label className={`block text-[0.88rem] ${CAPS}`}>
               Categoría
               <select value={f.categoria} onChange={(e) => setF({ ...f, categoria: e.target.value as Categoria })} className={`${campo} normal-case tracking-normal text-base`}>
                 {CATEGORIAS.slice(1).map((c) => (
@@ -476,7 +476,7 @@ function Consignar({ setD, alEnviar }: { setD: PropsDatos["setD"]; alEnviar: (t:
                 ))}
               </select>
             </label>
-            <label className={`block text-[0.6rem] ${CAPS}`}>
+            <label className={`block text-[0.88rem] ${CAPS}`}>
               ¿Cuánto te costó? (Q)
               <input value={f.pagado} inputMode="numeric" onChange={(e) => setF({ ...f, pagado: e.target.value.replace(/\D/g, "") })} required className={`${campo} normal-case tracking-normal text-base`} />
             </label>
@@ -484,20 +484,20 @@ function Consignar({ setD, alEnviar }: { setD: PropsDatos["setD"]; alEnviar: (t:
           {pagado > 0 && (
             <div className="mt-6 grid grid-cols-2 gap-px bg-black/10">
               <div className="p-3" style={{ background: PIEDRA }}>
-                <p className={`text-[0.56rem] ${CAPS} opacity-55`}>La venderíamos en</p>
+                <p className={`text-[0.88rem] ${CAPS} opacity-55`}>La venderíamos en</p>
                 <p className="mt-1 text-[1.3rem]" style={{ fontFamily: DIDONE }}>
                   {qz(venta)} aprox.
                 </p>
               </div>
               <div className="p-3" style={{ background: PIEDRA }}>
-                <p className={`text-[0.56rem] ${CAPS} opacity-55`}>Tú recibirías</p>
+                <p className={`text-[0.88rem] ${CAPS} opacity-55`}>Tú recibirías</p>
                 <p className="mt-1 text-[1.3rem]" style={{ fontFamily: DIDONE, color: BRONCE }}>
                   {qz(recibe)} aprox.
                 </p>
               </div>
             </div>
           )}
-          <button type="submit" className={`mt-7 w-full py-4 text-[0.68rem] text-white ${CAPS}`} style={{ background: TINTA }}>
+          <button type="submit" className={`mt-7 w-full py-4 text-[0.88rem] text-white ${CAPS}`} style={{ background: TINTA }}>
             Enviar mi pieza
           </button>
           <p className="mt-3 text-xs opacity-50">Estimado de ejemplo. El precio final se acuerda al revisar la pieza.</p>
@@ -517,7 +517,7 @@ function Deseos({ setD }: { setD: PropsDatos["setD"] }) {
       <div className="mx-auto max-w-3xl px-5 py-16 sm:py-20 text-center">
         <Heart size={22} className="mx-auto" style={{ color: BRONCE }} />
         <h2 className="mt-4 text-[2rem] sm:text-[2.8rem] leading-[1.05] font-normal !text-[#0f2a21]" style={{ fontFamily: DIDONE }}>
-          ¿Buscas algo <em>en especial?</em>
+          ¿Buscas algo <span>en especial?</span>
         </h2>
         <p className="mt-3 opacity-70">Dinos qué pieza sueñas y te escribimos antes de publicarla.</p>
         {listo ? (
@@ -536,7 +536,7 @@ function Deseos({ setD }: { setD: PropsDatos["setD"] }) {
           >
             <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Tu nombre" required className="border border-black/20 bg-white px-3 py-3.5 focus:outline-none focus:border-black" />
             <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Bolso negro mediano, talla 38…" required className="border border-black/20 bg-white px-3 py-3.5 focus:outline-none focus:border-black" />
-            <button type="submit" className={`px-6 py-3.5 text-[0.66rem] text-white ${CAPS}`} style={{ background: TINTA }}>
+            <button type="submit" className={`px-6 py-3.5 text-[0.88rem] text-white ${CAPS}`} style={{ background: TINTA }}>
               Avísenme
             </button>
           </form>

@@ -709,7 +709,7 @@ function Formulario({ alGuardar }: { alGuardar: (p: Perfil) => void }) {
         <figure className="relative">
           <img src={maquillista} alt="Consultora maquillando a una clienta en una reunión" className="aspect-[16/11] w-full object-cover md:aspect-[4/5]" />
           {/* adelanto de lo que le va a salir */}
-          <div className="relative -mt-14 ml-4 mr-4 bg-white p-4 shadow-[0_18px_40px_-24px_rgba(0,0,0,.55)] md:absolute md:-left-10 md:bottom-8 md:m-0 md:w-[19rem]">
+          <div className="mt-3 bg-white p-4">
             <p className="text-[1rem] font-semibold">Así se ve tu rutina al terminar</p>
             <ol className="mt-3 grid gap-2.5">
               {muestra.map((pr, i) => (

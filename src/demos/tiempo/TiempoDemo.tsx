@@ -119,9 +119,9 @@ export default function TiempoDemo() {
         </header>
 
         <div className="relative z-10 flex-1 flex flex-col justify-end mx-auto w-full max-w-7xl px-5 pb-14 sm:pb-20">
-          <p className="text-[0.8rem] uppercase tracking-[0.24em] text-white/80">Pacífico de Guatemala · a 2 horas de la capital</p>
+          <p className="text-[0.95rem] text-white/85">Pacífico de Guatemala · a 2 horas de la capital</p>
           <h1 className="mt-3 max-w-4xl !text-white text-[2.8rem] sm:text-[4.6rem] lg:text-[5.4rem] leading-[0.98]" style={{ fontFamily: SERIF }}>
-            Su semana frente al mar, <em className="text-[#ffd9c4]">todos los años.</em>
+            Su semana frente al mar, <span>todos los años.</span>
           </h1>
 
           {/* buscador tipo hotel */}

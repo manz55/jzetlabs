@@ -97,9 +97,8 @@ function Pagina({ store }: { store: ReturnType<typeof useCitas> }) {
       {/* portada */}
       <section id="inicio" className="mx-auto grid max-w-6xl gap-10 px-5 py-12 md:grid-cols-[1.05fr_1fr] md:items-center md:py-20">
         <div>
-          <p className="text-[0.95rem] font-semibold" style={{ color: SALVIA }}>3 sucursales en la ciudad</p>
-          <h1 className="mt-3 text-[2.9rem] leading-[1.02] sm:text-[4rem]" style={{ fontFamily: SERIF }}>
-            Tu cita en un minuto, sin esperar a que te contesten.
+          <h1 className="text-[2.6rem] leading-[1.05] sm:text-[3.5rem]" style={{ fontFamily: SERIF }}>
+            Salón de belleza en zona 10, Cayalá y San Cristóbal
           </h1>
           <p className="mt-5 max-w-lg text-[1.12rem] leading-relaxed opacity-75">
             Elige sucursal, servicio y con quién. Ves las horas libres de verdad, apartas la tuya y te recordamos un día antes por WhatsApp.
@@ -117,13 +116,11 @@ function Pagina({ store }: { store: ReturnType<typeof useCitas> }) {
             {abiertas.length ? `Abierto ahora: ${abiertas.map((s) => s.nombre).join(", ")}` : "Ahora estamos cerrados, pero puedes agendar para mañana."}
           </p>
         </div>
-        <div className="relative">
+        <div>
           <img src={fotoEstudio} alt="Estilista peinando a una clienta en el salón" className="aspect-[4/5] w-full object-cover" style={{ borderRadius: "999px 999px 1.25rem 1.25rem" }} />
-          <div className="absolute -left-3 bottom-6 bg-white p-4 shadow-[0_18px_40px_-24px_rgba(0,0,0,.6)] sm:-left-8">
-            <p className="text-[0.85rem] opacity-60">Próxima hora libre</p>
-            <p className="text-[1.25rem]" style={{ fontFamily: SERIF }}>Hoy, con Lucía</p>
-            <p className="text-[0.95rem]">Manicure en gel · {qz(160)}</p>
-          </div>
+          <p className="mt-3 text-[0.98rem]">
+            <span className="opacity-60">Próxima hora libre:</span> hoy con Lucía, manicure en gel {qz(160)}
+          </p>
         </div>
       </section>
 

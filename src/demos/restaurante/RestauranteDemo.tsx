@@ -172,7 +172,7 @@ export default function RestauranteDemo() {
             <span className="block whitespace-nowrap text-[1.3rem] sm:text-[1.5rem] font-semibold italic" style={{ fontFamily: SERIF }}>
               Trattoria Sole
             </span>
-            <span className="block mt-1 text-[0.65rem] uppercase tracking-[0.22em] opacity-60">Cocina italiana</span>
+            <span className="block mt-1 text-[0.65rem] opacity-60">Cocina italiana</span>
           </a>
           <div className="flex justify-end">
             <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[0.78rem] font-semibold ${abierto ? "bg-[#5f6b3a]/12 text-[#4b5530]" : "bg-[#c4352a]/10 text-[#8f2e21]"}`}>
@@ -187,13 +187,13 @@ export default function RestauranteDemo() {
       {/* portada: el plato al centro */}
       <section id="inicio" className="relative overflow-hidden">
         <div className="mx-auto max-w-6xl px-5 pt-12 pb-16 sm:pt-16 sm:pb-20 text-center">
-          <p className="text-[0.8rem] font-semibold uppercase tracking-[0.24em]" style={{ color: TOMATE }}>
+          <p className="text-[0.95rem] font-semibold" style={{ color: TOMATE }}>
             Desde 2019 · Zona 10
           </p>
           <h1 className="mt-4 !text-[#2b1d16] text-[2.8rem] sm:text-[4.4rem] leading-[1] tracking-[-0.02em] font-semibold" style={{ fontFamily: SERIF }}>
             Pasta fresca,
             <br />
-            <span className="italic font-normal" style={{ color: TOMATE }}>
+            <span className="font-normal">
               hecha cada mañana
             </span>
           </h1>
@@ -253,7 +253,7 @@ export default function RestauranteDemo() {
       {/* menú */}
       <section id="menu" className="scroll-mt-4 mx-auto max-w-6xl px-5 pt-20 sm:pt-28 pb-10">
         <div className="text-center">
-          <p className="text-[0.8rem] font-semibold uppercase tracking-[0.24em]" style={{ color: TOMATE }}>
+          <p className="text-[0.95rem] font-semibold" style={{ color: TOMATE }}>
             La carta
           </p>
           <h2 className="mt-3 !text-[#2b1d16] text-[2.6rem] sm:text-[3.4rem] font-semibold" style={{ fontFamily: SERIF }}>
@@ -346,7 +346,7 @@ export default function RestauranteDemo() {
           </span>
         </div>
         <div>
-          <p className="text-[0.8rem] font-semibold uppercase tracking-[0.24em]" style={{ color: TOMATE }}>
+          <p className="text-[0.95rem] font-semibold" style={{ color: TOMATE }}>
             Visítenos
           </p>
           <h2 className="mt-3 !text-[#2b1d16] text-[2.4rem] font-semibold" style={{ fontFamily: SERIF }}>
@@ -498,11 +498,11 @@ function Reservar({ alReservar }: { alReservar: (mensaje: string) => void }) {
     <section id="reservar" className="scroll-mt-4 bg-[#2b1d16] text-[#fbe7a8]">
       <div className="mx-auto max-w-6xl px-5 py-16 sm:py-24 grid md:grid-cols-[1fr_1.1fr] gap-10 items-center">
         <div>
-          <p className="text-[0.8rem] font-semibold uppercase tracking-[0.24em] text-[#f0a08f]">Reservaciones</p>
+          <p className="text-[0.8rem] font-semibold text-[#f0a08f]">Reservaciones</p>
           <h2 className="mt-3 !text-[#fbe7a8] text-[2.4rem] sm:text-[3rem] leading-tight font-semibold" style={{ fontFamily: SERIF }}>
             Su mesa,
             <br />
-            <span className="italic font-normal">lista cuando llegue</span>
+            <span className="font-normal">lista cuando llegue</span>
           </h2>
           <p className="mt-4 text-[#fbe7a8]/70 max-w-md">Elija día, hora y cuántos son. Le confirmamos por WhatsApp en unos minutos.</p>
         </div>

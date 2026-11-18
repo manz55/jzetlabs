@@ -135,7 +135,7 @@ export default function RopaDemo() {
       {/* portada partida */}
       <section id="inicio" className="mx-auto max-w-7xl px-5 pt-10 pb-16 sm:pt-16 grid lg:grid-cols-[1.1fr_1fr] gap-10 lg:gap-16 items-center">
         <div>
-          <p className="text-[0.8rem] font-semibold uppercase tracking-[0.2em]" style={{ color: ACENTO }}>
+          <p className="text-[0.95rem] font-semibold" style={{ color: ACENTO }}>
             Drop 04 · Temporada seca 2026
           </p>
           <h1 className="mt-5 !text-[#141210] font-[family-name:var(--font-titulo)] font-extrabold text-[3.4rem] sm:text-[5rem] lg:text-[6.2rem] leading-[0.92] tracking-[-0.045em]">
@@ -239,7 +239,7 @@ export default function RopaDemo() {
         <div className="mx-auto max-w-7xl px-5 py-16 sm:py-24 grid lg:grid-cols-[1.2fr_1fr] gap-10 lg:gap-16 items-center">
           <img src={ropaHero} alt="Percheros con camisas en la tienda" className="w-full aspect-[16/10] object-cover rounded-[4px]" loading="lazy" />
           <div>
-            <p className="text-[0.8rem] font-semibold uppercase tracking-[0.2em]" style={{ color: "#f08a55" }}>
+            <p className="text-[0.95rem] font-semibold" style={{ color: "#f08a55" }}>
               Lookbook
             </p>
             <h2 className="mt-3 !text-white font-[family-name:var(--font-titulo)] font-extrabold text-[2.4rem] sm:text-[3rem] tracking-[-0.04em] leading-none">Cómo se usa</h2>
@@ -431,7 +431,7 @@ function Ficha({ p, alAgregar, alVerGuia }: { p: Prenda; alAgregar: (p: Prenda, 
     <div className="grid sm:grid-cols-2 text-[#141210]">
       <img src={p.foto} alt={p.nombre} className="w-full h-full max-h-[50svh] sm:max-h-none aspect-[4/5] object-cover sm:rounded-l-[1.75rem]" />
       <div className="px-6 sm:px-8 pt-6 sm:pt-10 pb-7 flex flex-col">
-        <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-black/50">{p.categoria}</p>
+        <p className="text-[0.75rem] font-semibold text-black/50">{p.categoria}</p>
         <h3 className="mt-2 pr-10 !text-[#141210] font-[family-name:var(--font-titulo)] font-extrabold text-[2rem] leading-tight tracking-[-0.03em]">{p.nombre}</h3>
         <p className="mt-2 text-[1.3rem] font-semibold tabular-nums">{qz(p.precio)}</p>
         <p className="mt-4 text-black/70">{p.detalle}</p>

@@ -159,7 +159,6 @@ export function PortadaFotos() {
           ref={contenido}
           className={`relative z-[1] contenedor flex flex-col items-center justify-center text-center pt-20 sm:pt-24 pb-10 sm:pb-14 ${mover ? "h-full" : "min-h-[85svh]"}`}
         >
-          <p className="pieza etiqueta">Páginas web y sistemas · Guatemala</p>
           <h1 className="pieza mt-4 max-w-5xl text-[2.25rem] sm:text-[3.3rem] lg:text-[4.1rem] leading-[1.1]">
             Su página web y su sistema, hechos{" "}
             <span
