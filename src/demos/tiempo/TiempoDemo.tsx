@@ -18,7 +18,7 @@ import f6 from "@/assets/demo-tienda/tiempo-6.jpg";
 import { BandaDemos, CierreJzet, Contador, MensajeWhatsApp } from "../comun";
 
 const MAR = "#0e3b3a";
-const ARENA = "#f3ece0";
+const ARENA = "#d9eee8";
 const ATARDECER = "#d9693f";
 const SERIF = '"DM Serif Display", Georgia, serif';
 
@@ -118,7 +118,7 @@ export default function TiempoDemo() {
           </a>
         </header>
 
-        <div className="relative z-10 flex-1 flex flex-col justify-end mx-auto w-full max-w-7xl px-5 pb-8 sm:pb-12">
+        <div className="relative z-10 flex-1 flex flex-col justify-end mx-auto w-full max-w-7xl px-5 pb-14 sm:pb-20">
           <p className="text-[0.8rem] uppercase tracking-[0.24em] text-white/80">Pacífico de Guatemala · a 2 horas de la capital</p>
           <h1 className="mt-3 max-w-4xl !text-white text-[2.8rem] sm:text-[4.6rem] lg:text-[5.4rem] leading-[0.98]" style={{ fontFamily: SERIF }}>
             Su semana frente al mar, <em className="text-[#ffd9c4]">todos los años.</em>
@@ -157,6 +157,9 @@ export default function TiempoDemo() {
             </button>
           </div>
         </div>
+        <svg aria-hidden viewBox="0 0 1440 60" preserveAspectRatio="none" className="absolute inset-x-0 -bottom-px z-10 block h-8 w-full sm:h-12">
+          <path d="M0 34 C180 6 360 6 540 30 S900 58 1080 32 S1320 8 1440 26 V60 H0Z" fill={ARENA} />
+        </svg>
       </section>
 
       {/* datos del club */}

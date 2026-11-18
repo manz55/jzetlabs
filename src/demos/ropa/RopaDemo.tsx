@@ -20,8 +20,8 @@ import ropaHero from "@/assets/demo-tienda/ropa-hero.jpg";
 import ropaLook from "@/assets/demo-tienda/ropa-look.jpg";
 
 const TINTA = "#141210";
-const ACENTO = "#c2410c";
-const FONDO = "#f6f3ee";
+const ACENTO = "#e8470f";
+const FONDO = "#dcd9d2";
 
 type Categoria = "Camisas" | "Pantalones" | "Abrigos" | "Accesorios";
 type Prenda = {
@@ -39,7 +39,7 @@ type Prenda = {
 
 const PRENDAS: Prenda[] = [
   { id: "playera", nombre: "Playera básica", categoria: "Camisas", precio: 129, foto: ropa1, detalle: "Algodón grueso de 220 g, corte recto. Se lava y no pierde la forma.", tallas: ["S", "M", "L", "XL"], colores: [{ nombre: "Blanco", hex: "#f3f1ec" }, { nombre: "Negro", hex: "#1b1b1b" }] },
-  { id: "camisa", nombre: "Camisa de franela", categoria: "Camisas", precio: 279, foto: ropa3, detalle: "Manga larga, franela suave. Para las mañanas frías de la capital.", tallas: ["S", "M", "L"], colores: [{ nombre: "Naranja", hex: "#c2410c" }], nuevo: true },
+  { id: "camisa", nombre: "Camisa de franela", categoria: "Camisas", precio: 279, foto: ropa3, detalle: "Manga larga, franela suave. Para las mañanas frías de la capital.", tallas: ["S", "M", "L"], colores: [{ nombre: "Naranja", hex: "#e8470f" }], nuevo: true },
   { id: "jeans", nombre: "Jeans rectos", categoria: "Pantalones", precio: 349, foto: ropa2, detalle: "Mezclilla de 12 oz, tiro medio y pierna recta.", tallas: ["28", "30", "32", "34", "36"], colores: [{ nombre: "Azul claro", hex: "#8fb0d3" }, { nombre: "Azul oscuro", hex: "#2d4462" }] },
   { id: "sueter", nombre: "Suéter tejido", categoria: "Abrigos", precio: 299, foto: ropa4, detalle: "Tejido grueso en colores de otoño. Holgado, para ponerlo encima de todo.", tallas: ["S", "M", "L"], colores: [{ nombre: "Ladrillo", hex: "#9a4b32" }, { nombre: "Café", hex: "#5b4033" }], nuevo: true },
   { id: "chaqueta", nombre: "Chaqueta pintada", categoria: "Abrigos", precio: 690, foto: ropa6, detalle: "Pintada a mano, una por una. No hay dos iguales.", tallas: ["M", "L"], colores: [{ nombre: "Única", hex: "#e2873b" }], unica: true },
@@ -99,7 +99,7 @@ export default function RopaDemo() {
       <BandaDemos />
 
       {/* encabezado */}
-      <header className="sticky top-0 z-30 border-b border-black/10 bg-[#f6f3ee]/90 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b border-black/10 bg-[#dcd9d2]/90 backdrop-blur">
         <div className="mx-auto max-w-7xl px-5 h-16 flex items-center justify-between gap-4">
           <a href="#inicio" className="font-[family-name:var(--font-titulo)] font-extrabold tracking-[0.32em] text-[1.05rem]">
             NÓMADA
@@ -168,7 +168,7 @@ export default function RopaDemo() {
       </section>
 
       {/* cinta de avisos */}
-      <div className="bg-[#141210] text-white overflow-hidden border-y border-black">
+      <div className="bg-[#e8470f] text-[#141210] overflow-hidden border-y-2 border-[#141210]">
         <div className="cinta flex whitespace-nowrap py-3 text-[0.85rem] font-semibold tracking-[0.06em]">
           {Array.from({ length: 2 }).map((_, k) => (
             <span key={k} className="flex shrink-0" aria-hidden={k === 1}>

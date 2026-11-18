@@ -76,7 +76,7 @@ function Pagina({ store }: { store: ReturnType<typeof useCitas> }) {
 
   return (
     <>
-      <header className="sticky top-0 z-30 border-b backdrop-blur" style={{ borderColor: LINEA, background: "rgba(246,241,234,.94)" }}>
+      <header className="sticky top-0 z-30 border-b backdrop-blur" style={{ borderColor: LINEA, background: "rgba(229,236,221,.94)" }}>
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5">
           <a href="#inicio" className="leading-none">
             <span className="block text-[1.7rem]" style={{ fontFamily: SERIF }}>Lirio</span>
@@ -118,7 +118,7 @@ function Pagina({ store }: { store: ReturnType<typeof useCitas> }) {
           </p>
         </div>
         <div className="relative">
-          <img src={fotoEstudio} alt="Estilista peinando a una clienta en el salón" className="aspect-[4/5] w-full object-cover" />
+          <img src={fotoEstudio} alt="Estilista peinando a una clienta en el salón" className="aspect-[4/5] w-full object-cover" style={{ borderRadius: "999px 999px 1.25rem 1.25rem" }} />
           <div className="absolute -left-3 bottom-6 bg-white p-4 shadow-[0_18px_40px_-24px_rgba(0,0,0,.6)] sm:-left-8">
             <p className="text-[0.85rem] opacity-60">Próxima hora libre</p>
             <p className="text-[1.25rem]" style={{ fontFamily: SERIF }}>Hoy, con Lucía</p>
@@ -134,7 +134,7 @@ function Pagina({ store }: { store: ReturnType<typeof useCitas> }) {
           <p className="mt-2 max-w-2xl text-[1.08rem] opacity-70">Con lo que dura cada uno, para que sepas cuánto tiempo apartar. El precio es «desde»: te lo confirmamos antes de empezar.</p>
           <div className="mt-8 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]" role="tablist">
             {CATEGORIAS.map((c) => (
-              <button key={c} type="button" role="tab" aria-selected={cat === c} onClick={() => setCat(c)} className="shrink-0 rounded-full border-2 px-4 py-2 font-medium" style={cat === c ? { background: TINTA, borderColor: TINTA, color: "#fff" } : { borderColor: "rgba(31,29,26,.2)" }}>
+              <button key={c} type="button" role="tab" aria-selected={cat === c} onClick={() => setCat(c)} className="shrink-0 rounded-full border-2 px-4 py-2 font-medium" style={cat === c ? { background: TINTA, borderColor: TINTA, color: "#fff" } : { borderColor: "rgba(22,38,27,.2)" }}>
                 {c}
               </button>
             ))}
@@ -300,7 +300,7 @@ function Agendar({ store, pre }: { store: ReturnType<typeof useCitas>; pre: { se
     setTexto(`Nueva cita en Lirio ${sucursal(suc).nombre}:\n${s.nombre} con ${estilista(quien).nombre}\n${fechaLarga(fecha)}, ${hora12(hora)}\nClienta: ${c.nombre}, ${tel}\nSe le recuerda por WhatsApp un día antes.`);
   };
 
-  const elegido = (on: boolean) => (on ? { background: TINTA, borderColor: TINTA, color: "#fff" } : { borderColor: "rgba(31,29,26,.2)", background: "#fff" });
+  const elegido = (on: boolean) => (on ? { background: TINTA, borderColor: TINTA, color: "#fff" } : { borderColor: "rgba(22,38,27,.2)", background: "#fff" });
   const Paso = ({ n, t, valor, alCambiar }: { n: number; t: string; valor?: string; alCambiar?: () => void }) => (
     <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-t pt-4" style={{ borderColor: LINEA }}>
       <p className="shrink-0 text-[1.15rem] font-semibold">
@@ -495,7 +495,7 @@ function Panel({ store }: { store: ReturnType<typeof useCitas> }) {
     .slice(0, 5);
 
   const h2 = "text-[1.7rem] leading-tight";
-  const estadoBtn = (on: boolean, color: string) => (on ? { background: color, borderColor: color, color: "#fff" } : { borderColor: "rgba(31,29,26,.2)" });
+  const estadoBtn = (on: boolean, color: string) => (on ? { background: color, borderColor: color, color: "#fff" } : { borderColor: "rgba(22,38,27,.2)" });
 
   return (
     <div className="mx-auto max-w-6xl px-5 pb-16 pt-8">
@@ -503,7 +503,7 @@ function Panel({ store }: { store: ReturnType<typeof useCitas> }) {
       <h1 className="mt-1 text-[2.8rem] leading-none" style={{ fontFamily: SERIF }}>Agenda del salón</h1>
       <div className="mt-6 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
         {[{ id: "todas", nombre: "Todas las sucursales" }, ...SUCURSALES].map((x) => (
-          <button key={x.id} type="button" onClick={() => setSuc(x.id)} className="shrink-0 rounded-full border-2 px-4 py-2 font-medium" style={suc === x.id ? { background: TINTA, borderColor: TINTA, color: "#fff" } : { borderColor: "rgba(31,29,26,.2)" }}>
+          <button key={x.id} type="button" onClick={() => setSuc(x.id)} className="shrink-0 rounded-full border-2 px-4 py-2 font-medium" style={suc === x.id ? { background: TINTA, borderColor: TINTA, color: "#fff" } : { borderColor: "rgba(22,38,27,.2)" }}>
             {x.nombre}
           </button>
         ))}

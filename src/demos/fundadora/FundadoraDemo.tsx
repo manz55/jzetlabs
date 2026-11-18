@@ -20,10 +20,10 @@ import academia from "@/assets/demo-cosmeticos/estudio.jpg";
 import cosmetics from "@/assets/demo-cosmeticos/polvo-negro.jpg";
 import studio from "@/assets/demo-cosmeticos/maquillista.jpg";
 
-const NEGRO = "#0e0d0c";
-const CREMA = "#f3ede4";
-const PAPEL = "#faf8f4";
-const DORADO = "#b38b54";
+const NEGRO = "#2b0d16";
+const CREMA = "#ecc9c0";
+const PAPEL = "#f7e3de";
+const DORADO = "#c9705a";
 const SERIF = '"Fraunces", Georgia, serif';
 const MAYUS = "uppercase tracking-[0.22em]";
 
@@ -59,7 +59,7 @@ export default function FundadoraDemo() {
   useEffect(() => {
     document.title = "Valeria Ríos · Fundadora · Demo de Jzet Labs";
   }, []);
-  const enlace = "hover:text-[#b38b54] transition";
+  const enlace = "hover:text-[#c9705a] transition";
 
   return (
     <div style={{ background: PAPEL, color: NEGRO }} className="min-h-screen">
@@ -151,7 +151,7 @@ export default function FundadoraDemo() {
         <p className={`text-[0.7rem] ${MAYUS}`} style={{ color: DORADO }}>
           Mis empresas
         </p>
-        <h2 className="mt-2 text-[2.3rem] sm:text-[3.3rem] leading-[1] font-semibold !text-[#0e0d0c]" style={{ fontFamily: SERIF }}>
+        <h2 className="mt-2 text-[2.3rem] sm:text-[3.3rem] leading-[1] font-semibold !text-[#2b0d16]" style={{ fontFamily: SERIF }}>
           Todo lo que hago, en un solo lugar
         </h2>
         <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -165,19 +165,19 @@ export default function FundadoraDemo() {
               </div>
               <div className="flex-1 flex flex-col p-5">
                 <p className="text-[0.75rem] text-black/45">Desde {e.desde}</p>
-                <h3 className="mt-0.5 text-[1.35rem] leading-tight font-semibold !text-[#0e0d0c]" style={{ fontFamily: SERIF }}>
+                <h3 className="mt-0.5 text-[1.35rem] leading-tight font-semibold !text-[#2b0d16]" style={{ fontFamily: SERIF }}>
                   {e.nombre}
                 </h3>
                 <p className="mt-2 flex-1 text-[0.92rem] text-black/65">{e.texto}</p>
                 {e.href ? (
-                  <a href={e.href} className="mt-4 inline-flex items-center gap-1.5 self-start text-[0.9rem] font-semibold border-b border-black pb-0.5 hover:text-[#b38b54] hover:border-[#b38b54] transition">
+                  <a href={e.href} className="mt-4 inline-flex items-center gap-1.5 self-start text-[0.9rem] font-semibold border-b border-black pb-0.5 hover:text-[#c9705a] hover:border-[#c9705a] transition">
                     {e.boton} <ArrowUpRight size={16} />
                   </a>
                 ) : (
                   <button
                     type="button"
                     onClick={() => setMensaje({ que: "la reserva", texto: `Hola, ${e.nombre}. Vi la página de Valeria y quiero ${e.boton.toLowerCase()}. ¿Qué horarios tienen esta semana?` })}
-                    className="mt-4 inline-flex items-center gap-1.5 self-start text-[0.9rem] font-semibold border-b border-black pb-0.5 hover:text-[#b38b54] hover:border-[#b38b54] transition"
+                    className="mt-4 inline-flex items-center gap-1.5 self-start text-[0.9rem] font-semibold border-b border-black pb-0.5 hover:text-[#c9705a] hover:border-[#c9705a] transition"
                   >
                     {e.boton} <ArrowUpRight size={16} />
                   </button>
@@ -196,7 +196,7 @@ export default function FundadoraDemo() {
             <p className={`text-[0.7rem] ${MAYUS}`} style={{ color: DORADO }}>
               Mi historia
             </p>
-            <h2 className="mt-2 text-[2.3rem] sm:text-[3.2rem] leading-[1] font-semibold !text-[#0e0d0c]" style={{ fontFamily: SERIF }}>
+            <h2 className="mt-2 text-[2.3rem] sm:text-[3.2rem] leading-[1] font-semibold !text-[#2b0d16]" style={{ fontFamily: SERIF }}>
               Nada pasó de la noche a la mañana
             </h2>
             <img src={retrato2} alt="Valeria Ríos sentada, retrato en fondo oscuro" className="mt-8 hidden lg:block w-full aspect-[4/5] object-cover" loading="lazy" />
@@ -223,7 +223,7 @@ export default function FundadoraDemo() {
             <p className={`text-[0.7rem] ${MAYUS}`} style={{ color: DORADO }}>
               Prensa
             </p>
-            <h2 className="mt-2 text-[2.3rem] sm:text-[3.2rem] leading-[1] font-semibold !text-[#0e0d0c]" style={{ fontFamily: SERIF }}>
+            <h2 className="mt-2 text-[2.3rem] sm:text-[3.2rem] leading-[1] font-semibold !text-[#2b0d16]" style={{ fontFamily: SERIF }}>
               Han hablado de nosotras
             </h2>
           </div>
@@ -239,7 +239,7 @@ export default function FundadoraDemo() {
               <p className={`inline-flex items-center gap-2 text-[0.62rem] text-black/45 ${MAYUS}`}>
                 <Newspaper size={14} /> {n.m}
               </p>
-              <h3 className="mt-4 flex-1 text-[1.3rem] leading-snug font-semibold !text-[#0e0d0c]" style={{ fontFamily: SERIF }}>
+              <h3 className="mt-4 flex-1 text-[1.3rem] leading-snug font-semibold !text-[#2b0d16]" style={{ fontFamily: SERIF }}>
                 “{n.t}”
               </h3>
               <p className="mt-5 flex items-center justify-between text-sm">
@@ -288,7 +288,7 @@ export default function FundadoraDemo() {
               <p className={`text-[0.7rem] ${MAYUS}`} style={{ color: DORADO }}>
                 Trabaja conmigo
               </p>
-              <h2 className="mt-2 text-[2.3rem] sm:text-[3.3rem] leading-[1] font-semibold !text-[#0e0d0c]" style={{ fontFamily: SERIF }}>
+              <h2 className="mt-2 text-[2.3rem] sm:text-[3.3rem] leading-[1] font-semibold !text-[#2b0d16]" style={{ fontFamily: SERIF }}>
                 Convierte lo que sabes hacer en un negocio
               </h2>
             </div>
@@ -297,7 +297,7 @@ export default function FundadoraDemo() {
           <div className="mt-10 grid md:grid-cols-3 gap-4">
             {PROGRAMAS.map((p) => (
               <article key={p.nombre} className={`flex flex-col p-6 ${p.destacado ? "text-white" : "bg-white border border-black/10"}`} style={p.destacado ? { background: NEGRO } : undefined}>
-                <h3 className={`text-[1.5rem] leading-tight font-semibold ${p.destacado ? "!text-white" : "!text-[#0e0d0c]"}`} style={{ fontFamily: SERIF }}>
+                <h3 className={`text-[1.5rem] leading-tight font-semibold ${p.destacado ? "!text-white" : "!text-[#2b0d16]"}`} style={{ fontFamily: SERIF }}>
                   {p.nombre}
                 </h3>
                 <p className={`mt-1 text-[0.9rem] ${p.destacado ? "text-white/65" : "text-black/55"}`}>{p.d}</p>
@@ -367,7 +367,7 @@ function Contacto({ alEnviar }: { alEnviar: (texto: string) => void }) {
         <p className={`text-[0.7rem] ${MAYUS}`} style={{ color: DORADO }}>
           Contacto
         </p>
-        <h2 className="mt-2 text-[2.3rem] sm:text-[3.2rem] leading-[1] font-semibold !text-[#0e0d0c]" style={{ fontFamily: SERIF }}>
+        <h2 className="mt-2 text-[2.3rem] sm:text-[3.2rem] leading-[1] font-semibold !text-[#2b0d16]" style={{ fontFamily: SERIF }}>
           ¿Marcas, eventos o prensa?
         </h2>
         <p className="mt-4 max-w-md text-black/60">Cuéntame qué tienes en mente. Me llega directo y te contesto yo o mi equipo en menos de 48 horas.</p>

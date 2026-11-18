@@ -15,11 +15,11 @@ import fotoLabialNude from "@/assets/demo-cosmeticos/labial-nude.jpg";
 import fotoLabialRojo from "@/assets/demo-cosmeticos/labial-rojo.jpg";
 import fotoBrochas from "@/assets/demo-cosmeticos/brochas.jpg";
 
-export const VINO = "#8a2c43";
-export const SUAVE = "#f1e7de";
-export const TINTA = "#1f1a17";
-export const PAPEL = "#f8f4ee";
-export const LINEA = "rgba(31,26,23,.16)";
+export const VINO = "#7a2e5c";
+export const SUAVE = "#f7cfbd";
+export const TINTA = "#2a1633";
+export const PAPEL = "#fde6da";
+export const LINEA = "rgba(42,22,51,.16)";
 
 export const CONSULTORA = { nombre: "Sofía Morales", corto: "Sofía" };
 

@@ -27,10 +27,10 @@ import butaca from "@/assets/demo-lujo/butaca.jpg";
 import jarron from "@/assets/demo-lujo/jarron.jpg";
 import jarrones from "@/assets/demo-lujo/jarrones.jpg";
 
-const TINTA = "#1d1a17";
-const PIEDRA = "#efeae3";
-const HUESO = "#f8f5f0";
-const BRONCE = "#8a6a45";
+const TINTA = "#0f2a21";
+const PIEDRA = "#d3ddd0";
+const HUESO = "#e6ebe3";
+const BRONCE = "#9a7440";
 const DIDONE = '"Bodoni Moda", "Playfair Display", Georgia, serif';
 const CAPS = "uppercase tracking-[0.32em]";
 const SISTEMA = 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
@@ -142,11 +142,11 @@ function Boutique({ d, setD }: PropsDatos) {
   const disponibles = PIEZAS.filter((p) => estadoDe(d, p.id) === "disponible").length;
   const vendidas = PIEZAS.filter((p) => estadoDe(d, p.id) === "vendida");
   const enlace = "hover:opacity-60 transition";
-  const h2 = "text-[2.4rem] sm:text-[3.6rem] leading-[1] font-normal !text-[#1d1a17]";
+  const h2 = "text-[2.4rem] sm:text-[3.6rem] leading-[1] font-normal !text-[#0f2a21]";
 
   return (
     <div style={{ background: HUESO, color: TINTA }} className="min-h-screen">
-      <header className="sticky top-0 z-30 border-b border-black/10 backdrop-blur" style={{ background: "rgba(248,245,240,.92)" }}>
+      <header className="sticky top-0 z-30 border-b border-black/10 backdrop-blur" style={{ background: "rgba(230,235,227,.92)" }}>
         <div className="mx-auto max-w-7xl px-5 h-[4.5rem] grid grid-cols-[1fr_auto_1fr] items-center gap-4">
           <nav className={`hidden md:flex gap-7 text-[0.66rem] ${CAPS}`}>
             <a href="#piezas" className={enlace}>
@@ -180,7 +180,7 @@ function Boutique({ d, setD }: PropsDatos) {
             <p className={`text-[0.68rem] ${CAPS}`} style={{ color: BRONCE }}>
               Moda, joyería e interiores de segunda mano
             </p>
-            <h1 className="mt-6 text-[3rem] sm:text-[4.6rem] xl:text-[5.4rem] leading-[0.94] font-normal tracking-[-0.01em] !text-[#1d1a17]" style={{ fontFamily: DIDONE }}>
+            <h1 className="mt-6 text-[3rem] sm:text-[4.6rem] xl:text-[5.4rem] leading-[0.94] font-normal tracking-[-0.01em] !text-[#0f2a21]" style={{ fontFamily: DIDONE }}>
               Lo excepcional
               <br />
               merece una <em>segunda historia.</em>
@@ -358,7 +358,7 @@ function Ficha({ p, estado, alPedir, alApartar }: { p: Pieza; estado: Estado; al
         <p className={`text-[0.6rem] ${CAPS}`} style={{ color: BRONCE }}>
           {p.categoria} · Pieza única
         </p>
-        <h3 className="mt-2 pr-8 text-[1.9rem] leading-[1.05] font-normal !text-[#1d1a17]" style={{ fontFamily: DIDONE }}>
+        <h3 className="mt-2 pr-8 text-[1.9rem] leading-[1.05] font-normal !text-[#0f2a21]" style={{ fontFamily: DIDONE }}>
           {p.nombre}
         </h3>
         <p className="mt-3 opacity-70">{p.nota}</p>
@@ -516,7 +516,7 @@ function Deseos({ setD }: { setD: PropsDatos["setD"] }) {
     <section id="deseos" className="scroll-mt-24 border-b border-black/10">
       <div className="mx-auto max-w-3xl px-5 py-16 sm:py-20 text-center">
         <Heart size={22} className="mx-auto" style={{ color: BRONCE }} />
-        <h2 className="mt-4 text-[2rem] sm:text-[2.8rem] leading-[1.05] font-normal !text-[#1d1a17]" style={{ fontFamily: DIDONE }}>
+        <h2 className="mt-4 text-[2rem] sm:text-[2.8rem] leading-[1.05] font-normal !text-[#0f2a21]" style={{ fontFamily: DIDONE }}>
           ¿Buscas algo <em>en especial?</em>
         </h2>
         <p className="mt-3 opacity-70">Dinos qué pieza sueñas y te escribimos antes de publicarla.</p>
@@ -565,11 +565,11 @@ function Panel({ d, setD, alSalir }: PropsDatos & { alSalir: () => void }) {
   const BOTON: Record<Estado, string> = { disponible: "Disponible", apartada: "Apartada", vendida: "Vendida" };
 
   return (
-    <div className="min-h-screen pb-16" style={{ background: "#f4f1ec", color: TINTA, fontFamily: SISTEMA }}>
+    <div className="min-h-screen pb-16" style={{ background: "#eef2ec", color: TINTA, fontFamily: SISTEMA }}>
       <div className="mx-auto max-w-6xl p-4 sm:p-8">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="text-[1.9rem] sm:text-[2.3rem] font-extrabold tracking-[-0.02em] !text-[#1d1a17]" style={{ fontFamily: SISTEMA }}>
+            <h1 className="text-[1.9rem] sm:text-[2.3rem] font-extrabold tracking-[-0.02em] !text-[#0f2a21]" style={{ fontFamily: SISTEMA }}>
               Maison Solène
             </h1>
             <p className="opacity-60">Sus piezas, apartados, consignantes y lista de deseos.</p>
@@ -636,7 +636,7 @@ function Panel({ d, setD, alSalir }: PropsDatos & { alSalir: () => void }) {
                 {consignantes.map((c) => {
                   const total = c.piezas.reduce((s, p) => s + Math.round(p.precio * PARTE_CONSIGNANTE), 0);
                   return (
-                    <li key={c.n} className="flex items-center gap-3 rounded-xl p-3" style={{ background: "#f4f1ec" }}>
+                    <li key={c.n} className="flex items-center gap-3 rounded-xl p-3" style={{ background: "#eef2ec" }}>
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold">{c.n}</p>
                         <p className="text-[0.78rem] opacity-55 truncate">{c.piezas.map((p) => p.nombre).join(", ")}</p>
@@ -656,7 +656,7 @@ function Panel({ d, setD, alSalir }: PropsDatos & { alSalir: () => void }) {
               <p className={tit}>Piezas que les ofrecen ({nuevas.length})</p>
               <ul className="mt-3 space-y-2">
                 {d.solicitudes.map((s) => (
-                  <li key={s.id} className="rounded-xl p-3" style={{ background: "#f4f1ec" }}>
+                  <li key={s.id} className="rounded-xl p-3" style={{ background: "#eef2ec" }}>
                     <p className="font-semibold">{s.pieza}</p>
                     <p className="text-[0.78rem] opacity-55">
                       {s.nombre} · {s.categoria} · le costó {qz(s.pagado)}

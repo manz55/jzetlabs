@@ -248,7 +248,7 @@ function Avisame() {
         {TEMAS_AVISO.map((t) => {
           const si = temas.includes(t);
           return (
-            <button key={t} type="button" aria-pressed={si} onClick={() => setTemas(si ? temas.filter((x) => x !== t) : [...temas, t])} className="inline-flex items-center gap-1 rounded-full border-2 px-4 py-2 font-medium" style={si ? { background: TINTA, borderColor: TINTA, color: "#fff" } : { borderColor: "rgba(31,26,23,.25)" }}>
+            <button key={t} type="button" aria-pressed={si} onClick={() => setTemas(si ? temas.filter((x) => x !== t) : [...temas, t])} className="inline-flex items-center gap-1 rounded-full border-2 px-4 py-2 font-medium" style={si ? { background: TINTA, borderColor: TINTA, color: "#fff" } : { borderColor: "rgba(42,22,51,.25)" }}>
               {si && <Check size={15} strokeWidth={3} />} {t}
             </button>
           );
@@ -295,8 +295,8 @@ function Unete() {
       </p>
       <div className="mt-5 grid gap-2">
         {RAZONES_EQUIPO.map((r) => (
-          <button key={r} type="button" aria-pressed={por === r} onClick={() => setPor(r)} className="flex items-center gap-3 border-2 px-4 py-3 text-left font-medium" style={{ borderColor: por === r ? TINTA : "rgba(31,26,23,.18)", background: por === r ? "#f8f4ee" : "transparent" }}>
-            <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full border-2" style={{ borderColor: por === r ? VINO : "rgba(31,26,23,.4)", background: por === r ? VINO : "transparent" }}>
+          <button key={r} type="button" aria-pressed={por === r} onClick={() => setPor(r)} className="flex items-center gap-3 border-2 px-4 py-3 text-left font-medium" style={{ borderColor: por === r ? TINTA : "rgba(42,22,51,.18)", background: por === r ? "#fde6da" : "transparent" }}>
+            <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full border-2" style={{ borderColor: por === r ? VINO : "rgba(42,22,51,.4)", background: por === r ? VINO : "transparent" }}>
               {por === r && <Check size={14} strokeWidth={3} className="text-white" />}
             </span>
             {r}

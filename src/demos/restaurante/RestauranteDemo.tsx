@@ -17,9 +17,9 @@ import comida5 from "@/assets/demo-tienda/comida-5.jpg";
 import comida6 from "@/assets/demo-tienda/comida-6.jpg";
 import { BandaDemos, CierreJzet, Contador, MensajeWhatsApp, qz } from "../comun";
 
-const PAPEL = "#fbf4e8";
+const PAPEL = "#fbe7a8";
 const TINTA = "#2b1d16";
-const TOMATE = "#b23a2a";
+const TOMATE = "#c4352a";
 const OLIVA = "#5f6b3a";
 const SERIF = '"Fraunces", Georgia, serif';
 
@@ -175,13 +175,14 @@ export default function RestauranteDemo() {
             <span className="block mt-1 text-[0.65rem] uppercase tracking-[0.22em] opacity-60">Cocina italiana</span>
           </a>
           <div className="flex justify-end">
-            <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[0.78rem] font-semibold ${abierto ? "bg-[#5f6b3a]/12 text-[#4b5530]" : "bg-[#b23a2a]/10 text-[#8f2e21]"}`}>
-              <span className={`w-2 h-2 rounded-full ${abierto ? "bg-[#5f6b3a]" : "bg-[#b23a2a]"}`} />
+            <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[0.78rem] font-semibold ${abierto ? "bg-[#5f6b3a]/12 text-[#4b5530]" : "bg-[#c4352a]/10 text-[#8f2e21]"}`}>
+              <span className={`w-2 h-2 rounded-full ${abierto ? "bg-[#5f6b3a]" : "bg-[#c4352a]"}`} />
               {abierto ? "Abierto ahora" : "Cerrado ahora"}
             </span>
           </div>
         </div>
       </header>
+      <div aria-hidden className="h-5" style={{ background: "linear-gradient(90deg, rgba(196,53,42,.55) 50%, transparent 0) 0 0/20px 20px, linear-gradient(rgba(196,53,42,.55) 50%, transparent 0) 0 0/20px 20px, #fbe7a8" }} />
 
       {/* portada: el plato al centro */}
       <section id="inicio" className="relative overflow-hidden">
@@ -227,16 +228,16 @@ export default function RestauranteDemo() {
 
       {/* platillo del día */}
       <section className="mx-auto max-w-6xl px-5">
-        <div className="grid md:grid-cols-[1.1fr_1fr] overflow-hidden rounded-[1.5rem] bg-[#2b1d16] text-[#fbf4e8]">
+        <div className="grid md:grid-cols-[1.1fr_1fr] overflow-hidden rounded-[1.5rem] bg-[#2b1d16] text-[#fbe7a8]">
           <img src={DEL_DIA.foto} alt={DEL_DIA.nombre} className="w-full h-full min-h-[240px] object-cover" loading="lazy" />
           <div className="p-7 sm:p-10 flex flex-col justify-center">
-            <span className="w-fit rounded-full bg-[#fbf4e8] px-3 py-1 text-[0.72rem] font-bold uppercase tracking-[0.16em]" style={{ color: TOMATE }}>
+            <span className="w-fit rounded-full bg-[#fbe7a8] px-3 py-1 text-[0.72rem] font-bold uppercase tracking-[0.16em]" style={{ color: TOMATE }}>
               Hoy
             </span>
-            <h2 className="mt-4 !text-[#fbf4e8] text-[2rem] sm:text-[2.6rem] leading-tight font-semibold" style={{ fontFamily: SERIF }}>
+            <h2 className="mt-4 !text-[#fbe7a8] text-[2rem] sm:text-[2.6rem] leading-tight font-semibold" style={{ fontFamily: SERIF }}>
               {DEL_DIA.nombre}
             </h2>
-            <p className="mt-3 text-[#fbf4e8]/75">{DEL_DIA.detalle}</p>
+            <p className="mt-3 text-[#fbe7a8]/75">{DEL_DIA.detalle}</p>
             <div className="mt-6 flex items-center gap-5">
               <span className="text-[1.6rem] font-semibold" style={{ fontFamily: SERIF }}>
                 {qz(DEL_DIA.precio)}
@@ -263,7 +264,7 @@ export default function RestauranteDemo() {
           </p>
         </div>
 
-        <nav className="sticky top-0 z-20 mt-8 -mx-5 px-5 py-3 bg-[#fbf4e8]/95 backdrop-blur border-y border-[#2b1d16]/10 overflow-x-auto [scrollbar-width:none]" aria-label="Secciones del menú">
+        <nav className="sticky top-0 z-20 mt-8 -mx-5 px-5 py-3 bg-[#fbe7a8]/95 backdrop-blur border-y border-[#2b1d16]/10 overflow-x-auto [scrollbar-width:none]" aria-label="Secciones del menú">
           <div className="mx-auto flex w-fit gap-1.5">
             {MENU.map((s) => (
               <a
@@ -341,7 +342,7 @@ export default function RestauranteDemo() {
             <span className="rounded-full px-3 py-1 text-white text-xs font-semibold shadow" style={{ background: TOMATE }}>
               Trattoria Sole
             </span>
-            <MapPin size={34} style={{ color: TOMATE }} fill={TOMATE} stroke="#fbf4e8" />
+            <MapPin size={34} style={{ color: TOMATE }} fill={TOMATE} stroke="#fbe7a8" />
           </span>
         </div>
         <div>
@@ -494,19 +495,19 @@ function Reservar({ alReservar }: { alReservar: (mensaje: string) => void }) {
   }
 
   return (
-    <section id="reservar" className="scroll-mt-4 bg-[#2b1d16] text-[#fbf4e8]">
+    <section id="reservar" className="scroll-mt-4 bg-[#2b1d16] text-[#fbe7a8]">
       <div className="mx-auto max-w-6xl px-5 py-16 sm:py-24 grid md:grid-cols-[1fr_1.1fr] gap-10 items-center">
         <div>
           <p className="text-[0.8rem] font-semibold uppercase tracking-[0.24em] text-[#f0a08f]">Reservaciones</p>
-          <h2 className="mt-3 !text-[#fbf4e8] text-[2.4rem] sm:text-[3rem] leading-tight font-semibold" style={{ fontFamily: SERIF }}>
+          <h2 className="mt-3 !text-[#fbe7a8] text-[2.4rem] sm:text-[3rem] leading-tight font-semibold" style={{ fontFamily: SERIF }}>
             Su mesa,
             <br />
             <span className="italic font-normal">lista cuando llegue</span>
           </h2>
-          <p className="mt-4 text-[#fbf4e8]/70 max-w-md">Elija día, hora y cuántos son. Le confirmamos por WhatsApp en unos minutos.</p>
+          <p className="mt-4 text-[#fbe7a8]/70 max-w-md">Elija día, hora y cuántos son. Le confirmamos por WhatsApp en unos minutos.</p>
         </div>
         <form
-          className="rounded-[1.5rem] bg-[#fbf4e8] text-[#2b1d16] p-6 sm:p-8 grid sm:grid-cols-2 gap-4"
+          className="rounded-[1.5rem] bg-[#fbe7a8] text-[#2b1d16] p-6 sm:p-8 grid sm:grid-cols-2 gap-4"
           onSubmit={(e) => {
             e.preventDefault();
             reservar();

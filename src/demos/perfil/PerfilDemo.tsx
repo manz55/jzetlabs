@@ -47,7 +47,7 @@ function Elegir({ opciones, valor, alCambiar, varias = false }: { opciones: Opci
           >
             <span
               className={`grid h-7 w-7 shrink-0 place-items-center border-2 ${varias ? "rounded" : "rounded-full"}`}
-              style={{ borderColor: si ? VINO : "rgba(31,26,23,.4)", background: si ? VINO : "transparent" }}
+              style={{ borderColor: si ? VINO : "rgba(42,22,51,.4)", background: si ? VINO : "transparent" }}
               aria-hidden
             >
               {si && <Check size={18} strokeWidth={3} className="text-white" />}
@@ -124,7 +124,7 @@ function Subtitulo({ children }: { children: ReactNode }) {
 
 function Pastilla({ si, onClick, children }: { si: boolean; onClick: () => void; children: ReactNode }) {
   return (
-    <button type="button" aria-pressed={si} onClick={onClick} className="rounded-full border-2 px-4 py-2 text-[1.05rem] font-medium transition" style={{ borderColor: si ? TINTA : "rgba(31,26,23,.25)", background: si ? TINTA : "transparent", color: si ? "#fff" : TINTA }}>
+    <button type="button" aria-pressed={si} onClick={onClick} className="rounded-full border-2 px-4 py-2 text-[1.05rem] font-medium transition" style={{ borderColor: si ? TINTA : "rgba(42,22,51,.25)", background: si ? TINTA : "transparent", color: si ? "#fff" : TINTA }}>
       {children}
     </button>
   );
@@ -153,7 +153,7 @@ function ElegirProductos({ p, set }: { p: Perfil; set: (c: Partial<Perfil>) => v
     const ya = p[lista].includes(id);
     set({ [lista]: ya ? p[lista].filter((x) => x !== id) : [...p[lista], id], [otra]: p[otra].filter((x) => x !== id) } as Partial<Perfil>);
   };
-  const boton = (si: boolean, color: string) => (si ? { background: color, borderColor: color, color: "#fff" } : { borderColor: "rgba(31,26,23,.28)" });
+  const boton = (si: boolean, color: string) => (si ? { background: color, borderColor: color, color: "#fff" } : { borderColor: "rgba(42,22,51,.28)" });
   return (
     <div>
       <div className="grid grid-cols-2 gap-x-3 gap-y-7 sm:grid-cols-3">
@@ -821,7 +821,7 @@ function Formulario({ alGuardar }: { alGuardar: (p: Perfil) => void }) {
       )}
 
       {/* barra de abajo, siempre a la mano */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t" style={{ borderColor: LINEA, background: "rgba(248,244,238,.96)" }}>
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t" style={{ borderColor: LINEA, background: "rgba(253,230,218,.96)" }}>
         <div className="mx-auto max-w-xl px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3">
           {aviso && (
             <p role="alert" className="mb-2 border-l-4 bg-white px-4 py-2 text-[1.05rem] font-semibold" style={{ borderColor: VINO, color: VINO }}>
@@ -829,7 +829,7 @@ function Formulario({ alGuardar }: { alGuardar: (p: Perfil) => void }) {
             </p>
           )}
           <div className="flex gap-3">
-            <button type="button" onClick={atras} className="flex items-center justify-center gap-1.5 rounded-full border-2 px-5 py-4 text-[1.15rem] font-semibold" style={{ borderColor: "rgba(31,26,23,.3)" }}>
+            <button type="button" onClick={atras} className="flex items-center justify-center gap-1.5 rounded-full border-2 px-5 py-4 text-[1.15rem] font-semibold" style={{ borderColor: "rgba(42,22,51,.3)" }}>
               <ArrowLeft size={21} /> Atrás
             </button>
             {actual ? (
@@ -960,7 +960,7 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
             <button type="button" onClick={() => setAviso(`En su negocio, este botón abre WhatsApp con ${p.nombre}.`)} className="rounded-full px-5 py-2.5 font-semibold text-white" style={{ background: TINTA }}>
               Escribirle
             </button>
-            <button type="button" onClick={() => window.print()} className="inline-flex items-center gap-2 rounded-full border-2 px-5 py-2.5 font-semibold" style={{ borderColor: "rgba(31,26,23,.3)" }}>
+            <button type="button" onClick={() => window.print()} className="inline-flex items-center gap-2 rounded-full border-2 px-5 py-2.5 font-semibold" style={{ borderColor: "rgba(42,22,51,.3)" }}>
               <Printer size={17} /> Imprimir
             </button>
           </div>
@@ -1257,7 +1257,7 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
                   <span style={{ fontFamily: SERIF }}>{qz(faltan.reduce((t, f) => t + f.pedir * f.pr.costo, 0))}</span>
                 </li>
               </ul>
-              <button type="button" onClick={() => setAviso("En su negocio, este botón copia la lista para pasarla a la empresa.")} className="rounded-full border-2 px-5 py-2.5 font-semibold" style={{ borderColor: "rgba(31,26,23,.3)" }}>
+              <button type="button" onClick={() => setAviso("En su negocio, este botón copia la lista para pasarla a la empresa.")} className="rounded-full border-2 px-5 py-2.5 font-semibold" style={{ borderColor: "rgba(42,22,51,.3)" }}>
                 Copiar la lista
               </button>
             </section>
@@ -1285,11 +1285,11 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
                       )}
                     </span>
                     <span className="flex items-center gap-1">
-                      <button type="button" aria-label={`Uno menos de ${pr.nombre}`} onClick={() => inv.sumar(pr.id, -1)} className="grid h-10 w-10 place-items-center rounded-full border-2 text-[1.2rem]" style={{ borderColor: "rgba(31,26,23,.25)" }}>
+                      <button type="button" aria-label={`Uno menos de ${pr.nombre}`} onClick={() => inv.sumar(pr.id, -1)} className="grid h-10 w-10 place-items-center rounded-full border-2 text-[1.2rem]" style={{ borderColor: "rgba(42,22,51,.25)" }}>
                         −
                       </button>
                       <span className="w-8 text-center text-[1.15rem] tabular-nums">{inv.stock[pr.id] ?? 0}</span>
-                      <button type="button" aria-label={`Uno más de ${pr.nombre}`} onClick={() => inv.sumar(pr.id, 1)} className="grid h-10 w-10 place-items-center rounded-full border-2 text-[1.2rem]" style={{ borderColor: "rgba(31,26,23,.25)" }}>
+                      <button type="button" aria-label={`Uno más de ${pr.nombre}`} onClick={() => inv.sumar(pr.id, 1)} className="grid h-10 w-10 place-items-center rounded-full border-2 text-[1.2rem]" style={{ borderColor: "rgba(42,22,51,.25)" }}>
                         +
                       </button>
                     </span>
@@ -1513,7 +1513,7 @@ export default function PerfilDemo() {
             aria-pressed={grande}
             aria-label={grande ? "Letra más chica" : "Letra más grande"}
             className="flex items-baseline gap-1.5 rounded-full border-2 px-4 py-2 font-semibold"
-            style={{ borderColor: "rgba(31,26,23,.3)" }}
+            style={{ borderColor: "rgba(42,22,51,.3)" }}
           >
             <span className="text-[0.95rem]">A</span>
             <span className="text-[1.35rem] leading-none">A</span>

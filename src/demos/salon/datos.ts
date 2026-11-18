@@ -4,11 +4,11 @@
  */
 import { useEffect, useState } from "react";
 
-export const SALVIA = "#55604f";
-export const SALVIA_SUAVE = "#e4e7dc";
-export const CREMA = "#f6f1ea";
-export const TINTA = "#1f1d1a";
-export const LINEA = "rgba(31,29,26,.14)";
+export const SALVIA = "#46593f";
+export const SALVIA_SUAVE = "#cbd8c0";
+export const CREMA = "#e5ecdd";
+export const TINTA = "#16261b";
+export const LINEA = "rgba(22,38,27,.14)";
 export const SERIF = '"DM Serif Display", Georgia, serif';
 
 export type Sucursal = { id: string; nombre: string; dir: string; horario: string; abre: number; cierra: number; domingo: boolean; tel: string };

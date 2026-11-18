@@ -123,7 +123,7 @@ export function Tienda() {
                 ["Frío", "Azules o moradas"],
                 ["Neutro", "De los dos"],
               ].map(([v, t]) => (
-                <button key={v} type="button" aria-pressed={sub === v} onClick={() => setSub(v)} className="rounded-full border-2 px-4 py-2 text-[1rem] font-medium" style={sub === v ? { background: TINTA, borderColor: TINTA, color: "#fff" } : { borderColor: "rgba(31,26,23,.25)" }}>
+                <button key={v} type="button" aria-pressed={sub === v} onClick={() => setSub(v)} className="rounded-full border-2 px-4 py-2 text-[1rem] font-medium" style={sub === v ? { background: TINTA, borderColor: TINTA, color: "#fff" } : { borderColor: "rgba(42,22,51,.25)" }}>
                   {t}
                 </button>
               ))}
@@ -171,7 +171,7 @@ export function Tienda() {
         <p className="mt-2 max-w-2xl text-[1.1rem] opacity-70">Con precio a la vista. Lo que dice «entrega inmediata» lo tengo en mano; lo demás lo pido y te llega en la semana.</p>
         <div className="mt-6 flex flex-wrap gap-2" role="group" aria-label="Filtrar por marca">
           {marcas.map((m) => (
-            <button key={m} type="button" aria-pressed={marca === m} onClick={() => setMarca(m)} className="rounded-full border-2 px-4 py-2 text-[1rem] font-medium" style={marca === m ? { background: TINTA, borderColor: TINTA, color: "#fff" } : { borderColor: "rgba(31,26,23,.25)" }}>
+            <button key={m} type="button" aria-pressed={marca === m} onClick={() => setMarca(m)} className="rounded-full border-2 px-4 py-2 text-[1rem] font-medium" style={marca === m ? { background: TINTA, borderColor: TINTA, color: "#fff" } : { borderColor: "rgba(42,22,51,.25)" }}>
               {m}
             </button>
           ))}
@@ -209,7 +209,7 @@ export function Tienda() {
 
       {/* el pedido: barra fija mientras haya algo */}
       {piezas > 0 && !verPedido && (
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t print:hidden" style={{ borderColor: LINEA, background: "rgba(248,244,238,.97)" }}>
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t print:hidden" style={{ borderColor: LINEA, background: "rgba(253,230,218,.97)" }}>
           <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-5 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3">
             <p className="text-[1.05rem]">
               <b>{piezas}</b> {piezas === 1 ? "producto" : "productos"} · {qz(subtotal)}
@@ -222,7 +222,7 @@ export function Tienda() {
       )}
       {verPedido && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center" onClick={() => setVerPedido(false)}>
-          <div role="dialog" aria-label="Tu pedido" className="max-h-[92vh] w-full overflow-y-auto p-5 sm:max-w-lg" style={{ background: "#f8f4ee" }} onClick={(e) => e.stopPropagation()}>
+          <div role="dialog" aria-label="Tu pedido" className="max-h-[92vh] w-full overflow-y-auto p-5 sm:max-w-lg" style={{ background: "#fde6da" }} onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
               <h2 className="text-[1.7rem] font-medium" style={{ fontFamily: SERIF }}>Tu pedido</h2>
               <button type="button" aria-label="Cerrar" onClick={() => setVerPedido(false)} className="grid h-10 w-10 place-items-center rounded-full" style={{ background: SUAVE }}>
@@ -240,11 +240,11 @@ export function Tienda() {
                       <span className="opacity-60">{qz(l.precio)} c/u</span>
                     </span>
                     <span className="flex shrink-0 items-center gap-1">
-                      <button type="button" aria-label="Uno menos" onClick={() => cambiar(l.key, -1)} className="grid h-9 w-9 place-items-center rounded-full border-2" style={{ borderColor: "rgba(31,26,23,.25)" }}>
+                      <button type="button" aria-label="Uno menos" onClick={() => cambiar(l.key, -1)} className="grid h-9 w-9 place-items-center rounded-full border-2" style={{ borderColor: "rgba(42,22,51,.25)" }}>
                         <Minus size={15} />
                       </button>
                       <span className="w-7 text-center tabular-nums">{l.n}</span>
-                      <button type="button" aria-label="Uno más" onClick={() => cambiar(l.key, 1)} className="grid h-9 w-9 place-items-center rounded-full border-2" style={{ borderColor: "rgba(31,26,23,.25)" }}>
+                      <button type="button" aria-label="Uno más" onClick={() => cambiar(l.key, 1)} className="grid h-9 w-9 place-items-center rounded-full border-2" style={{ borderColor: "rgba(42,22,51,.25)" }}>
                         <Plus size={15} />
                       </button>
                     </span>
@@ -255,7 +255,7 @@ export function Tienda() {
             <p className="mt-5 font-semibold">¿A dónde te lo llevo?</p>
             <div className="mt-2 grid gap-2">
               {ENVIOS.map((e) => (
-                <button key={e.id} type="button" aria-pressed={envio === e.id} onClick={() => setEnvio(e.id)} className="flex items-center justify-between gap-3 border-2 px-4 py-3 text-left" style={{ borderColor: envio === e.id ? TINTA : "rgba(31,26,23,.18)", background: envio === e.id ? "#fff" : "transparent" }}>
+                <button key={e.id} type="button" aria-pressed={envio === e.id} onClick={() => setEnvio(e.id)} className="flex items-center justify-between gap-3 border-2 px-4 py-3 text-left" style={{ borderColor: envio === e.id ? TINTA : "rgba(42,22,51,.18)", background: envio === e.id ? "#fff" : "transparent" }}>
                   <span className="leading-tight">
                     <b className="block">{e.nombre}</b>
                     <span className="text-[0.92rem] opacity-60">{e.dias}</span>
