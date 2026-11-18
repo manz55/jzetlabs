@@ -146,9 +146,10 @@ const VARIANTES_EMPRESAS: Variante[] = [
     foto: marcaje,
     problema: "Armar la planilla a mano se lleva días, y siempre falta un dato.",
     hoy: ["La asistencia anda entre papel, Excel y mensajes de WhatsApp.", "Se le van días enteros sumando horas extra, séptimo e IGSS."],
-    sistema: ["Su gente marca desde su teléfono, con ubicación y huella, aunque no haya señal.", "La planilla sale sola y las boletas ya quedan listas.", "Caja chica y viáticos, todo en el mismo lugar."],
+    sistema: ["Su gente marca con PIN, foto y ubicación de la obra. Nadie marca por otro.", "La planilla sale sola y las boletas ya quedan listas.", "Caja chica y viáticos, todo en el mismo lugar."],
     visual: "foto",
-    demo: { texto: "Ver la app del empleado", tipo: "asistencia" },
+    demo: { texto: "Ver el marcaje en la obra", tipo: "asistencia" },
+    panel: { texto: "Ver la planilla de la semana", href: "/demos/planilla/#oficina" },
   },
 ];
 
@@ -191,7 +192,7 @@ const VARIANTES_CLINICAS: Variante[] = [
 
 const VARIANTES: Record<string, Variante[]> = { belleza: VARIANTES_BELLEZA, tiendas: VARIANTES_TIENDA, empresas: VARIANTES_EMPRESAS, clinicas: VARIANTES_CLINICAS };
 
-const RUTA_DEMO: Record<string, string> = { distribuidora: "/demos/distribuidora/", asistencia: `${DEMOS}asistencia/empleado.html`, clinica: "/demos/clinica/", pediatria: "/demos/pediatria/", medicina: "/demos/medicina/", perfil: "/demos/perfil-belleza/", salon: "/demos/salon/", boutique: "/demos/boutique/", ropa: "/demos/ropa/", cosmeticos: "/demos/cosmeticos/", celulares: "/demos/celulares/", restaurante: "/demos/restaurante/", tiempo: "/demos/tiempo-compartido/" };
+const RUTA_DEMO: Record<string, string> = { distribuidora: "/demos/distribuidora/", asistencia: "/demos/planilla/", clinica: "/demos/clinica/", pediatria: "/demos/pediatria/", medicina: "/demos/medicina/", perfil: "/demos/perfil-belleza/", salon: "/demos/salon/", boutique: "/demos/boutique/", ropa: "/demos/ropa/", cosmeticos: "/demos/cosmeticos/", celulares: "/demos/celulares/", restaurante: "/demos/restaurante/", tiempo: "/demos/tiempo-compartido/" };
 
 /* Tarjetas con foto: al pasar el mouse por una, las demás se ponen borrosas; sin mouse, todas nítidas */
 function TarjetasFoco({ variantes, elegida, alElegir }: { variantes: Variante[]; elegida: number; alElegir: (i: number) => void }) {
@@ -278,13 +279,13 @@ const RUBROS: Rubro[] = [
     problema: "Armar la planilla a mano se lleva días, y siempre falta un dato.",
     hoy: ["La asistencia anda entre papel, Excel y mensajes de WhatsApp.", "Se le van días enteros sumando horas extra, séptimo e IGSS."],
     sistema: [
-      "Su gente marca desde su teléfono, con ubicación y huella, aunque no haya señal.",
+      "Su gente marca con PIN, foto y ubicación de la obra. Nadie marca por otro.",
       "La planilla sale sola y las boletas ya quedan listas.",
       "Caja chica y viáticos, todo en el mismo lugar.",
     ],
     img: marcaje,
     alt: "Pantalla de marcaje en el celular con datos de prueba",
-    demo: { texto: "Ver la app del empleado", href: `${DEMOS}asistencia/empleado.html` },
+    demo: { texto: "Ver el marcaje en la obra", href: "/demos/planilla/" }, demo2: { texto: "Ver la planilla de la semana", href: "/demos/planilla/#oficina" },
   },
   {
     id: "clinicas",
