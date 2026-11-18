@@ -8,7 +8,7 @@ import efamicMarcaje from "@/assets/portfolio/efamic-mob.jpg";
 import efamicPanel from "@/assets/sistema/panel-hoy.jpg";
 import { EMAIL, WHATSAPP_DISPLAY, WA_DIAGNOSTICO, WA_HOLA, laTienda } from "@/data/site";
 import { useEffect, useState } from "react";
-import { Moon, Sun } from "lucide-react";
+import { Menu, Moon, Sun, X } from "lucide-react";
 import { cambiarTema, useTema } from "@/lib/tema";
 import { irASeccion, topesDeSecciones } from "@/lib/hojas";
 import { abrirChat } from "./ChatWhatsApp";
@@ -43,7 +43,7 @@ function BotonTema() {
       onClick={() => cambiarTema(oscuro ? "claro" : "oscuro")}
       aria-label={oscuro ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
       title={oscuro ? "Modo claro" : "Modo oscuro"}
-      className="grid place-items-center w-11 h-11 rounded-full border border-tinta/15 text-tinta hover:bg-tinta/5 transition-colors"
+      className="hidden sm:grid place-items-center w-11 h-11 rounded-full border border-tinta/15 text-tinta hover:bg-tinta/5 transition-colors"
     >
       {oscuro ? <Sun size={19} /> : <Moon size={19} />}
     </button>
@@ -52,13 +52,14 @@ function BotonTema() {
 
 export function Encabezado() {
   const [activo, setActivo] = useState("");
+  const [menuAbierto, setMenuAbierto] = useState(false);
 
   // los enlaces a secciones de la Home (#trabajos, #rubros...) llegan con un solo clic
   useEffect(() => {
     const alClic = (e: MouseEvent) => {
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       const a = (e.target as HTMLElement).closest("a");
-      if (!a || a.target === "_blank") return;
+      if (!a || a.target === "_blank" || a.closest("#menu-celular")) return;
       const url = new URL(a.href, location.href);
       if (url.origin !== location.origin || url.pathname !== location.pathname || !url.hash) return;
       const id = decodeURIComponent(url.hash.slice(1));
@@ -114,21 +115,55 @@ export function Encabezado() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setMenuAbierto((x) => !x)}
+          aria-expanded={menuAbierto}
+          aria-controls="menu-celular"
+          className="lg:hidden inline-flex items-center gap-1.5 rounded-full border border-tinta/15 px-3.5 h-11 font-semibold text-tinta"
+        >
+          {menuAbierto ? <X size={19} /> : <Menu size={19} />} Menú
+        </button>
         <BotonTema />
         <a
           href={WA_HOLA}
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => { e.preventDefault(); abrirChat(); }}
-          className="inline-flex items-center gap-2.5 rounded-full active:scale-95 transition bg-noche oscuro:bg-white/[0.07] oscuro:ring-1 oscuro:ring-white/10 text-white pl-4 pr-1.5 py-1.5 text-[0.93rem] font-semibold hover:bg-marino transition-colors"
+          className="inline-flex items-center gap-2.5 rounded-full active:scale-95 transition bg-noche oscuro:bg-white/[0.07] oscuro:ring-1 oscuro:ring-white/10 text-white pl-1.5 sm:pl-4 pr-1.5 py-1.5 text-[0.93rem] font-semibold hover:bg-marino transition-colors"
+          aria-label="Escríbame por WhatsApp"
         >
-          Escríbame
+          <span className="hidden sm:inline">Escríbame</span>
           <span className="grid place-items-center w-8 h-8 rounded-full bg-acento">
             <IconoWhatsApp />
           </span>
         </a>
         </div>
       </div>
+      {menuAbierto && (
+        <nav id="menu-celular" aria-label="Menú" className="lg:hidden border-t border-tinta/10 bg-crema">
+          <ul className="contenedor grid py-2">
+            {MENU.map((m) => (
+              <li key={m.texto}>
+                <a
+                  href={m.href}
+                  onClick={(e) => {
+                    if (!m.id) return setMenuAbierto(false);
+                    e.preventDefault();
+                    setMenuAbierto(false);
+                    // primero se cierra el menú y después se baja, para que nada se mueva a medio camino
+                    setTimeout(() => {
+                      if (irASeccion(m.id)) history.replaceState(null, "", `#${m.id}`);
+                    }, 60);
+                  }}
+                  className="flex items-center justify-between border-b border-tinta/10 py-4 text-[1.15rem] font-semibold text-tinta last:border-0">
+                  {m.texto} <span aria-hidden className="text-suave">›</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
     </header>
   );
 }

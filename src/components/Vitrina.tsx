@@ -175,7 +175,7 @@ export function ComoTrabajo() {
         <ol className="mt-14 grid sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-10">
           {PASOS.map((p, i) => (
             <li key={p.titulo} className="border-t-2 border-tinta pt-5 aparece">
-              <span className="font-[family-name:var(--font-titulo)] font-bold text-acento text-[3rem] leading-none">{String(i + 1).padStart(2, "0")}</span>
+              <span className="inline-block rounded-full bg-acento px-3 py-1 text-[0.95rem] font-bold text-white">Paso {i + 1}</span>
               <h3 className="mt-4 text-[1.25rem]">{p.titulo}</h3>
               <p className="mt-2 text-suave">{p.texto}</p>
             </li>

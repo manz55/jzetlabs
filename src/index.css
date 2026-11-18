@@ -60,8 +60,8 @@
     background: var(--color-blanco);
     color: var(--color-texto);
     font-family: var(--font-sans);
-    font-size: 17px;
-    line-height: 1.6;
+    font-size: 18px;
+    line-height: 1.65;
     -webkit-font-smoothing: antialiased;
   }
   h1, h2, h3 {
@@ -84,8 +84,8 @@
 
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
-    min-height: 48px; padding: 0.75rem 1.4rem; border-radius: 10px;
-    font-weight: 600; font-size: 1rem; text-decoration: none; transition: background 0.15s, border-color 0.15s;
+    min-height: 54px; padding: 0.85rem 1.6rem; border-radius: 12px;
+    font-weight: 700; font-size: 1.05rem; text-decoration: none; transition: background 0.15s, border-color 0.15s;
   }
   /* que se sienta el toque: los botones se hunden un poquito */
   .btn { transition: background 0.15s, border-color 0.15s, transform 0.12s ease; }

@@ -20,7 +20,7 @@ export function Logo({ claro = false, href = "#inicio" }: { claro?: boolean; hre
   return (
     <a href={href} className="group inline-flex items-center gap-2 no-underline" aria-label={`${MARCA}, inicio`}>
       <LogoGato className={`w-8 h-9 ${claro ? "text-white" : "text-marino oscuro:text-tinta"}`} />
-      <span className={`font-[family-name:var(--font-titulo)] font-bold text-[1.2rem] tracking-[-0.02em] ${claro ? "text-white" : "text-marino oscuro:text-tinta"}`}>{MARCA}</span>
+      <span className={`font-[family-name:var(--font-titulo)] font-bold text-[1.2rem] tracking-[-0.02em] whitespace-nowrap ${claro ? "text-white" : "text-marino oscuro:text-tinta"}`}>{MARCA}</span>
     </a>
   );
 }

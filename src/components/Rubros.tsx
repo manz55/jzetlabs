@@ -3,7 +3,7 @@
  * Cada pestaña: el problema de hoy, lo que hace el sistema, una captura de la demo
  * (datos de prueba) y el enlace para probarla. Teclado: flechas, Inicio y Fin.
  */
-import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useRef, useState, type KeyboardEvent } from "react";
 import clinicaPanel from "@/assets/demos/clinica-panel.jpg";
 import gimnasio from "@/assets/demo-gimnasio/sentadilla.jpg";
 import tienda from "@/assets/demos/tienda-dueno.jpg";
@@ -365,42 +365,12 @@ export function Rubros() {
   const botones = useRef<(HTMLButtonElement | null)[]>([]);
   const lista = useRef<HTMLDivElement>(null);
 
-  // pestañas con cursor que se desliza: sigue al mouse y vuelve a la elegida
-  const [encima, setEncima] = useState<number | null>(null);
-  const [cursor, setCursor] = useState({ left: 0, width: 0, listo: false });
-  const objetivo = encima ?? activo;
-  useLayoutEffect(() => {
-    const medir = () => {
-      const b = botones.current[objetivo];
-      if (b) setCursor({ left: b.offsetLeft, width: b.offsetWidth, listo: true });
-    };
-    medir();
-    addEventListener("resize", medir);
-    return () => removeEventListener("resize", medir);
-  }, [objetivo]);
-  // en celular, que la pestaña elegida quede a la vista dentro de la barra
-  useEffect(() => {
-    const b = botones.current[activo];
-    const l = lista.current;
-    if (!b || !l) return;
-    const izq = b.offsetLeft - 16;
-    const der = b.offsetLeft + b.offsetWidth + 16 - l.clientWidth;
-    if (l.scrollLeft > izq) l.scrollTo({ left: izq, behavior: "smooth" });
-    else if (l.scrollLeft < der) l.scrollTo({ left: der, behavior: "smooth" });
-  }, [activo]);
   const r = RUBROS[activo];
   const variantes = VARIANTES[r.id];
   const v = variantes ? variantes[Math.min(tipo, variantes.length - 1)] : null;
   const problema = v?.problema ?? r.problema;
   const hoy = v?.hoy ?? r.hoy;
   const sistema = v?.sistema ?? r.sistema;
-
-  // en celular, la tira de pestañas se desliza para que la elegida quede a la vista
-  useEffect(() => {
-    const b = botones.current[activo];
-    const tira = b?.parentElement;
-    if (b && tira) tira.scrollTo({ left: b.offsetLeft - 20, behavior: "smooth" });
-  }, [activo]);
 
   function teclas(e: KeyboardEvent) {
     const ult = RUBROS.length - 1;
@@ -430,14 +400,8 @@ export function Rubros() {
           role="tablist"
           aria-label="Rubros"
           onKeyDown={teclas}
-          onMouseLeave={() => setEncima(null)}
-          className="relative mt-3 flex w-fit max-w-full overflow-x-auto rounded-full border border-linea bg-crema p-1 [scrollbar-width:none] aparece"
+          className="mt-3 flex flex-wrap gap-2"
         >
-          <span
-            aria-hidden
-            className="absolute top-1 bottom-1 rounded-full bg-acento shadow-[0_6px_16px_-8px_rgba(200,73,15,.8)] transition-[left,width] duration-300 ease-[cubic-bezier(.2,.8,.2,1)]"
-            style={{ left: cursor.left, width: cursor.width, opacity: cursor.listo ? 1 : 0 }}
-          />
           {RUBROS.map((x, i) => (
             <button
               key={x.id}
@@ -453,9 +417,8 @@ export function Rubros() {
                 setActivo(i);
                 setTipo(0);
               }}
-              onMouseEnter={() => setEncima(i)}
-              className={`relative z-10 shrink-0 rounded-full px-4 sm:px-5 py-2 sm:py-2.5 text-[0.95rem] font-semibold transition-colors duration-200 active:scale-95 ${
-                i === objetivo ? "text-white" : "text-suave hover:text-tinta"
+              className={`rounded-full border-2 px-5 py-2.5 text-[1rem] font-semibold transition-colors active:scale-95 ${
+                i === activo ? "border-acento bg-acento text-white" : "border-linea bg-blanco text-tinta hover:border-tinta/40"
               }`}
             >
               {x.nombre}

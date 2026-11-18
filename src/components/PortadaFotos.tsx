@@ -175,8 +175,8 @@ export function PortadaFotos() {
           <p className="pieza mt-4 sm:mt-6 max-w-2xl text-[1rem] sm:text-[1.15rem] text-texto">
             Que sus clientes lo encuentren, agenden y le pidan por WhatsApp. Y usted deja el cuaderno y el Excel. Trata directo conmigo.
           </p>
-          <div className="pieza mt-5 -mx-5 sm:mx-0 flex w-[calc(100%+2.5rem)] sm:w-auto items-center sm:justify-center gap-2 overflow-x-auto sm:flex-wrap px-5 sm:px-0 [scrollbar-width:none]">
-            <span className="shrink-0 text-[0.9rem] text-suave">Pruebe una demo:</span>
+          <div className="pieza mt-5 flex flex-wrap items-center justify-center gap-2">
+            <span className="w-full text-center text-[0.95rem] text-suave sm:w-auto">Pruebe una demo:</span>
             {RUBROS.map((r) => (
               <a
                 key={r.t}

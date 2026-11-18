@@ -26,7 +26,7 @@ type Servicio = {
 const SERVICIOS: Servicio[] = [
   {
     titulo: "Páginas web",
-    resumen: "Landing, sitio web o tienda en línea: rápidas, que se ven bien en el celular y llevan directo a su WhatsApp.",
+    resumen: "Una página sencilla, un sitio completo o una tienda en línea. Se ven bien en el celular y sus clientes le escriben directo por WhatsApp.",
     estado: "Desde Q1,000",
     intro: "Para que sus clientes lo encuentren, vean sus servicios y precios, y le escriban directo.",
     precios: [
@@ -40,7 +40,7 @@ const SERVICIOS: Servicio[] = [
     link: { texto: "Ver paquetes y ejemplos", href: "/web" },
   },
   {
-    titulo: "Sistemas por rubro",
+    titulo: "Sistemas para su negocio",
     resumen: "Para colegios, clínicas, tiendas, librerías, eventos, gimnasios y empresas.",
     estado: "Pago único o mensual",
     intro: "Lo que hoy lleva en papel, Excel o WhatsApp, en un solo lugar: personal y planilla, citas, ventas, inventario, cobros.",
@@ -109,15 +109,14 @@ export function QueHago() {
         </div>
 
         <ul className="mt-14 border-b border-tinta/15">
-          {SERVICIOS.map((it, i) => (
+          {SERVICIOS.map((it) => (
             <li key={it.titulo} className="border-t border-tinta/15">
               <button
                 type="button"
                 onClick={() => setAbierto(it)}
                 aria-haspopup="dialog"
-                className="group w-full text-left grid grid-cols-[auto_1fr_auto] items-center gap-4 sm:gap-8 py-6 sm:py-8 -mx-3 px-3 rounded-xl hover:bg-blanco/70 active:scale-[0.99] active:bg-blanco transition"
+                className="group w-full text-left grid grid-cols-[1fr_auto] items-center gap-4 sm:gap-8 py-6 sm:py-8 -mx-3 px-3 rounded-xl hover:bg-blanco/70 active:scale-[0.99] active:bg-blanco transition"
               >
-                <span className="self-start pt-2 text-sm text-suave tabular-nums">{String(i + 1).padStart(2, "0")}</span>
                 <span>
                   <span className="block font-[family-name:var(--font-titulo)] font-bold text-tinta text-[1.6rem] sm:text-[2.3rem] leading-tight tracking-[-0.02em] transition-transform group-hover:translate-x-1">
                     {it.titulo}
