@@ -410,8 +410,8 @@ function Agendar({ store, pre }: { store: ReturnType<typeof useCitas>; pre: { se
               <div>
                 <Paso n={6} t="Tus datos" />
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                  <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Tu nombre" autoComplete="name" className="rounded-md border-2 border-black/20 bg-white px-4 py-3 text-[1.08rem] outline-none focus:border-black/70" />
-                  <input value={tel} onChange={(e) => setTel(e.target.value.replace(/[^\d ]/g, "").slice(0, 9))} placeholder="Tu WhatsApp" inputMode="numeric" autoComplete="tel" className="rounded-md border-2 border-black/20 bg-white px-4 py-3 text-[1.08rem] outline-none focus:border-black/70" />
+                  <input aria-label="Tu nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Tu nombre" autoComplete="name" className="rounded-md border-2 border-black/20 bg-white px-4 py-3 text-[1.08rem] outline-none focus:border-black/70" />
+                  <input aria-label="Tu WhatsApp" value={tel} onChange={(e) => setTel(e.target.value.replace(/[^\d ]/g, "").slice(0, 9))} placeholder="Tu WhatsApp" inputMode="numeric" autoComplete="tel" className="rounded-md border-2 border-black/20 bg-white px-4 py-3 text-[1.08rem] outline-none focus:border-black/70" />
                 </div>
                 <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-t pt-4" style={{ borderColor: TINTA }}>
                   <p className="text-[1.05rem]">

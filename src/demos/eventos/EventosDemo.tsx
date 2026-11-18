@@ -309,7 +309,7 @@ function Pagina({ ev, alApartar }: { ev: Ev; alApartar: () => void }) {
                 <b className="text-[1.2rem]">{qz(total - anticipo)}</b>
               </div>
             </div>
-            <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Su nombre" className="mt-4 w-full rounded-xl bg-white px-3 py-2.5" style={{ color: TINTA }} />
+            <input aria-label="Su nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Su nombre" className="mt-4 w-full rounded-xl bg-white px-3 py-2.5" style={{ color: TINTA }} />
             <button type="button" onClick={apartar} disabled={faltan.length > 0} className={`${btn} mt-3 w-full disabled:opacity-40`} style={{ background: MAIZ, color: TINTA }}>
               Apartar la fecha <ArrowRight size={18} />
             </button>

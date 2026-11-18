@@ -255,8 +255,8 @@ function Avisame() {
         })}
       </div>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Tu nombre" autoComplete="given-name" className={claseCampo} />
-        <input value={tel} onChange={(e) => setTel(e.target.value.replace(/[^\d ]/g, "").slice(0, 9))} placeholder="Tu WhatsApp" inputMode="numeric" autoComplete="tel" className={claseCampo} />
+        <input aria-label="Tu nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Tu nombre" autoComplete="given-name" className={claseCampo} />
+        <input aria-label="Tu WhatsApp" value={tel} onChange={(e) => setTel(e.target.value.replace(/[^\d ]/g, "").slice(0, 9))} placeholder="Tu WhatsApp" inputMode="numeric" autoComplete="tel" className={claseCampo} />
       </div>
       <button type="submit" disabled={!valido} className="mt-4 rounded-full px-6 py-3.5 text-[1.05rem] font-semibold text-white disabled:opacity-40" style={{ background: TINTA }}>
         Quiero que me avises
@@ -304,8 +304,8 @@ function Unete() {
         ))}
       </div>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Tu nombre" autoComplete="given-name" className={claseCampo} />
-        <input value={tel} onChange={(e) => setTel(e.target.value.replace(/[^\d ]/g, "").slice(0, 9))} placeholder="Tu WhatsApp" inputMode="numeric" autoComplete="tel" className={claseCampo} />
+        <input aria-label="Tu nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Tu nombre" autoComplete="given-name" className={claseCampo} />
+        <input aria-label="Tu WhatsApp" value={tel} onChange={(e) => setTel(e.target.value.replace(/[^\d ]/g, "").slice(0, 9))} placeholder="Tu WhatsApp" inputMode="numeric" autoComplete="tel" className={claseCampo} />
       </div>
       <button type="submit" disabled={!valido} className="mt-4 rounded-full px-6 py-3.5 text-[1.05rem] font-semibold text-white disabled:opacity-40" style={{ background: VINO }}>
         Quiero saber más

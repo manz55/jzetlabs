@@ -696,7 +696,7 @@ function Pacientes({ citas, soloMios, alAbrir }: { citas: Cita[]; soloMios: bool
       {soloMios && <p className="mt-1 text-sm opacity-60">Solo ve a sus pacientes. El dueño de la clínica puede darle acceso a todos.</p>}
       <label className="mt-5 flex items-center gap-2 rounded-xl bg-white px-4 py-3">
         <Search size={18} className="opacity-50" />
-        <input value={buscar} onChange={(e) => setBuscar(e.target.value)} placeholder="Buscar por nombre…" className="flex-1 bg-transparent focus:outline-none" />
+        <input aria-label="Buscar por nombre" value={buscar} onChange={(e) => setBuscar(e.target.value)} placeholder="Buscar por nombre…" className="flex-1 bg-transparent focus:outline-none" />
       </label>
       <ul className="mt-4 grid sm:grid-cols-2 gap-3">
         {lista.map((p) => {
@@ -862,9 +862,9 @@ function Expediente({ paciente, citas, extras, editable }: { paciente: string; c
             setNuevoProc({ pieza: "", proc: "", costo: "" });
           }}
         >
-          <input value={nuevoProc.pieza} onChange={(e) => setNuevoProc({ ...nuevoProc, pieza: e.target.value })} placeholder="Pieza" className="rounded-lg border border-[#123b40]/20 px-2 py-2 text-sm" />
-          <input value={nuevoProc.proc} onChange={(e) => setNuevoProc({ ...nuevoProc, proc: e.target.value })} placeholder="Procedimiento" className="rounded-lg border border-[#123b40]/20 px-2 py-2 text-sm" />
-          <input value={nuevoProc.costo} inputMode="numeric" onChange={(e) => setNuevoProc({ ...nuevoProc, costo: e.target.value.replace(/\D/g, "") })} placeholder="Q" className="rounded-lg border border-[#123b40]/20 px-2 py-2 text-sm" />
+          <input aria-label="Pieza" value={nuevoProc.pieza} onChange={(e) => setNuevoProc({ ...nuevoProc, pieza: e.target.value })} placeholder="Pieza" className="rounded-lg border border-[#123b40]/20 px-2 py-2 text-sm" />
+          <input aria-label="Procedimiento" value={nuevoProc.proc} onChange={(e) => setNuevoProc({ ...nuevoProc, proc: e.target.value })} placeholder="Procedimiento" className="rounded-lg border border-[#123b40]/20 px-2 py-2 text-sm" />
+          <input aria-label="Costo en quetzales" value={nuevoProc.costo} inputMode="numeric" onChange={(e) => setNuevoProc({ ...nuevoProc, costo: e.target.value.replace(/\D/g, "") })} placeholder="Q" className="rounded-lg border border-[#123b40]/20 px-2 py-2 text-sm" />
           <button type="submit" className="rounded-lg px-3 text-sm font-bold text-white" style={{ background: AZUL }}>
             Agregar
           </button>

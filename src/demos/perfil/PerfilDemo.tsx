@@ -974,7 +974,7 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
         <section className="mt-10 border-l-4 bg-white p-5 print:border" style={{ borderColor: VINO }}>
           <h3 className="text-[1.1rem] font-semibold">Mis notas</h3>
           <p className="text-[0.95rem] opacity-60">La clienta no las ve.</p>
-          <textarea
+          <textarea aria-label="Qué se llevó, cuándo entregar, qué le recomendé"
             value={p.notas}
             onChange={(e) => cambiar(p.id, { notas: e.target.value })}
             rows={4}
@@ -1306,7 +1306,7 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
         <section className="min-w-0">
           <div className="relative">
             <Search size={19} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 opacity-45" />
-            <input value={buscar} onChange={(e) => setBuscar(e.target.value)} placeholder="Buscar por nombre o anfitriona" className={claseInput} style={{ paddingLeft: "2.75rem" }} />
+            <input aria-label="Buscar por nombre o anfitriona" value={buscar} onChange={(e) => setBuscar(e.target.value)} placeholder="Buscar por nombre o anfitriona" className={claseInput} style={{ paddingLeft: "2.75rem" }} />
           </div>
           <ul className="mt-3 border-t" style={{ borderColor: LINEA }}>
             {lista.map((c) => (

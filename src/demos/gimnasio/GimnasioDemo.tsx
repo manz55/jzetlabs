@@ -446,8 +446,8 @@ function Inscripcion({ gym, plan, alCerrar, estudiante, alListo }: { gym: Gym; p
             </div>
             <div className="grid gap-2">
               <p className="font-bold">Tus datos</p>
-              <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre completo" autoComplete="name" className={campo} />
-              <input value={tel} onChange={(e) => setTel(e.target.value.replace(/[^\d ]/g, "").slice(0, 9))} placeholder="WhatsApp (8 dígitos)" inputMode="numeric" autoComplete="tel" className={campo} />
+              <input aria-label="Nombre completo" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre completo" autoComplete="name" className={campo} />
+              <input aria-label="WhatsApp" value={tel} onChange={(e) => setTel(e.target.value.replace(/[^\d ]/g, "").slice(0, 9))} placeholder="WhatsApp (8 dígitos)" inputMode="numeric" autoComplete="tel" className={campo} />
             </div>
             <div>
               <p className="font-bold">¿Cómo pagas?</p>
@@ -707,7 +707,7 @@ function Recepcion({ gym }: { gym: Gym }) {
               <h2 className="flex items-center gap-2 text-[1.3rem] font-bold"><IdCard size={22} style={{ color: AMARILLO }} /> Pasar carnet</h2>
               <div className="mt-3 flex items-center gap-2 rounded-md bg-white px-3 text-black">
                 <Search size={18} className="opacity-50" />
-                <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Número o nombre (prueba: 102)" className="w-full bg-transparent py-3 outline-none" />
+                <input aria-label="Número o nombre" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Número o nombre (prueba: 102)" className="w-full bg-transparent py-3 outline-none" />
               </div>
               <div className="mt-3 grid gap-2">
                 {buscados.map((s) => {

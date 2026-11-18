@@ -449,7 +449,7 @@ function PlanillaSemana({ p, verTrabajador }: { p: Planilla; verTrabajador: (t: 
             Del {diaCorto(p.dias[0]).toLowerCase()} {Number(p.dias[0].slice(8))} al {diaCorto(p.dias[5]).toLowerCase()} {Number(p.dias[5].slice(8))}, calculada con el marcaje
           </p>
         </div>
-        <select value={obra} onChange={(e) => setObra(e.target.value)} className="rounded-lg border bg-white px-3 py-2 font-semibold" style={{ borderColor: BORDE }}>
+        <select aria-label="Filtrar por obra" value={obra} onChange={(e) => setObra(e.target.value)} className="rounded-lg border bg-white px-3 py-2 font-semibold" style={{ borderColor: BORDE }}>
           <option value="todas">Todas las obras</option>
           {OBRAS.map((o) => (
             <option key={o.id} value={o.id}>
@@ -475,7 +475,7 @@ function PlanillaSemana({ p, verTrabajador }: { p: Planilla; verTrabajador: (t: 
           </thead>
           <tbody>
             {filas.map(({ t, c }) => (
-              <tr key={t.id} onClick={() => verTrabajador(t)} className="cursor-pointer hover:bg-[#f7f8fa]">
+              <tr key={t.id} tabIndex={0} aria-label={`Ver ficha de ${t.nombre}`} onClick={() => verTrabajador(t)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); verTrabajador(t); } }} className="cursor-pointer hover:bg-[#f7f8fa] focus-visible:bg-[#eef2f7]">
                 <td>
                   <span className="font-semibold">{t.nombre}</span>
                   <span className="block text-[0.8rem]" style={{ color: SUAVE }}>
@@ -560,7 +560,7 @@ function Personal({ verTrabajador }: { verTrabajador: (t: Trabajador) => void })
             {TRABAJADORES.map((t) => {
               const pr = prestacionesDe(t);
               return (
-                <tr key={t.id} onClick={() => verTrabajador(t)} className="cursor-pointer hover:bg-[#f7f8fa]">
+                <tr key={t.id} tabIndex={0} aria-label={`Ver ficha de ${t.nombre}`} onClick={() => verTrabajador(t)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); verTrabajador(t); } }} className="cursor-pointer hover:bg-[#f7f8fa] focus-visible:bg-[#eef2f7]">
                   <td style={{ color: SUAVE }}>{t.codigo}</td>
                   <td>
                     <span className="font-semibold">{t.nombre}</span>

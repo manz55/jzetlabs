@@ -395,7 +395,7 @@ function Ficha({ pastel, alCerrar, store }: { pastel: Pastel | null; alCerrar: (
               </div>
               <div>
                 <p className="font-semibold">Mensaje en el pastel</p>
-                <input value={texto} onChange={(e) => setTexto(e.target.value.slice(0, 26))} placeholder="Ej.: Feliz cumple, Ana (sin costo)" className={`${campo} mt-2`} />
+                <input aria-label="Mensaje en el pastel" value={texto} onChange={(e) => setTexto(e.target.value.slice(0, 26))} placeholder="Ej.: Feliz cumple, Ana (sin costo)" className={`${campo} mt-2`} />
                 <label className="mt-3 flex items-center gap-2.5 text-[1rem]">
                   <input type="checkbox" checked={velas} onChange={(e) => setVelas(e.target.checked)} className="h-5 w-5" style={{ accentColor: FRAMBUESA }} />
                   Velas y número <span className="opacity-65">+Q20</span>
@@ -445,10 +445,10 @@ function Ficha({ pastel, alCerrar, store }: { pastel: Pastel | null; alCerrar: (
                     </button>
                   ))}
                 </div>
-                {entrega !== "recoger" && <input value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Dirección de entrega" className={`${campo} mt-2`} />}
+                {entrega !== "recoger" && <input aria-label="Dirección de entrega" value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Dirección de entrega" className={`${campo} mt-2`} />}
                 <div className="mt-2 grid gap-2">
-                  <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Tu nombre" autoComplete="name" className={campo} />
-                  <input value={tel} onChange={(e) => setTel(e.target.value.replace(/[^\d ]/g, "").slice(0, 9))} placeholder="Tu WhatsApp (8 dígitos)" inputMode="numeric" autoComplete="tel" className={campo} />
+                  <input aria-label="Tu nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Tu nombre" autoComplete="name" className={campo} />
+                  <input aria-label="Tu WhatsApp" value={tel} onChange={(e) => setTel(e.target.value.replace(/[^\d ]/g, "").slice(0, 9))} placeholder="Tu WhatsApp (8 dígitos)" inputMode="numeric" autoComplete="tel" className={campo} />
                 </div>
               </div>
             </div>

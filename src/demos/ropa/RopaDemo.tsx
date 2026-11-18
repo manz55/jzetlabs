@@ -248,7 +248,7 @@ export default function RopaDemo() {
                 const piezasLook = l.piezas.map((id) => PRENDAS.find((p) => p.id === id)!);
                 return (
                   <li key={l.n} className="py-4 flex items-center gap-4">
-                    <span className="text-white/40 tabular-nums">{l.n}</span>
+                    <span className="text-white/60 tabular-nums">{l.n}</span>
                     <div className="flex-1">
                       <p className="font-semibold">{l.titulo}</p>
                       <p className="text-sm text-white/60">{piezasLook.map((p) => p.nombre).join(" + ")}</p>
@@ -352,7 +352,7 @@ export default function RopaDemo() {
                           type="button"
                           aria-label={`Quitar ${l.prenda.nombre}`}
                           onClick={() => setBolsa((b) => b.filter((_, i) => i !== k))}
-                          className="text-black/40 hover:text-black"
+                          className="text-black/60 hover:text-black"
                         >
                           <Trash2 size={16} />
                         </button>

@@ -320,7 +320,7 @@ function Pagina({ m, alAgendar }: { m: Med; alAgendar: () => void }) {
                   </button>
                 ))}
               </div>
-              <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Su nombre" className="mt-4 w-full rounded-lg border border-black/15 px-3 py-2.5" />
+              <input aria-label="Su nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Su nombre" className="mt-4 w-full rounded-lg border border-black/15 px-3 py-2.5" />
               <button type="button" disabled={!hora} onClick={agendar} className={`${btn} mt-3 w-full text-white disabled:opacity-40`} style={{ background: PINO }}>
                 <CalendarCheck size={18} /> {hora ? `Apartar a las ${hora}` : "Escoja una hora"}
               </button>

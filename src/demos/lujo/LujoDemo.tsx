@@ -383,7 +383,7 @@ function Ficha({ p, estado, alPedir, alApartar }: { p: Pieza; estado: Estado; al
             }}
           >
             <p className="text-sm opacity-70">La apartas 48 horas con el 20% ({qz(Math.round(p.precio * 0.2))}). Nadie más la puede comprar mientras tanto.</p>
-            <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Tu nombre" required className="w-full border border-black/20 bg-white px-3 py-3 focus:outline-none focus:border-black" />
+            <input aria-label="Tu nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Tu nombre" required className="w-full border border-black/20 bg-white px-3 py-3 focus:outline-none focus:border-black" />
             <button type="submit" className={`w-full py-4 text-[0.88rem] text-white ${CAPS}`} style={{ background: BRONCE }}>
               Apartar la pieza
             </button>
@@ -518,8 +518,8 @@ function Deseos({ setD }: { setD: PropsDatos["setD"] }) {
               setListo(true);
             }}
           >
-            <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Tu nombre" required className="border border-black/20 bg-white px-3 py-3.5 focus:outline-none focus:border-black" />
-            <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Bolso negro mediano, talla 38…" required className="border border-black/20 bg-white px-3 py-3.5 focus:outline-none focus:border-black" />
+            <input aria-label="Tu nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Tu nombre" required className="border border-black/20 bg-white px-3 py-3.5 focus:outline-none focus:border-black" />
+            <input aria-label="Qué pieza busca" value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Bolso negro mediano, talla 38…" required className="border border-black/20 bg-white px-3 py-3.5 focus:outline-none focus:border-black" />
             <button type="submit" className={`px-6 py-3.5 text-[0.88rem] text-white ${CAPS}`} style={{ background: TINTA }}>
               Avísenme
             </button>

@@ -573,7 +573,7 @@ export default function CosmeticosDemo() {
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between gap-2">
                         <p className="font-semibold leading-tight">{l.p.nombre}</p>
-                        <button type="button" aria-label={`Quitar ${l.p.nombre}`} onClick={() => setBolsa((b) => b.filter((_, i) => i !== k))} className="text-black/40 hover:text-black">
+                        <button type="button" aria-label={`Quitar ${l.p.nombre}`} onClick={() => setBolsa((b) => b.filter((_, i) => i !== k))} className="text-black/60 hover:text-black">
                           <Trash2 size={16} />
                         </button>
                       </div>
@@ -762,7 +762,7 @@ function BuscadorTono({ alAgregar }: { alAgregar: (base: string, rubor: string) 
               </div>
               <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-black/10 pt-4">
                 <p>
-                  <span className="line-through text-black/40 mr-2">{qz(total)}</span>
+                  <span className="line-through text-black/60 mr-2">{qz(total)}</span>
                   <b className="text-[1.25rem]">{qz(kit.reduce((s, p) => s + Math.round(p.precio * 0.9), 0))}</b>
                   <span className="ml-2 text-sm font-semibold" style={{ color: DORADO }}>
                     10% por llevar el kit

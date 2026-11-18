@@ -107,7 +107,7 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
             </span>
           </a>
           <label className="hidden md:flex flex-1 max-w-xl items-center gap-2 rounded-lg border border-black/15 bg-[#f7f7f6] px-3 focus-within:border-[#6d28d9]">
-            <Search size={17} className="text-black/40" />
+            <Search size={17} className="text-black/60" />
             <input
               value={buscar}
               onChange={(e) => {
@@ -222,7 +222,7 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
           ))}
         </div>
         <div className="mt-4 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 rounded-2xl bg-white border border-black/[0.06] px-5 py-4">
-          <span className="text-[0.72rem] font-bold uppercase tracking-[0.18em] text-black/40">Marcas que vendemos</span>
+          <span className="text-[0.72rem] font-bold uppercase tracking-[0.18em] text-black/60">Marcas que vendemos</span>
           {["Apple", "Samsung", "Google", "Dell"].map((m) => (
             <span key={m} className="text-[1.25rem] font-extrabold tracking-[-0.01em] text-black/75" style={{ fontFamily: TITULO }}>
               {m}
@@ -262,7 +262,7 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
             {q ? `Resultados para “${buscar.trim()}”` : filtro === "Celulares" ? "Celulares" : filtro}
           </h2>
           <label className="md:hidden flex w-full items-center gap-2 rounded-lg border border-black/15 bg-white px-3">
-            <Search size={17} className="text-black/40" />
+            <Search size={17} className="text-black/60" />
             <input value={buscar} onChange={(e) => setBuscar(e.target.value)} placeholder="Buscar un modelo…" className="w-full py-2.5 focus:outline-none" />
           </label>
           <p className="text-sm text-black/55">{lista.length} productos</p>
@@ -356,7 +356,7 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
                 </div>
               ))}
             </dl>
-            <p className="mt-2 text-xs text-black/40">Cifras de ejemplo.</p>
+            <p className="mt-2 text-xs text-black/60">Cifras de ejemplo.</p>
           </div>
         </div>
       </section>
@@ -524,7 +524,7 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between gap-2">
                         <p className="font-bold leading-tight">{l.nombre}</p>
-                        <button type="button" aria-label={`Quitar ${l.nombre}`} onClick={() => setCarro((c) => c.filter((_, i) => i !== k))} className="text-black/40 hover:text-black">
+                        <button type="button" aria-label={`Quitar ${l.nombre}`} onClick={() => setCarro((c) => c.filter((_, i) => i !== k))} className="text-black/60 hover:text-black">
                           <Trash2 size={16} />
                         </button>
                       </div>
@@ -813,9 +813,9 @@ function Pago({ t, carro, subtotal, alTerminar, alRastrear, alCerrar }: { t: Tie
   return (
     <div className="px-6 pt-6 pb-6">
       <div className="flex items-center gap-2 text-sm font-semibold">
-        <span className={paso === "datos" ? "" : "text-black/40"}>1. Tus datos</span>
+        <span className={paso === "datos" ? "" : "text-black/60"}>1. Tus datos</span>
         <span className="text-black/25">→</span>
-        <span className={paso === "pago" ? "" : "text-black/40"}>2. Pago</span>
+        <span className={paso === "pago" ? "" : "text-black/60"}>2. Pago</span>
       </div>
       {paso === "datos" ? (
         <form
@@ -858,7 +858,7 @@ function Pago({ t, carro, subtotal, alTerminar, alRastrear, alCerrar }: { t: Tie
           {entrega === "envio" ? (
             <label className="block text-sm font-semibold">
               Dirección
-              <input value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Zona, colonia, calle y número" className={campo} />
+              <input aria-label="Zona, colonia, calle y número" value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Zona, colonia, calle y número" className={campo} />
             </label>
           ) : (
             <label className="block text-sm font-semibold">
@@ -940,7 +940,7 @@ function Pago({ t, carro, subtotal, alTerminar, alRastrear, alCerrar }: { t: Tie
                 </label>
                 <label className="block text-sm font-semibold">
                   CVV
-                  <input value={tarjeta.cvv} inputMode="numeric" autoComplete="off" onChange={(e) => setTarjeta({ ...tarjeta, cvv: e.target.value.replace(/\D/g, "").slice(0, 4) })} placeholder="123" className={campo} />
+                  <input aria-label="Código de seguridad (CVV)" value={tarjeta.cvv} inputMode="numeric" autoComplete="off" onChange={(e) => setTarjeta({ ...tarjeta, cvv: e.target.value.replace(/\D/g, "").slice(0, 4) })} placeholder="123" className={campo} />
                 </label>
               </div>
               {subtotal + envio >= 1000 && (
@@ -1098,8 +1098,8 @@ function Reparaciones({ t, alAgendado, alRastrear }: { t: Tienda; alAgendado: (i
                 alAgendado(id);
               }}
             >
-              <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Tu nombre" required className="rounded-full border border-black/15 px-4 py-3 focus:outline-none focus:border-[#6d28d9]" />
-              <select value={sucursal} onChange={(e) => setSucursal(e.target.value)} className="rounded-full border border-black/15 bg-white px-4 py-3">
+              <input aria-label="Tu nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Tu nombre" required className="rounded-full border border-black/15 px-4 py-3 focus:outline-none focus:border-[#6d28d9]" />
+              <select aria-label="Sucursal" value={sucursal} onChange={(e) => setSucursal(e.target.value)} className="rounded-full border border-black/15 bg-white px-4 py-3">
                 {SUCURSALES.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.nombre}
@@ -1145,7 +1145,7 @@ function Rastreo({ t, codigo, setCodigo }: { t: Tienda; codigo: string; setCodig
             }}
           >
             <label className="flex-1 flex items-center gap-2 rounded-full border border-black/15 px-4 focus-within:border-[#6d28d9]">
-              <Search size={18} className="text-black/40" />
+              <Search size={18} className="text-black/60" />
               <input value={texto} onChange={(e) => setTexto(e.target.value.toUpperCase())} placeholder="OR-1038 o RP-512" className="w-full py-3 font-mono focus:outline-none" />
             </label>
             <button type="submit" className="rounded-lg px-5 font-bold text-white" style={{ background: TINTA }}>
@@ -1209,7 +1209,7 @@ function LineaTiempo({ titulo, sub, pasos, actual, aviso }: { titulo: string; su
               <span className="relative grid place-items-center w-6 h-6 shrink-0 rounded-full text-white" style={{ background: hecho ? PRIMARIO : "#d5d8dd" }}>
                 {hecho && <Check size={14} />}
               </span>
-              <span className={`pt-0.5 ${i === actual ? "font-bold" : hecho ? "" : "text-black/40"}`}>{p}</span>
+              <span className={`pt-0.5 ${i === actual ? "font-bold" : hecho ? "" : "text-black/60"}`}>{p}</span>
             </li>
           );
         })}

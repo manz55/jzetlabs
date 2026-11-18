@@ -277,7 +277,7 @@ function PaginaTienda({ d, alPedir }: { d: Dist; alPedir: () => void }) {
           </div>
           <div className="flex-1 overflow-y-auto px-5 py-4">
             <label className="block text-[0.85rem] font-bold">Su tienda</label>
-            <select value={tiendaId} onChange={(e) => setTiendaId(e.target.value)} className="mt-1 w-full rounded-md border border-black/15 bg-white px-3 py-2.5">
+            <select aria-label="Su tienda" value={tiendaId} onChange={(e) => setTiendaId(e.target.value)} className="mt-1 w-full rounded-md border border-black/15 bg-white px-3 py-2.5">
               {TIENDAS.map((x) => (
                 <option key={x.id} value={x.id}>
                   {x.id} · {x.nombre}
@@ -318,7 +318,7 @@ function PaginaTienda({ d, alPedir }: { d: Dist; alPedir: () => void }) {
               ))}
             </div>
             <label className="mt-4 block text-[0.85rem] font-bold">Nota para el piloto (opcional)</label>
-            <input value={nota} onChange={(e) => setNota(e.target.value)} placeholder="Ej.: dejar con la vecina si no estoy" className="mt-1 w-full rounded-md border border-black/15 px-3 py-2.5" />
+            <input aria-label="Nota para el piloto" value={nota} onChange={(e) => setNota(e.target.value)} placeholder="Ej.: dejar con la vecina si no estoy" className="mt-1 w-full rounded-md border border-black/15 px-3 py-2.5" />
           </div>
           <div className="border-t border-black/10 px-5 py-4">
             <div className="flex justify-between text-[1.2rem] font-bold">
@@ -359,7 +359,7 @@ function Piloto({ d }: { d: Dist }) {
       <div className="etiqueta p-4">
         <div className="flex items-center justify-between gap-2">
           <Marca />
-          <select value={ruta} onChange={(e) => setRuta(e.target.value)} className="rounded-md border border-black/15 px-2 py-1.5 font-bold">
+          <select aria-label="Ruta" value={ruta} onChange={(e) => setRuta(e.target.value)} className="rounded-md border border-black/15 px-2 py-1.5 font-bold">
             {RUTAS.map((x) => (
               <option key={x.id} value={x.id}>
                 {x.nombre}
@@ -486,7 +486,7 @@ function Oficina({ d }: { d: Dist }) {
         <div className="etiqueta p-4 sm:p-5">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-[1.3rem] font-bold">Pedidos</h2>
-            <select value={filtro} onChange={(e) => setFiltro(e.target.value)} className="rounded-md border border-black/15 px-2 py-1.5 font-semibold">
+            <select aria-label="Filtrar pedidos" value={filtro} onChange={(e) => setFiltro(e.target.value)} className="rounded-md border border-black/15 px-2 py-1.5 font-semibold">
               <option value="todas">Todas las rutas</option>
               {RUTAS.map((x) => (
                 <option key={x.id} value={x.id}>

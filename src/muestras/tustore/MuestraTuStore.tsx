@@ -3,7 +3,7 @@
  * de Instagram. Lo que se pide no se envía: se enseña cómo le llegaría el
  * mensaje a su WhatsApp. Accesorios, reparaciones y testimonios son de ejemplo.
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, MapPin, MessageCircle, Package, Search, Send, ShieldCheck, Star, Truck, Wallet, Wrench, X } from "lucide-react";
 import {
   ACCESORIOS, EQUIPOS, FALLAS, GAMAS, NEGRO, PREGUNTAS, ROJO, TERMINOS, TESTIMONIOS, fotoPiezas, fotoReparacion, qz,
@@ -93,7 +93,7 @@ export default function MuestraTuStore() {
                 </button>
               ))}
               <label className="flex w-full items-center gap-2 rounded-full border-2 bg-white px-4 py-2 sm:ml-auto sm:w-64" style={{ borderColor: "#ddd" }}>
-                <Search size={17} className="text-black/40" />
+                <Search size={17} className="text-black/60" />
                 <input value={buscar} onChange={(e) => setBuscar(e.target.value)} placeholder="Buscar equipo" className="w-full bg-transparent outline-none" />
               </label>
             </div>
@@ -155,7 +155,7 @@ function TarjetaEquipo({ e, alAbrir }: { e: Equipo; alAbrir: () => void }) {
   return (
     <button type="button" onClick={alAbrir} className="flex h-full w-full flex-col overflow-hidden rounded-2xl bg-white text-left shadow-[0_1px_0_rgba(0,0,0,.06)] transition hover:shadow-md">
       <span className="relative grid aspect-square place-items-center bg-[#eee]">
-        {e.fotos[0] ? <img src={e.fotos[0]} alt="" className="h-full w-full object-cover" loading="lazy" /> : <span className="px-3 text-center text-[0.85rem] font-bold text-black/40">Foto pendiente</span>}
+        {e.fotos[0] ? <img src={e.fotos[0]} alt="" className="h-full w-full object-cover" loading="lazy" /> : <span className="px-3 text-center text-[0.85rem] font-bold text-black/60">Foto pendiente</span>}
         <span className="absolute left-2 top-2 rounded-md px-2 py-0.5 text-[0.7rem] font-black text-white" style={{ background: e.nuevo ? NEGRO : ROJO }}>{e.nuevo ? "RECIÉN LLEGADO" : "OFERTA"}</span>
         {e.fotos.length > 1 && <span className="absolute bottom-2 right-2 rounded-md bg-black/60 px-1.5 py-0.5 text-[0.7rem] font-bold text-white">{e.fotos.length} fotos</span>}
       </span>
@@ -178,19 +178,29 @@ function TarjetaEquipo({ e, alAbrir }: { e: Equipo; alAbrir: () => void }) {
   );
 }
 
+/** Cierra la ventana con la tecla Escape. */
+function useEscape(alCerrar: () => void) {
+  useEffect(() => {
+    const f = (ev: KeyboardEvent) => { if (ev.key === "Escape") alCerrar(); };
+    window.addEventListener("keydown", f);
+    return () => window.removeEventListener("keydown", f);
+  }, [alCerrar]);
+}
+
 function Ficha({ e, alCerrar, alPedir }: { e: Equipo; alCerrar: () => void; alPedir: (m: string) => void }) {
+  useEscape(alCerrar);
   const [op, setOp] = useState(0);
   const [foto, setFoto] = useState(0);
   const o = e.opciones[op];
   const fotos = e.fotos;
   return (
     <div className="fixed inset-0 z-30 flex items-end justify-center bg-black/55 sm:items-center sm:p-4" onClick={alCerrar}>
-      <div className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white sm:rounded-3xl" onClick={(ev) => ev.stopPropagation()}>
+      <div role="dialog" aria-modal="true" aria-label={e.nombre} className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white sm:rounded-3xl" onClick={(ev) => ev.stopPropagation()}>
         <div className="relative bg-[#eee]">
           {fotos.length ? (
             <img src={fotos[foto]} alt={`${e.nombre}, foto ${foto + 1}`} className="aspect-[4/3] w-full object-contain bg-black" />
           ) : (
-            <div className="grid aspect-[4/3] place-items-center px-6 text-center font-bold text-black/40">Foto pendiente: aquí va la foto real de su equipo</div>
+            <div className="grid aspect-[4/3] place-items-center px-6 text-center font-bold text-black/60">Foto pendiente: aquí va la foto real de su equipo</div>
           )}
           {fotos.length > 1 && (
             <>
@@ -343,7 +353,7 @@ function MiPedido() {
             setVisto(codigo.trim().toUpperCase() || "TS-1042");
           }}
         >
-          <input value={codigo} onChange={(e) => setCodigo(e.target.value)} placeholder="Número de pedido, ej. TS-1042" className="min-w-0 flex-1 rounded-xl border-2 px-3 py-2.5" style={{ borderColor: "#ddd" }} />
+          <input aria-label="Número de pedido" value={codigo} onChange={(e) => setCodigo(e.target.value)} placeholder="Número de pedido, ej. TS-1042" className="min-w-0 flex-1 rounded-xl border-2 px-3 py-2.5" style={{ borderColor: "#ddd" }} />
           <button type="submit" className="rounded-xl px-4 font-bold text-white" style={{ background: NEGRO }}>Buscar</button>
         </form>
         {visto && (
@@ -393,9 +403,10 @@ function Ubicacion() {
 }
 
 function AsiLlega({ mensaje, alCerrar }: { mensaje: string; alCerrar: () => void }) {
+  useEscape(alCerrar);
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4" onClick={alCerrar}>
-      <div className="w-full max-w-sm rounded-3xl bg-white p-5" onClick={(ev) => ev.stopPropagation()}>
+      <div role="dialog" aria-modal="true" aria-label="Así le llega el mensaje" className="w-full max-w-sm rounded-3xl bg-white p-5" onClick={(ev) => ev.stopPropagation()}>
         <p className="text-[1.15rem] font-black">Así le llega el mensaje a Tu Store</p>
         <div className="mt-3 rounded-2xl bg-[#e7ddd3] p-3">
           <p className="ml-auto w-fit max-w-[92%] whitespace-pre-line rounded-2xl rounded-br-sm bg-[#d9fdd3] px-3.5 py-2.5 text-[0.92rem]">{mensaje}</p>
@@ -408,9 +419,10 @@ function AsiLlega({ mensaje, alCerrar }: { mensaje: string; alCerrar: () => void
 }
 
 function Terminos({ alCerrar }: { alCerrar: () => void }) {
+  useEscape(alCerrar);
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/55 sm:items-center sm:p-4" onClick={alCerrar}>
-      <div className="max-h-[88vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white p-6 sm:rounded-3xl" onClick={(ev) => ev.stopPropagation()}>
+      <div role="dialog" aria-modal="true" aria-label="Términos y condiciones" className="max-h-[88vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white p-6 sm:rounded-3xl" onClick={(ev) => ev.stopPropagation()}>
         <div className="flex items-start justify-between gap-3">
           <h2 className="text-[1.4rem] font-black">Términos y condiciones</h2>
           <button type="button" onClick={alCerrar} aria-label="Cerrar" className="grid h-9 w-9 place-items-center rounded-full bg-black/5"><X size={18} /></button>
@@ -474,7 +486,7 @@ function Chat({ alHablar }: { alHablar: () => void }) {
               setTexto("");
             }}
           >
-            <input value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Escriba su pregunta" className="min-w-0 flex-1 rounded-full bg-[#f1f1f1] px-3 py-2 outline-none" />
+            <input aria-label="Escriba su pregunta" value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Escriba su pregunta" className="min-w-0 flex-1 rounded-full bg-[#f1f1f1] px-3 py-2 outline-none" />
             <button type="submit" aria-label="Enviar" className="grid h-10 w-10 place-items-center rounded-full text-white" style={{ background: ROJO }}><Send size={17} /></button>
           </form>
         </div>

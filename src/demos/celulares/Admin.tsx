@@ -306,7 +306,7 @@ function Pedidos({ t }: { t: Tienda }) {
                     {sig.texto} →
                   </button>
                 ) : (
-                  <span className="w-full truncate rounded-full px-3 py-2 text-center text-[0.8rem] font-semibold text-black/40 bg-black/[0.03]">Sin pendientes</span>
+                  <span className="w-full truncate rounded-full px-3 py-2 text-center text-[0.8rem] font-semibold text-black/60 bg-black/[0.03]">Sin pendientes</span>
                 )}
               </div>
               {abierto === p.id && (
@@ -446,7 +446,7 @@ function Inventario({ t }: { t: Tienda }) {
         <Tarjeta titulo="Productos" valor={t.productos.length} nota={`${t.productos.filter((p) => p.visible === false).length} ocultos`} />
       </div>
       {nuevo && <NuevoProducto t={t} alCerrar={() => setNuevo(false)} />}
-      <input value={buscar} onChange={(e) => setBuscar(e.target.value)} placeholder="Buscar producto…" className="mt-4 w-full rounded-xl border border-black/10 bg-white px-4 py-2.5 focus:outline-none focus:border-[#6d28d9]" />
+      <input aria-label="Buscar producto" value={buscar} onChange={(e) => setBuscar(e.target.value)} placeholder="Buscar producto…" className="mt-4 w-full rounded-xl border border-black/10 bg-white px-4 py-2.5 focus:outline-none focus:border-[#6d28d9]" />
       <ul className="mt-3 space-y-2">
         {lista.map((p) => {
           const n = total(p.id);
@@ -664,12 +664,12 @@ function Tecnicos({ t }: { t: Tienda }) {
           setF({ nombre: "", especialidad: "", sucursal: SUCURSALES[0].id, telefono: "" });
         }}
       >
-        <input value={f.nombre} onChange={(e) => setF({ ...f, nombre: e.target.value })} placeholder="Nombre del técnico" className="rounded-lg border border-black/15 px-3 py-2" />
-        <input value={f.especialidad} onChange={(e) => setF({ ...f, especialidad: e.target.value })} placeholder="Especialidad" className="rounded-lg border border-black/15 px-3 py-2" />
-        <select value={f.sucursal} onChange={(e) => setF({ ...f, sucursal: e.target.value })} className="rounded-lg border border-black/15 bg-white px-3 py-2">
+        <input aria-label="Nombre del técnico" value={f.nombre} onChange={(e) => setF({ ...f, nombre: e.target.value })} placeholder="Nombre del técnico" className="rounded-lg border border-black/15 px-3 py-2" />
+        <input aria-label="Especialidad" value={f.especialidad} onChange={(e) => setF({ ...f, especialidad: e.target.value })} placeholder="Especialidad" className="rounded-lg border border-black/15 px-3 py-2" />
+        <select aria-label="Sucursal" value={f.sucursal} onChange={(e) => setF({ ...f, sucursal: e.target.value })} className="rounded-lg border border-black/15 bg-white px-3 py-2">
           {SUCURSALES.map((s) => <option key={s.id} value={s.id}>{s.nombre}</option>)}
         </select>
-        <input value={f.telefono} onChange={(e) => setF({ ...f, telefono: e.target.value })} placeholder="Teléfono" className="rounded-lg border border-black/15 px-3 py-2 sm:w-32" />
+        <input aria-label="Teléfono" value={f.telefono} onChange={(e) => setF({ ...f, telefono: e.target.value })} placeholder="Teléfono" className="rounded-lg border border-black/15 px-3 py-2 sm:w-32" />
         <button type="submit" className="inline-flex items-center justify-center gap-1 rounded-full px-4 py-2 font-bold text-white" style={{ background: PRIMARIO }}>
           <Plus size={16} /> Agregar
         </button>
