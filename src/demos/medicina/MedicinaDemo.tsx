@@ -9,7 +9,7 @@
  * - El doctor no sabe qué paciente crónico se está descompensando -> el consultorio ve primero las lecturas altas.
  */
 import { useEffect, useState } from "react";
-import { Activity, ArrowRight, CalendarCheck, Check, ClipboardList, FileText, FlaskConical, HeartPulse, Pill } from "lucide-react";
+import { Activity, ArrowRight, CalendarCheck, Check, ClipboardList, FileText, FlaskConical, Pill } from "lucide-react";
 import presion from "@/assets/demo-medicina/presion.jpg";
 import mayor from "@/assets/demo-medicina/mayor.jpg";
 import tension from "@/assets/demo-medicina/tension.jpg";
@@ -57,8 +57,8 @@ function Marca() {
     <span className="flex items-center gap-2.5">
       <Logo />
       <span className="leading-none">
-        <span className="medi-titulo block text-[1.25rem]">Dr. Ricardo Samayoa</span>
-        <span className="block text-[0.72rem] font-semibold opacity-70">Medicina general e interna · Mixco</span>
+        <span className="medi-titulo block whitespace-nowrap text-[1.1rem] sm:text-[1.25rem]">Dr. Ricardo Samayoa</span>
+        <span className="mt-0.5 block whitespace-nowrap text-[0.72rem] font-semibold opacity-70"><span className="sm:hidden">Medicina general</span><span className="hidden sm:inline">Medicina general e interna · Mixco</span></span>
       </span>
     </span>
   );
@@ -220,7 +220,7 @@ function Pagina({ m, alAgendar }: { m: Med; alAgendar: () => void }) {
             <a href="#cronicos" className="hover:underline">Presión y azúcar</a>
             <a href="#cita" className="hover:underline">Cita</a>
           </nav>
-          <a href="#cita" className={`${btn} !px-4 !py-2.5 text-white`} style={{ background: PINO }}>
+          <a href="#cita" className={`${btn} shrink-0 whitespace-nowrap !px-4 !py-2.5 text-white`} style={{ background: PINO }}>
             Hacer cita
           </a>
         </div>
@@ -229,8 +229,7 @@ function Pagina({ m, alAgendar }: { m: Med; alAgendar: () => void }) {
       <section id="inicio" className="mx-auto max-w-6xl px-5 py-10 md:py-14">
         <div className="medi-hero">
           <div>
-            <p className="font-semibold" style={{ color: PINO2 }}>Adultos y adultos mayores · Colegiado 00000 (ejemplo)</p>
-            <h1 className="medi-titulo mt-4 text-[2.9rem] sm:text-[4.1rem]">Su presión, su azúcar y sus recetas, en orden.</h1>
+            <h1 className="medi-titulo text-[2.5rem] sm:text-[3.5rem]">Consulta para adultos en Mixco</h1>
             <p className="mt-5 max-w-lg text-[1.08rem] leading-relaxed opacity-85">
               Anote sus lecturas desde el teléfono y el doctor las revisa antes de su cita. Su receta y sus resultados de laboratorio, siempre a la mano.
             </p>
@@ -242,18 +241,10 @@ function Pagina({ m, alAgendar }: { m: Med; alAgendar: () => void }) {
                 Ver chequeos y precios
               </a>
             </div>
+            <p className="mt-6 text-[0.92rem] font-semibold opacity-70">Medicina general e interna · Control de presión y diabetes · Colegiado 00000 (ejemplo)</p>
           </div>
-          <div className="relative">
+          <div>
             <img src={presion} alt="El doctor le toma la presión a un paciente" className="h-[400px] w-full rounded-2xl object-cover sm:h-[460px]" />
-            <div className="absolute -bottom-5 left-4 right-4 rounded-xl bg-white p-4 shadow-lg sm:left-auto sm:w-[290px]">
-              <p className="flex items-center gap-2 font-semibold"><HeartPulse size={18} style={{ color: ROJO }} /> Lecturas de esta semana</p>
-              <div className="mt-2 flex h-14 items-end gap-1.5" aria-hidden>
-                {m.lecturas.map((l, i) => (
-                  <span key={i} className="flex-1 rounded-sm" style={{ height: `${((l.sis - 100) / 60) * 100}%`, background: presionAlta(l) ? ROJO : PINO2 }} />
-                ))}
-              </div>
-              <p className="mt-1.5 text-[0.85rem] opacity-70">Un paciente de ejemplo anota su presión cada mañana.</p>
-            </div>
           </div>
         </div>
       </section>

@@ -52,7 +52,7 @@ function Marca() {
       <Logo />
       <span className="leading-none">
         <span className="dist-titulo block text-[1.35rem]">El Volcán</span>
-        <span className="block text-[0.7rem] font-bold opacity-70">Distribuidora de abarrotes</span>
+        <span className="block whitespace-nowrap text-[0.7rem] font-bold opacity-70"><span className="sm:hidden">Abarrotes</span><span className="hidden sm:inline">Distribuidora de abarrotes</span></span>
       </span>
     </span>
   );
@@ -149,7 +149,7 @@ function PaginaTienda({ d, alPedir }: { d: Dist; alPedir: () => void }) {
             <a href="#rutas" className="hover:underline">Días de entrega</a>
             <a href="#credito" className="hover:underline">Crédito</a>
           </nav>
-          <button type="button" onClick={() => setAbierto(true)} className={`${btn} !px-4 !py-2.5 text-white`} style={{ background: TINTA }}>
+          <button type="button" onClick={() => setAbierto(true)} className={`${btn} shrink-0 whitespace-nowrap !px-4 !py-2.5 text-white`} style={{ background: TINTA }}>
             <ShoppingCart size={18} /> {bultos ? `${bultos} bultos · ${qz(total)}` : "Mi pedido"}
           </button>
         </div>
@@ -158,8 +158,7 @@ function PaginaTienda({ d, alPedir }: { d: Dist; alPedir: () => void }) {
       <section id="inicio" className="mx-auto max-w-6xl px-5 py-10 md:py-14">
         <div className="dist-hero">
           <div>
-            <p className="font-bold opacity-75">Abarrotes por mayor para tiendas, desde 1998 en la zona 12</p>
-            <h1 className="dist-titulo mt-4 text-[3rem] sm:text-[4.4rem]">Haga su pedido de la semana desde el teléfono.</h1>
+            <h1 className="dist-titulo text-[2.7rem] sm:text-[3.8rem]">Abarrotes por mayor para su tienda</h1>
             <p className="mt-5 max-w-lg text-[1.08rem] leading-relaxed opacity-85">
               Vea el precio de hoy y lo que hay en bodega, mande su pedido y le llega con el camión de su ruta. Pedido mínimo de {qz(PEDIDO_MINIMO)}, la entrega no le cuesta.
             </p>
@@ -171,16 +170,17 @@ function PaginaTienda({ d, alPedir }: { d: Dist; alPedir: () => void }) {
                 ¿Qué día pasa por mi zona?
               </a>
             </div>
+            <p className="mt-6 text-[0.92rem] font-semibold opacity-70">Desde 1998 en la zona 12 · Entregamos en camión a tiendas de la capital y Mixco</p>
           </div>
           <div className="relative">
             <img src={FOTOS.bodega} alt="Cajas plásticas apiladas en la bodega" className="h-[380px] w-full rounded-lg object-cover sm:h-[440px]" />
-            <div className="etiqueta absolute -bottom-5 left-4 right-4 p-4 sm:left-auto sm:w-[290px]">
-              <p className="text-[0.75rem] font-bold uppercase opacity-60">Cambió esta semana</p>
+            <div className="etiqueta mt-4 p-4 sm:ml-auto sm:w-[290px]">
+              <p className="text-[0.85rem] font-bold opacity-70">Cambió esta semana</p>
               <ul className="mt-1.5 grid gap-1 text-[0.95rem]">
                 {PRODUCTOS.filter((p) => p.antes).map((p) => (
                   <li key={p.id} className="flex justify-between gap-3">
                     <span>{p.nombre}</span>
-                    <b style={{ color: p.precio < (p.antes ?? 0) ? VERDE : SELLO }}>
+                    <b className="shrink-0 whitespace-nowrap" style={{ color: p.precio < (p.antes ?? 0) ? VERDE : SELLO }}>
                       {p.precio < (p.antes ?? 0) ? "bajó" : "subió"} {qz(Math.abs(p.precio - (p.antes ?? 0)))}
                     </b>
                   </li>

@@ -4,7 +4,7 @@
  * curva de peso y próxima cita de cada hijo) y el consultorio (agenda del día, vacunas atrasadas y peso).
  */
 import { useEffect, useState } from "react";
-import { ArrowRight, Baby, CalendarCheck, Check, Clock, Phone, Syringe, Thermometer } from "lucide-react";
+import { ArrowRight, Baby, CalendarCheck, Check, Phone, Syringe, Thermometer } from "lucide-react";
 import { BandaDemos, CierreJzet, MensajeWhatsApp } from "../comun";
 import {
   ATRASADOS, CIELO, CIELO2, CORAL, CURVA, FOTOS, HORAS, LIMA, MARINO, REDONDA, SOL, VACUNAS,
@@ -48,7 +48,7 @@ function Marca() {
       <Logo />
       <span className="leading-none">
         <span className="pedi-titulo block text-[1.45rem]">Semillita</span>
-        <span className="block text-[0.72rem] font-bold opacity-70">Pediatría · Dra. Lucía Ordóñez</span>
+        <span className="block whitespace-nowrap text-[0.72rem] font-bold opacity-70"><span className="sm:hidden">Pediatría</span><span className="hidden sm:inline">Pediatría · Dra. Lucía Ordóñez</span></span>
       </span>
     </span>
   );
@@ -139,7 +139,7 @@ function Pagina({ p, alAgendar }: { p: Pedi; alAgendar: () => void }) {
             <a href="#citas" className="hover:underline">Citas</a>
             <a href="#alarma" className="hover:underline">¿Cuándo venir ya?</a>
           </nav>
-          <a href="#citas" className={`${btn} !px-4 !py-2.5 text-white`} style={{ background: CORAL }}>
+          <a href="#citas" className={`${btn} shrink-0 whitespace-nowrap !px-4 !py-2.5 text-white`} style={{ background: CORAL }}>
             Agendar cita
           </a>
         </div>
@@ -148,10 +148,7 @@ function Pagina({ p, alAgendar }: { p: Pedi; alAgendar: () => void }) {
       <section id="inicio" className="mx-auto max-w-6xl px-5 py-10 md:py-14">
         <div className="pedi-hero">
           <div>
-            <p className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 font-bold">
-              <Baby size={18} style={{ color: CORAL }} /> Recién nacidos a 15 años · Colonia Roosevelt, zona 11
-            </p>
-            <h1 className="pedi-titulo mt-5 text-[3rem] sm:text-[4.3rem]">Vacunas, citas y el peso de sus hijos, en su teléfono.</h1>
+            <h1 className="pedi-titulo text-[2.6rem] sm:text-[3.6rem]">Pediatra en la Roosevelt para niños de 0 a 15 años</h1>
             <p className="mt-5 max-w-lg text-[1.1rem] leading-relaxed opacity-85">
               Vea qué vacuna le toca según su edad, aparte cita para hoy si está enfermito y lleve su curva de crecimiento sin buscar el carné.
             </p>
@@ -163,13 +160,10 @@ function Pagina({ p, alAgendar }: { p: Pedi; alAgendar: () => void }) {
                 ¿Qué vacuna le toca?
               </a>
             </div>
+            <p className="mt-6 text-[0.92rem] font-semibold opacity-70">Colonia Roosevelt, zona 11 · Lunes a viernes 8:00 a 12:00 y 15:00 a 18:00 · Sábado 8:00 a 12:00</p>
           </div>
-          <div className="relative">
+          <div>
             <img src={FOTOS.examen} alt="La doctora revisa a un bebé con el estetoscopio" className="h-[400px] w-full rounded-[2rem] object-cover sm:h-[460px]" />
-            <div className="absolute -bottom-4 left-4 right-4 rounded-2xl bg-white p-4 shadow-lg sm:left-auto sm:w-[280px]">
-              <p className="flex items-center gap-2 font-bold"><Clock size={18} style={{ color: CORAL }} /> Horario</p>
-              <p className="mt-1 text-[0.95rem] opacity-80">Lunes a viernes de 8:00 a 12:00 y de 15:00 a 18:00. Sábado de 8:00 a 12:00.</p>
-            </div>
           </div>
         </div>
       </section>

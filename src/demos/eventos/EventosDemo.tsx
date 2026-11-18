@@ -79,8 +79,8 @@ function Marca({ claro = false }: { claro?: boolean }) {
     <span className="flex items-center gap-2.5" style={{ color: claro ? "#fff" : TINTA }}>
       <Logo />
       <span className="leading-none">
-        <span className="fiesta-titulo block text-[1.4rem]">Fiestas La Ceiba</span>
-        <span className="block text-[0.72rem] font-semibold opacity-70">Mobiliario, toldos y mantelería · Mixco</span>
+        <span className="fiesta-titulo block whitespace-nowrap text-[1.25rem] sm:text-[1.4rem]">Fiestas La Ceiba</span>
+        <span className="mt-0.5 block text-[0.72rem] font-semibold opacity-70"><span className="sm:hidden">Mobiliario · Mixco</span><span className="hidden sm:inline">Mobiliario, toldos y mantelería · Mixco</span></span>
       </span>
     </span>
   );
@@ -168,8 +168,8 @@ function Pagina({ ev, alApartar }: { ev: Ev; alApartar: () => void }) {
             <a href="#mobiliario" className="hover:underline">Mobiliario</a>
             <a href="#como" className="hover:underline">Cómo apartar</a>
           </nav>
-          <a href="#cotizar" className={`${btn} !px-4 !py-2.5 text-white`} style={{ background: ANIL }}>
-            Cotizar mi fiesta
+          <a href="#cotizar" className={`${btn} shrink-0 whitespace-nowrap !px-4 !py-2.5 text-white`} style={{ background: ANIL }}>
+            Cotizar<span className="hidden sm:inline">&nbsp;mi fiesta</span>
           </a>
         </div>
       </header>
@@ -179,8 +179,7 @@ function Pagina({ ev, alApartar }: { ev: Ev; alApartar: () => void }) {
         <div className="mx-auto max-w-6xl px-5 pb-14 pt-4 md:pb-16">
           <div className="fiesta-hero">
             <div>
-              <p className="font-semibold text-white/75">Cumpleaños, primeras comuniones, bodas y fiestas de colonia</p>
-              <h1 className="fiesta-titulo mt-4 text-[2.9rem] sm:text-[4.1rem]">Sepa si su fecha está libre y cuánto le sale, sin esperar respuesta.</h1>
+              <h1 className="fiesta-titulo text-[2.6rem] sm:text-[3.6rem]">Alquiler de mobiliario para fiestas en Mixco</h1>
               <p className="mt-5 max-w-lg text-[1.08rem] leading-relaxed text-white/80">
                 Diga cuántos invitados espera y le armamos sillas, mesas, manteles y toldo. Aparta con la mitad y el resto lo paga el día que montamos.
               </p>
@@ -192,6 +191,7 @@ function Pagina({ ev, alApartar }: { ev: Ev; alApartar: () => void }) {
                   Ver el mobiliario
                 </a>
               </div>
+              <p className="mt-6 text-[0.92rem] font-semibold text-white/70">Cumpleaños, primeras comuniones, bodas y fiestas de colonia · Llevamos y montamos</p>
             </div>
             <div className="grid gap-3" style={{ gridTemplateColumns: "1.2fr 1fr" }}>
               <img src={FOTOS.carpa} alt="Toldo blanco montado para una recepción" className="row-span-2 h-[380px] w-full rounded-2xl object-cover sm:h-[440px]" />

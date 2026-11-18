@@ -6,7 +6,7 @@
  * Fotos libres de Unsplash (src/assets/demo-clinica).
  */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, CalendarCheck, Check, ChevronsLeftRight, Clock, CreditCard, Eye, HeartHandshake, LayoutDashboard, MapPin, Phone, Smile, Target } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarCheck, ChevronsLeftRight, Clock, CreditCard, Eye, HeartHandshake, LayoutDashboard, MapPin, Phone, Smile, Target } from "lucide-react";
 import paciente from "@/assets/demo-clinica/paciente.jpg";
 import sonrisa from "@/assets/demo-clinica/sonrisa.jpg";
 import consultorio from "@/assets/demo-clinica/consultorio.jpg";
@@ -145,11 +145,8 @@ export default function ClinicaDemo() {
       <section id="inicio" style={{ background: CIELO }}>
         <div className="mx-auto max-w-6xl px-5 pt-12 pb-16 sm:pt-16 sm:pb-24 grid lg:grid-cols-[1.05fr_1fr] gap-12 items-center">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-white px-3.5 py-1.5 text-[0.82rem] font-semibold shadow-sm" style={{ color: AZUL }}>
-              <MapPin size={14} /> Zona 10 · Atención con cita
-            </span>
-            <h1 className="mt-5 !text-[#123b40] text-[2.7rem] sm:text-[3.8rem] leading-[1.03] tracking-[-0.03em] font-extrabold" style={{ fontFamily: TITULO }}>
-              Su cita al dentista, sin esperar a que le contesten.
+            <h1 className="!text-[#123b40] text-[2.5rem] sm:text-[3.4rem] leading-[1.05] font-normal" style={{ fontFamily: TITULO }}>
+              Dentista en zona 10 para toda la familia
             </h1>
             <p className="mt-5 max-w-lg text-[1.08rem] opacity-75">Agende en línea en un minuto, sepa el precio antes de venir y reciba un recordatorio por WhatsApp un día antes.</p>
             <div className="mt-8 flex flex-wrap gap-3">
@@ -160,25 +157,15 @@ export default function ClinicaDemo() {
                 Ver precios
               </a>
             </div>
-            <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-[0.9rem] opacity-80">
-              <li className="inline-flex items-center gap-1.5">
-                <Check size={16} style={{ color: MENTA }} /> Valoración desde Q150
-              </li>
-              <li className="inline-flex items-center gap-1.5">
-                <Check size={16} style={{ color: MENTA }} /> Pago con tarjeta
-              </li>
-              <li className="inline-flex items-center gap-1.5">
-                <Check size={16} style={{ color: MENTA }} /> Estacionamiento
-              </li>
-            </ul>
+            <p className="mt-6 text-[0.92rem] font-semibold opacity-70">Zona 10 · Valoración desde Q150 · Pago con tarjeta · Hay parqueo</p>
           </div>
 
           <div className="relative mx-auto w-full max-w-[440px]">
             <img src={paciente} alt="Paciente sonriendo" className="w-full aspect-[4/5] object-cover rounded-[2rem] " />
             {proximo && (
-              <div className="absolute left-3 bottom-3 rounded-xl px-4 py-3 text-white" style={{ background: AZUL }}>
-                <p className="text-[0.8rem] opacity-75">Próxima cita libre</p>
-                <p className="mt-0.5 font-bold">
+              <div className="mt-3 flex items-baseline gap-2 text-[0.95rem]">
+                <p className="opacity-70">Próxima cita libre:</p>
+                <p className="font-bold">
                   {proximo.d.toDateString() === new Date().toDateString() ? "Hoy" : mayus(fechaLarga(proximo.d))}, {proximo.h}
                 </p>
               </div>
@@ -203,10 +190,7 @@ export default function ClinicaDemo() {
 
       {/* servicios */}
       <section id="servicios" className="scroll-mt-16 mx-auto max-w-6xl px-5 py-16 sm:py-24">
-        <p className="font-bold text-[0.85rem]" style={{ color: AZUL }}>
-          Servicios
-        </p>
-        <h2 className="mt-2 !text-[#123b40] text-[2.2rem] sm:text-[3rem] font-normal tracking-[-0.01em]" style={{ fontFamily: TITULO }}>
+        <h2 className="!text-[#123b40] text-[2.2rem] sm:text-[3rem] font-normal tracking-[-0.01em]" style={{ fontFamily: TITULO }}>
           Precios claros, antes de venir
         </h2>
         <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -432,10 +416,7 @@ function Agenda({ servicioInicial, citas, alAgendar }: { servicioInicial: string
       <div ref={caja} className="rounded-[2rem] bg-white p-6 sm:p-10 shadow-[0_30px_70px_-40px_rgba(18,59,64,.45)] border border-[#123b40]/8">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="font-bold text-[0.85rem]" style={{ color: AZUL }}>
-              Agenda en línea
-            </p>
-            <h2 className="mt-1 !text-[#123b40] text-[1.9rem] sm:text-[2.4rem] font-normal tracking-[-0.01em]" style={{ fontFamily: TITULO }}>
+            <h2 className="!text-[#123b40] text-[1.9rem] sm:text-[2.4rem] font-normal tracking-[-0.01em]" style={{ fontFamily: TITULO }}>
               Su cita en un minuto
             </h2>
           </div>
@@ -614,10 +595,7 @@ function AntesDespues() {
     <section className="mx-auto max-w-6xl px-5 pb-6">
       <div className="grid md:grid-cols-[1fr_1.2fr] gap-10 items-center rounded-[2rem] p-7 sm:p-12" style={{ background: CIELO }}>
         <div>
-          <p className="font-bold text-[0.85rem]" style={{ color: AZUL }}>
-            Blanqueamiento
-          </p>
-          <h2 className="mt-2 !text-[#123b40] text-[2rem] sm:text-[2.6rem] font-normal tracking-[-0.01em] leading-tight" style={{ fontFamily: TITULO }}>
+          <h2 className="!text-[#123b40] text-[2rem] sm:text-[2.6rem] font-normal tracking-[-0.01em] leading-tight" style={{ fontFamily: TITULO }}>
             Antes y después
           </h2>
           <p className="mt-3 opacity-75 max-w-sm">Arrastre la línea para comparar. Así puede mostrar los resultados de sus pacientes, con su permiso.</p>
@@ -667,10 +645,7 @@ function UnSistema({ alEntrar }: { alEntrar: (s: Sesion) => void }) {
       <div className="rounded-[2rem] bg-white p-6 sm:p-8 border border-[#123b40]/8">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="font-bold text-[0.85rem]" style={{ color: AZUL }}>
-              Todo en un solo sistema
-            </p>
-            <h2 className="mt-1 !text-[#123b40] text-[1.6rem] sm:text-[2rem] font-normal tracking-[-0.01em] leading-tight" style={{ fontFamily: TITULO }}>
+            <h2 className="!text-[#123b40] text-[1.6rem] sm:text-[2rem] font-normal tracking-[-0.01em] leading-tight" style={{ fontFamily: TITULO }}>
               Cada quien entra y ve lo suyo
             </h2>
           </div>
@@ -715,10 +690,7 @@ function Nosotros() {
     <section id="nosotros" className="scroll-mt-16 mx-auto max-w-6xl px-5 pt-16 sm:pt-24">
       <div className="grid lg:grid-cols-[1fr_1.15fr] gap-10 items-start">
         <div>
-          <p className="font-bold text-[0.85rem]" style={{ color: AZUL }}>
-            Quiénes somos
-          </p>
-          <h2 className="mt-2 !text-[#123b40] text-[2.2rem] sm:text-[3rem] font-normal tracking-[-0.01em] leading-[1.05]" style={{ fontFamily: TITULO }}>
+          <h2 className="!text-[#123b40] text-[2.2rem] sm:text-[3rem] font-normal tracking-[-0.01em] leading-[1.05]" style={{ fontFamily: TITULO }}>
             Una clínica pequeña, a propósito
           </h2>
           <p className="mt-5 text-[1.05rem] opacity-75">
