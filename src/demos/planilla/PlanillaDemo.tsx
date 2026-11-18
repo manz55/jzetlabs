@@ -1,11 +1,11 @@
 /*
  * Demo: "Constructora Los Cedros" (empresa inventada, datos de ejemplo).
- * Tres partes: el marcaje en la obra (PIN + foto + ubicación), el panel de la oficina
+ * Dos partes: el panel de la oficina
  * (resumen, planilla, personal, prestaciones e IGSS, solicitudes) y el portal del empleado,
  * donde cada quien entra con su código y su PIN y ve solo lo suyo.
  */
 import { useEffect, useState, type ReactNode } from "react";
-import { AlertTriangle, Calendar, Camera, Check, ChevronRight, Delete, FileText, HandCoins, Home, Inbox, LogOut, MapPin, Shield, UserRound, Users, Wallet, X } from "lucide-react";
+import { AlertTriangle, Calendar, Check, ChevronRight, FileText, HandCoins, Home, Inbox, LogOut, MapPin, Shield, UserRound, Users, Wallet, X } from "lucide-react";
 import { BandaDemos, Cajon, CierreJzet, MensajeWhatsApp, PartesDemo } from "../comun";
 import {
   AMARILLO, AZUL, BONIF_MES, BORDE, FONDO, IGSS_LAB, IGSS_PAT, NARANJA, OBRAS, PIN_EJEMPLO, ROJO, SUAVE, TEXTO, TRABAJADORES, VERDE,
@@ -68,11 +68,11 @@ function Dato({ etiqueta, valor, nota, color }: { etiqueta: string; valor: strin
   );
 }
 
-type Vista = "obra" | "oficina" | "empleado";
+type Vista = "oficina" | "empleado";
 
 export default function PlanillaDemo() {
   const p = usePlanilla();
-  const leer = (): Vista => (location.hash.startsWith("#oficina") ? "oficina" : location.hash === "#empleado" ? "empleado" : "obra");
+  const leer = (): Vista => (location.hash === "#empleado" ? "empleado" : "oficina");
   const [vista, setVista] = useState<Vista>(leer);
   useEffect(() => {
     const cambio = () => setVista(leer());
@@ -80,8 +80,8 @@ export default function PlanillaDemo() {
     return () => removeEventListener("hashchange", cambio);
   }, []);
   useEffect(() => {
-    history.replaceState(null, "", vista === "obra" ? location.pathname : `#${vista}`);
-    document.title = vista === "oficina" ? "Oficina · Los Cedros" : vista === "empleado" ? "Mi portal · Los Cedros" : "Constructora Los Cedros · Demo de Jzet Labs";
+    history.replaceState(null, "", vista === "oficina" ? location.pathname : `#${vista}`);
+    document.title = vista === "empleado" ? "Mi portal · Los Cedros" : "Constructora Los Cedros · Demo de Jzet Labs";
     window.scrollTo(0, 0);
   }, [vista]);
 
@@ -94,214 +94,18 @@ export default function PlanillaDemo() {
         actual={vista}
         alCambiar={setVista}
         partes={[
-          { id: "obra", nombre: "Marcaje en la obra", quien: "Cada trabajador marca con PIN y foto" },
           { id: "oficina", nombre: "Panel de la oficina", quien: "Planilla, prestaciones, IGSS y solicitudes" },
           { id: "empleado", nombre: "Portal del empleado", quien: "Cada quien entra y ve solo lo suyo" },
         ] as const}
       />
       <div className="border-b bg-white" style={{ borderColor: BORDE }}>
         <p className="mx-auto max-w-6xl px-4 py-2.5 text-[0.9rem]" style={{ color: SUAVE }}>
-          <b style={{ color: TEXTO }}>Esto es un ejemplo para una constructora.</b> Cada sistema se arma a la medida de su empresa: si usted necesita inventario, rutas, citas o cualquier otra cosa en vez de marcaje, se hace.
+          <b style={{ color: TEXTO }}>Esto es un ejemplo para una constructora.</b> Cada sistema se arma a la medida de su empresa: si usted necesita inventario, rutas, citas o cualquier otra cosa en vez de planilla, se hace.
         </p>
       </div>
-      {vista === "obra" && <Obra p={p} />}
       {vista === "oficina" && <Oficina p={p} />}
       {vista === "empleado" && <Portal p={p} />}
       <CierreJzet demo="planilla y control de empleados" />
-    </div>
-  );
-}
-
-/* ═════════════ Marcaje en la obra ═════════════ */
-
-function Reloj() {
-  const [ahora, setAhora] = useState(new Date());
-  useEffect(() => {
-    const t = setInterval(() => setAhora(new Date()), 1000);
-    return () => clearInterval(t);
-  }, []);
-  return (
-    <div className="text-center">
-      <p className="num text-[3.5rem] font-bold leading-none sm:text-[4.5rem]" style={{ color: AZUL }}>
-        {ahora.toLocaleTimeString("es-GT", { hour: "2-digit", minute: "2-digit", hour12: false })}
-      </p>
-      <p className="mt-2" style={{ color: SUAVE }}>
-        {ahora.toLocaleDateString("es-GT", { weekday: "long", day: "numeric", month: "long" })}
-      </p>
-    </div>
-  );
-}
-
-function Obra({ p }: { p: Planilla }) {
-  const [obra, setObra] = useState("torre");
-  const [quien, setQuien] = useState<Trabajador | null>(null);
-  const gente = TRABAJADORES.filter((t) => t.obra === obra);
-  const o = obraDe(obra);
-
-  return (
-    <main className="mx-auto max-w-4xl px-4 pb-16 pt-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <Logo />
-        <label className="flex items-center gap-2 text-[0.9rem]" style={{ color: SUAVE }}>
-          <MapPin size={16} /> Obra
-          <select value={obra} onChange={(e) => setObra(e.target.value)} className="rounded-lg border bg-white px-3 py-2 font-semibold" style={{ borderColor: BORDE, color: TEXTO }}>
-            {OBRAS.map((x) => (
-              <option key={x.id} value={x.id}>
-                {x.nombre} · {x.lugar}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-
-      <div className="caja mt-6 px-4 py-8">
-        <Reloj />
-        <h1 className="mt-6 text-center text-[1.6rem] font-bold sm:text-[1.9rem]">Toque su nombre para marcar</h1>
-        <p className="mt-1 text-center" style={{ color: SUAVE }}>
-          Le pedirá su PIN y una foto. Queda la hora y la ubicación de {o.nombre}.
-        </p>
-        <ul className="mx-auto mt-6 grid max-w-3xl gap-2 sm:grid-cols-2">
-          {gente.map((t) => {
-            const m = p.hoyDe(t);
-            const tarde = m && m.entrada > jornada(p.hoy).entra + 10;
-            return (
-              <li key={t.id}>
-                <button type="button" onClick={() => setQuien(t)} className="flex w-full items-center gap-3 rounded-lg border bg-white p-3 text-left transition hover:border-[#9fb0c4] active:scale-[0.99]" style={{ borderColor: BORDE }}>
-                  <Avatar t={t} />
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate font-semibold">{t.nombre}</span>
-                    <span className="block text-[0.85rem]" style={{ color: SUAVE }}>{t.puesto}</span>
-                  </span>
-                  <span className="num shrink-0 text-[0.85rem] font-semibold" style={{ color: !m ? SUAVE : m.salida !== null ? AZUL : tarde ? ROJO : VERDE }}>
-                    {!m ? "Sin marcar" : m.salida !== null ? `Salió ${hora(m.salida)}` : `Entró ${hora(m.entrada)}`}
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-
-      <Cajon abierto={quien !== null} alCerrar={() => setQuien(null)} fondo="#fff">
-        {quien && <Marcar key={quien.id} t={quien} p={p} obra={o.nombre} alCerrar={() => setQuien(null)} />}
-      </Cajon>
-    </main>
-  );
-}
-
-function Teclado({ alTocar, alBorrar }: { alTocar: (k: string) => void; alBorrar: () => void }) {
-  const tecla = "num h-14 rounded-lg border text-[1.3rem] font-semibold active:bg-[#eef1f5]";
-  return (
-    <div className="mx-auto grid max-w-[16rem] grid-cols-3 gap-2">
-      {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((k) => (
-        <button key={k} type="button" onClick={() => alTocar(k)} className={tecla} style={{ borderColor: BORDE }}>
-          {k}
-        </button>
-      ))}
-      <span />
-      <button type="button" onClick={() => alTocar("0")} className={tecla} style={{ borderColor: BORDE }}>
-        0
-      </button>
-      <button type="button" onClick={alBorrar} aria-label="Borrar" className="grid h-14 place-items-center rounded-lg">
-        <Delete size={20} />
-      </button>
-    </div>
-  );
-}
-
-function Marcar({ t, p, obra, alCerrar }: { t: Trabajador; p: Planilla; obra: string; alCerrar: () => void }) {
-  const [paso, setPaso] = useState<"pin" | "foto" | "listo">("pin");
-  const [pin, setPin] = useState("");
-  const [error, setError] = useState(false);
-  const [hecho, setHecho] = useState<{ tipo: "entrada" | "salida"; min: number } | null>(null);
-  const [toca] = useState(() => {
-    const m = p.hoyDe(t);
-    return m && m.salida === null ? "salida" : "entrada";
-  });
-
-  const tocar = (k: string) => {
-    setError(false);
-    const nuevo = (pin + k).slice(0, 4);
-    setPin(nuevo);
-    if (nuevo.length === 4) {
-      if (nuevo === PIN_EJEMPLO) setTimeout(() => setPaso("foto"), 150);
-      else {
-        setError(true);
-        setTimeout(() => setPin(""), 400);
-      }
-    }
-  };
-
-  return (
-    <div className="flex h-full flex-col p-6" style={{ color: TEXTO }}>
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <Avatar t={t} size={48} />
-          <div>
-            <p className="text-[1.1rem] font-bold">{t.nombre}</p>
-            <p className="text-[0.9rem]" style={{ color: SUAVE }}>
-              Marca su {toca} en {obra}
-            </p>
-          </div>
-        </div>
-        <button type="button" onClick={alCerrar} aria-label="Cerrar" className="grid h-9 w-9 place-items-center rounded-full hover:bg-black/5">
-          <X size={18} />
-        </button>
-      </div>
-
-      {paso === "pin" && (
-        <div className="mt-8">
-          <p className="font-semibold">Ponga su PIN</p>
-          <p className="text-[0.85rem]" style={{ color: SUAVE }}>En la demo es {PIN_EJEMPLO}.</p>
-          <div className="my-5 flex justify-center gap-3" aria-live="polite">
-            {[0, 1, 2, 3].map((i) => (
-              <span key={i} className="h-3.5 w-3.5 rounded-full border-2" style={{ borderColor: error ? ROJO : AZUL, background: pin.length > i ? (error ? ROJO : AZUL) : "transparent" }} />
-            ))}
-          </div>
-          {error && <p className="mb-3 text-center text-[0.9rem] font-semibold" style={{ color: ROJO }}>Ese PIN no es. Intente otra vez.</p>}
-          <Teclado alTocar={tocar} alBorrar={() => setPin((x) => x.slice(0, -1))} />
-        </div>
-      )}
-
-      {paso === "foto" && (
-        <div className="mt-8">
-          <p className="font-semibold">Ahora una foto</p>
-          <p className="text-[0.85rem]" style={{ color: SUAVE }}>Así queda claro que de verdad es usted quien marca.</p>
-          <div className="relative mx-auto mt-4 grid aspect-[3/4] w-full max-w-[14rem] place-items-center rounded-xl" style={{ background: "#dfe5ec" }}>
-            <Avatar t={t} size={96} />
-            <span className="absolute inset-5 rounded-[45%] border-2 border-dashed" style={{ borderColor: "#9fb0c4" }} aria-hidden />
-            <span className="absolute bottom-2 left-2 flex items-center gap-1 rounded bg-white px-2 py-0.5 text-[0.75rem]">
-              <MapPin size={12} /> {obra}
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              setHecho(p.marcar(t));
-              setPaso("listo");
-            }}
-            className="mx-auto mt-5 flex w-full max-w-[14rem] items-center justify-center gap-2 rounded-lg py-3 font-semibold text-white"
-            style={{ background: AZUL }}
-          >
-            <Camera size={18} /> Tomar foto y marcar
-          </button>
-        </div>
-      )}
-
-      {paso === "listo" && hecho && (
-        <div className="mt-10 text-center">
-          <span className="mx-auto grid h-14 w-14 place-items-center rounded-full text-white" style={{ background: VERDE }}>
-            <Check size={28} />
-          </span>
-          <p className="mt-4 text-[1.5rem] font-bold">
-            {hecho.tipo === "entrada" ? "Entrada" : "Salida"} registrada a las {hora(hecho.min)}
-          </p>
-          <p className="mt-1" style={{ color: SUAVE }}>Con foto y ubicación en {obra}. La oficina ya lo ve.</p>
-          <button type="button" onClick={alCerrar} className="mt-8 w-full rounded-lg py-3 font-semibold text-white" style={{ background: AZUL }}>
-            Listo
-          </button>
-        </div>
-      )}
     </div>
   );
 }

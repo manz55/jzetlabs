@@ -146,10 +146,10 @@ const VARIANTES_EMPRESAS: Variante[] = [
     foto: marcaje,
     problema: "Armar la planilla a mano se lleva días, y siempre falta un dato.",
     hoy: ["La asistencia anda entre papel, Excel y mensajes de WhatsApp.", "Se le van días enteros sumando horas extra, séptimo e IGSS."],
-    sistema: ["Su gente marca con PIN, foto y ubicación de la obra. Nadie marca por otro.", "La planilla sale sola y las boletas ya quedan listas.", "Caja chica y viáticos, todo en el mismo lugar."],
+    sistema: ["Usted ve dónde está cada quien, quién faltó y cuánto se debe de prestaciones.", "La planilla sale sola y las boletas ya quedan listas.", "Caja chica y viáticos, todo en el mismo lugar."],
     visual: "foto",
-    demo: { texto: "Ver el marcaje en la obra", tipo: "asistencia" },
-    panel: { texto: "Ver la planilla de la semana", href: "/demos/planilla/#oficina" },
+    demo: { texto: "Ver el panel de la oficina", tipo: "asistencia" },
+    panel: { texto: "Ver el portal del empleado", href: "/demos/planilla/#empleado" },
   },
 ];
 
@@ -279,13 +279,13 @@ const RUBROS: Rubro[] = [
     problema: "Armar la planilla a mano se lleva días, y siempre falta un dato.",
     hoy: ["La asistencia anda entre papel, Excel y mensajes de WhatsApp.", "Se le van días enteros sumando horas extra, séptimo e IGSS."],
     sistema: [
-      "Su gente marca con PIN, foto y ubicación de la obra. Nadie marca por otro.",
+      "Usted ve dónde está cada quien, quién faltó y cuánto se debe de prestaciones.",
       "La planilla sale sola y las boletas ya quedan listas.",
       "Caja chica y viáticos, todo en el mismo lugar.",
     ],
     img: marcaje,
     alt: "Pantalla de marcaje en el celular con datos de prueba",
-    demo: { texto: "Ver el marcaje en la obra", href: "/demos/planilla/" }, demo2: { texto: "Ver la planilla de la semana", href: "/demos/planilla/#oficina" },
+    demo: { texto: "Ver el panel de la oficina", href: "/demos/planilla/" }, demo2: { texto: "Ver el portal del empleado", href: "/demos/planilla/#empleado" },
   },
   {
     id: "clinicas",
