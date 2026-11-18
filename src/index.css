@@ -186,6 +186,9 @@
 @view-transition { navigation: auto; }
 .banda-demos { view-transition-name: banda-demos; }
 .pastilla-demo-activa { view-transition-name: pastilla-demo; }
+.panel-demos { animation: panel-demos-entra .22s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes panel-demos-entra { from { opacity: 0; transform: translateY(-6px); } }
+@media (prefers-reduced-motion: reduce) { .panel-demos { animation: none; } }
 ::view-transition-old(banda-demos) { display: none; }
 ::view-transition-new(banda-demos) { animation: none; }
 ::view-transition-group(pastilla-demo) { animation-duration: 0.42s; animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1); }

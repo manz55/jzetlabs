@@ -7,7 +7,6 @@ import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from
 import clinicaPanel from "@/assets/demos/clinica-panel.jpg";
 import gimnasio from "@/assets/demo-gimnasio/sentadilla.jpg";
 import tienda from "@/assets/demos/tienda-dueno.jpg";
-import ventas from "@/assets/demos/ventas-dueno.jpg";
 import marcaje from "@/assets/sistema/cel-marcaje.jpg";
 // fotos libres de Unsplash (licencia Unsplash): photo-1624353656309, photo-1621996346565, photo-1623718649591
 import fotoRopa from "@/assets/demos/ropa.jpg";
@@ -18,6 +17,11 @@ import fotoCelulares from "@/assets/demo-celulares/ip17promax.jpg";
 import fotoPerfil from "@/assets/demo-cosmeticos/maquillista.jpg";
 import fotoBoutique from "@/assets/demo-lujo/percha.jpg";
 import fotoSalon from "@/assets/demo-cosmeticos/estudio.jpg";
+import fotoDistribuidora from "@/assets/demo-distribuidora/bodega.jpg";
+import fotoEventos from "@/assets/demo-eventos/carpa.jpg";
+import fotoDental from "@/assets/demo-clinica/paciente.jpg";
+import fotoPediatria from "@/assets/demo-pediatria/examen.jpg";
+import fotoMedicina from "@/assets/demo-medicina/presion.jpg";
 import { whatsappLink } from "@/data/site";
 import { Titulo } from "./Titulo";
 
@@ -33,6 +37,7 @@ type Variante = {
   sistema: string[];
   visual: "foto" | "planes";
   demo: { texto: string; tipo: string };
+  panel?: { texto: string; href: string };
 };
 
 /* Belleza y moda: consultoras, cosméticos, ropa y boutique */
@@ -122,16 +127,78 @@ const VARIANTES_TIENDA: Variante[] = [
   },
 ];
 
-const VARIANTES: Record<string, Variante[]> = { belleza: VARIANTES_BELLEZA, tiendas: VARIANTES_TIENDA };
+/* Empresas: cada tipo de empresa con su propia demo */
+const VARIANTES_EMPRESAS: Variante[] = [
+  {
+    id: "distribuidora",
+    nombre: "Distribuidora",
+    foto: fotoDistribuidora,
+    problema: "Pedidos por llamada, rutas en la cabeza del piloto y cobros que no cuadran.",
+    hoy: ["El tendero pide por audio y el pedido se apunta mal.", "En la noche nadie sabe cuánto cobró cada piloto ni quién debe."],
+    sistema: ["Las tiendas piden desde el teléfono con la lista de precios del día.", "El piloto marca lo entregado y lo cobrado en su ruta.", "La oficina ve lo que hay que cargar, los créditos vencidos y lo que se acaba en bodega."],
+    visual: "foto",
+    demo: { texto: "Pruebe la demo de distribuidora", tipo: "distribuidora" },
+    panel: { texto: "Ver la oficina", href: "/demos/distribuidora/#oficina" },
+  },
+  {
+    id: "personal",
+    nombre: "Personal y planilla",
+    foto: marcaje,
+    problema: "Armar la planilla a mano se lleva días, y siempre falta un dato.",
+    hoy: ["La asistencia anda entre papel, Excel y mensajes de WhatsApp.", "Se le van días enteros sumando horas extra, séptimo e IGSS."],
+    sistema: ["Su gente marca desde su teléfono, con ubicación y huella, aunque no haya señal.", "La planilla sale sola y las boletas ya quedan listas.", "Caja chica y viáticos, todo en el mismo lugar."],
+    visual: "foto",
+    demo: { texto: "Pruebe la demo de asistencia", tipo: "asistencia" },
+  },
+];
 
-const RUTA_DEMO: Record<string, string> = { perfil: "/demos/perfil-belleza/", salon: "/demos/salon/", boutique: "/demos/boutique/", ropa: "/demos/ropa/", cosmeticos: "/demos/cosmeticos/", celulares: "/demos/celulares/", restaurante: "/demos/restaurante/", tiempo: "/demos/tiempo-compartido/" };
+/* Clínicas: dental, niños y adultos, cada una con lo suyo */
+const VARIANTES_CLINICAS: Variante[] = [
+  {
+    id: "dental",
+    nombre: "Dental",
+    foto: fotoDental,
+    problema: "Citas que se olvidan y horas que se quedan vacías.",
+    hoy: ["La agenda vive en un cuaderno o en el teléfono de recepción.", "El paciente no llega porque nadie le recordó."],
+    sistema: ["El paciente aparta su cita y ve el precio antes de venir.", "Cada doctor ve su agenda, el odontograma y quién tiene saldo.", "Recordatorio por WhatsApp un día antes."],
+    visual: "foto",
+    demo: { texto: "Pruebe la demo de la clínica dental", tipo: "clinica" },
+    panel: { texto: "Ver el panel de la clínica", href: "/demos/clinica/#panel" },
+  },
+  {
+    id: "pediatria",
+    nombre: "Pediatría",
+    foto: fotoPediatria,
+    problema: "“¿Qué vacuna le toca?” y “¿hay espacio hoy?”, todo el día por WhatsApp.",
+    hoy: ["El peso y la talla se apuntan en un carné que se pierde.", "Las vacunas atrasadas nadie las recuerda."],
+    sistema: ["La mamá ve qué vacuna le toca según la edad y aparta cita.", "La curva de peso de cada hijo, en su teléfono.", "Recepción ve la agenda del día y a quién recordarle su vacuna."],
+    visual: "foto",
+    demo: { texto: "Pruebe la demo de pediatría", tipo: "pediatria" },
+    panel: { texto: "Ver el consultorio", href: "/demos/pediatria/#consultorio" },
+  },
+  {
+    id: "medicina",
+    nombre: "Medicina general",
+    foto: fotoMedicina,
+    problema: "Pacientes con presión o diabetes que solo vienen cuando ya están mal.",
+    hoy: ["Las lecturas viven en un cuaderno que nunca traen.", "Hay que sacar cita solo para renovar una receta."],
+    sistema: ["El paciente anota su presión y su azúcar desde el teléfono.", "Pide su receta y ve sus resultados de laboratorio.", "El doctor ve primero a los que salieron altos."],
+    visual: "foto",
+    demo: { texto: "Pruebe la demo de medicina general", tipo: "medicina" },
+    panel: { texto: "Ver el consultorio", href: "/demos/medicina/#consultorio" },
+  },
+];
+
+const VARIANTES: Record<string, Variante[]> = { belleza: VARIANTES_BELLEZA, tiendas: VARIANTES_TIENDA, empresas: VARIANTES_EMPRESAS, clinicas: VARIANTES_CLINICAS };
+
+const RUTA_DEMO: Record<string, string> = { distribuidora: "/demos/distribuidora/", asistencia: `${DEMOS}asistencia/empleado.html`, clinica: "/demos/clinica/", pediatria: "/demos/pediatria/", medicina: "/demos/medicina/", perfil: "/demos/perfil-belleza/", salon: "/demos/salon/", boutique: "/demos/boutique/", ropa: "/demos/ropa/", cosmeticos: "/demos/cosmeticos/", celulares: "/demos/celulares/", restaurante: "/demos/restaurante/", tiempo: "/demos/tiempo-compartido/" };
 
 /* Tarjetas con foto: al pasar el mouse por una, las demás se ponen borrosas; sin mouse, todas nítidas */
 function TarjetasFoco({ variantes, elegida, alElegir }: { variantes: Variante[]; elegida: number; alElegir: (i: number) => void }) {
   const [encima, setEncima] = useState<number | null>(null);
   return (
     <div
-      className={`md:col-span-2 grid grid-cols-2 gap-3 sm:gap-4 ${variantes.length === 4 ? "lg:grid-cols-4" : variantes.length === 3 ? "sm:grid-cols-3" : "sm:grid-cols-3 lg:grid-cols-5"}`}
+      className={`md:col-span-2 grid grid-cols-2 gap-3 sm:gap-4 ${variantes.length === 4 ? "lg:grid-cols-4" : variantes.length === 3 ? "sm:grid-cols-3" : variantes.length === 2 ? "" : "sm:grid-cols-3 lg:grid-cols-5"}`}
       onMouseLeave={() => setEncima(null)}
       role="group"
       aria-label="Tipo de negocio"
@@ -274,17 +341,19 @@ const RUBROS: Rubro[] = [
   },
   {
     id: "eventos",
-    nombre: "Ventas y eventos",
-    problema: "Tickets de papel y cuadres que no cuadran.",
-    hoy: ["Filas largas y errores al cobrar en kermeses, ferias y ventas.", "Al final del día nadie sabe cuánto entró."],
+    nombre: "Eventos",
+    problema: "“¿Tiene libre para el 14?” y una cotización que toma toda la tarde.",
+    hoy: ["El calendario es un cuaderno y a veces se alquila dos veces lo mismo.", "Sillas que no regresan y nadie sabe quién las debe."],
     sistema: [
-      "Se toca el producto en un teléfono o tablet y el total sale solo.",
-      "La gente ve su número de orden en pantalla y sabe cuándo recoger.",
-      "El cuadre sale por vendedor, con el reporte final del evento.",
+      "El cliente ve si su fecha está libre y cuánto le sale según sus invitados.",
+      "Aparta con el anticipo y el saldo queda anotado.",
+      "La bodega ve la hoja de carga del fin de semana y lo que no regresó.",
     ],
-    img: ventas,
-    alt: "Tablero de ventas de prueba con el total vendido en vivo",
-    nota: "La captura es del tablero de ventas. La demo para eventos viene pronto.",
+    img: fotoEventos,
+    alt: "Toldo blanco montado para una recepción",
+    demo: { texto: "Pruebe la demo de eventos", href: "/demos/eventos/" },
+    demo2: { texto: "Ver la bodega", href: "/demos/eventos/#bodega" },
+    nota: "Foto de ejemplo. La demo usa datos de prueba.",
   },
 ];
 
@@ -427,9 +496,16 @@ export function Rubros() {
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
               {v ? (
-                <a href={RUTA_DEMO[v.demo.tipo]} target="_blank" rel="noopener" className="btn btn-principal">
-                  {v.demo.texto}
-                </a>
+                <>
+                  <a href={RUTA_DEMO[v.demo.tipo]} target="_blank" rel="noopener" className="btn btn-principal">
+                    {v.demo.texto}
+                  </a>
+                  {v.panel && (
+                    <a href={v.panel.href} target="_blank" rel="noopener" className="btn btn-secundario">
+                      {v.panel.texto}
+                    </a>
+                  )}
+                </>
               ) : r.demo ? (
                 <>
                   <a href={r.demo.href} target="_blank" rel="noopener noreferrer" className="btn btn-principal">

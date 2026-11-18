@@ -26,13 +26,13 @@ const FOTOS = [
   { src: maestrosMob, pos: "50% 22%" },
 ];
 /* rubros con demo para probar: el cliente se ve ahí en un vistazo */
-const LATIENDA = "https://latienda-jzetlabs.vercel.app/";
 const RUBROS = [
   { t: "Clínicas", href: "/demos/clinica/" },
   { t: "Tiendas", href: "/demos/ropa/" },
   { t: "Restaurantes", href: "/demos/restaurante/" },
   { t: "Gimnasios", href: "/demos/gimnasio/" },
-  { t: "Empresas", href: `${LATIENDA}asistencia/empleado.html` },
+  { t: "Distribuidoras", href: "/demos/distribuidora/" },
+  { t: "Eventos", href: "/demos/eventos/" },
 ];
 
 function Fotos({ i }: { i: number }) {

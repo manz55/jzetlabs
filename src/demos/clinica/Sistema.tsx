@@ -26,7 +26,7 @@ export function Entrada({ alEntrar, alVolver }: { alEntrar: (s: Sesion) => void;
     document.title = "Entrar · Clínica Aurora · Demo de Jzet Labs";
   }, []);
   return (
-    <div className="min-h-[calc(100vh-80px)] px-5 py-12 sm:py-16" style={{ background: `linear-gradient(180deg, ${CIELO}, #f7fafc)` }}>
+    <div className="min-h-[calc(100vh-80px)] px-5 py-12 sm:py-16" style={{ background: `${CIELO}` }}>
       <div className="mx-auto max-w-3xl">
         <button type="button" onClick={alVolver} className="inline-flex items-center gap-1.5 text-sm font-semibold opacity-70 hover:opacity-100">
           <ArrowLeft size={16} /> Volver a la página
@@ -40,7 +40,7 @@ export function Entrada({ alEntrar, alVolver }: { alEntrar: (s: Sesion) => void;
             <p className="text-[0.8rem] opacity-60">Sistema de la clínica</p>
           </div>
         </div>
-        <h1 className="mt-6 !text-[#0f2a3a] text-[2.1rem] sm:text-[2.7rem] font-extrabold tracking-[-0.03em] leading-tight">¿Con qué usuario quiere entrar?</h1>
+        <h1 className="mt-6 !text-[#123b40] text-[2.1rem] sm:text-[2.7rem] font-extrabold tracking-[-0.03em] leading-tight">¿Con qué usuario quiere entrar?</h1>
         <p className="mt-2 max-w-xl opacity-70">Cada persona ve solo lo que le toca. Pruebe varios: lo que haga uno (agendar, atender, cobrar) le aparece a los demás.</p>
 
         <ul className="mt-8 grid sm:grid-cols-2 gap-3">
@@ -52,7 +52,7 @@ export function Entrada({ alEntrar, alVolver }: { alEntrar: (s: Sesion) => void;
                 <button
                   type="button"
                   onClick={() => alEntrar({ rol: r.rol, doctor: r.doctor })}
-                  className="group h-full w-full flex items-start gap-3.5 rounded-2xl border border-[#0f2a3a]/10 bg-white p-4 text-left transition hover:border-[#1e6fa8]/50 hover:shadow-md active:scale-[0.99]"
+                  className="group h-full w-full flex items-start gap-3.5 rounded-2xl border border-[#123b40]/10 bg-white p-4 text-left transition hover:border-[#14555d]/50 hover:shadow-md active:scale-[0.99]"
                 >
                   {foto ? (
                     <img src={foto} alt="" className="w-12 h-12 shrink-0 rounded-full object-cover" />
@@ -121,12 +121,12 @@ export function PortalPaciente({
   const total = exp.plan.reduce((s, p) => s + p.costo, 0);
   const cambiar = (id: string, cambio: Partial<Cita> | null) => setCitas((cs) => (cambio === null ? cs.filter((c) => c.id !== id) : cs.map((c) => (c.id === id ? { ...c, ...cambio } : c))));
   const fecha = (d: Date) => `${DIAS_LARGOS[d.getDay()]} ${d.getDate()} de ${MESES_LARGOS[d.getMonth()]}`;
-  const caja = "rounded-3xl bg-white p-5 sm:p-6 border border-[#0f2a3a]/8";
+  const caja = "rounded-3xl bg-white p-5 sm:p-6 border border-[#123b40]/8";
   const etiqueta = "text-[0.78rem] font-bold uppercase tracking-[0.12em] opacity-55";
 
   return (
-    <div className="min-h-screen bg-[#f2f6f9] text-[#0f2a3a]">
-      <header className="bg-white border-b border-[#0f2a3a]/10">
+    <div className="min-h-screen bg-[#f2f6f9] text-[#123b40]">
+      <header className="bg-white border-b border-[#123b40]/10">
         <div className="mx-auto max-w-5xl px-5 h-16 flex items-center justify-between gap-3">
           <span className="inline-flex items-center gap-2.5">
             <span className="grid place-items-center w-9 h-9 rounded-full text-white" style={{ background: AZUL }}>
@@ -137,7 +137,7 @@ export function PortalPaciente({
               <span className="block text-[0.7rem] opacity-60">Mi cuenta</span>
             </span>
           </span>
-          <button type="button" onClick={alSalir} className="inline-flex items-center gap-1.5 rounded-full border border-[#0f2a3a]/15 px-3.5 py-1.5 text-[0.85rem] font-semibold">
+          <button type="button" onClick={alSalir} className="inline-flex items-center gap-1.5 rounded-full border border-[#123b40]/15 px-3.5 py-1.5 text-[0.85rem] font-semibold">
             <LogOut size={15} /> Cambiar de usuario
           </button>
         </div>
@@ -151,7 +151,7 @@ export function PortalPaciente({
             </span>
             <div>
               <p className="text-sm opacity-60">Bienvenida,</p>
-              <h1 className="!text-[#0f2a3a] text-[1.9rem] sm:text-[2.3rem] font-extrabold tracking-[-0.02em] leading-tight">{PACIENTE_DEMO}</h1>
+              <h1 className="!text-[#123b40] text-[1.9rem] sm:text-[2.3rem] font-extrabold tracking-[-0.02em] leading-tight">{PACIENTE_DEMO}</h1>
             </div>
           </div>
           <button type="button" onClick={alAgendar} className="inline-flex items-center gap-1.5 rounded-full px-5 py-3 font-bold text-white active:scale-95 transition" style={{ background: AZUL }}>
@@ -219,13 +219,13 @@ export function PortalPaciente({
               </div>
               <p className="text-sm opacity-60">de {qz(total)}</p>
             </div>
-            <div className="mt-3 h-2 rounded-full bg-[#0f2a3a]/8">
+            <div className="mt-3 h-2 rounded-full bg-[#123b40]/8">
               <div className="h-full rounded-full" style={{ width: `${total ? ((total - saldo) / total) * 100 : 0}%`, background: MENTA }} />
             </div>
             <ul className="mt-4 space-y-2">
               {exp.plan.map((p) => (
                 <li key={p.id} className="flex items-center gap-2.5 text-[0.92rem]">
-                  <span className="grid place-items-center w-5 h-5 shrink-0 rounded-full" style={p.hecho ? { background: MENTA, color: "#fff" } : { border: "2px solid rgba(15,42,58,.2)" }}>
+                  <span className="grid place-items-center w-5 h-5 shrink-0 rounded-full" style={p.hecho ? { background: MENTA, color: "#fff" } : { border: "2px solid rgba(18,59,64,.2)" }}>
                     {p.hecho && <Check size={12} />}
                   </span>
                   <span className={`flex-1 ${p.hecho ? "opacity-50" : ""}`}>
@@ -247,7 +247,7 @@ export function PortalPaciente({
         {/* indicaciones */}
         <section className={`mt-4 ${caja}`}>
           <p className={etiqueta}>Mis visitas e indicaciones del doctor</p>
-          <ul className="mt-3 divide-y divide-[#0f2a3a]/8">
+          <ul className="mt-3 divide-y divide-[#123b40]/8">
             {visitas.map((v) => (
               <li key={v.id} className="py-3.5 grid sm:grid-cols-[180px_1fr] gap-x-6 gap-y-1">
                 <div>

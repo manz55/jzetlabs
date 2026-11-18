@@ -2,33 +2,53 @@
  * Piezas que comparten las demos: la banda de arriba, el cierre de Jzet Labs,
  * la vista de "así le llega el mensaje" y el contador de cantidad.
  */
-import { useEffect, useRef, type ReactNode } from "react";
-import { ArrowRight, Minus, Plus } from "lucide-react";
+import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from "react";
+import { ArrowRight, LayoutGrid, Minus, Plus, X } from "lucide-react";
 import { Modal } from "@/components/Modal";
 import { whatsappLink } from "@/data/site";
 import { irADemo, precargar } from "./navegar";
 
-export const GRUPOS_DEMOS = [
+export type DemoItem = { nombre: string; href: string; para: string };
+
+/* Todas las demos, ordenadas por rubro. "para" es una línea: para qué negocio es */
+export const GRUPOS_DEMOS: { grupo: string; demos: DemoItem[] }[] = [
   {
     grupo: "Belleza y moda",
     demos: [
-      { nombre: "Perfil de belleza", href: "/demos/perfil-belleza/" },
-      { nombre: "Salón", href: "/demos/salon/" },
-      { nombre: "Cosméticos", href: "/demos/cosmeticos/" },
-      { nombre: "Tienda de ropa", href: "/demos/ropa/" },
-      { nombre: "Boutique", href: "/demos/boutique/" },
-      { nombre: "Fundadora", href: "/demos/fundadora/" },
+      { nombre: "Perfil de belleza", href: "/demos/perfil-belleza/", para: "Consultoras de catálogo: perfil de la clienta y pedidos" },
+      { nombre: "Salón", href: "/demos/salon/", para: "Salón con sucursales: citas por estilista" },
+      { nombre: "Cosméticos", href: "/demos/cosmeticos/", para: "Marca de maquillaje con cursos" },
+      { nombre: "Tienda de ropa", href: "/demos/ropa/", para: "Catálogo con tallas y pedido por WhatsApp" },
+      { nombre: "Boutique", href: "/demos/boutique/", para: "Piezas únicas, apartados y consignación" },
+      { nombre: "Fundadora", href: "/demos/fundadora/", para: "Marca personal de una emprendedora" },
     ],
   },
-  { grupo: "Salud", demos: [{ nombre: "Clínica", href: "/demos/clinica/" }] },
   {
-    grupo: "Tiendas y servicios",
+    grupo: "Salud",
     demos: [
-      { nombre: "Celulares", href: "/demos/celulares/" },
-      { nombre: "Gimnasio", href: "/demos/gimnasio/" },
-      { nombre: "Restaurante", href: "/demos/restaurante/" },
-      { nombre: "Pastelería", href: "/demos/pasteleria/" },
-      { nombre: "Tiempo compartido", href: "/demos/tiempo-compartido/" },
+      { nombre: "Clínica dental", href: "/demos/clinica/", para: "Citas, odontograma y saldos" },
+      { nombre: "Pediatría", href: "/demos/pediatria/", para: "Vacunas por edad, crecimiento y citas" },
+      { nombre: "Medicina general", href: "/demos/medicina/", para: "Control de presión y azúcar, recetas y chequeos" },
+    ],
+  },
+  {
+    grupo: "Comida",
+    demos: [
+      { nombre: "Restaurante", href: "/demos/restaurante/", para: "Menú en línea y pedidos" },
+      { nombre: "Pastelería", href: "/demos/pasteleria/", para: "Pasteles por encargo con anticipo" },
+    ],
+  },
+  {
+    grupo: "Tiendas",
+    demos: [{ nombre: "Celulares", href: "/demos/celulares/", para: "Equipos al contado y en cuotas, reparaciones" }],
+  },
+  {
+    grupo: "Servicios y empresas",
+    demos: [
+      { nombre: "Gimnasio", href: "/demos/gimnasio/", para: "Planes, clases con cupo y membresías vencidas" },
+      { nombre: "Distribuidora", href: "/demos/distribuidora/", para: "Pedidos de tiendas, rutas y cobros" },
+      { nombre: "Eventos", href: "/demos/eventos/", para: "Alquiler de mobiliario: fechas, paquetes y anticipos" },
+      { nombre: "Tiempo compartido", href: "/demos/tiempo-compartido/", para: "Planes y semanas apartadas" },
     ],
   },
 ];
@@ -36,51 +56,100 @@ export const DEMOS = GRUPOS_DEMOS.flatMap((g) => g.demos);
 
 export const qz = (n: number) => `Q${n.toLocaleString("en-US")}`;
 
-/* Banda de arriba: dice que es demo y lleva a las otras */
+/* Cambia de demo sin recargar (o abre normal con Ctrl/Cmd) */
+function alTocarDemo(e: ReactMouseEvent<HTMLAnchorElement>, href: string, activa: boolean, cerrar: () => void) {
+  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+  if (activa) {
+    e.preventDefault();
+    cerrar();
+    return;
+  }
+  if (irADemo(href)) {
+    e.preventDefault();
+    cerrar();
+  }
+}
+
+/* Banda de arriba: dice que es demo, cuál es, y abre un panel ordenado con las otras */
 export function BandaDemos() {
   const aqui = location.pathname.endsWith("/") ? location.pathname : location.pathname + "/";
-  const barra = useRef<HTMLElement>(null);
-  // en celular, que la demo abierta quede a la vista dentro de la barra
+  const actual = DEMOS.find((d) => d.href === aqui);
+  const [abierto, setAbierto] = useState(false);
+  const caja = useRef<HTMLDivElement>(null);
+  const boton = useRef<HTMLButtonElement>(null);
   useEffect(() => {
-    const n = barra.current;
-    const a = n?.querySelector<HTMLElement>('[aria-current="page"]');
-    if (n && a) n.scrollLeft = a.offsetLeft - n.clientWidth / 2 + a.offsetWidth / 2;
-  }, []);
+    if (!abierto) return;
+    const tecla = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setAbierto(false);
+        boton.current?.focus();
+      }
+    };
+    const fuera = (e: PointerEvent) => {
+      if (caja.current && !caja.current.contains(e.target as Node)) setAbierto(false);
+    };
+    addEventListener("keydown", tecla);
+    addEventListener("pointerdown", fuera);
+    // precarga todas al abrir, para que el cambio sea inmediato
+    DEMOS.forEach((d) => precargar(d.href));
+    return () => {
+      removeEventListener("keydown", tecla);
+      removeEventListener("pointerdown", fuera);
+    };
+  }, [abierto]);
   return (
-    <div className="banda-demos relative z-40 bg-[#1c1714] text-white/85 text-[0.8rem]">
-      <div className="mx-auto max-w-7xl px-4 py-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <a href="/" className="hover:text-white">
-          ← Demo de <b className="text-white">Jzet Labs</b> · datos de ejemplo
+    <div ref={caja} className="banda-demos relative z-40 bg-[#1c1714] text-white/85 text-[0.82rem]">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2">
+        <a href="/" className="min-w-0 shrink truncate hover:text-white">
+          ← <span className="hidden sm:inline">Demo de </span><b className="text-white">Jzet Labs</b>
+          <span className="hidden sm:inline"> · datos de ejemplo</span>
         </a>
-        <nav ref={barra} className="relative flex max-w-full items-center gap-1 overflow-x-auto rounded-full bg-white/10 p-0.5 [scrollbar-width:none]" aria-label="Otras demos">
-          {GRUPOS_DEMOS.map((g, gi) => (
-            <div key={g.grupo} className={`flex shrink-0 items-center gap-1 ${gi ? "ml-1 border-l border-white/15 pl-2" : "pl-2"}`}>
-              <span className="shrink-0 whitespace-nowrap pr-1 text-[0.68rem] uppercase tracking-wider text-white/45">{g.grupo}</span>
-              {g.demos.map((d) => {
-                const activa = aqui === d.href;
-                return (
-                  <a
-                    key={d.href}
-                    href={d.href}
-                    aria-current={activa ? "page" : undefined}
-                    onMouseEnter={() => precargar(d.href)}
-                    onFocus={() => precargar(d.href)}
-                    onTouchStart={() => precargar(d.href)}
-                    onClick={(e) => {
-                      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-                      if (activa) return e.preventDefault();
-                      if (irADemo(d.href)) e.preventDefault();
-                    }}
-                    className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1 transition ${activa ? "pastilla-demo-activa bg-white text-[#1c1714] font-semibold" : "hover:text-white"}`}
-                  >
-                    {d.nombre}
-                  </a>
-                );
-              })}
-            </div>
-          ))}
-        </nav>
+        <div className="flex shrink-0 items-center gap-2">
+          {actual && <span className="pastilla-demo-activa inline-block max-w-[7.5rem] truncate rounded-full bg-white/10 px-3 py-1 font-semibold text-white sm:max-w-none">{actual.nombre}</span>}
+          <button
+            ref={boton}
+            type="button"
+            onClick={() => setAbierto((v) => !v)}
+            aria-expanded={abierto}
+            aria-controls="panel-demos"
+            className="inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 py-1.5 font-semibold text-[#1c1714] transition hover:bg-white/90 active:scale-95"
+          >
+            {abierto ? <X size={15} /> : <LayoutGrid size={15} />} {abierto ? "Cerrar" : <><span className="sm:hidden">Otras demos</span><span className="hidden sm:inline">Ver otras demos</span></>}
+          </button>
+        </div>
       </div>
+      {abierto && (
+        <div id="panel-demos" role="dialog" aria-label="Otras demos" className="panel-demos absolute inset-x-0 top-full max-h-[calc(100dvh-3rem)] overflow-y-auto border-t border-white/10 bg-[#1c1714] shadow-[0_30px_60px_-20px_rgba(0,0,0,.6)]">
+          <div className="mx-auto grid max-w-7xl gap-x-8 gap-y-6 px-4 py-6 sm:grid-cols-2 lg:grid-cols-5">
+            {GRUPOS_DEMOS.map((g) => (
+              <div key={g.grupo}>
+                <p className="text-[0.78rem] font-semibold text-white/50">{g.grupo}</p>
+                <ul className="mt-2 grid gap-1">
+                  {g.demos.map((d) => {
+                    const activa = aqui === d.href;
+                    return (
+                      <li key={d.href}>
+                        <a
+                          href={d.href}
+                          aria-current={activa ? "page" : undefined}
+                          onMouseEnter={() => precargar(d.href)}
+                          onFocus={() => precargar(d.href)}
+                          onClick={(e) => alTocarDemo(e, d.href, activa, () => setAbierto(false))}
+                          className={`block rounded-lg px-3 py-2 transition ${activa ? "bg-white text-[#1c1714]" : "hover:bg-white/10"}`}
+                        >
+                          <span className="block text-[0.95rem] font-semibold leading-tight">{d.nombre}</span>
+                          <span className={`block text-[0.8rem] leading-snug ${activa ? "text-[#1c1714]/70" : "text-white/55"}`}>{d.para}</span>
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <p className="mx-auto max-w-7xl px-4 pb-5 text-[0.8rem] text-white/45">Todos los negocios y precios de las demos son de ejemplo.</p>
+        </div>
+      )}
     </div>
   );
 }

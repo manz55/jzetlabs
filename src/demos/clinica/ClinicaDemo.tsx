@@ -12,7 +12,7 @@ import sonrisa from "@/assets/demo-clinica/sonrisa.jpg";
 import consultorio from "@/assets/demo-clinica/consultorio.jpg";
 import { BandaDemos, CierreJzet, MensajeWhatsApp, qz } from "../comun";
 import {
-  AZUL, CIELO, DOCTORES, LETRA, MENTA, SERVICIOS_PAGINA as SERVICIOS, TINTA,
+  AZUL, CIELO, DOCTORES, ESMALTE, LETRA, MENTA, TITULO, SERVICIOS_PAGINA as SERVICIOS, TINTA,
   DIAS_CORTOS, ROLES, fechaLarga, horasDelDia, iso, mayus, proximosDias, tomado, useCitas, useExtras, usePermisos, yaPaso,
   type Cita, type Doctor, type Servicio, type Sesion,
 } from "./datos";
@@ -57,7 +57,7 @@ export default function ClinicaDemo() {
 
   if (vista === "panel")
     return (
-      <div style={{ fontFamily: LETRA }}>
+      <div style={{ fontFamily: TITULO }}>
         <BandaDemos />
         <SelectorVista vista={vista} irA={irA} />
         {!sesion ? (
@@ -102,19 +102,17 @@ export default function ClinicaDemo() {
   }
 
   return (
-    <div style={{ background: "#f7fafc", color: TINTA, fontFamily: LETRA }} className="min-h-screen">
+    <div style={{ background: ESMALTE, color: TINTA, fontFamily: LETRA }} className="min-h-screen">
       <BandaDemos />
       <SelectorVista vista={vista} irA={irA} />
 
       {/* encabezado */}
-      <header className="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-[#0f2a3a]/10">
+      <header className="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-[#123b40]/10">
         <div className="mx-auto max-w-6xl px-5 h-16 flex items-center justify-between gap-4">
           <a href="#inicio" className="inline-flex items-center gap-2.5">
-            <span className="grid place-items-center w-9 h-9 rounded-full text-white" style={{ background: AZUL }}>
-              <Smile size={19} />
-            </span>
+            <LogoAurora />
             <span className="leading-tight">
-              <span className="block font-extrabold text-[1.05rem]">Aurora</span>
+              <span className="block text-[1.35rem]" style={{ fontFamily: TITULO }}>Aurora</span>
               <span className="block text-[0.7rem] opacity-60">Clínica dental</span>
             </span>
           </a>
@@ -133,7 +131,7 @@ export default function ClinicaDemo() {
             </a>
           </nav>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={() => irA("panel", undefined, { rol: "paciente" })} className="hidden sm:inline-flex rounded-full px-4 py-2 text-[0.9rem] font-bold hover:bg-[#0f2a3a]/5">
+            <button type="button" onClick={() => irA("panel", undefined, { rol: "paciente" })} className="hidden sm:inline-flex rounded-full px-4 py-2 text-[0.9rem] font-bold hover:bg-[#123b40]/5">
               Mi cuenta
             </button>
             <a href="#agenda" className="rounded-full px-4 py-2 text-[0.9rem] font-bold text-white active:scale-95 transition" style={{ background: AZUL }}>
@@ -144,14 +142,14 @@ export default function ClinicaDemo() {
       </header>
 
       {/* portada */}
-      <section id="inicio" style={{ background: `linear-gradient(180deg, ${CIELO}, #f7fafc)` }}>
+      <section id="inicio" style={{ background: CIELO }}>
         <div className="mx-auto max-w-6xl px-5 pt-12 pb-16 sm:pt-16 sm:pb-24 grid lg:grid-cols-[1.05fr_1fr] gap-12 items-center">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full bg-white px-3.5 py-1.5 text-[0.82rem] font-semibold shadow-sm" style={{ color: AZUL }}>
               <MapPin size={14} /> Zona 10 · Atención con cita
             </span>
-            <h1 className="mt-5 !text-[#0f2a3a] text-[2.7rem] sm:text-[3.8rem] leading-[1.03] tracking-[-0.03em] font-extrabold" style={{ fontFamily: LETRA }}>
-              Una sonrisa sana, <span style={{ color: AZUL }}>sin esperas.</span>
+            <h1 className="mt-5 !text-[#123b40] text-[2.7rem] sm:text-[3.8rem] leading-[1.03] tracking-[-0.03em] font-extrabold" style={{ fontFamily: TITULO }}>
+              Su cita al dentista, sin esperar a que le contesten.
             </h1>
             <p className="mt-5 max-w-lg text-[1.08rem] opacity-75">Agende en línea en un minuto, sepa el precio antes de venir y reciba un recordatorio por WhatsApp un día antes.</p>
             <div className="mt-8 flex flex-wrap gap-3">
@@ -176,27 +174,20 @@ export default function ClinicaDemo() {
           </div>
 
           <div className="relative mx-auto w-full max-w-[440px]">
-            <img src={paciente} alt="Paciente sonriendo" className="w-full aspect-[4/5] object-cover rounded-[2rem] shadow-[0_30px_60px_-30px_rgba(15,42,58,.45)]" />
+            <img src={paciente} alt="Paciente sonriendo" className="w-full aspect-[4/5] object-cover rounded-[2rem] " />
             {proximo && (
-              <div className="absolute -left-3 sm:-left-10 top-8 rounded-2xl bg-white px-4 py-3 shadow-[0_18px_40px_-18px_rgba(15,42,58,.45)]">
-                <p className="text-[0.72rem] font-semibold uppercase tracking-[0.12em] opacity-50">Próxima cita libre</p>
-                <p className="mt-0.5 font-extrabold" style={{ color: AZUL }}>
+              <div className="absolute left-3 bottom-3 rounded-xl px-4 py-3 text-white" style={{ background: AZUL }}>
+                <p className="text-[0.8rem] opacity-75">Próxima cita libre</p>
+                <p className="mt-0.5 font-bold">
                   {proximo.d.toDateString() === new Date().toDateString() ? "Hoy" : mayus(fechaLarga(proximo.d))}, {proximo.h}
                 </p>
               </div>
             )}
-            <div className="absolute -right-2 sm:-right-8 bottom-10 rounded-2xl bg-white px-4 py-3 shadow-[0_18px_40px_-18px_rgba(15,42,58,.45)] flex items-center gap-3">
-              <span className="grid place-items-center w-9 h-9 rounded-full text-white" style={{ background: MENTA }}>
-                <Check size={18} />
-              </span>
-              <div>
-                <p className="font-bold text-[0.92rem]">Recordatorio enviado</p>
-                <p className="text-[0.75rem] opacity-60">Mañana, 10:00 · Limpieza</p>
-              </div>
-            </div>
           </div>
         </div>
       </section>
+
+      <Odontograma />
 
       <UnSistema alEntrar={(s) => irA("panel", undefined, s)} />
 
@@ -212,21 +203,21 @@ export default function ClinicaDemo() {
 
       {/* servicios */}
       <section id="servicios" className="scroll-mt-16 mx-auto max-w-6xl px-5 py-16 sm:py-24">
-        <p className="font-bold text-[0.85rem] uppercase tracking-[0.14em]" style={{ color: AZUL }}>
+        <p className="font-bold text-[0.85rem]" style={{ color: AZUL }}>
           Servicios
         </p>
-        <h2 className="mt-2 !text-[#0f2a3a] text-[2.2rem] sm:text-[3rem] font-extrabold tracking-[-0.03em]" style={{ fontFamily: LETRA }}>
+        <h2 className="mt-2 !text-[#123b40] text-[2.2rem] sm:text-[3rem] font-normal tracking-[-0.01em]" style={{ fontFamily: TITULO }}>
           Precios claros, antes de venir
         </h2>
         <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {SERVICIOS.map((s) => {
             const Icono = s.icono;
             return (
-              <article key={s.id} className="rounded-3xl bg-white p-6 shadow-[0_1px_0_rgba(15,42,58,.06)] border border-[#0f2a3a]/8 flex flex-col">
+              <article key={s.id} className="rounded-3xl bg-white p-6 shadow-[0_1px_0_rgba(18,59,64,.06)] border border-[#123b40]/8 flex flex-col">
                 <span className="grid place-items-center w-11 h-11 rounded-2xl" style={{ background: CIELO, color: AZUL }}>
                   <Icono size={21} />
                 </span>
-                <h3 className="mt-4 !text-[#0f2a3a] text-[1.2rem] font-bold" style={{ fontFamily: LETRA }}>
+                <h3 className="mt-4 !text-[#123b40] text-[1.2rem] font-bold" style={{ fontFamily: TITULO }}>
                   {s.nombre}
                 </h3>
                 <p className="mt-1 text-[0.95rem] opacity-70 flex-1">{s.texto}</p>
@@ -257,15 +248,15 @@ export default function ClinicaDemo() {
 
       {/* equipo */}
       <section id="equipo" className="scroll-mt-16 mx-auto max-w-6xl px-5 py-16 sm:py-24">
-        <h2 className="!text-[#0f2a3a] text-[2.2rem] sm:text-[3rem] font-extrabold tracking-[-0.03em]" style={{ fontFamily: LETRA }}>
+        <h2 className="!text-[#123b40] text-[2.2rem] sm:text-[3rem] font-normal tracking-[-0.01em]" style={{ fontFamily: TITULO }}>
           Quién lo atiende
         </h2>
         <div className="mt-10 grid md:grid-cols-2 gap-6">
           {DOCTORES.map((d) => (
-            <article key={d.id} className="flex gap-5 rounded-3xl bg-white p-5 border border-[#0f2a3a]/8">
+            <article key={d.id} className="flex gap-5 rounded-3xl bg-white p-5 border border-[#123b40]/8">
               <img src={d.foto} alt={d.nombre} className="w-28 sm:w-36 aspect-[5/6] object-cover rounded-2xl" loading="lazy" />
               <div className="py-1">
-                <h3 className="!text-[#0f2a3a] text-[1.3rem] font-bold" style={{ fontFamily: LETRA }}>
+                <h3 className="!text-[#123b40] text-[1.3rem] font-bold" style={{ fontFamily: TITULO }}>
                   {d.nombre}
                 </h3>
                 <p className="mt-1 font-semibold" style={{ color: AZUL }}>
@@ -287,7 +278,7 @@ export default function ClinicaDemo() {
       <section className="mx-auto max-w-6xl px-5 pb-16 sm:pb-24">
         <div className="grid md:grid-cols-[1fr_1fr] gap-10 items-center rounded-[2rem] p-7 sm:p-12 text-white" style={{ background: TINTA }}>
           <div>
-            <h2 className="!text-white text-[2rem] sm:text-[2.6rem] font-extrabold tracking-[-0.03em] leading-tight" style={{ fontFamily: LETRA }}>
+            <h2 className="!text-white text-[2rem] sm:text-[2.6rem] font-normal tracking-[-0.01em] leading-tight" style={{ fontFamily: TITULO }}>
               Menos citas olvidadas
             </h2>
             <p className="mt-4 text-white/75 max-w-md">Un día antes, cada paciente recibe un recordatorio por WhatsApp. Si no puede venir, responde y el espacio queda libre para otra persona.</p>
@@ -308,7 +299,7 @@ export default function ClinicaDemo() {
         <div className="mx-auto max-w-6xl px-5 py-16 sm:py-24 grid md:grid-cols-2 gap-10 items-center">
           <img src={consultorio} alt="Consultorio dental limpio y moderno" className="w-full aspect-[4/3] object-cover rounded-[2rem]" loading="lazy" />
           <div>
-            <h2 className="!text-[#0f2a3a] text-[2.2rem] font-extrabold tracking-[-0.03em]" style={{ fontFamily: LETRA }}>
+            <h2 className="!text-[#123b40] text-[2.2rem] font-normal tracking-[-0.01em]" style={{ fontFamily: TITULO }}>
               Horario y ubicación
             </h2>
             <ul className="mt-6 space-y-3">
@@ -438,13 +429,13 @@ function Agenda({ servicioInicial, citas, alAgendar }: { servicioInicial: string
 
   return (
     <section id="agenda" className="scroll-mt-16 mx-auto max-w-6xl px-5 py-6">
-      <div ref={caja} className="rounded-[2rem] bg-white p-6 sm:p-10 shadow-[0_30px_70px_-40px_rgba(15,42,58,.45)] border border-[#0f2a3a]/8">
+      <div ref={caja} className="rounded-[2rem] bg-white p-6 sm:p-10 shadow-[0_30px_70px_-40px_rgba(18,59,64,.45)] border border-[#123b40]/8">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="font-bold text-[0.85rem] uppercase tracking-[0.14em]" style={{ color: AZUL }}>
+            <p className="font-bold text-[0.85rem]" style={{ color: AZUL }}>
               Agenda en línea
             </p>
-            <h2 className="mt-1 !text-[#0f2a3a] text-[1.9rem] sm:text-[2.4rem] font-extrabold tracking-[-0.03em]" style={{ fontFamily: LETRA }}>
+            <h2 className="mt-1 !text-[#123b40] text-[1.9rem] sm:text-[2.4rem] font-normal tracking-[-0.01em]" style={{ fontFamily: TITULO }}>
               Su cita en un minuto
             </h2>
           </div>
@@ -472,7 +463,7 @@ function Agenda({ servicioInicial, citas, alAgendar }: { servicioInicial: string
                   type="button"
                   onClick={() => setServicio(s)}
                   aria-pressed={servicio?.id === s.id}
-                  className={`rounded-2xl border-2 px-4 py-3.5 text-left transition active:scale-[0.98] ${servicio?.id === s.id ? "" : "border-[#0f2a3a]/10 hover:border-[#0f2a3a]/30"}`}
+                  className={`rounded-2xl border-2 px-4 py-3.5 text-left transition active:scale-[0.98] ${servicio?.id === s.id ? "" : "border-[#123b40]/10 hover:border-[#123b40]/30"}`}
                   style={servicio?.id === s.id ? { borderColor: AZUL, background: CIELO } : undefined}
                 >
                   <p className="font-bold">{s.nombre}</p>
@@ -493,7 +484,7 @@ function Agenda({ servicioInicial, citas, alAgendar }: { servicioInicial: string
                   type="button"
                   onClick={() => setDoc(d)}
                   aria-pressed={doc?.id === d.id}
-                  className={`flex items-center gap-4 rounded-2xl border-2 p-3 text-left transition active:scale-[0.98] ${doc?.id === d.id ? "" : "border-[#0f2a3a]/10 hover:border-[#0f2a3a]/30"}`}
+                  className={`flex items-center gap-4 rounded-2xl border-2 p-3 text-left transition active:scale-[0.98] ${doc?.id === d.id ? "" : "border-[#123b40]/10 hover:border-[#123b40]/30"}`}
                   style={doc?.id === d.id ? { borderColor: AZUL, background: CIELO } : undefined}
                 >
                   <img src={d.foto} alt="" className="w-16 h-16 rounded-xl object-cover" />
@@ -520,7 +511,7 @@ function Agenda({ servicioInicial, citas, alAgendar }: { servicioInicial: string
                         setHora(null);
                       }}
                       aria-pressed={activo}
-                      className={`shrink-0 w-16 rounded-2xl border-2 py-2.5 text-center transition active:scale-95 ${activo ? "text-white border-transparent" : "border-[#0f2a3a]/10 hover:border-[#0f2a3a]/30"}`}
+                      className={`shrink-0 w-16 rounded-2xl border-2 py-2.5 text-center transition active:scale-95 ${activo ? "text-white border-transparent" : "border-[#123b40]/10 hover:border-[#123b40]/30"}`}
                       style={activo ? { background: AZUL } : undefined}
                     >
                       <span className="block text-[0.72rem] font-semibold uppercase opacity-80">{DIAS_CORTOS[d.getDay()]}</span>
@@ -545,7 +536,7 @@ function Agenda({ servicioInicial, citas, alAgendar }: { servicioInicial: string
                       disabled={no}
                       onClick={() => setHora(h)}
                       aria-pressed={activa}
-                      className={`rounded-xl py-2.5 text-sm font-bold transition active:scale-95 ${no ? "bg-[#0f2a3a]/5 text-[#0f2a3a]/25 line-through cursor-not-allowed" : activa ? "text-white" : "border border-[#0f2a3a]/12 hover:border-[#0f2a3a]/40"}`}
+                      className={`rounded-xl py-2.5 text-sm font-bold transition active:scale-95 ${no ? "bg-[#123b40]/5 text-[#123b40]/25 line-through cursor-not-allowed" : activa ? "text-white" : "border border-[#123b40]/12 hover:border-[#123b40]/40"}`}
                       style={activa ? { background: AZUL } : undefined}
                     >
                       {h}
@@ -582,7 +573,7 @@ function Agenda({ servicioInicial, citas, alAgendar }: { servicioInicial: string
                     setError("");
                   }}
                   placeholder="María López"
-                  className="mt-1.5 w-full rounded-xl border border-[#0f2a3a]/20 px-3 py-3 focus:outline-none focus:border-[#1e6fa8]"
+                  className="mt-1.5 w-full rounded-xl border border-[#123b40]/20 px-3 py-3 focus:outline-none focus:border-[#14555d]"
                 />
                 {error && <p className="mt-1 text-sm text-[#b42318]">{error}</p>}
                 <p className="mt-3 text-sm opacity-65">Le enviamos la confirmación y un recordatorio un día antes por WhatsApp.</p>
@@ -623,10 +614,10 @@ function AntesDespues() {
     <section className="mx-auto max-w-6xl px-5 pb-6">
       <div className="grid md:grid-cols-[1fr_1.2fr] gap-10 items-center rounded-[2rem] p-7 sm:p-12" style={{ background: CIELO }}>
         <div>
-          <p className="font-bold text-[0.85rem] uppercase tracking-[0.14em]" style={{ color: AZUL }}>
+          <p className="font-bold text-[0.85rem]" style={{ color: AZUL }}>
             Blanqueamiento
           </p>
-          <h2 className="mt-2 !text-[#0f2a3a] text-[2rem] sm:text-[2.6rem] font-extrabold tracking-[-0.03em] leading-tight" style={{ fontFamily: LETRA }}>
+          <h2 className="mt-2 !text-[#123b40] text-[2rem] sm:text-[2.6rem] font-normal tracking-[-0.01em] leading-tight" style={{ fontFamily: TITULO }}>
             Antes y después
           </h2>
           <p className="mt-3 opacity-75 max-w-sm">Arrastre la línea para comparar. Así puede mostrar los resultados de sus pacientes, con su permiso.</p>
@@ -673,13 +664,13 @@ function UnSistema({ alEntrar }: { alEntrar: (s: Sesion) => void }) {
   ];
   return (
     <section className="mx-auto max-w-6xl px-5 pb-10">
-      <div className="rounded-[2rem] bg-white p-6 sm:p-8 border border-[#0f2a3a]/8">
+      <div className="rounded-[2rem] bg-white p-6 sm:p-8 border border-[#123b40]/8">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="font-bold text-[0.85rem] uppercase tracking-[0.14em]" style={{ color: AZUL }}>
+            <p className="font-bold text-[0.85rem]" style={{ color: AZUL }}>
               Todo en un solo sistema
             </p>
-            <h2 className="mt-1 !text-[#0f2a3a] text-[1.6rem] sm:text-[2rem] font-extrabold tracking-[-0.03em] leading-tight" style={{ fontFamily: LETRA }}>
+            <h2 className="mt-1 !text-[#123b40] text-[1.6rem] sm:text-[2rem] font-normal tracking-[-0.01em] leading-tight" style={{ fontFamily: TITULO }}>
               Cada quien entra y ve lo suyo
             </h2>
           </div>
@@ -724,10 +715,10 @@ function Nosotros() {
     <section id="nosotros" className="scroll-mt-16 mx-auto max-w-6xl px-5 pt-16 sm:pt-24">
       <div className="grid lg:grid-cols-[1fr_1.15fr] gap-10 items-start">
         <div>
-          <p className="font-bold text-[0.85rem] uppercase tracking-[0.14em]" style={{ color: AZUL }}>
+          <p className="font-bold text-[0.85rem]" style={{ color: AZUL }}>
             Quiénes somos
           </p>
-          <h2 className="mt-2 !text-[#0f2a3a] text-[2.2rem] sm:text-[3rem] font-extrabold tracking-[-0.03em] leading-[1.05]" style={{ fontFamily: LETRA }}>
+          <h2 className="mt-2 !text-[#123b40] text-[2.2rem] sm:text-[3rem] font-normal tracking-[-0.01em] leading-[1.05]" style={{ fontFamily: TITULO }}>
             Una clínica pequeña, a propósito
           </h2>
           <p className="mt-5 text-[1.05rem] opacity-75">
@@ -737,12 +728,12 @@ function Nosotros() {
         </div>
         <div className="grid gap-3">
           {bloques.map(({ Icono, t, d }) => (
-            <div key={t} className="flex gap-4 rounded-3xl bg-white p-5 border border-[#0f2a3a]/8">
+            <div key={t} className="flex gap-4 rounded-3xl bg-white p-5 border border-[#123b40]/8">
               <span className="grid place-items-center w-11 h-11 shrink-0 rounded-2xl" style={{ background: CIELO, color: AZUL }}>
                 <Icono size={21} />
               </span>
               <div>
-                <h3 className="!text-[#0f2a3a] text-[1.15rem] font-bold" style={{ fontFamily: LETRA }}>
+                <h3 className="!text-[#123b40] text-[1.15rem] font-bold" style={{ fontFamily: TITULO }}>
                   {t}
                 </h3>
                 <p className="mt-0.5 opacity-70">{d}</p>
@@ -765,7 +756,7 @@ function Opiniones() {
   return (
     <section id="opiniones" className="scroll-mt-16 mx-auto max-w-6xl px-5 pb-16 sm:pb-24">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <h2 className="!text-[#0f2a3a] text-[2.2rem] sm:text-[3rem] font-extrabold tracking-[-0.03em]" style={{ fontFamily: LETRA }}>
+        <h2 className="!text-[#123b40] text-[2.2rem] sm:text-[3rem] font-normal tracking-[-0.01em]" style={{ fontFamily: TITULO }}>
           Lo que dicen los pacientes
         </h2>
         <span className="rounded-full px-3 py-1 text-[0.8rem] font-semibold" style={{ background: CIELO, color: AZUL }}>
@@ -774,7 +765,7 @@ function Opiniones() {
       </div>
       <div className="mt-8 grid md:grid-cols-3 gap-4">
         {lista.map((o) => (
-          <figure key={o.n} className="flex flex-col rounded-3xl bg-white p-6 border border-[#0f2a3a]/8">
+          <figure key={o.n} className="flex flex-col rounded-3xl bg-white p-6 border border-[#123b40]/8">
             <blockquote className="flex-1 text-[1.02rem] leading-relaxed">“{o.t}”</blockquote>
             <figcaption className="mt-5 flex items-center gap-3">
               <span className="grid place-items-center w-10 h-10 rounded-full text-[0.85rem] font-bold text-white" style={{ background: AZUL }}>
@@ -792,5 +783,40 @@ function Opiniones() {
         ))}
       </div>
     </section>
+  );
+}
+
+/* logo: un diente con el sol saliendo detrás, la aurora */
+function LogoAurora() {
+  return (
+    <svg viewBox="0 0 44 44" width="40" height="40" aria-hidden className="shrink-0">
+      <circle cx="22" cy="22" r="21" fill={AZUL} />
+      <path d="M9 27 A13 13 0 0 1 35 27 Z" fill={MENTA} />
+      <path d="M15 13 C15 10.5 17 9.5 19 10 C20.5 10.4 21.3 11 22 11 C22.7 11 23.5 10.4 25 10 C27 9.5 29 10.5 29 13 C29 17 28 19 27.4 23 C27 26 26.6 31 25 31 C23.4 31 23.4 25.5 22 25.5 C20.6 25.5 20.6 31 19 31 C17.4 31 17 26 16.6 23 C16 19 15 17 15 13 Z" fill="#fff" />
+      <path d="M7 27 H37" stroke="#fff" strokeWidth="1.4" strokeLinecap="round" opacity=".6" />
+    </svg>
+  );
+}
+
+/* tira de odontograma: la arcada de arriba con los dientes numerados, como en la ficha del dentista */
+function Odontograma() {
+  const nums = [18, 17, 16, 15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 26, 27, 28];
+  const marcados: Record<number, string> = { 16: MENTA, 24: MENTA, 11: AZUL };
+  return (
+    <div aria-hidden className="overflow-hidden border-y border-[#123b40]/10 bg-white">
+      <div className="mx-auto flex max-w-6xl items-end justify-between gap-1 px-5 py-3">
+        {nums.map((n) => {
+          const ancho = [16, 17, 18, 26, 27, 28].includes(n) ? 30 : [14, 15, 24, 25].includes(n) ? 24 : 20;
+          return (
+            <span key={n} className="flex flex-col items-center gap-1">
+              <svg viewBox="0 0 30 34" width={ancho} height={30} className="max-sm:w-[14px]">
+                <path d="M4 6 C4 2 8 1 11 2 C13 2.6 14 3 15 3 C16 3 17 2.6 19 2 C22 1 26 2 26 6 C26 12 24.5 16 24 22 C23.6 27 22.6 33 20 33 C17.6 33 17.6 24 15 24 C12.4 24 12.4 33 10 33 C7.4 33 6.4 27 6 22 C5.5 16 4 12 4 6 Z" fill={marcados[n] ? marcados[n] : "#fff"} stroke={TINTA} strokeOpacity=".35" strokeWidth="1.3" />
+              </svg>
+              <span className="text-[0.62rem] tabular-nums opacity-50 max-sm:hidden">{n}</span>
+            </span>
+          );
+        })}
+      </div>
+    </div>
   );
 }

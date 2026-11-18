@@ -8,11 +8,14 @@ import { CalendarCheck, Droplet, ShieldCheck, Smile, Stethoscope } from "lucide-
 import doctor from "@/assets/demo-clinica/doctor.jpg";
 import doctora from "@/assets/demo-clinica/doctora.jpg";
 
-export const TINTA = "#0f2a3a";
-export const AZUL = "#1e6fa8";
-export const CIELO = "#eaf3f9";
-export const MENTA = "#2f9e86";
-export const LETRA = '"Plus Jakarta Sans", "Instrument Sans", sans-serif';
+/* Aurora: petróleo de consultorio, esmalte con menta y el naranja del amanecer */
+export const TINTA = "#123b40";
+export const AZUL = "#14555d";
+export const CIELO = "#dfeee8";
+export const MENTA = "#e07a2f";
+export const ESMALTE = "#f1f6f3";
+export const LETRA = '"Instrument Sans", "Plus Jakarta Sans", sans-serif';
+export const TITULO = '"DM Serif Display", Georgia, serif';
 
 export type Servicio = { id: string; nombre: string; precio: number; minutos: number; texto: string; icono: typeof Smile; desde?: boolean; soloPanel?: boolean };
 export const SERVICIOS: Servicio[] = [

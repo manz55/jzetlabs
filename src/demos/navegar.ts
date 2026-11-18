@@ -20,6 +20,10 @@ export const RUTAS: Record<string, Demo> = {
   "/demos/gimnasio/": { titulo: "Spartan Force Gym · Demo de Jzet Labs", carga: () => import("./gimnasio/GimnasioDemo") },
   "/demos/restaurante/": { titulo: "Trattoria Sole · Demo de Jzet Labs", carga: () => import("./restaurante/RestauranteDemo") },
   "/demos/tiempo-compartido/": { titulo: "Costa Serena Club · Demo de Jzet Labs", carga: () => import("./tiempo/TiempoDemo") },
+  "/demos/distribuidora/": { titulo: "Distribuidora El Volcán · Demo de Jzet Labs", carga: () => import("./distribuidora/DistribuidoraDemo") },
+  "/demos/eventos/": { titulo: "Fiestas La Ceiba · Demo de Jzet Labs", carga: () => import("./eventos/EventosDemo") },
+  "/demos/pediatria/": { titulo: "Pediatría Semillita · Demo de Jzet Labs", carga: () => import("./pediatria/PediatriaDemo") },
+  "/demos/medicina/": { titulo: "Consultorio Dr. Samayoa · Demo de Jzet Labs", carga: () => import("./medicina/MedicinaDemo") },
 };
 
 export const normalizar = (ruta: string) => (ruta.endsWith("/") ? ruta : ruta + "/");

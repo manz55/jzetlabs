@@ -111,6 +111,38 @@
     {
       "source": "/demos/pasteleria/",
       "destination": "/demos/pasteleria/index.html"
+    },
+    {
+      "source": "/demos/distribuidora",
+      "destination": "/demos/distribuidora/index.html"
+    },
+    {
+      "source": "/demos/distribuidora/",
+      "destination": "/demos/distribuidora/index.html"
+    },
+    {
+      "source": "/demos/eventos",
+      "destination": "/demos/eventos/index.html"
+    },
+    {
+      "source": "/demos/eventos/",
+      "destination": "/demos/eventos/index.html"
+    },
+    {
+      "source": "/demos/pediatria",
+      "destination": "/demos/pediatria/index.html"
+    },
+    {
+      "source": "/demos/pediatria/",
+      "destination": "/demos/pediatria/index.html"
+    },
+    {
+      "source": "/demos/medicina",
+      "destination": "/demos/medicina/index.html"
+    },
+    {
+      "source": "/demos/medicina/",
+      "destination": "/demos/medicina/index.html"
     }
   ],
   "redirects": [
