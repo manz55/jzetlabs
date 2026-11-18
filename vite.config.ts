@@ -40,6 +40,7 @@ export default defineConfig({
         demoClinica: resolve(__dirname, 'demos/clinica/index.html'),
         demoPerfil: resolve(__dirname, 'demos/perfil-belleza/index.html'),
         demoSalon: resolve(__dirname, 'demos/salon/index.html'),
+        demoPasteleria: resolve(__dirname, 'demos/pasteleria/index.html'),
       },
     },
   },

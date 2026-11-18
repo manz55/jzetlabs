@@ -26,6 +26,7 @@ export const GRUPOS_DEMOS = [
     demos: [
       { nombre: "Celulares", href: "/demos/celulares/" },
       { nombre: "Restaurante", href: "/demos/restaurante/" },
+      { nombre: "Pastelería", href: "/demos/pasteleria/" },
       { nombre: "Tiempo compartido", href: "/demos/tiempo-compartido/" },
     ],
   },

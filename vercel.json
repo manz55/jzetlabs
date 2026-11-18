@@ -95,6 +95,14 @@
     {
       "source": "/demos/salon/",
       "destination": "/demos/salon/index.html"
+    },
+    {
+      "source": "/demos/pasteleria",
+      "destination": "/demos/pasteleria/index.html"
+    },
+    {
+      "source": "/demos/pasteleria/",
+      "destination": "/demos/pasteleria/index.html"
     }
   ],
   "redirects": [

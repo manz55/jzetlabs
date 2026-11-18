@@ -16,6 +16,7 @@ export const RUTAS: Record<string, Demo> = {
   "/demos/fundadora/": { titulo: "Valeria Ríos · Fundadora · Demo de Jzet Labs", carga: () => import("./fundadora/FundadoraDemo") },
   "/demos/clinica/": { titulo: "Clínica Dental Aurora · Demo de Jzet Labs", carga: () => import("./clinica/ClinicaDemo") },
   "/demos/celulares/": { titulo: "Órbita Celulares · Demo de Jzet Labs", carga: () => import("./celulares/CelularesDemo") },
+  "/demos/pasteleria/": { titulo: "Dulce Abril · Demo de Jzet Labs", carga: () => import("./pasteleria/PasteleriaDemo") },
   "/demos/restaurante/": { titulo: "Trattoria Sole · Demo de Jzet Labs", carga: () => import("./restaurante/RestauranteDemo") },
   "/demos/tiempo-compartido/": { titulo: "Costa Serena Club · Demo de Jzet Labs", carga: () => import("./tiempo/TiempoDemo") },
 };
