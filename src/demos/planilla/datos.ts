@@ -34,6 +34,8 @@ export const OBRAS: Obra[] = [
   { id: "casa", nombre: "Casa familia Ruiz", lugar: "Villa Nueva" },
 ];
 export const obraDe = (id: string) => OBRAS.find((o) => o.id === id)!;
+/* Posición de cada obra en el mapa de la demo (0 a 100) y la oficina */
+export const EN_MAPA: Record<string, { x: number; y: number }> = { torre: { x: 74, y: 30 }, bodega: { x: 22, y: 38 }, casa: { x: 44, y: 80 }, oficina: { x: 56, y: 48 } };
 
 export type Trabajador = {
   id: string;
@@ -115,7 +117,7 @@ function marcaDeEjemplo(t: Trabajador, f: string, esHoy: boolean): Marca | null 
   if (t.id === "bt" && (dow === 2 || dow === 4)) entrada = j.entra + 38 + (n % 10); // Brayan llega tarde
   let salida = j.sale + (n % 9);
   if (["me", "jb", "ko"].includes(t.id) && dow !== 6) salida = j.sale + 90 + (n % 40); // horas extra en la torre
-  const lejos = t.id === "ot" && dow === 2; // Óscar marcó lejos de su obra
+  const lejos = t.id === "ot" && (dow === 2 || esHoy); // Óscar marca lejos de su obra
   if (esHoy) {
     const ahora = ahoraMin();
     if (ahora < entrada) return null;
@@ -260,3 +262,19 @@ export const antiguedad = (t: Trabajador) => {
   return `${Math.floor(a)} ${Math.floor(a) === 1 ? "año" : "años"}`;
 };
 export const iniciales = (n: string) => n.split(" ").map((p) => p[0]).slice(0, 2).join("");
+
+/* Boletas de semanas anteriores (inventadas pero estables) */
+export function boletasAnteriores(t: Trabajador) {
+  const lunes = fecha(semana()[0]);
+  return [1, 2, 3, 4].map((k) => {
+    const ini = new Date(lunes);
+    ini.setDate(lunes.getDate() - 7 * k);
+    const fin = new Date(ini);
+    fin.setDate(ini.getDate() + 5);
+    const dias = t.id === "wc" && k === 2 ? 5 : 6;
+    const extra = ["me", "jb", "ko"].includes(t.id) ? 4 + k : 0;
+    const afecto = dias * t.diario + (dias === 6 ? t.diario : 0) + extra * (t.diario / 8) * 1.5;
+    const liquido = afecto + BONIF_SEMANA * (dias / 6) - afecto * IGSS_LAB;
+    return { ini: iso(ini), fin: iso(fin), dias, liquido };
+  });
+}

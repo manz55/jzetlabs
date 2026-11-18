@@ -5,11 +5,11 @@
  * donde cada quien entra con su código y su PIN y ve solo lo suyo.
  */
 import { useEffect, useState, type ReactNode } from "react";
-import { AlertTriangle, Calendar, Camera, Check, ChevronRight, Delete, FileText, HandCoins, Home, Inbox, LogOut, MapPin, Shield, Users, X } from "lucide-react";
+import { AlertTriangle, Calendar, Camera, Check, ChevronRight, Delete, FileText, HandCoins, Home, Inbox, LogOut, MapPin, Shield, UserRound, Users, Wallet, X } from "lucide-react";
 import { BandaDemos, Cajon, CierreJzet, MensajeWhatsApp, PartesDemo } from "../comun";
 import {
   AMARILLO, AZUL, BONIF_MES, BORDE, FONDO, IGSS_LAB, IGSS_PAT, NARANJA, OBRAS, PIN_EJEMPLO, ROJO, SUAVE, TEXTO, TRABAJADORES, VERDE,
-  antiguedad, diaCorto, fechaLarga, fechaLimiteIgss, hora, igssMes, iniciales, iso, jornada, mesNombre, obraDe, prestacionesDe, qz, semanaDe, usePlanilla,
+  EN_MAPA, antiguedad, boletasAnteriores, diaCorto, fechaLarga, fechaLimiteIgss, hora, igssMes, iniciales, iso, jornada, mesNombre, obraDe, prestacionesDe, qz, semanaDe, usePlanilla,
   type Planilla, type Solicitud, type Tipo, type Trabajador,
 } from "./datos";
 
@@ -99,6 +99,11 @@ export default function PlanillaDemo() {
           { id: "empleado", nombre: "Portal del empleado", quien: "Cada quien entra y ve solo lo suyo" },
         ] as const}
       />
+      <div className="border-b bg-white" style={{ borderColor: BORDE }}>
+        <p className="mx-auto max-w-6xl px-4 py-2.5 text-[0.9rem]" style={{ color: SUAVE }}>
+          <b style={{ color: TEXTO }}>Esto es un ejemplo para una constructora.</b> Cada sistema se arma a la medida de su empresa: si usted necesita inventario, rutas, citas o cualquier otra cosa en vez de marcaje, se hace.
+        </p>
+      </div>
       {vista === "obra" && <Obra p={p} />}
       {vista === "oficina" && <Oficina p={p} />}
       {vista === "empleado" && <Portal p={p} />}
@@ -303,7 +308,7 @@ function Marcar({ t, p, obra, alCerrar }: { t: Trabajador; p: Planilla; obra: st
 
 /* ═════════════ Panel de la oficina ═════════════ */
 
-type Sec = "inicio" | "planilla" | "personal" | "prestaciones" | "solicitudes";
+type Sec = "inicio" | "mapa" | "planilla" | "personal" | "prestaciones" | "solicitudes";
 
 function Oficina({ p }: { p: Planilla }) {
   const [sec, setSec] = useState<Sec>("inicio");
@@ -311,6 +316,7 @@ function Oficina({ p }: { p: Planilla }) {
   const pendientes = p.solicitudes.filter((s) => s.estado === "pendiente").length;
   const menu: [Sec, string, typeof Home, number?][] = [
     ["inicio", "Resumen", Home],
+    ["mapa", "Dónde está cada quien", MapPin],
     ["planilla", "Planilla de la semana", FileText],
     ["personal", "Personal", Users],
     ["prestaciones", "Prestaciones e IGSS", Shield],
@@ -320,44 +326,66 @@ function Oficina({ p }: { p: Planilla }) {
     setSec(s);
     window.scrollTo({ top: 0 });
   };
+  const titulo = menu.find((m) => m[0] === sec)![1];
 
   return (
-    <main className="mx-auto max-w-7xl px-4 pb-16 pt-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <Logo />
-        <button type="button" onClick={p.reiniciar} className="text-[0.85rem] underline underline-offset-4" style={{ color: SUAVE }}>
-          Volver a los datos de ejemplo
-        </button>
-      </div>
-
-      <div className="mt-6 grid gap-6 lg:grid-cols-[14rem_1fr]">
-        <nav aria-label="Secciones" className="-mx-4 flex gap-1 overflow-x-auto px-4 lg:mx-0 lg:flex-col lg:self-start lg:overflow-visible lg:px-0">
-          {menu.map(([id, texto, Icono, badge]) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => ir(id)}
-              aria-current={sec === id ? "page" : undefined}
-              className="flex shrink-0 items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-[0.95rem] font-semibold transition"
-              style={sec === id ? { background: AZUL, color: "#fff" } : { color: TEXTO }}
-            >
-              <Icono size={17} />
-              <span className="whitespace-nowrap">{texto}</span>
-              {!!badge && (
-                <span className="ml-auto rounded-full px-2 text-[0.75rem] font-bold" style={{ background: sec === id ? "#fff" : ROJO, color: sec === id ? AZUL : "#fff" }}>
-                  {badge}
-                </span>
-              )}
+    <main className="mx-auto max-w-[90rem] pb-16 lg:px-4 lg:pt-4">
+      <div className="overflow-hidden lg:grid lg:min-h-[44rem] lg:grid-cols-[15rem_1fr] lg:rounded-2xl lg:border" style={{ borderColor: BORDE }}>
+        {/* barra lateral */}
+        <aside className="text-white lg:flex lg:flex-col" style={{ background: "#0f2740" }}>
+          <div className="flex items-center justify-between gap-3 px-4 py-4 lg:block">
+            <span className="flex items-center gap-2.5">
+              <svg width="30" height="30" viewBox="0 0 40 40" aria-hidden>
+                <rect width="40" height="40" rx="8" fill={AMARILLO} />
+                <path d="M8 27h24v3H8z" fill="#0f2740" />
+                <path d="M10 27c0-6.6 4.5-11.5 10-11.5S30 20.4 30 27z" fill="#0f2740" />
+              </svg>
+              <span className="leading-tight">
+                <span className="block font-bold">Los Cedros</span>
+                <span className="block text-[0.78rem] text-white/60">Panel de la oficina</span>
+              </span>
+            </span>
+          </div>
+          <nav aria-label="Secciones" className="flex gap-1 overflow-x-auto px-3 pb-3 lg:flex-1 lg:flex-col lg:overflow-visible lg:pb-0">
+            {menu.map(([id, texto, Icono, badge]) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => ir(id)}
+                aria-current={sec === id ? "page" : undefined}
+                className={`flex shrink-0 items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-[0.92rem] font-semibold transition ${sec === id ? "bg-white text-[#0f2740]" : "text-white/80 hover:bg-white/10"}`}
+              >
+                <Icono size={17} />
+                <span className="whitespace-nowrap">{texto}</span>
+                {!!badge && <span className="ml-auto rounded-full bg-[#d9483b] px-2 text-[0.75rem] font-bold text-white">{badge}</span>}
+              </button>
+            ))}
+          </nav>
+          <div className="hidden border-t border-white/10 px-4 py-4 lg:block">
+            <p className="text-[0.85rem] font-semibold">Ana Morales</p>
+            <p className="text-[0.78rem] text-white/60">Administración</p>
+            <button type="button" onClick={p.reiniciar} className="mt-3 text-[0.78rem] text-white/60 underline underline-offset-4">
+              Volver a los datos de ejemplo
             </button>
-          ))}
-        </nav>
+          </div>
+        </aside>
 
-        <div className="min-w-0">
-          {sec === "inicio" && <Resumen p={p} ir={ir} verTrabajador={setDetalle} />}
-          {sec === "planilla" && <PlanillaSemana p={p} verTrabajador={setDetalle} />}
-          {sec === "personal" && <Personal verTrabajador={setDetalle} />}
-          {sec === "prestaciones" && <Prestaciones />}
-          {sec === "solicitudes" && <Solicitudes p={p} />}
+        {/* contenido */}
+        <div className="min-w-0" style={{ background: FONDO }}>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b bg-white px-4 py-3 lg:px-6" style={{ borderColor: BORDE }}>
+            <p className="font-bold">{titulo}</p>
+            <p className="text-[0.88rem]" style={{ color: SUAVE }}>
+              {fechaLarga(p.hoy)} · <span style={{ color: VERDE }}>● En vivo</span>
+            </p>
+          </div>
+          <div className="px-4 py-5 lg:px-6">
+            {sec === "inicio" && <Resumen p={p} ir={ir} verTrabajador={setDetalle} />}
+            {sec === "mapa" && <Mapa p={p} verTrabajador={setDetalle} />}
+            {sec === "planilla" && <PlanillaSemana p={p} verTrabajador={setDetalle} />}
+            {sec === "personal" && <Personal verTrabajador={setDetalle} />}
+            {sec === "prestaciones" && <Prestaciones />}
+            {sec === "solicitudes" && <Solicitudes p={p} />}
+          </div>
         </div>
       </div>
 
@@ -365,6 +393,133 @@ function Oficina({ p }: { p: Planilla }) {
         {detalle && <FichaTrabajador t={detalle} p={p} alCerrar={() => setDetalle(null)} />}
       </Cajon>
     </main>
+  );
+}
+
+/* Estado de cada trabajador ahorita, según su última marca */
+function estadoAhora(t: Trabajador, p: Planilla) {
+  const m = p.hoyDe(t);
+  const o = obraDe(t.obra);
+  if (!m) return { clave: "sin" as const, color: ROJO, texto: "No ha marcado hoy", lugar: `Lo esperan en ${o.nombre}` };
+  if (m.salida !== null) return { clave: "salio" as const, color: SUAVE, texto: `Salió a las ${hora(m.salida)}`, lugar: o.nombre };
+  if (m.lejos) return { clave: "lejos" as const, color: NARANJA, texto: `Marcó a las ${hora(m.entrada)}, a 2.4 km de la obra`, lugar: `Cerca de Villa Nueva centro, no en ${o.nombre}` };
+  return { clave: "obra" as const, color: VERDE, texto: `En la obra desde las ${hora(m.entrada)}`, lugar: `${o.nombre}, ubicación verificada` };
+}
+
+function Mapa({ p, verTrabajador }: { p: Planilla; verTrabajador: (t: Trabajador) => void }) {
+  const [filtro, setFiltro] = useState<"todos" | "obra" | "lejos" | "sin" | "salio">("todos");
+  const [foco, setFoco] = useState<string | null>(null);
+  const lista = TRABAJADORES.map((t) => ({ t, e: estadoAhora(t, p) }));
+  const cuenta = (k: string) => lista.filter((x) => x.e.clave === k).length;
+  const visibles = lista.filter((x) => filtro === "todos" || x.e.clave === filtro);
+  // dónde dibujar a cada uno: alrededor de su obra; el que marcó lejos, apartado
+  const punto = (t: Trabajador, i: number, clave: string) => {
+    const base = EN_MAPA[t.obra];
+    if (clave === "lejos") return { x: base.x - 14, y: base.y + 8 };
+    const ang = (i / 6) * Math.PI * 2;
+    return { x: base.x + Math.cos(ang) * 4.2, y: base.y + Math.sin(ang) * 6.5 };
+  };
+
+  return (
+    <div className="grid gap-5">
+      <div className="flex flex-wrap gap-2">
+        {(
+          [
+            ["todos", `Todos (${lista.length})`, TEXTO],
+            ["obra", `En su obra (${cuenta("obra")})`, VERDE],
+            ["lejos", `Fuera de la obra (${cuenta("lejos")})`, NARANJA],
+            ["sin", `Sin marcar (${cuenta("sin")})`, ROJO],
+            ["salio", `Ya salieron (${cuenta("salio")})`, SUAVE],
+          ] as const
+        ).map(([id, txt, c]) => (
+          <button key={id} type="button" onClick={() => setFiltro(id)} aria-pressed={filtro === id} className="flex items-center gap-1.5 rounded-full border bg-white px-3 py-1.5 text-[0.88rem] font-semibold" style={filtro === id ? { borderColor: AZUL, boxShadow: `inset 0 0 0 1px ${AZUL}` } : { borderColor: BORDE }}>
+            <span className="h-2.5 w-2.5 rounded-full" style={{ background: c }} /> {txt}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid gap-5 xl:grid-cols-[1.4fr_1fr]">
+        <div className="caja overflow-hidden">
+          <div className="relative aspect-[16/11] w-full" style={{ background: "#eef1ec" }}>
+            {/* calles y zonas, dibujo simple */}
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full" aria-hidden>
+              <path d="M0 55 C 25 50, 45 60, 100 45" stroke="#d6dbd2" strokeWidth="2.2" fill="none" />
+              <path d="M30 0 C 35 30, 50 55, 48 100" stroke="#d6dbd2" strokeWidth="2.2" fill="none" />
+              <path d="M60 0 C 65 25, 70 40, 100 70" stroke="#dde1d9" strokeWidth="1.4" fill="none" />
+              <path d="M0 20 C 30 25, 60 15, 100 22" stroke="#dde1d9" strokeWidth="1.2" fill="none" />
+              <path d="M10 100 C 20 75, 15 60, 0 40" stroke="#dde1d9" strokeWidth="1.2" fill="none" />
+              <path d="M70 100 C 65 80, 80 70, 100 85" stroke="#dde1d9" strokeWidth="1.2" fill="none" />
+            </svg>
+            {[
+              ["Mixco", 12, 20],
+              ["Zona 16", 84, 14],
+              ["Zona 10", 62, 60],
+              ["Villa Nueva", 30, 92],
+            ].map(([n, x, y]) => (
+              <span key={n as string} className="absolute text-[0.72rem] font-semibold" style={{ left: `${x}%`, top: `${y}%`, color: "#8a9486" }}>
+                {n}
+              </span>
+            ))}
+            {/* oficina */}
+            <span className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${EN_MAPA.oficina.x}%`, top: `${EN_MAPA.oficina.y}%` }}>
+              <span className="flex items-center gap-1 rounded-md bg-white px-1.5 py-0.5 text-[0.72rem] font-semibold shadow" style={{ color: AZUL }}>
+                <Home size={11} /> Oficina
+              </span>
+            </span>
+            {/* obras */}
+            {OBRAS.map((o) => (
+              <span key={o.id} className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${EN_MAPA[o.id].x}%`, top: `${EN_MAPA[o.id].y}%` }}>
+                <span className="block h-16 w-16 rounded-full border-2 border-dashed sm:h-20 sm:w-20" style={{ borderColor: "#9fb0c4", background: "rgba(23,58,94,.06)" }} />
+                <span className="absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap rounded bg-white px-1.5 text-[0.72rem] font-bold shadow-sm" style={{ color: AZUL }}>
+                  {o.nombre}
+                </span>
+              </span>
+            ))}
+            {/* trabajadores */}
+            {lista.map(({ t, e }) => {
+              const i = TRABAJADORES.filter((x) => x.obra === t.obra).indexOf(t);
+              const pos = punto(t, i, e.clave);
+              const oculto = filtro !== "todos" && e.clave !== filtro;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => verTrabajador(t)}
+                  onMouseEnter={() => setFoco(t.id)}
+                  onMouseLeave={() => setFoco(null)}
+                  title={`${t.nombre}: ${e.texto}`}
+                  className="absolute grid h-7 w-7 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-2 border-white text-[0.6rem] font-bold text-white shadow transition"
+                  style={{ left: `${pos.x}%`, top: `${pos.y}%`, background: e.color, opacity: oculto ? 0.15 : 1, transform: `translate(-50%,-50%) scale(${foco === t.id ? 1.35 : 1})`, zIndex: foco === t.id ? 5 : 1 }}
+                >
+                  {iniciales(t.nombre)}
+                </button>
+              );
+            })}
+          </div>
+          <p className="border-t px-4 py-2 text-[0.8rem]" style={{ borderColor: BORDE, color: SUAVE }}>
+            Mapa de ejemplo. En su sistema se usa el mapa real con la ubicación que manda el teléfono de cada trabajador al marcar.
+          </p>
+        </div>
+
+        <div className="caja">
+          <ul>
+            {visibles.map(({ t, e }) => (
+              <li key={t.id} className="border-b last:border-0" style={{ borderColor: BORDE }}>
+                <button type="button" onClick={() => verTrabajador(t)} onMouseEnter={() => setFoco(t.id)} onMouseLeave={() => setFoco(null)} className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-[#f7f8fa]">
+                  <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: e.color }} />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-semibold">{t.nombre}</span>
+                    <span className="block text-[0.85rem]" style={{ color: e.clave === "lejos" ? NARANJA : SUAVE }}>{e.texto}</span>
+                    <span className="block truncate text-[0.78rem]" style={{ color: SUAVE }}>{e.lugar}</span>
+                  </span>
+                  <ChevronRight size={16} style={{ color: SUAVE }} />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -892,7 +1047,14 @@ function FichaTrabajador({ t, p, alCerrar }: { t: Trabajador; p: Planilla; alCer
 function Portal({ p }: { p: Planilla }) {
   const [sesion, setSesion] = useState<string | null>(null);
   const t = TRABAJADORES.find((x) => x.id === sesion);
-  return t ? <MiPortal key={t.id} t={t} p={p} salir={() => setSesion(null)} /> : <Entrar alEntrar={setSesion} />;
+  return (
+    <main className="mx-auto max-w-md px-4 pb-16 pt-6">
+      <div className="overflow-hidden rounded-[1.6rem] border bg-white shadow-[0_20px_50px_-30px_rgba(15,39,64,.45)]" style={{ borderColor: BORDE }}>
+        {t ? <MiPortal key={t.id} t={t} p={p} salir={() => setSesion(null)} /> : <Entrar alEntrar={setSesion} />}
+      </div>
+      <p className="mt-3 text-center text-[0.82rem]" style={{ color: SUAVE }}>Así se ve en el teléfono de cada trabajador.</p>
+    </main>
+  );
 }
 
 function Entrar({ alEntrar }: { alEntrar: (id: string) => void }) {
@@ -900,182 +1062,276 @@ function Entrar({ alEntrar }: { alEntrar: (id: string) => void }) {
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
   return (
-    <main className="mx-auto max-w-sm px-4 pb-16 pt-10">
-      <div className="caja p-6">
-        <Logo />
-        <h1 className="mt-6 text-[1.4rem] font-bold">Mi portal</h1>
-        <p style={{ color: SUAVE }}>Entre con su código de empleado y su PIN. Solo usted ve su información.</p>
-        <form
-          className="mt-5 grid gap-3"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const t = TRABAJADORES.find((x) => x.codigo === codigo.trim());
-            if (!t) return setError("No encontramos ese código.");
-            if (pin !== PIN_EJEMPLO) return setError("El PIN no es correcto.");
-            alEntrar(t.id);
-          }}
-        >
-          <label className="text-[0.9rem] font-semibold">
-            Código de empleado
-            <input inputMode="numeric" value={codigo} onChange={(e) => { setCodigo(e.target.value); setError(""); }} className="mt-1 block w-full rounded-lg border px-3 py-2.5 text-[1rem]" style={{ borderColor: BORDE }} placeholder="Ej. 102" />
-          </label>
-          <label className="text-[0.9rem] font-semibold">
-            PIN
-            <input type="password" inputMode="numeric" maxLength={4} value={pin} onChange={(e) => { setPin(e.target.value); setError(""); }} className="mt-1 block w-full rounded-lg border px-3 py-2.5 text-[1rem]" style={{ borderColor: BORDE }} placeholder="••••" />
-          </label>
-          {error && <p className="text-[0.9rem] font-semibold" style={{ color: ROJO }}>{error}</p>}
-          <button type="submit" className="mt-1 rounded-lg py-3 font-semibold text-white" style={{ background: AZUL }}>
-            Entrar
-          </button>
-        </form>
-        <p className="mt-4 rounded-lg px-3 py-2 text-[0.88rem]" style={{ background: "#f7f8fa", color: SUAVE }}>
-          Para probar: código <b>102</b> y PIN <b>{PIN_EJEMPLO}</b>. Cualquier código del 101 al 112 funciona.
-        </p>
-      </div>
-    </main>
+    <div className="p-6">
+      <Logo />
+      <h1 className="mt-8 text-[1.5rem] font-bold">Mi portal</h1>
+      <p style={{ color: SUAVE }}>Entre con su código de empleado y su PIN. Solo usted ve su información.</p>
+      <form
+        className="mt-5 grid gap-3"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const t = TRABAJADORES.find((x) => x.codigo === codigo.trim());
+          if (!t) return setError("No encontramos ese código.");
+          if (pin !== PIN_EJEMPLO) return setError("El PIN no es correcto.");
+          alEntrar(t.id);
+        }}
+      >
+        <label className="text-[0.9rem] font-semibold">
+          Código de empleado
+          <input inputMode="numeric" value={codigo} onChange={(e) => { setCodigo(e.target.value); setError(""); }} className="mt-1 block w-full rounded-lg border px-3 py-3 text-[1rem]" style={{ borderColor: BORDE }} placeholder="Ej. 102" />
+        </label>
+        <label className="text-[0.9rem] font-semibold">
+          PIN
+          <input type="password" inputMode="numeric" maxLength={4} value={pin} onChange={(e) => { setPin(e.target.value); setError(""); }} className="mt-1 block w-full rounded-lg border px-3 py-3 text-[1rem]" style={{ borderColor: BORDE }} placeholder="••••" />
+        </label>
+        {error && <p className="text-[0.9rem] font-semibold" style={{ color: ROJO }}>{error}</p>}
+        <button type="submit" className="mt-1 rounded-lg py-3 font-semibold text-white" style={{ background: AZUL }}>
+          Entrar
+        </button>
+      </form>
+      <p className="mt-4 rounded-lg px-3 py-2 text-[0.88rem]" style={{ background: "#f7f8fa", color: SUAVE }}>
+        Para probar: código <b>102</b> y PIN <b>{PIN_EJEMPLO}</b>. Cualquier código del 101 al 112 funciona.
+      </p>
+    </div>
   );
 }
 
+type Pestana = "inicio" | "sueldo" | "solicitudes" | "perfil";
+
 function MiPortal({ t, p, salir }: { t: Trabajador; p: Planilla; salir: () => void }) {
+  const [tab, setTab] = useState<Pestana>("inicio");
+  const pestanas: [Pestana, string, typeof Home][] = [
+    ["inicio", "Inicio", Home],
+    ["sueldo", "Mi sueldo", Wallet],
+    ["solicitudes", "Solicitudes", Inbox],
+    ["perfil", "Mi perfil", UserRound],
+  ];
+  return (
+    <div className="flex min-h-[38rem] flex-col">
+      <div className="flex items-center gap-3 px-5 pb-4 pt-5 text-white" style={{ background: "#0f2740" }}>
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/15 font-semibold">{iniciales(t.nombre)}</span>
+        <div className="min-w-0">
+          <p className="font-bold">Hola, {t.nombre.split(" ")[0]}</p>
+          <p className="truncate text-[0.8rem] text-white/70">
+            {t.puesto} · {obraDe(t.obra).nombre}
+          </p>
+        </div>
+      </div>
+      <div className="flex-1 px-4 py-4">
+        {tab === "inicio" && <PInicio t={t} p={p} ir={setTab} />}
+        {tab === "sueldo" && <PSueldo t={t} p={p} />}
+        {tab === "solicitudes" && <PSolicitudes t={t} p={p} />}
+        {tab === "perfil" && <PPerfil t={t} salir={salir} />}
+      </div>
+      <nav aria-label="Pestañas" className="grid grid-cols-4 border-t" style={{ borderColor: BORDE }}>
+        {pestanas.map(([id, txt, I]) => (
+          <button key={id} type="button" onClick={() => setTab(id)} aria-current={tab === id ? "page" : undefined} className="flex flex-col items-center gap-0.5 py-2.5 text-[0.75rem] font-semibold" style={{ color: tab === id ? AZUL : SUAVE }}>
+            <I size={20} />
+            {txt}
+          </button>
+        ))}
+      </nav>
+    </div>
+  );
+}
+
+function PInicio({ t, p, ir }: { t: Trabajador; p: Planilla; ir: (x: Pestana) => void }) {
   const c = semanaDe(t, p.diasDe(t), p.solicitudes);
   const pr = prestacionesDe(t);
   const m = p.hoyDe(t);
+  const pend = p.solicitudes.filter((s) => s.trabajador === t.id && s.estado === "pendiente").length;
+  return (
+    <div className="grid gap-3">
+      <div className="rounded-xl border p-4" style={{ borderColor: BORDE }}>
+        <p className="text-[0.85rem]" style={{ color: SUAVE }}>Hoy</p>
+        <p className="text-[1.25rem] font-bold">{!m ? "Todavía no ha marcado" : m.salida !== null ? `Salió a las ${hora(m.salida)}` : `Entró a las ${hora(m.entrada)}`}</p>
+        <p className="mt-0.5 flex items-center gap-1 text-[0.85rem]" style={{ color: m?.lejos ? NARANJA : SUAVE }}>
+          <MapPin size={13} /> {m?.lejos ? "Marcó lejos de la obra; la oficina lo va a revisar" : `${obraDe(t.obra).nombre}, ${obraDe(t.obra).lugar}`}
+        </p>
+      </div>
+      <button type="button" onClick={() => ir("sueldo")} className="flex items-center justify-between rounded-xl border p-4 text-left" style={{ borderColor: BORDE }}>
+        <span>
+          <span className="block text-[0.85rem]" style={{ color: SUAVE }}>Próximo pago, este sábado</span>
+          <span className="num block text-[1.6rem] font-bold">{qz(c.liquido)}</span>
+          <span className="block text-[0.82rem]" style={{ color: SUAVE }}>Lo que lleva esta semana ({c.diasTrab} de 6 días)</span>
+        </span>
+        <ChevronRight size={18} style={{ color: SUAVE }} />
+      </button>
+      <div className="grid grid-cols-2 gap-3">
+        <button type="button" onClick={() => ir("solicitudes")} className="rounded-xl border p-3 text-left" style={{ borderColor: BORDE }}>
+          <span className="block text-[0.82rem]" style={{ color: SUAVE }}>Vacaciones</span>
+          <span className="block text-[1.2rem] font-bold">{pr.vacDisponibles} días</span>
+        </button>
+        <button type="button" onClick={() => ir("solicitudes")} className="rounded-xl border p-3 text-left" style={{ borderColor: BORDE }}>
+          <span className="block text-[0.82rem]" style={{ color: SUAVE }}>Solicitudes</span>
+          <span className="block text-[1.2rem] font-bold">{pend ? `${pend} en espera` : "Ninguna"}</span>
+        </button>
+      </div>
+      <div className="rounded-xl p-4" style={{ background: "#f7f8fa" }}>
+        <p className="font-semibold">Aviso de la empresa</p>
+        <p className="mt-0.5 text-[0.9rem]" style={{ color: SUAVE }}>
+          El aguinaldo se paga a más tardar el {fmtFecha(pr.pagoAgu)}. Lleva acumulado {qz(pr.aguinaldo)}.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function PSueldo({ t, p }: { t: Trabajador; p: Planilla }) {
+  const pr = prestacionesDe(t);
+  return (
+    <div className="grid gap-4">
+      <div>
+        <p className="font-bold">Esta semana</p>
+        <div className="mt-2">
+          <Dias t={t} p={p} />
+        </div>
+        <div className="mt-3">
+          <Desglose t={t} p={p} />
+        </div>
+      </div>
+      <div>
+        <p className="font-bold">Boletas anteriores</p>
+        <ul className="mt-2 overflow-hidden rounded-lg border" style={{ borderColor: BORDE }}>
+          {boletasAnteriores(t).map((b) => (
+            <li key={b.ini} className="flex items-center justify-between border-b px-4 py-2.5 last:border-0" style={{ borderColor: BORDE }}>
+              <span>
+                <span className="block font-semibold">
+                  Del {Number(b.ini.slice(8))} al {fechaLarga(b.fin).replace(/ de \d{4}$/, "")}
+                </span>
+                <span className="block text-[0.8rem]" style={{ color: SUAVE }}>{b.dias} días · pagada</span>
+              </span>
+              <span className="num font-semibold">{qz(b.liquido)}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <p className="font-bold">Lo que lleva acumulado</p>
+        <dl className="mt-2 grid grid-cols-[1fr_auto] gap-x-4 gap-y-2 rounded-lg border p-4 text-[0.92rem]" style={{ borderColor: BORDE }}>
+          <dt>Aguinaldo <span className="block text-[0.78rem]" style={{ color: SUAVE }}>Se paga el {fmtFecha(pr.pagoAgu)}</span></dt>
+          <dd className="num text-right font-semibold">{qz(pr.aguinaldo)}</dd>
+          <dt>Bono 14 <span className="block text-[0.78rem]" style={{ color: SUAVE }}>Se paga el {fmtFecha(pr.pagoB14)}</span></dt>
+          <dd className="num text-right font-semibold">{qz(pr.bono14)}</dd>
+        </dl>
+      </div>
+    </div>
+  );
+}
+
+function PSolicitudes({ t, p }: { t: Trabajador; p: Planilla }) {
+  const pr = prestacionesDe(t);
   const mias = p.solicitudes.filter((s) => s.trabajador === t.id);
   const [tipo, setTipo] = useState<Tipo | null>(null);
   const [monto, setMonto] = useState(150);
   const [dias, setDias] = useState(1);
   const [detalle, setDetalle] = useState("");
-
   return (
-    <main className="mx-auto max-w-2xl px-4 pb-16 pt-6">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-3">
-          <Avatar t={t} size={44} />
-          <div className="min-w-0">
-            <p className="font-bold">Hola, {t.nombre.split(" ")[0]}</p>
-            <p className="truncate text-[0.85rem]" style={{ color: SUAVE }}>
-              Código {t.codigo} · {t.puesto} · {obraDe(t.obra).nombre}
-            </p>
+    <div className="grid gap-4">
+      {tipo === null ? (
+        <div>
+          <p className="font-bold">¿Qué necesita pedir?</p>
+          <div className="mt-2 grid grid-cols-3 gap-2">
+            {(
+              [
+                ["vale", "Vale", HandCoins],
+                ["permiso", "Permiso", Calendar],
+                ["vacaciones", "Vacaciones", Calendar],
+              ] as const
+            ).map(([id, txt, I]) => (
+              <button key={id} type="button" onClick={() => setTipo(id)} className="flex flex-col items-center gap-1 rounded-xl border py-3 font-semibold" style={{ borderColor: BORDE }}>
+                <I size={18} style={{ color: AZUL }} /> {txt}
+              </button>
+            ))}
           </div>
         </div>
-        <button type="button" onClick={salir} className="flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-2 text-[0.9rem] font-semibold" style={{ borderColor: BORDE }}>
-          <LogOut size={16} /> Salir
-        </button>
-      </div>
-
-      <div className="mt-5 grid grid-cols-2 gap-3">
-        <Dato etiqueta="Lleva ganado esta semana" valor={qz(c.liquido)} nota={`${c.diasTrab} de 6 días`} />
-        <Dato etiqueta="Hoy" valor={!m ? "Sin marcar" : m.salida !== null ? `Salió ${hora(m.salida)}` : `Entró ${hora(m.entrada)}`} nota={obraDe(t.obra).nombre} />
-      </div>
-
-      <div className="mt-5 grid gap-5">
-        <Seccion titulo="Mi semana" nota="Sus entradas y salidas, y de dónde sale su pago">
-          <div className="grid gap-3 p-4">
-            <Dias t={t} p={p} />
-            <Desglose t={t} p={p} />
+      ) : (
+        <form
+          className="grid gap-3"
+          onSubmit={(e) => {
+            e.preventDefault();
+            p.pedir({ trabajador: t.id, tipo, detalle: detalle.trim() || (tipo === "vale" ? "Adelanto" : tipo === "permiso" ? "Permiso" : "Vacaciones"), monto: tipo === "vale" ? monto : undefined, dias: tipo === "vacaciones" ? dias : undefined });
+            setTipo(null);
+            setDetalle("");
+          }}
+        >
+          <p className="font-bold">{NOMBRE_TIPO[tipo]}</p>
+          {tipo === "vale" && (
+            <div className="flex gap-2">
+              {[100, 150, 200, 300].map((x) => (
+                <button key={x} type="button" onClick={() => setMonto(x)} aria-pressed={monto === x} className="num flex-1 rounded-lg border py-2 font-semibold" style={monto === x ? { background: AZUL, color: "#fff", borderColor: AZUL } : { borderColor: BORDE }}>
+                  Q{x}
+                </button>
+              ))}
+            </div>
+          )}
+          {tipo === "vacaciones" && (
+            <label className="text-[0.9rem] font-semibold">
+              ¿Cuántos días? (tiene {pr.vacDisponibles})
+              <input type="number" min={1} max={Math.max(1, Math.floor(pr.vacDisponibles))} value={dias} onChange={(e) => setDias(Number(e.target.value))} className="mt-1 block w-full rounded-lg border px-3 py-2.5" style={{ borderColor: BORDE }} />
+            </label>
+          )}
+          <label className="text-[0.9rem] font-semibold">
+            {tipo === "vale" ? "¿Para qué? (opcional)" : "¿Qué día y por qué?"}
+            <input value={detalle} onChange={(e) => setDetalle(e.target.value)} className="mt-1 block w-full rounded-lg border px-3 py-2.5" style={{ borderColor: BORDE }} placeholder={tipo === "vale" ? "Pasaje, medicina…" : "Ej. viernes en la mañana, cita médica"} />
+          </label>
+          <div className="flex gap-2">
+            <button type="button" onClick={() => setTipo(null)} className="flex-1 rounded-lg border py-2.5 font-semibold" style={{ borderColor: BORDE }}>
+              Cancelar
+            </button>
+            <button type="submit" className="flex-1 rounded-lg py-2.5 font-semibold text-white" style={{ background: AZUL }}>
+              Enviar
+            </button>
           </div>
-        </Seccion>
-
-        <Seccion titulo="Mis prestaciones" nota="Lo que lleva acumulado a hoy">
-          <dl className="grid grid-cols-[1fr_auto] gap-x-4 gap-y-3 p-4 text-[0.95rem]">
-            <dt>
-              Aguinaldo
-              <span className="block text-[0.82rem]" style={{ color: SUAVE }}>Se paga el {fmtFecha(pr.pagoAgu)}</span>
-            </dt>
-            <dd className="num text-right font-semibold">{qz(pr.aguinaldo)}</dd>
-            <dt>
-              Bono 14
-              <span className="block text-[0.82rem]" style={{ color: SUAVE }}>Se paga el {fmtFecha(pr.pagoB14)}</span>
-            </dt>
-            <dd className="num text-right font-semibold">{qz(pr.bono14)}</dd>
-            <dt>
-              Vacaciones disponibles
-              <span className="block text-[0.82rem]" style={{ color: SUAVE }}>15 días hábiles por año trabajado</span>
-            </dt>
-            <dd className="text-right font-semibold">{pr.vacDisponibles} días</dd>
-          </dl>
-        </Seccion>
-
-        <Seccion titulo="Mis solicitudes" nota="Pida vales, permisos o vacaciones; la oficina le responde aquí">
-          <div className="p-4">
-            {tipo === null ? (
-              <div className="grid grid-cols-3 gap-2">
-                {(
-                  [
-                    ["vale", "Vale", HandCoins],
-                    ["permiso", "Permiso", Calendar],
-                    ["vacaciones", "Vacaciones", Calendar],
-                  ] as const
-                ).map(([id, txt, I]) => (
-                  <button key={id} type="button" onClick={() => setTipo(id)} className="flex flex-col items-center gap-1 rounded-lg border py-3 font-semibold" style={{ borderColor: BORDE }}>
-                    <I size={18} style={{ color: AZUL }} /> {txt}
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <form
-                className="grid gap-3"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  p.pedir({
-                    trabajador: t.id,
-                    tipo,
-                    detalle: detalle.trim() || (tipo === "vale" ? "Adelanto" : tipo === "permiso" ? "Permiso" : "Vacaciones"),
-                    monto: tipo === "vale" ? monto : undefined,
-                    dias: tipo === "vacaciones" ? dias : undefined,
-                  });
-                  setTipo(null);
-                  setDetalle("");
-                }}
-              >
-                <p className="font-semibold">{NOMBRE_TIPO[tipo]}</p>
-                {tipo === "vale" && (
-                  <div className="flex gap-2">
-                    {[100, 150, 200, 300].map((x) => (
-                      <button key={x} type="button" onClick={() => setMonto(x)} aria-pressed={monto === x} className="num flex-1 rounded-lg border py-2 font-semibold" style={monto === x ? { background: AZUL, color: "#fff", borderColor: AZUL } : { borderColor: BORDE }}>
-                        Q{x}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {tipo === "vacaciones" && (
-                  <label className="text-[0.9rem] font-semibold">
-                    ¿Cuántos días? (tiene {pr.vacDisponibles})
-                    <input type="number" min={1} max={Math.max(1, Math.floor(pr.vacDisponibles))} value={dias} onChange={(e) => setDias(Number(e.target.value))} className="mt-1 block w-full rounded-lg border px-3 py-2.5" style={{ borderColor: BORDE }} />
-                  </label>
-                )}
-                <label className="text-[0.9rem] font-semibold">
-                  {tipo === "vale" ? "¿Para qué? (opcional)" : "¿Qué día y por qué?"}
-                  <input value={detalle} onChange={(e) => setDetalle(e.target.value)} className="mt-1 block w-full rounded-lg border px-3 py-2.5" style={{ borderColor: BORDE }} placeholder={tipo === "vale" ? "Pasaje, medicina…" : "Ej. viernes en la mañana, cita médica"} />
-                </label>
-                <div className="flex gap-2">
-                  <button type="button" onClick={() => setTipo(null)} className="flex-1 rounded-lg border py-2.5 font-semibold" style={{ borderColor: BORDE }}>
-                    Cancelar
-                  </button>
-                  <button type="submit" className="flex-1 rounded-lg py-2.5 font-semibold text-white" style={{ background: AZUL }}>
-                    Enviar a la oficina
-                  </button>
-                </div>
-              </form>
-            )}
-            {mias.length > 0 && (
-              <ul className="mt-4 grid gap-2">
-                {mias.map((s) => (
-                  <li key={s.id} className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2" style={{ borderColor: BORDE }}>
-                    <span className="text-[0.92rem]">
-                      <b>{NOMBRE_TIPO[s.tipo]}</b>
-                      {s.monto ? ` de ${qz(s.monto)}` : ""}
-                      {s.dias ? ` · ${s.dias} días` : ""}
-                      <span className="block text-[0.82rem]" style={{ color: SUAVE }}>{s.detalle}</span>
-                    </span>
-                    <EstadoChip s={s} />
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </Seccion>
+        </form>
+      )}
+      <div>
+        <p className="font-bold">Mis solicitudes</p>
+        {mias.length === 0 ? (
+          <p className="mt-1 text-[0.9rem]" style={{ color: SUAVE }}>Todavía no ha pedido nada.</p>
+        ) : (
+          <ul className="mt-2 grid gap-2">
+            {mias.map((s) => (
+              <li key={s.id} className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2" style={{ borderColor: BORDE }}>
+                <span className="text-[0.92rem]">
+                  <b>{NOMBRE_TIPO[s.tipo]}</b>
+                  {s.monto ? ` de ${qz(s.monto)}` : ""}
+                  {s.dias ? ` · ${s.dias} días` : ""}
+                  <span className="block text-[0.82rem]" style={{ color: SUAVE }}>{s.detalle}</span>
+                </span>
+                <EstadoChip s={s} />
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
-    </main>
+    </div>
+  );
+}
+
+function PPerfil({ t, salir }: { t: Trabajador; salir: () => void }) {
+  return (
+    <div className="grid gap-4">
+      <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2.5 rounded-lg border p-4 text-[0.92rem]" style={{ borderColor: BORDE }}>
+        {[
+          ["Nombre", t.nombre],
+          ["Código", t.codigo],
+          ["Puesto", t.puesto],
+          ["Obra", `${obraDe(t.obra).nombre}, ${obraDe(t.obra).lugar}`],
+          ["Ingreso", `${fechaLarga(t.ingreso)} (${antiguedad(t)})`],
+          ["Salario diario", qz(t.diario)],
+          ["DPI", t.dpi],
+        ].map(([a, b]) => (
+          <div key={a} className="contents">
+            <dt style={{ color: SUAVE }}>{a}</dt>
+            <dd className="text-right font-semibold">{b}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="text-[0.85rem]" style={{ color: SUAVE }}>Si algún dato está mal, avise en la oficina para que lo corrijan.</p>
+      <button type="button" onClick={salir} className="flex items-center justify-center gap-2 rounded-lg border py-3 font-semibold" style={{ borderColor: BORDE }}>
+        <LogOut size={17} /> Cerrar sesión
+      </button>
+    </div>
   );
 }

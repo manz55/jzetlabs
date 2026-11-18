@@ -495,7 +495,7 @@ export function Rubros() {
                 </ul>
               </div>
             </div>
-            <p className="mt-8 text-[0.95rem] text-suave">Se abre en otra pestaña con datos de ejemplo. Puede tocar todo: no se guarda nada real.</p>
+            <p className="mt-8 text-[0.95rem] text-suave">Son ejemplos con datos inventados: puede tocar todo. Cada sistema se arma a la medida de su empresa, sea marcaje, inventario, citas o lo que necesite.</p>
             <div className="mt-3 flex flex-wrap gap-3">
               {v ? (
                 <>
