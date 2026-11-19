@@ -121,6 +121,14 @@
       "destination": "/muestras/tustore/index.html"
     },
     {
+      "source": "/muestras/studioprivee",
+      "destination": "/muestras/studioprivee/index.html"
+    },
+    {
+      "source": "/muestras/studioprivee/",
+      "destination": "/muestras/studioprivee/index.html"
+    },
+    {
       "source": "/demos/planilla",
       "destination": "/demos/planilla/index.html"
     },

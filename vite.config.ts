@@ -45,6 +45,7 @@ export default defineConfig({
         demoDistribuidora: resolve(__dirname, 'demos/distribuidora/index.html'),
         demoPlanilla: resolve(__dirname, 'demos/planilla/index.html'),
         muestraTuStore: resolve(__dirname, 'muestras/tustore/index.html'),
+        muestraStudioPrivee: resolve(__dirname, 'muestras/studioprivee/index.html'),
         demoEventos: resolve(__dirname, 'demos/eventos/index.html'),
         demoPediatria: resolve(__dirname, 'demos/pediatria/index.html'),
         demoMedicina: resolve(__dirname, 'demos/medicina/index.html'),
