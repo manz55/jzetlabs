@@ -4,9 +4,9 @@
  * envía: se enseña cómo le llegaría el mensaje a su WhatsApp.
  */
 import { useEffect, useState } from "react";
-import { Gift, Heart, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Gift, Heart, MessageCircle, Package, Send, X } from "lucide-react";
 import {
-  CATEGORIAS, CREMA, ORO, PIEDRA, PIEZAS, PASOS, PREGUNTAS, TINTA, VINO, formato, moneda, navidad, numero, portada,
+  CATEGORIAS, CHAT, CREMA, ORO, PEDIDO_EJEMPLO, PIEDRA, PIEZAS, PASOS, PREGUNTAS, TINTA, VINO, formato, moneda, navidad, numero, portada,
   type Categoria, type Pieza,
 } from "./datos";
 
@@ -15,7 +15,7 @@ const SERIF = "'Bodoni Moda', 'Didot', Georgia, serif";
 const MENU: [string, string][] = [
   ["#piezas", "Piezas"],
   ["#navidad", "12 Días de Navidad"],
-  ["#como", "Cómo apartar"],
+  ["#pedido", "Mi pedido"],
   ["#consigna", "Consigna tus piezas"],
 ];
 
@@ -43,6 +43,7 @@ export default function MuestraStudioPrivee() {
   const [mensaje, setMensaje] = useState<string | null>(null);
   const [verDeseos, setVerDeseos] = useState(false);
   const deseos = useDeseos();
+  const [chat, setChat] = useState(false);
   const lista = PIEZAS.filter((p) => (cat === "Todo" || p.categoria === cat) && (!soloRegalo || p.regalo) && (!verDeseos || deseos.ids.includes(p.id)));
 
   return (
@@ -97,7 +98,7 @@ export default function MuestraStudioPrivee() {
           </div>
           <p className="mt-5 text-[0.95rem] text-[#7a6d60]">Apartas con el 20% · Envíos a toda Guatemala · Empaque de regalo</p>
         </div>
-        <img src={PIEZAS[0].foto} alt="Vestido Wilfred de Aritzia junto a un árbol de Navidad" className="aspect-[4/5] max-h-[620px] w-full rounded-[28px] object-cover md:aspect-[4/5]" />
+        <img src={PIEZAS[0].fotos[0]} alt="Vestido Wilfred de Aritzia junto a un árbol de Navidad" className="aspect-[4/5] max-h-[620px] w-full rounded-[28px] object-cover md:aspect-[4/5]" />
       </section>
 
       {/* piezas */}
@@ -160,6 +161,8 @@ export default function MuestraStudioPrivee() {
         </div>
       </section>
 
+      <MiPedido />
+
       {/* consignación */}
       <Consigna alEnviar={setMensaje} />
 
@@ -180,11 +183,16 @@ export default function MuestraStudioPrivee() {
       <footer className="border-t px-4 py-10 text-center text-[0.95rem] text-[#7a6d60]" style={{ borderColor: PIEDRA }}>
         <p className="serif text-[1.4rem]" style={{ color: TINTA }}>Studio Privée</p>
         <p className="mt-2">Moda e interiores de lujo vintage, cuidadosamente seleccionados.</p>
-        <p className="mt-6 text-[0.85rem]">Muestra hecha por Jzet Labs. Fotos, piezas y precios tomados de las publicaciones de @studioprivee.co; los estados “Apartada” y las respuestas son de ejemplo.</p>
+        <p className="mt-6 text-[0.85rem]">Muestra hecha por Jzet Labs. Fotos, piezas y precios tomados de las publicaciones de @studioprivee.co; los estados “Apartada” y “Vendida”, el pedido SP-2041 y las respuestas del chat son de ejemplo.</p>
       </footer>
 
       {ficha && <Ficha p={ficha} alCerrar={() => setFicha(null)} alApartar={(m) => { setFicha(null); setMensaje(m); }} favorita={deseos.ids.includes(ficha.id)} alFavorita={() => deseos.cambiar(ficha.id)} />}
       {mensaje && <AsiLlega mensaje={mensaje} alCerrar={() => setMensaje(null)} />}
+      {!ficha && !mensaje && (chat ? <Chat alCerrar={() => setChat(false)} /> : (
+        <button type="button" onClick={() => setChat(true)} className="fixed bottom-4 right-4 z-20 flex items-center gap-2 rounded-full px-5 py-3.5 text-[1rem] text-white shadow-lg" style={{ background: TINTA }}>
+          <MessageCircle size={19} /> ¿Tienes dudas?
+        </button>
+      ))}
     </div>
   );
 }
@@ -199,8 +207,9 @@ function Tarjeta({ p, favorita, alFavorita, alAbrir }: { p: Pieza; favorita: boo
     <article className="overflow-hidden rounded-2xl border bg-white" style={{ borderColor: PIEDRA }}>
       <div className="relative">
         <button type="button" onClick={alAbrir} className="block w-full" aria-label={`Ver ${p.titulo}`}>
-          <img src={p.foto} alt={`${p.marca}: ${p.titulo}`} loading="lazy" className={`aspect-[4/5] w-full object-cover ${p.estado !== "Disponible" ? "opacity-80" : ""}`} />
+          <img src={p.fotos[0]} alt={`${p.marca}: ${p.titulo}`} loading="lazy" className={`aspect-[4/5] w-full object-cover ${p.estado === "Vendida" ? "opacity-60 grayscale-[40%]" : ""}`} />
         </button>
+        {p.fotos.length > 1 && <span className="pointer-events-none absolute bottom-2 right-2 rounded-full bg-black/55 px-2.5 py-1 text-[0.78rem] text-white">{p.fotos.length} fotos</span>}
         <button type="button" onClick={alFavorita} aria-pressed={favorita} aria-label={favorita ? "Quitar de favoritas" : "Guardar en favoritas"}
           className="absolute right-2 top-2 grid h-10 w-10 place-items-center rounded-full bg-white/90">
           <Heart size={18} color={VINO} fill={favorita ? VINO : "none"} />
@@ -211,7 +220,7 @@ function Tarjeta({ p, favorita, alFavorita, alAbrir }: { p: Pieza; favorita: boo
         <p className="text-[0.85rem] text-[#7a6d60]">{p.marca}</p>
         <p className="serif mt-0.5 text-[1.05rem] leading-snug md:text-[1.15rem]">{p.titulo}</p>
         <p className="mt-2 text-[0.85rem] text-[#9a8c7e] line-through">{p.original}</p>
-        <p className="text-[1.1rem] font-medium" style={{ color: VINO }}>{p.sp ?? "Precio por confirmar"}</p>
+        <p className="text-[1.1rem] font-medium" style={{ color: VINO }}>{p.sp ?? "Precio por mensaje"}</p>
         <div className="mt-2 flex flex-wrap items-center gap-1.5">
           <Etiqueta estado={p.estado} />
           {p.partes && <span className="text-[0.8rem] text-[#7a6d60]">{p.partes.length} piezas</span>}
@@ -251,10 +260,7 @@ function Ficha({ p, alCerrar, alApartar, favorita, alFavorita }: { p: Pieza; alC
     <div className="fixed inset-0 z-30 flex items-end justify-center bg-black/55 sm:items-center sm:p-4" onClick={alCerrar}>
       <div role="dialog" aria-modal="true" aria-label={p.titulo} className="max-h-[94vh] w-full max-w-3xl overflow-y-auto rounded-t-3xl bg-white sm:rounded-3xl" onClick={(ev) => ev.stopPropagation()}>
         <div className="grid md:grid-cols-2">
-          <div className="relative">
-            <img src={p.foto} alt={`${p.marca}: ${p.titulo}`} className="aspect-[4/5] w-full object-cover md:h-full md:rounded-l-3xl" />
-            <button type="button" onClick={alCerrar} aria-label="Cerrar" className="absolute right-3 top-3 grid h-11 w-11 place-items-center rounded-full bg-white/95"><X size={20} /></button>
-          </div>
+          <Galeria p={p} alCerrar={alCerrar} />
           <div className="p-5 md:p-7">
             <p className="text-[0.95rem] text-[#7a6d60]">{p.marca}</p>
             <h3 className="serif mt-1 text-[1.8rem] leading-tight">{p.titulo}</h3>
@@ -317,7 +323,7 @@ function Ficha({ p, alCerrar, alApartar, favorita, alFavorita }: { p: Pieza; alC
               </div>
             ) : (
               <p className="mt-5 rounded-xl p-4 text-[1rem]" style={{ background: CREMA }}>
-                Esta pieza ya está apartada. Guárdala en favoritas y te avisamos si se libera.
+                {p.estado === "Vendida" ? "Esta pieza ya se vendió. Guárdala en favoritas y te avisamos cuando llegue algo parecido." : "Esta pieza ya está apartada. Guárdala en favoritas y te avisamos si se libera."}
               </p>
             )}
             <button type="button" onClick={alFavorita} className="mt-3 flex w-full items-center justify-center gap-2 rounded-full border py-3 text-[1rem]" style={{ borderColor: PIEDRA }}>
@@ -407,6 +413,116 @@ function AsiLlega({ mensaje, alCerrar }: { mensaje: string; alCerrar: () => void
         <p className="mt-3 text-[0.85rem] text-[#6b5f55]">Es una muestra: no se envía nada. En su página real, le llega directo a su WhatsApp y la pieza se marca como apartada sola.</p>
         <button type="button" onClick={alCerrar} className="mt-4 w-full rounded-xl py-3 font-medium text-white" style={{ background: VINO }}>Entendido</button>
       </div>
+    </div>
+  );
+}
+
+function Galeria({ p, alCerrar }: { p: Pieza; alCerrar: () => void }) {
+  const [i, setI] = useState(0);
+  const n = p.fotos.length;
+  const ir = (d: number) => setI((x) => (x + d + n) % n);
+  return (
+    <div className="md:p-4 md:pr-0">
+      <div className="relative">
+        <img src={p.fotos[i]} alt={`${p.marca}: ${p.titulo}, foto ${i + 1} de ${n}`} className="aspect-[4/5] w-full object-cover md:rounded-2xl" />
+        <button type="button" onClick={alCerrar} aria-label="Cerrar" className="absolute right-3 top-3 grid h-11 w-11 place-items-center rounded-full bg-white/95"><X size={20} /></button>
+        {n > 1 && (
+          <>
+            <button type="button" onClick={() => ir(-1)} aria-label="Foto anterior" className="absolute left-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/90"><ChevronLeft size={20} /></button>
+            <button type="button" onClick={() => ir(1)} aria-label="Foto siguiente" className="absolute right-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/90"><ChevronRight size={20} /></button>
+            <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-2.5 py-1 text-[0.8rem] text-white">{i + 1} de {n}</span>
+          </>
+        )}
+      </div>
+      {n > 1 && (
+        <div className="flex gap-2 px-4 pt-3 md:px-0">
+          {p.fotos.map((f, k) => (
+            <button key={f} type="button" onClick={() => setI(k)} aria-label={`Ver foto ${k + 1}`} aria-pressed={k === i}
+              className="h-16 w-14 overflow-hidden rounded-lg border-2" style={{ borderColor: k === i ? TINTA : "transparent" }}>
+              <img src={f} alt="" className="h-full w-full object-cover" />
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MiPedido() {
+  const [codigo, setCodigo] = useState("");
+  const [visto, setVisto] = useState<null | "ok" | "no">(null);
+  const pd = PEDIDO_EJEMPLO;
+  function buscar(ev: React.FormEvent) {
+    ev.preventDefault();
+    setVisto(codigo.trim().toUpperCase() === pd.codigo ? "ok" : "no");
+  }
+  return (
+    <section id="pedido" className="mx-auto max-w-3xl scroll-mt-28 px-4 pb-14">
+      <h2 className="serif text-[2rem]">¿Dónde va mi pedido?</h2>
+      <p className="mt-1 text-[1rem] text-[#7a6d60]">Escribe el código que te llegó al apartar. Prueba con {pd.codigo}.</p>
+      <form onSubmit={buscar} className="mt-4 flex gap-2">
+        <input value={codigo} onChange={(e) => setCodigo(e.target.value)} aria-label="Código de pedido" placeholder="Ej. SP-2041" className="min-w-0 flex-1 rounded-full border bg-white px-5 py-3.5 text-[1rem]" style={{ borderColor: PIEDRA }} />
+        <button type="submit" className="flex shrink-0 items-center gap-2 rounded-full px-5 py-3.5 text-[1rem] text-white" style={{ background: VINO }}><Package size={18} /> Ver</button>
+      </form>
+      {visto === "no" && <p className="mt-3 rounded-xl bg-white p-4 text-[1rem]">No encontramos ese código. Revisa que esté bien escrito o pregúntanos por el chat.</p>}
+      {visto === "ok" && (
+        <div className="mt-4 rounded-2xl border bg-white p-5" style={{ borderColor: PIEDRA }}>
+          <p className="text-[1.05rem]"><b>{pd.codigo}</b> · a nombre de {pd.nombre}{pd.regalo ? " · para regalo" : ""}</p>
+          <p className="mt-1 text-[0.95rem] text-[#7a6d60]">{pd.piezas.join(" · ")}</p>
+          <ol className="mt-5 space-y-0">
+            {pd.pasos.map(([t, f], k) => {
+              const hecho = k <= pd.actual;
+              return (
+                <li key={t} className="relative flex gap-3 pb-5 last:pb-0">
+                  {k < pd.pasos.length - 1 && <span className="absolute left-[11px] top-6 h-[calc(100%-12px)] w-0.5" style={{ background: k < pd.actual ? VINO : PIEDRA }} />}
+                  <span className="z-10 mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 text-[0.7rem] text-white" style={{ borderColor: hecho ? VINO : PIEDRA, background: hecho ? VINO : "white" }}>{hecho ? "✓" : ""}</span>
+                  <span>
+                    <span className={`block text-[1.02rem] ${k === pd.actual ? "font-medium" : hecho ? "" : "text-[#9a8c7e]"}`}>{t}{k === pd.actual ? " (ahora)" : ""}</span>
+                    {f && <span className="block text-[0.88rem] text-[#7a6d60]">{f}</span>}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function Chat({ alCerrar }: { alCerrar: () => void }) {
+  useEscape(alCerrar);
+  const [mensajes, setMensajes] = useState<{ yo: boolean; t: string }[]>([
+    { yo: false, t: "¡Hola! Soy el asistente de Studio Privée. Toca una pregunta o escríbenos la tuya." },
+  ]);
+  const [texto, setTexto] = useState("");
+  const sinTilde = (x: string) => x.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  function preguntar(q: string) {
+    const limpio = sinTilde(q);
+    const r = CHAT.find((c) => c.claves.some((k) => limpio.includes(sinTilde(k))));
+    setMensajes((m) => [...m, { yo: true, t: q }, { yo: false, t: r ? r.respuesta : "Esa pregunta te la contesta una persona del equipo. Escríbenos por WhatsApp y te respondemos en el día." }]);
+    setTexto("");
+  }
+  return (
+    <div role="dialog" aria-modal="false" aria-label="Chat de Studio Privée" className="fixed inset-x-3 bottom-3 z-30 flex max-h-[78vh] flex-col overflow-hidden rounded-3xl border bg-white shadow-2xl sm:inset-x-auto sm:right-4 sm:w-[380px]" style={{ borderColor: PIEDRA }}>
+      <div className="flex items-center justify-between px-4 py-3 text-white" style={{ background: TINTA }}>
+        <span><span className="serif block text-[1.1rem]">Studio Privée</span><span className="block text-[0.8rem] text-white/70">Respuestas al instante</span></span>
+        <button type="button" onClick={alCerrar} aria-label="Cerrar chat" className="grid h-10 w-10 place-items-center rounded-full hover:bg-white/10"><X size={19} /></button>
+      </div>
+      <div className="flex-1 space-y-2 overflow-y-auto p-3" style={{ background: CREMA }}>
+        {mensajes.map((m, k) => (
+          <p key={k} className={`max-w-[85%] whitespace-pre-line rounded-2xl px-3.5 py-2.5 text-[0.95rem] ${m.yo ? "ml-auto rounded-br-sm text-white" : "rounded-bl-sm bg-white"}`} style={m.yo ? { background: VINO } : undefined}>{m.t}</p>
+        ))}
+        <div className="flex flex-wrap gap-1.5 pt-1">
+          {CHAT.slice(0, 6).map((c) => (
+            <button key={c.pregunta} type="button" onClick={() => preguntar(c.pregunta)} className="rounded-full border bg-white px-3 py-1.5 text-left text-[0.85rem]" style={{ borderColor: PIEDRA }}>{c.pregunta}</button>
+          ))}
+        </div>
+      </div>
+      <form onSubmit={(e) => { e.preventDefault(); if (texto.trim()) preguntar(texto.trim()); }} className="flex gap-2 border-t p-2.5" style={{ borderColor: PIEDRA }}>
+        <input value={texto} onChange={(e) => setTexto(e.target.value)} aria-label="Escribe tu pregunta" placeholder="Escribe tu pregunta" className="min-w-0 flex-1 rounded-full border px-4 py-2.5 text-[0.95rem]" style={{ borderColor: PIEDRA }} />
+        <button type="submit" aria-label="Enviar" className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-white" style={{ background: VINO }}><Send size={17} /></button>
+      </form>
     </div>
   );
 }
