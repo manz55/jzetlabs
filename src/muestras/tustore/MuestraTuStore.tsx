@@ -4,10 +4,10 @@
  * mensaje a su WhatsApp. Accesorios, reparaciones y testimonios son de ejemplo.
  */
 import { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight, MapPin, MessageCircle, Package, Search, Send, ShieldCheck, Star, Truck, Wallet, Wrench, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, CreditCard, MapPin, MessageCircle, Package, Search, Send, ShieldCheck, Star, Truck, Wallet, Wrench, X } from "lucide-react";
 import {
   ACCESORIOS, EQUIPOS, FALLAS, GAMAS, NEGRO, PREGUNTAS, ROJO, TERMINOS, TESTIMONIOS, fotoPiezas, fotoReparacion, qz,
-  type Equipo,
+  type Equipo, type Opcion,
 } from "./datos";
 
 const MENU: [string, string][] = [
@@ -24,6 +24,7 @@ export default function MuestraTuStore() {
   const [ficha, setFicha] = useState<Equipo | null>(null);
   const [mensaje, setMensaje] = useState<string | null>(null);
   const [terminos, setTerminos] = useState(false);
+  const [pago, setPago] = useState<{ e: Equipo; o: Opcion } | null>(null);
   const lista = EQUIPOS.filter((e) => (marca === "Todas" || e.marca === marca) && e.nombre.toLowerCase().includes(buscar.toLowerCase()));
 
   return (
@@ -142,10 +143,11 @@ export default function MuestraTuStore() {
         </footer>
       </div>
 
-      {ficha && <Ficha e={ficha} alCerrar={() => setFicha(null)} alPedir={setMensaje} />}
+      {ficha && <Ficha e={ficha} alCerrar={() => setFicha(null)} alPedir={setMensaje} alPagar={(o) => { setPago({ e: ficha, o }); setFicha(null); }} />}
+      {pago && <PagoTarjeta e={pago.e} o={pago.o} alCerrar={() => setPago(null)} />}
       {mensaje && <AsiLlega mensaje={mensaje} alCerrar={() => setMensaje(null)} />}
       {terminos && <Terminos alCerrar={() => setTerminos(false)} />}
-      {!ficha && !mensaje && !terminos && <Chat alHablar={() => setMensaje("Hola Tu Store, tengo una pregunta sobre un equipo.")} />}
+      {!ficha && !mensaje && !terminos && !pago && <Chat alHablar={() => setMensaje("Hola Tu Store, tengo una pregunta sobre un equipo.")} />}
     </div>
   );
 }
@@ -187,7 +189,7 @@ function useEscape(alCerrar: () => void) {
   }, [alCerrar]);
 }
 
-function Ficha({ e, alCerrar, alPedir }: { e: Equipo; alCerrar: () => void; alPedir: (m: string) => void }) {
+function Ficha({ e, alCerrar, alPedir, alPagar }: { e: Equipo; alCerrar: () => void; alPedir: (m: string) => void; alPagar: (o: Opcion) => void }) {
   useEscape(alCerrar);
   const [op, setOp] = useState(0);
   const [foto, setFoto] = useState(0);
@@ -265,6 +267,11 @@ function Ficha({ e, alCerrar, alPedir }: { e: Equipo; alCerrar: () => void; alPe
           >
             Pedir por WhatsApp
           </button>
+          {o.efectivo && (
+            <button type="button" onClick={() => alPagar(o)} className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border-2 py-3.5 font-black" style={{ borderColor: NEGRO }}>
+              <CreditCard size={19} /> Pagar con tarjeta aquí mismo
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -495,5 +502,124 @@ function Chat({ alHablar }: { alHablar: () => void }) {
         <MessageCircle size={20} /> {abierto ? "Cerrar" : "¿Tiene preguntas?"}
       </button>
     </>
+  );
+}
+
+/**
+ * Pago con tarjeta SIMULADO para la muestra: no se conecta a ningún banco y no
+ * acepta tarjetas reales. En la página real esto lo hace la plataforma de pagos
+ * (Recurrente) y ya está probado aparte en ~/Proyectos/tienda-pagos-prueba.
+ */
+const TARJETA_OK = "4242424242424242";
+const TARJETA_NO = "4000000000000002";
+
+function PagoTarjeta({ e, o, alCerrar }: { e: Equipo; o: Opcion; alCerrar: () => void }) {
+  useEscape(alCerrar);
+  const total = o.cuotas ?? o.efectivo ?? 0;
+  const [f, setF] = useState({ nombre: "", correo: "", telefono: "", tarjeta: "", vence: "", cvv: "" });
+  const [plazo, setPlazo] = useState(1);
+  const [paso, setPaso] = useState<"datos" | "procesando" | "listo">("datos");
+  const [error, setError] = useState("");
+  const [pedido] = useState(() => `TS-${Math.floor(2000 + Math.random() * 7000)}`);
+  const [fecha, setFecha] = useState("");
+  const set = (k: keyof typeof f, v: string) => setF((x) => ({ ...x, [k]: v }));
+  const soloNum = (v: string) => v.replace(/\D/g, "");
+  const conEspacios = (v: string) => soloNum(v).slice(0, 16).replace(/(\d{4})(?=\d)/g, "$1 ");
+  const equipo = `${e.nombre}${o.cap !== "Consulte capacidad" ? ` ${o.cap}` : ""} · ${e.color}`;
+
+  function pagar(ev: React.FormEvent) {
+    ev.preventDefault();
+    if (paso !== "datos") return; // un solo cobro aunque toquen dos veces
+    const t = soloNum(f.tarjeta);
+    if (f.nombre.trim().length < 2) return setError("Escriba su nombre.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.correo.trim())) return setError("Revise su correo: ahí le llega el recibo.");
+    if (soloNum(f.telefono).length !== 8) return setError("El WhatsApp debe tener 8 números.");
+    if (t !== TARJETA_OK && t !== TARJETA_NO) return setError("En esta muestra solo funcionan las tarjetas de prueba de abajo. No ponga una tarjeta real.");
+    if (!/^\d{2}\/\d{2}$/.test(f.vence) || soloNum(f.cvv).length < 3) return setError("Revise la fecha de vencimiento y el código de 3 números.");
+    setError(""); setPaso("procesando");
+    setTimeout(() => {
+      if (t === TARJETA_NO) { setPaso("datos"); setError("Su tarjeta fue rechazada. No se le cobró nada. Pruebe con otra tarjeta o pida por WhatsApp para pagar al recibir."); return; }
+      setFecha(new Date().toLocaleString("es-GT", { dateStyle: "long", timeStyle: "short" }));
+      setPaso("listo");
+    }, 1600);
+  }
+
+  const campo = "mt-1 w-full rounded-xl border border-black/15 px-3 py-3 text-[1rem] outline-none focus:border-black";
+  return (
+    <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/55 sm:items-center sm:p-4" onClick={paso === "procesando" ? undefined : alCerrar}>
+      <div role="dialog" aria-modal="true" aria-label="Pagar con tarjeta" className="max-h-[94vh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-white sm:rounded-3xl" onClick={(ev) => ev.stopPropagation()}>
+        <div className="flex items-center justify-between gap-3 bg-[#111] px-5 py-4 text-white">
+          <span><span className="block text-[0.8rem] text-white/60">TU STORE · pago seguro</span><span className="block font-black">{paso === "listo" ? "Pago recibido" : "Pagar con tarjeta"}</span></span>
+          {paso !== "procesando" && <button type="button" onClick={alCerrar} aria-label="Cerrar" className="grid h-10 w-10 place-items-center rounded-full bg-white/10"><X size={18} /></button>}
+        </div>
+
+        {paso !== "listo" ? (
+          <form onSubmit={pagar} className="p-5">
+            <p className="rounded-xl bg-amber-100 px-3 py-2 text-[0.85rem] font-semibold text-amber-900">Muestra: no se cobra nada. No ponga una tarjeta real.</p>
+            <div className="mt-4 flex items-center justify-between rounded-xl bg-[#f4f4f4] p-3">
+              <span className="text-[0.92rem]">{equipo}</span>
+              <span className="text-[1.2rem] font-black" style={{ color: ROJO }}>{qz(total)}</span>
+            </div>
+            {o.cuotas && <p className="mt-1 text-[0.8rem] text-black/55">Con tarjeta aplica el precio normal. En efectivo sale en {qz(o.efectivo!)}.</p>}
+
+            <label className="mt-4 block text-[0.9rem] font-semibold">Su nombre<input value={f.nombre} onChange={(ev) => set("nombre", ev.target.value)} autoComplete="name" className={campo} /></label>
+            <label className="mt-3 block text-[0.9rem] font-semibold">Correo (ahí le llega el recibo)<input type="email" value={f.correo} onChange={(ev) => set("correo", ev.target.value)} autoComplete="email" className={campo} /></label>
+            <label className="mt-3 block text-[0.9rem] font-semibold">WhatsApp<input inputMode="numeric" value={f.telefono} onChange={(ev) => set("telefono", soloNum(ev.target.value).slice(0, 8))} placeholder="5555 5555" className={campo} /></label>
+
+            <fieldset className="mt-4 rounded-2xl border border-black/10 p-3">
+              <legend className="px-1 text-[0.9rem] font-semibold">Tarjeta</legend>
+              <label className="block text-[0.85rem]">Número de tarjeta<input inputMode="numeric" autoComplete="off" value={f.tarjeta} onChange={(ev) => set("tarjeta", conEspacios(ev.target.value))} placeholder="0000 0000 0000 0000" className={campo} /></label>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                <label className="block text-[0.85rem]">Vence<input inputMode="numeric" autoComplete="off" value={f.vence} onChange={(ev) => { const d = soloNum(ev.target.value).slice(0, 4); set("vence", d.length > 2 ? `${d.slice(0, 2)}/${d.slice(2)}` : d); }} placeholder="MM/AA" className={campo} /></label>
+                <label className="block text-[0.85rem]">Código (CVV)<input inputMode="numeric" autoComplete="off" value={f.cvv} onChange={(ev) => set("cvv", soloNum(ev.target.value).slice(0, 4))} placeholder="123" className={campo} /></label>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2 text-[0.8rem]">
+                <button type="button" onClick={() => setF((x) => ({ ...x, tarjeta: "4242 4242 4242 4242", vence: "12/30", cvv: "123" }))} className="rounded-full bg-[#f4f4f4] px-3 py-1.5 font-semibold">Usar tarjeta de prueba que pasa</button>
+                <button type="button" onClick={() => setF((x) => ({ ...x, tarjeta: "4000 0000 0000 0002", vence: "12/30", cvv: "123" }))} className="rounded-full bg-[#f4f4f4] px-3 py-1.5 font-semibold">Probar una rechazada</button>
+              </div>
+            </fieldset>
+
+            {total >= 1000 && (
+              <label className="mt-4 block text-[0.9rem] font-semibold">Forma de pago
+                <select value={plazo} onChange={(ev) => setPlazo(Number(ev.target.value))} className={`${campo} bg-white`}>
+                  <option value={1}>De contado: {qz(total)}</option>
+                  {[3, 6, 12].map((n) => <option key={n} value={n}>{n} cuotas de {qz(Math.ceil(total / n))}</option>)}
+                </select>
+                <span className="mt-1 block text-[0.78rem] font-normal text-black/55">Las cuotas dependen de su banco.</span>
+              </label>
+            )}
+
+            {error && <p role="alert" className="mt-4 rounded-xl bg-red-50 p-3 text-[0.92rem] text-red-800">{error}</p>}
+            <button type="submit" disabled={paso === "procesando"} className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl py-4 text-[1.05rem] font-black text-white disabled:opacity-60" style={{ background: ROJO }}>
+              <ShieldCheck size={19} /> {paso === "procesando" ? "Procesando su pago…" : `Pagar ${qz(total)}`}
+            </button>
+            <p className="mt-2 text-center text-[0.78rem] text-black/50">Sus datos de tarjeta van directo a la plataforma de pagos. Tu Store nunca los ve.</p>
+          </form>
+        ) : (
+          <div className="p-5">
+            <p className="text-[0.9rem] font-bold text-green-700">Pago aprobado</p>
+            <p className="text-[1.5rem] font-black leading-tight">¡Gracias, {f.nombre.trim().split(" ")[0]}!</p>
+            <dl className="mt-4 space-y-2 rounded-2xl bg-[#f4f4f4] p-4 text-[0.95rem]">
+              {[
+                ["Pedido", pedido], ["Equipo", equipo], ["Total", qz(total)],
+                ["Forma de pago", plazo === 1 ? "De contado" : `${plazo} cuotas de ${qz(Math.ceil(total / plazo))}`],
+                ["Tarjeta", "terminada en 4242"], ["Fecha", fecha],
+              ].map(([a, b]) => (
+                <div key={a} className="flex justify-between gap-4"><dt className="text-black/55">{a}</dt><dd className="text-right font-semibold">{b}</dd></div>
+              ))}
+            </dl>
+            <p className="mt-4 text-[0.9rem] font-black">Así le llega el recibo a {f.correo.trim()}</p>
+            <div className="mt-2 rounded-2xl border border-black/10 p-4 text-[0.88rem] leading-relaxed">
+              <p className="font-bold">Recibimos su pago · Pedido {pedido}</p>
+              <p className="mt-2">Hola {f.nombre.trim()}, hicimos este cobro a su tarjeta terminada en 4242:</p>
+              <p className="mt-2">{equipo}<br />Total: {qz(total)}{plazo > 1 ? ` en ${plazo} cuotas` : ""}<br />{fecha}</p>
+              <p className="mt-2">Le escribimos por WhatsApp al {f.telefono.replace(/(\d{4})(\d{4})/, "$1 $2")} para coordinar el envío por Guatex.</p>
+            </div>
+            <p className="mt-3 text-[0.82rem] text-black/55">Y a Tu Store le llega el aviso del pedido pagado, con el dinero directo a su cuenta.</p>
+            <button type="button" onClick={alCerrar} className="mt-4 w-full rounded-xl py-3.5 font-black text-white" style={{ background: NEGRO }}>Listo</button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
