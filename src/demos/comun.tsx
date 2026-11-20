@@ -29,6 +29,7 @@ export const GRUPOS_DEMOS: { grupo: string; demos: DemoItem[] }[] = [
       { nombre: "Clínica dental", href: "/demos/clinica/", para: "Citas, odontograma y saldos" },
       { nombre: "Pediatría", href: "/demos/pediatria/", para: "Vacunas por edad, crecimiento y citas" },
       { nombre: "Medicina general", href: "/demos/medicina/", para: "Control de presión y azúcar, recetas y chequeos" },
+      { nombre: "Veterinaria", href: "/demos/veterinaria/", para: "¿Es urgencia?, carné de vacunas e internados" },
     ],
   },
   {

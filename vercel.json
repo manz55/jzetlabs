@@ -161,6 +161,14 @@
       "destination": "/demos/pediatria/index.html"
     },
     {
+      "source": "/demos/veterinaria",
+      "destination": "/demos/veterinaria/index.html"
+    },
+    {
+      "source": "/demos/veterinaria/",
+      "destination": "/demos/veterinaria/index.html"
+    },
+    {
       "source": "/demos/medicina",
       "destination": "/demos/medicina/index.html"
     },

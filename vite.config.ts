@@ -48,6 +48,7 @@ export default defineConfig({
         muestraStudioPrivee: resolve(__dirname, 'muestras/studioprivee/index.html'),
         demoEventos: resolve(__dirname, 'demos/eventos/index.html'),
         demoPediatria: resolve(__dirname, 'demos/pediatria/index.html'),
+        demoVeterinaria: resolve(__dirname, 'demos/veterinaria/index.html'),
         demoMedicina: resolve(__dirname, 'demos/medicina/index.html'),
       },
     },

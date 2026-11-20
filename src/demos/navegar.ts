@@ -23,6 +23,7 @@ export const RUTAS: Record<string, Demo> = {
   "/demos/distribuidora/": { titulo: "Distribuidora El Volcán · Demo de Jzet Labs", carga: () => import("./distribuidora/DistribuidoraDemo") },
   "/demos/planilla/": { titulo: "Constructora Los Cedros · Demo de Jzet Labs", carga: () => import("./planilla/PlanillaDemo") },
   "/demos/eventos/": { titulo: "Fiestas La Ceiba · Demo de Jzet Labs", carga: () => import("./eventos/EventosDemo") },
+  "/demos/veterinaria/": { titulo: "Veterinaria Huesitos · Demo de Jzet Labs", carga: () => import("./veterinaria/VeterinariaDemo") },
   "/demos/pediatria/": { titulo: "Pediatría Semillita · Demo de Jzet Labs", carga: () => import("./pediatria/PediatriaDemo") },
   "/demos/medicina/": { titulo: "Consultorio Dr. Samayoa · Demo de Jzet Labs", carga: () => import("./medicina/MedicinaDemo") },
 };
