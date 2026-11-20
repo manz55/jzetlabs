@@ -19,7 +19,7 @@ export type Especie = "perro" | "gato";
 
 export const SERVICIOS = [
   { id: "consulta", nombre: "Consulta general", precio: 150, dura: 30, detalle: "Revisión completa, peso y diagnóstico." },
-  { id: "vacuna", nombre: "Vacunas", precio: 120, dura: 15, detalle: "Desde Q120 según la vacuna. Se anota en su carné." },
+  { id: "vacuna", nombre: "Vacunas", precio: 120, dura: 15, detalle: "Desde Q120 según la vacuna. Queda anotada en tu carné." },
   { id: "desparasitacion", nombre: "Desparasitación", precio: 60, dura: 15, detalle: "Interna o externa, por peso." },
   { id: "grooming", nombre: "Baño y corte", precio: 125, dura: 90, detalle: "Desde Q125 según tamaño y pelo." },
   { id: "esterilizacion", nombre: "Esterilización", precio: 650, dura: 0, detalle: "Desde Q650. Incluye anestesia y control a los 8 días." },
@@ -46,18 +46,18 @@ export const SINTOMAS: { id: string; texto: string; nivel: Nivel }[] = [
 
 export const QUE_HACER: Record<Nivel, { titulo: string; texto: string; accion: string }> = {
   rojo: {
-    titulo: "Véngase ya o llame en camino",
-    texto: "Esto no puede esperar. Llámenos mientras viene para que lo estemos esperando. No le dé medicinas de personas.",
+    titulo: "Tráelo ya y llámanos en camino",
+    texto: "Esto no puede esperar. Llámanos mientras vienes para tenerlo todo listo. No le des medicinas de personas.",
     accion: "Llamar a la clínica",
   },
   ambar: {
-    titulo: "Que lo vean hoy",
-    texto: "No es para correr, pero sí para hoy. Aparte el primer horario libre. Si empeora, véngase sin cita.",
-    accion: "Apartar hoy",
+    titulo: "Tráelo hoy",
+    texto: "No es para correr, pero sí para hoy. Aparta el primer horario libre. Si empeora, ven sin cita.",
+    accion: "Apartar para hoy",
   },
   verde: {
     titulo: "Puede esperar a una cita normal",
-    texto: "Aparte el día que mejor le quede. Si nota algo nuevo, vuelva a revisar esta lista.",
+    texto: "Aparta el día que mejor te quede. Si notas algo nuevo, vuelve a revisar esta lista.",
     accion: "Apartar cita",
   },
 };
@@ -113,8 +113,8 @@ export const INTERNADOS_INICIAL: Internado[] = [
     id: "luna",
     nombre: "Luna",
     especie: "gato",
-    dueno: "Carlos Méndez",
-    tel: "4012 7788",
+    dueno: "Andrea López",
+    tel: "5544 1290",
     motivo: "Le están poniendo suero por deshidratación",
     desde: "ayer 18:40",
     notas: [
@@ -178,3 +178,12 @@ export function edad(iso: string) {
   if (h.getMonth() < n.getMonth() || (h.getMonth() === n.getMonth() && h.getDate() < n.getDate())) a--;
   return `${a} años`;
 }
+
+export const TIENDA = [
+  { id: "c15", nombre: "Croquetas perro adulto", detalle: "Bolsa de 15 kg", precio: 520, para: "perro" },
+  { id: "c8", nombre: "Croquetas cachorro", detalle: "Bolsa de 8 kg", precio: 340, para: "perro" },
+  { id: "g7", nombre: "Croquetas gato adulto", detalle: "Bolsa de 7.5 kg", precio: 385, para: "gato" },
+  { id: "ar", nombre: "Arena para gato", detalle: "Saco de 10 kg", precio: 95, para: "gato" },
+  { id: "pi", nombre: "Pipeta antipulgas", detalle: "Según el peso", precio: 120, para: "ambos" },
+  { id: "pr", nombre: "Premios dentales", detalle: "Paquete de 7", precio: 75, para: "perro" },
+];

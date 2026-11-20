@@ -8,12 +8,25 @@
 import { useEffect, useState } from "react";
 import { ArrowRight, Bell, CalendarCheck, Check, ClipboardList, FlaskConical, HeartPulse, Phone, Syringe } from "lucide-react";
 import { BandaDemos, PartesDemo, CierreJzet, MensajeWhatsApp } from "../comun";
+import fHero from "@/assets/demo-veterinaria/hero.jpg";
+import fConsulta from "@/assets/demo-veterinaria/consulta.jpg";
+import fVacunas from "@/assets/demo-veterinaria/vacunas.jpg";
+import fGrooming from "@/assets/demo-veterinaria/grooming.jpg";
+import fGatos from "@/assets/demo-veterinaria/gatos.jpg";
+import fCirugia from "@/assets/demo-veterinaria/cirugia.jpg";
+import fDra from "@/assets/demo-veterinaria/dra.jpg";
+import fDr from "@/assets/demo-veterinaria/dr.jpg";
+import fAlimento from "@/assets/demo-veterinaria/alimento.jpg";
+import fComiendo from "@/assets/demo-veterinaria/comiendo.jpg";
+import fToby from "@/assets/demo-veterinaria/toby.jpg";
+import { Plus, MapPin, ShoppingBag } from "lucide-react";
 import {
   AGENDA_INICIAL, AMBAR, BOSQUE, CREMA, EXAMEN, HORAS, INTERNADOS_INICIAL, MENTA, MOSTAZA, PAPEL, PENDIENTES_INICIAL, QUE_HACER, ROJO,
-  SERVICIOS, SINTOMAS, TITULO, TOBY, VERDE, diasHasta, edad, fechaLarga, qz, sumarMeses,
+  SERVICIOS, SINTOMAS, TIENDA, TITULO, TOBY, VERDE, diasHasta, edad, fechaLarga, qz, sumarMeses,
   type Cita, type Internado, type Nivel, type Nota, type Pendiente, type ServicioId,
 } from "./datos";
 
+const FOTO_SERV: Record<string, string> = { consulta: fConsulta, vacuna: fVacunas, desparasitacion: fGatos, grooming: fGrooming, esterilizacion: fCirugia, laboratorio: fConsulta };
 const btn = "inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 font-bold transition active:scale-[0.98]";
 const TEL = "2440 1180";
 
@@ -113,8 +126,8 @@ function Pagina() {
   const color = (n: Nivel) => (n === "rojo" ? ROJO : n === "ambar" ? AMBAR : VERDE);
 
   function apartar() {
-    if (!mascota.trim() || !dueno.trim()) return setError("Escriba el nombre de su mascota y el suyo.");
-    if (!hora) return setError("Escoja una hora libre.");
+    if (!mascota.trim() || !dueno.trim()) return setError("Escribe el nombre de tu mascota y el tuyo.");
+    if (!hora) return setError("Escoge una hora libre.");
     const s = SERVICIOS.find((x) => x.id === servicio)!;
     setError("");
     setMsg(`Hola, Huesitos. Soy ${dueno.trim()}. Aparté ${s.nombre.toLowerCase()} para ${mascota.trim()} (${especie}) hoy a las ${hora}.${nivel && nivel !== "verde" ? `\nSíntomas: ${marcados.map((id) => SINTOMAS.find((x) => x.id === id)!.texto.toLowerCase()).join("; ")}.` : ""}`);
@@ -130,6 +143,8 @@ function Pagina() {
             <a href="#precios" className="hover:underline">Precios</a>
             <a href="#urgencia" className="hover:underline">¿Es urgencia?</a>
             <a href="#cita" className="hover:underline">Citas</a>
+            <a href="#tienda" className="hover:underline">Alimento</a>
+            <a href="#ubicacion" className="hover:underline">Ubicación</a>
           </nav>
           <a href={`tel:+502${TEL.replace(" ", "")}`} className={`${btn} shrink-0 whitespace-nowrap !px-4 !py-2.5 text-white`} style={{ background: ROJO }}>
             <Phone size={16} /> <span className="hidden sm:inline">Urgencias</span> {TEL}
@@ -142,7 +157,7 @@ function Pagina() {
           <div>
             <h1 className="vet-titulo text-[2.5rem] sm:text-[3.4rem]">Veterinaria para perros y gatos en la zona 11</h1>
             <p className="mt-5 max-w-lg text-[1.1rem] leading-relaxed opacity-85">
-              Vea los precios antes de venir, revise si lo que tiene su mascota es urgencia y aparte su cita sin llamar.
+              Mira los precios antes de venir, revisa si lo que tiene tu mascota es urgencia y aparta tu cita sin llamar.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <a href="#urgencia" className={`${btn} text-white`} style={{ background: BOSQUE }}>¿Es urgencia? <ArrowRight size={18} /></a>
@@ -150,22 +165,25 @@ function Pagina() {
             </div>
             <p className="mt-5 text-[0.95rem] opacity-75">Lunes a sábado de 8:00 a 18:00 · Urgencias hasta las 22:00 · Mariscal, zona 11</p>
           </div>
-          <CarneMini />
+          <img src={fHero} alt="Veterinario revisando a un perro en la clínica" className="aspect-[4/3] w-full rounded-[28px] object-cover" />
         </div>
       </section>
 
       <section id="precios" className="scroll-mt-20 border-y border-black/5" style={{ background: PAPEL }}>
         <div className="mx-auto max-w-6xl px-5 py-12">
-          <h2 className="vet-titulo text-[2rem]">Precios</h2>
-          <p className="mt-1 opacity-75">Para que sepa cuánto trae antes de salir de su casa.</p>
+          <h2 className="vet-titulo text-[2rem]">Servicios y precios</h2>
+          <p className="mt-1 opacity-75">Para que sepas cuánto traer antes de salir de tu casa.</p>
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {SERVICIOS.map((s) => (
-              <div key={s.id} className="rounded-2xl border border-black/10 bg-white p-5">
+              <div key={s.id} className="overflow-hidden rounded-2xl border border-black/10 bg-white">
+                <img src={FOTO_SERV[s.id]} alt={s.nombre} loading="lazy" className="aspect-[16/9] w-full object-cover" />
+                <div className="p-5">
                 <div className="flex items-baseline justify-between gap-3">
                   <p className="text-[1.1rem] font-bold">{s.nombre}</p>
                   <p className="whitespace-nowrap text-[1.1rem] font-bold" style={{ color: VERDE }}>{s.dura === 0 || s.detalle.startsWith("Desde") ? "desde " : ""}{qz(s.precio)}</p>
                 </div>
                 <p className="mt-1.5 text-[0.95rem] opacity-75">{s.detalle}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -176,7 +194,7 @@ function Pagina() {
         <div className="vet-dos">
           <div>
             <h2 className="vet-titulo text-[2rem]">¿Es urgencia o puede esperar?</h2>
-            <p className="mt-1 max-w-md opacity-80">Marque lo que le está pasando a su mascota y le decimos qué hacer. Es una guía, no un diagnóstico: si tiene duda, llámenos.</p>
+            <p className="mt-1 max-w-md opacity-80">Marca lo que le está pasando a tu mascota y te decimos qué hacer. Es una guía, no un diagnóstico: si tienes duda, llámanos.</p>
             <div className="mt-5 space-y-2" role="group" aria-label="Síntomas">
               {SINTOMAS.map((s) => {
                 const on = marcados.includes(s.id);
@@ -203,7 +221,7 @@ function Pagina() {
               </div>
             ) : (
               <div className="rounded-3xl border-2 border-dashed p-6 text-[1.05rem]" style={{ borderColor: `${BOSQUE}40` }}>
-                Marque uno o más síntomas y aquí le sale qué hacer.
+                Marca uno o más síntomas y aquí te sale qué hacer.
               </div>
             )}
           </div>
@@ -213,12 +231,12 @@ function Pagina() {
       <section id="cita" className="scroll-mt-20" style={{ background: MENTA }}>
         <div className="mx-auto max-w-3xl px-5 py-12">
           <h2 className="vet-titulo text-[2rem]">Apartar cita para hoy</h2>
-          <p className="mt-1 opacity-80">Sin llamar ni esperar a que le contesten.</p>
+          <p className="mt-1 opacity-80">Sin llamar ni esperar a que te contesten.</p>
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            <label className="text-[0.95rem] font-semibold">Nombre de su mascota
+            <label className="text-[0.95rem] font-semibold">Nombre de tu mascota
               <input value={mascota} onChange={(e) => setMascota(e.target.value)} placeholder="Ej. Toby" className="mt-1 w-full rounded-xl border border-black/15 bg-white px-4 py-3 font-normal" />
             </label>
-            <label className="text-[0.95rem] font-semibold">Su nombre
+            <label className="text-[0.95rem] font-semibold">Tu nombre
               <input value={dueno} onChange={(e) => setDueno(e.target.value)} autoComplete="name" placeholder="Ej. Andrea López" className="mt-1 w-full rounded-xl border border-black/15 bg-white px-4 py-3 font-normal" />
             </label>
             <div className="text-[0.95rem] font-semibold">Es un…
@@ -250,7 +268,81 @@ function Pagina() {
         </div>
       </section>
 
-      <MensajeWhatsApp mensaje={msg} alCerrar={() => setMsg(null)} demo="veterinaria" que="la cita" />
+
+      <section className="mx-auto max-w-6xl px-5 py-12">
+        <div className="vet-dos items-center">
+          <div>
+            <h2 className="vet-titulo text-[2rem]">El carné de tu mascota, en tu teléfono</h2>
+            <p className="mt-2 max-w-md opacity-80">Ya no se pierde el carné de cartón. Ves qué vacuna le toca, sus resultados y, si está internado, cómo va. Te avisamos por WhatsApp antes de cada vacuna.</p>
+          </div>
+          <CarneMini />
+        </div>
+      </section>
+
+      <section id="tienda" className="scroll-mt-20 border-y border-black/5" style={{ background: PAPEL }}>
+        <div className="mx-auto max-w-6xl px-5 py-12">
+          <div className="vet-dos items-center">
+            <div>
+              <h2 className="vet-titulo text-[2rem]">Alimento y accesorios</h2>
+              <p className="mt-2 max-w-md opacity-80">Aparta su comida y la recoges cuando vengas, o te la llevamos si estás en la zona 11.</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <img src={fAlimento} alt="Plato con croquetas" loading="lazy" className="aspect-square w-full rounded-2xl object-cover" />
+              <img src={fComiendo} alt="Perro comiendo de su plato" loading="lazy" className="aspect-square w-full rounded-2xl object-cover" />
+            </div>
+          </div>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {TIENDA.map((t) => (
+              <div key={t.id} className="flex items-center justify-between gap-3 rounded-2xl border border-black/10 bg-white p-4">
+                <div>
+                  <p className="font-bold">{t.nombre}</p>
+                  <p className="text-[0.9rem] opacity-70">{t.detalle} · <span className="font-bold" style={{ color: VERDE }}>{qz(t.precio)}</span></p>
+                </div>
+                <button type="button" onClick={() => setMsg(`Hola, Huesitos. Quiero apartar ${t.nombre.toLowerCase()} (${t.detalle.toLowerCase()}, ${qz(t.precio)}) para recogerla.`)} className="flex shrink-0 items-center gap-1.5 rounded-full px-3 py-2 text-[0.85rem] font-bold text-white" style={{ background: BOSQUE }}>
+                  <ShoppingBag size={15} /> Apartar
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-5 py-12">
+        <h2 className="vet-titulo text-[2rem]">Quiénes te atienden</h2>
+        <div className="mt-6 grid gap-5 sm:grid-cols-2">
+          {[
+            { f: fDr, n: "Dr. Rodrigo Pérez", t: "Medicina general y cirugía. 12 años atendiendo perros y gatos en la zona 11." },
+            { f: fDra, n: "Dra. Ana Lucía Morales", t: "Gatos y animales mayores. Sabe calmar a los más nerviosos." },
+          ].map((d) => (
+            <div key={d.n} className="flex items-center gap-4 rounded-2xl border border-black/10 bg-white p-4">
+              <img src={d.f} alt={d.n} loading="lazy" className="h-24 w-24 shrink-0 rounded-2xl object-cover" />
+              <div>
+                <p className="vet-titulo text-[1.25rem]">{d.n}</p>
+                <p className="mt-1 text-[0.95rem] opacity-80">{d.t}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="ubicacion" className="scroll-mt-20" style={{ background: MENTA }}>
+        <div className="mx-auto grid max-w-6xl gap-6 px-5 py-12 md:grid-cols-2">
+          <div>
+            <h2 className="vet-titulo text-[2rem]">Dónde estamos</h2>
+            <p className="mt-3 flex items-start gap-2 text-[1.05rem]"><MapPin size={20} className="mt-0.5 shrink-0" /> 18 avenida 9-40, Mariscal, zona 11. A dos cuadras del Parque de la Mariscal.</p>
+            <p className="mt-3 opacity-80">Parqueo para 4 carros frente a la clínica.</p>
+            <dl className="mt-5 space-y-1.5 text-[1rem]">
+              <div className="flex justify-between gap-4"><dt>Lunes a viernes</dt><dd className="font-bold">8:00 a 18:00</dd></div>
+              <div className="flex justify-between gap-4"><dt>Sábado</dt><dd className="font-bold">8:00 a 13:00</dd></div>
+              <div className="flex justify-between gap-4"><dt>Urgencias</dt><dd className="font-bold" style={{ color: ROJO }}>Todos los días hasta 22:00</dd></div>
+            </dl>
+            <a href="https://www.google.com/maps?q=Mariscal+zona+11+Guatemala" target="_blank" rel="noopener noreferrer" className={`${btn} mt-6 text-white`} style={{ background: BOSQUE }}>Cómo llegar <ArrowRight size={18} /></a>
+          </div>
+          <iframe title="Mapa de la clínica en la Mariscal, zona 11" src="https://www.google.com/maps?q=Mariscal+zona+11+Guatemala&output=embed" className="h-72 w-full rounded-3xl border-0 md:h-full" loading="lazy" />
+        </div>
+      </section>
+
+      <MensajeWhatsApp mensaje={msg} alCerrar={() => setMsg(null)} demo="veterinaria" que="el pedido" />
     </>
   );
 }
@@ -277,7 +369,7 @@ function CarneMini() {
         })}
       </div>
       <p className="mt-4 rounded-xl px-3 py-2 text-[0.92rem]" style={{ background: MENTA }}>
-        <Bell size={14} className="mr-1 inline" /> Le avisamos por WhatsApp una semana antes: {prox.nombre.split(" (")[0]}, {fechaLarga(prox.vence)}.
+        <Bell size={14} className="mr-1 inline" /> Te avisamos por WhatsApp una semana antes: {prox.nombre.split(" (")[0]}, {fechaLarga(prox.vence)}.
       </p>
     </div>
   );
@@ -291,15 +383,61 @@ function proximaVacuna() {
 
 /* ---------------- Mi mascota (lo que ve el dueño) ---------------- */
 
+type Ficha = { id: string; nombre: string; especie: "perro" | "gato"; detalle: string; foto?: string };
+const FICHAS_INICIAL: Ficha[] = [
+  { id: "toby", nombre: "Toby", especie: "perro", detalle: "Perro · 5 años", foto: fToby },
+  { id: "luna", nombre: "Luna", especie: "gato", detalle: "Gata · 3 años · internada", foto: fGatos },
+];
+
 function MiMascota({ internados }: { internados: Internado[] }) {
-  const [tab, setTab] = useState<"carne" | "resultados" | "internado">("carne");
+  const [fichas, setFichas] = useState<Ficha[]>(FICHAS_INICIAL);
+  const [sel, setSel] = useState("toby");
+  const [nueva, setNueva] = useState<{ nombre: string; especie: "perro" | "gato" } | null>(null);
+  const [tab, setTab] = useState<"carne" | "resultados">("carne");
   const luna = internados.find((i) => i.id === "luna")!;
   const max = Math.max(...TOBY.pesos.map((p) => p.kg));
+  const actual = fichas.find((f) => f.id === sel)!;
+  function agregar() {
+    if (!nueva || !nueva.nombre.trim()) return;
+    const id = `m${Date.now()}`;
+    setFichas((l) => [...l, { id, nombre: nueva.nombre.trim(), especie: nueva.especie, detalle: nueva.especie === "perro" ? "Perro · nuevo" : "Gato · nuevo" }]);
+    setSel(id);
+    setNueva(null);
+  }
   return (
     <section className="mx-auto max-w-3xl px-5 py-10">
-      <p className="text-[0.95rem] opacity-75">Así lo ve {TOBY.dueno.split(" ")[0]} en su teléfono, con su número de cliente.</p>
-      <div className="mt-3 flex gap-2 overflow-x-auto" role="tablist">
-        {([["carne", "Carné de Toby", Syringe], ["resultados", "Resultados", FlaskConical], ["internado", "Luna internada", HeartPulse]] as const).map(([id, t, I]) => (
+      <p className="text-[0.95rem] opacity-75">Así lo ve {TOBY.dueno.split(" ")[0]} en su teléfono: una carpeta por cada mascota.</p>
+      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {fichas.map((f) => (
+          <button key={f.id} type="button" onClick={() => { setSel(f.id); setTab("carne"); }} aria-pressed={sel === f.id} className="overflow-hidden rounded-2xl border-2 bg-white text-left" style={{ borderColor: sel === f.id ? BOSQUE : "rgba(0,0,0,.08)" }}>
+            {f.foto ? <img src={f.foto} alt="" className="aspect-[4/3] w-full object-cover" /> : <div className="flex aspect-[4/3] w-full items-center justify-center vet-titulo text-[2rem]" style={{ background: MENTA }}>{f.nombre[0]}</div>}
+            <div className="p-3">
+              <p className="font-bold">{f.nombre}</p>
+              <p className="text-[0.82rem] opacity-70">{f.detalle}</p>
+            </div>
+          </button>
+        ))}
+        {nueva ? (
+          <div className="flex flex-col gap-2 rounded-2xl border-2 border-dashed p-3" style={{ borderColor: BOSQUE }}>
+            <input autoFocus value={nueva.nombre} onChange={(e) => setNueva({ ...nueva, nombre: e.target.value })} onKeyDown={(e) => e.key === "Enter" && agregar()} placeholder="Nombre" aria-label="Nombre de la mascota" className="w-full rounded-lg border border-black/15 bg-white px-3 py-2" />
+            <div className="flex gap-1">
+              {(["perro", "gato"] as const).map((e) => (
+                <button key={e} type="button" onClick={() => setNueva({ ...nueva, especie: e })} className="flex-1 rounded-lg border px-2 py-1.5 text-[0.85rem] font-bold capitalize" style={nueva.especie === e ? { background: BOSQUE, color: "#fff", borderColor: BOSQUE } : { borderColor: "rgba(0,0,0,.15)" }}>{e}</button>
+              ))}
+            </div>
+            <button type="button" onClick={agregar} className="rounded-lg px-3 py-2 text-[0.9rem] font-bold text-white" style={{ background: BOSQUE }}>Guardar</button>
+          </div>
+        ) : (
+          <button type="button" onClick={() => setNueva({ nombre: "", especie: "perro" })} className="flex min-h-36 flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed font-bold" style={{ borderColor: "rgba(0,0,0,.2)" }}>
+            <Plus size={24} /> Agregar mascota
+          </button>
+        )}
+      </div>
+
+      {sel === "toby" && (
+      <>
+      <div className="mt-6 flex gap-2 overflow-x-auto" role="tablist">
+        {([["carne", "Carné", Syringe], ["resultados", "Resultados", FlaskConical]] as const).map(([id, t, I]) => (
           <button key={id} role="tab" aria-selected={tab === id} type="button" onClick={() => setTab(id)} className="flex shrink-0 items-center gap-2 rounded-full border px-4 py-2.5 font-bold" style={tab === id ? { background: BOSQUE, color: "#fff", borderColor: BOSQUE } : { background: "#fff", borderColor: "rgba(0,0,0,.12)" }}>
             <I size={17} /> {t}
           </button>
@@ -382,13 +520,16 @@ function MiMascota({ internados }: { internados: Internado[] }) {
               );
             })}
           </div>
-          <p className="mt-5 text-[0.85rem] opacity-60">La franja verde es lo normal. Cualquier duda, pregúntele al doctor en su próxima cita.</p>
+          <p className="mt-5 text-[0.85rem] opacity-60">La franja verde es lo normal. Cualquier duda, pregúntale al doctor en tu próxima cita.</p>
         </div>
       )}
 
-      {tab === "internado" && (
-        <div className="mt-5 rounded-3xl border border-black/10 bg-white p-5 sm:p-7">
-          <p className="text-[0.9rem] opacity-70">Internada desde {luna.desde}</p>
+      </>
+      )}
+
+      {sel === "luna" && (
+        <div className="mt-6 rounded-3xl border border-black/10 bg-white p-5 sm:p-7">
+          <p className="flex items-center gap-2 text-[0.9rem] opacity-70"><HeartPulse size={16} /> Internada desde {luna.desde}</p>
           <h3 className="vet-titulo mt-1 text-[1.6rem]">¿Cómo está {luna.nombre}?</h3>
           <p className="mt-1 opacity-80">{luna.motivo}.</p>
           <ol className="mt-5 space-y-4 border-l-2 pl-5" style={{ borderColor: MENTA }}>
@@ -400,7 +541,15 @@ function MiMascota({ internados }: { internados: Internado[] }) {
               </li>
             ))}
           </ol>
-          <p className="mt-5 text-[0.9rem] opacity-70">En la parte de "Clínica" puede mandar una noticia nueva y aparece aquí.</p>
+          <p className="mt-5 text-[0.9rem] opacity-70">En la parte de "Clínica" puedes mandar una noticia nueva y aparece aquí.</p>
+        </div>
+      )}
+
+      {sel !== "toby" && sel !== "luna" && (
+        <div className="carne mt-6 p-5 sm:p-7">
+          <p className="vet-titulo text-[1.8rem]">{actual.nombre}</p>
+          <p className="opacity-75">{actual.especie === "perro" ? "Perro" : "Gato"} · carpeta nueva</p>
+          <p className="mt-6 rounded-2xl p-4" style={{ background: MENTA }}>Todavía no tiene vacunas anotadas. En su primera cita la doctora le llena el carné y desde ese día te avisamos por WhatsApp cuándo le toca cada una.</p>
         </div>
       )}
     </section>
@@ -424,8 +573,8 @@ function Clinica({ internados, setInternados }: { internados: Internado[]; setIn
     setPendientes((l) => l.map((x) => (x.id === p.id ? { ...x, avisado: true } : x)));
     setMsg(
       p.dias < 0
-        ? `Hola ${p.dueno.split(" ")[0]}, le saluda Veterinaria Huesitos. A ${p.mascota} se le venció la vacuna de ${p.vacuna} el ${p.vence}. ¿Le apartamos un horario esta semana? Solo responda con el día que le queda bien.`
-        : `Hola ${p.dueno.split(" ")[0]}, le saluda Veterinaria Huesitos. A ${p.mascota} le toca su vacuna de ${p.vacuna} el ${p.vence}. ¿Le apartamos un horario? Solo responda con el día que le queda bien.`,
+        ? `Hola ${p.dueno.split(" ")[0]}, te saluda Veterinaria Huesitos. A ${p.mascota} se le venció la vacuna de ${p.vacuna} el ${p.vence}. ¿Te apartamos un horario esta semana? Solo responde con el día que te queda bien.`
+        : `Hola ${p.dueno.split(" ")[0]}, te saluda Veterinaria Huesitos. A ${p.mascota} le toca su vacuna de ${p.vacuna} el ${p.vence}. ¿Te apartamos un horario? Solo responde con el día que te queda bien.`,
     );
   }
 
@@ -435,7 +584,7 @@ function Clinica({ internados, setInternados }: { internados: Internado[]; setIn
     const hora = new Date().toLocaleTimeString("es-GT", { hour: "2-digit", minute: "2-digit", hour12: false });
     setInternados((l) => l.map((x) => (x.id === i.id ? { ...x, notas: [...x.notas, { hora: `Hoy ${hora}`, texto: n.texto.trim(), estado: n.estado }] } : x)));
     setNota((m) => ({ ...m, [i.id]: { texto: "", estado: "estable" } }));
-    setMsg(`Hola ${i.dueno.split(" ")[0]}, le saluda Veterinaria Huesitos con noticias de ${i.nombre}: ${n.texto.trim()} (${estadoTexto(n.estado).toLowerCase()}). Puede ver todo en su enlace de cliente.`);
+    setMsg(`Hola ${i.dueno.split(" ")[0]}, te saluda Veterinaria Huesitos con noticias de ${i.nombre}: ${n.texto.trim()} (${estadoTexto(n.estado).toLowerCase()}). Puedes ver todo en tu enlace de cliente.`);
   }
 
   return (
