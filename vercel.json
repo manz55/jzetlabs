@@ -175,6 +175,22 @@
     {
       "source": "/demos/medicina/",
       "destination": "/demos/medicina/index.html"
+    },
+    {
+      "source": "/demos/oftalmologia",
+      "destination": "/demos/oftalmologia/index.html"
+    },
+    {
+      "source": "/demos/oftalmologia/",
+      "destination": "/demos/oftalmologia/index.html"
+    },
+    {
+      "source": "/demos/taller",
+      "destination": "/demos/taller/index.html"
+    },
+    {
+      "source": "/demos/taller/",
+      "destination": "/demos/taller/index.html"
     }
   ],
   "redirects": [

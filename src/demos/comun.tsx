@@ -30,6 +30,7 @@ export const GRUPOS_DEMOS: { grupo: string; demos: DemoItem[] }[] = [
       { nombre: "Pediatría", href: "/demos/pediatria/", para: "Vacunas por edad, crecimiento y citas" },
       { nombre: "Medicina general", href: "/demos/medicina/", para: "Control de presión y azúcar, recetas y chequeos" },
       { nombre: "Veterinaria", href: "/demos/veterinaria/", para: "¿Es urgencia?, carné de vacunas e internados" },
+      { nombre: "Oftalmología", href: "/demos/oftalmologia/", para: "Turnos que se respetan, sucursales y sala de espera" },
     ],
   },
   {
@@ -51,6 +52,7 @@ export const GRUPOS_DEMOS: { grupo: string; demos: DemoItem[] }[] = [
       { nombre: "Planilla y personal", href: "/demos/planilla/", para: "Constructora: panel de oficina y portal del empleado" },
       { nombre: "Eventos", href: "/demos/eventos/", para: "Alquiler de mobiliario: fechas, paquetes y anticipos" },
       { nombre: "Tiempo compartido", href: "/demos/tiempo-compartido/", para: "Planes y semanas apartadas" },
+      { nombre: "Taller mecánico", href: "/demos/taller/", para: "¿Puedo manejar?, auxilio a domicilio y seguimiento por placa" },
     ],
   },
 ];

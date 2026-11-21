@@ -50,6 +50,8 @@ export default defineConfig({
         demoPediatria: resolve(__dirname, 'demos/pediatria/index.html'),
         demoVeterinaria: resolve(__dirname, 'demos/veterinaria/index.html'),
         demoMedicina: resolve(__dirname, 'demos/medicina/index.html'),
+        demoOftalmologia: resolve(__dirname, 'demos/oftalmologia/index.html'),
+        demoTaller: resolve(__dirname, 'demos/taller/index.html'),
       },
     },
   },
