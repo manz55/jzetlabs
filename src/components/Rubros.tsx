@@ -4,6 +4,7 @@
  * (datos de prueba) y el enlace para probarla. Teclado: flechas, Inicio y Fin.
  */
 import { useRef, useState, type KeyboardEvent } from "react";
+import { Building2, Dumbbell, MessageCircle, PartyPopper, Sparkles, Stethoscope, Store } from "lucide-react";
 import clinicaPanel from "@/assets/demos/clinica-panel.jpg";
 import gimnasio from "@/assets/demo-gimnasio/sentadilla.jpg";
 import tienda from "@/assets/demos/tienda-dueno.jpg";
@@ -228,6 +229,32 @@ const VARIANTES_CLINICAS: Variante[] = [
 
 const VARIANTES: Record<string, Variante[]> = { belleza: VARIANTES_BELLEZA, tiendas: VARIANTES_TIENDA, empresas: VARIANTES_EMPRESAS, clinicas: VARIANTES_CLINICAS };
 
+
+/* Cada rubro: su icono para el mosaico */
+const ICONO_RUBRO: Record<string, typeof Store> = { empresas: Building2, clinicas: Stethoscope, gimnasios: Dumbbell, belleza: Sparkles, tiendas: Store, eventos: PartyPopper };
+
+/* Cómo se ve el panel de cada demo: su nombre, sus colores y su letra (cada negocio tiene el suyo) */
+const PANEL_INFO: Record<string, { n: string; c: string[]; f: string }> = {
+  clinica: { n: "Sistema de la clínica", c: ["#0f2a43", "#1f6fb2", "#f0634a"], f: "Outfit" },
+  pediatria: { n: "La pared del consultorio", c: ["#17365d", "#f26b4f", "#7cbf3a"], f: "Baloo 2" },
+  medicina: { n: "Historia clínica de tres columnas", c: ["#1d4a42", "#c47f26", "#f6f4ec"], f: "Lora" },
+  oftalmologia: { n: "Pantalla de turnos", c: ["#0b2545", "#0f7f8c", "#d9503f"], f: "Fraunces" },
+  veterinaria: { n: "Hoja de hospitalización", c: ["#12312b", "#c98a14", "#fbf8ee"], f: "Young Serif" },
+  perfil: { n: "La libreta de la consultora", c: ["#7a2e5c", "#f7cfbd", "#2a1633"], f: "DM Serif Display" },
+  ropa: { n: "Tablero de prendas", c: ["#2f3a22", "#b5532f", "#efe6d6"], f: "Archivo Black" },
+  cosmeticos: { n: "Vitrina de tonos", c: ["#3b241b", "#d98a2b", "#f3d3cb"], f: "Playfair Display" },
+  salon: { n: "Cuadrícula por estilista", c: ["#4a1d3f", "#b88a3c", "#f3dde0"], f: "Bodoni Moda" },
+  boutique: { n: "Libro de registro", c: ["#14110f", "#8c6a35", "#f6f1e7"], f: "Cormorant Garamond" },
+  celulares: { n: "Mostrador del dueño", c: ["#1c1230", "#6d28d9", "#b8f23a"], f: "Space Grotesk" },
+  restaurante: { n: "Pantalla de cocina", c: ["#1d1512", "#c4352a", "#fbf1d8"], f: "Playfair Display" },
+  tiempo: { n: "Calendario del año", c: ["#0b3a4a", "#12a3a8", "#ef6f4f"], f: "Cormorant Garamond" },
+  distribuidora: { n: "Mesa de despacho", c: ["#1a1a1c", "#b3261e", "#f4ead7"], f: "Archivo Narrow" },
+  asistencia: { n: "Libro de planilla", c: ["#2b2f33", "#ff7a1a", "#f4f5f7"], f: "Archivo" },
+  taller: { n: "Tablero de bahías", c: ["#15171c", "#ffc21a", "#e9ecef"], f: "Barlow Condensed" },
+  gimnasios: { n: "Torniquete", c: ["#16181a", "#f2c230", "#2e9b57"], f: "Big Shoulders Display" },
+  eventos: { n: "Calendario de fiestas", c: ["#1a275c", "#d6457a", "#efb22e"], f: "Fraunces" },
+};
+
 const RUTA_DEMO: Record<string, string> = { distribuidora: "/demos/distribuidora/", asistencia: "/demos/planilla/", clinica: "/demos/clinica/", pediatria: "/demos/pediatria/", medicina: "/demos/medicina/", perfil: "/demos/perfil-belleza/", salon: "/demos/salon/", boutique: "/demos/boutique/", ropa: "/demos/ropa/", cosmeticos: "/demos/cosmeticos/", celulares: "/demos/celulares/", restaurante: "/demos/restaurante/", tiempo: "/demos/tiempo-compartido/", oftalmologia: "/demos/oftalmologia/", veterinaria: "/demos/veterinaria/", taller: "/demos/taller/" };
 
 /* Tipos de negocio: tarjetas que se ven claramente como opciones para escoger */
@@ -430,37 +457,46 @@ export function Rubros() {
           <p className="mt-4 text-suave text-[1.05rem]">¿Qué problema tiene su negocio? Elija su rubro: el problema de hoy, cómo lo resuelve el sistema y una demo para probar.</p>
         </div>
 
-        <p className="mt-8 font-semibold text-tinta aparece">Escoja su rubro</p>
+        <p className="mt-8 text-[1.15rem] font-semibold text-tinta aparece">¿Qué tipo de negocio tiene?</p>
+        <p className="mt-1 text-suave aparece">Toque el suyo y vea la página que ve su cliente y el panel que ve usted, cada uno con su propia forma de verse.</p>
         <div
           ref={lista}
           role="tablist"
           aria-label="Rubros"
           onKeyDown={teclas}
-          className="mt-3 flex flex-wrap gap-2"
+          className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6"
         >
-          {RUBROS.map((x, i) => (
-            <button
-              key={x.id}
-              ref={(el) => {
-                botones.current[i] = el;
-              }}
-              role="tab"
-              id={`tab-${x.id}`}
-              aria-selected={i === activo}
-              aria-controls={`panel-${x.id}`}
-              tabIndex={i === activo ? 0 : -1}
-              onClick={() => {
-                setActivo(i);
-                setTipo(0);
-              }}
-              className={`rounded-full border-2 px-5 py-2.5 text-[1rem] font-semibold transition-colors active:scale-95 ${
-                i === activo ? "border-acento bg-acento text-white" : "border-linea bg-blanco text-tinta hover:border-tinta/40"
-              }`}
-            >
-              {x.nombre}
-            </button>
-          ))}
+          {RUBROS.map((x, i) => {
+            const Icono = ICONO_RUBRO[x.id] ?? Store;
+            const cuenta = VARIANTES[x.id]?.length ?? 1;
+            const activa = i === activo;
+            return (
+              <button
+                key={x.id}
+                ref={(el) => {
+                  botones.current[i] = el;
+                }}
+                role="tab"
+                id={`tab-${x.id}`}
+                aria-selected={activa}
+                aria-controls={`panel-${x.id}`}
+                tabIndex={activa ? 0 : -1}
+                onClick={() => {
+                  setActivo(i);
+                  setTipo(0);
+                }}
+                className={`flex min-h-[7.5rem] flex-col items-start gap-2 rounded-2xl border-2 p-4 text-left transition active:scale-[0.98] ${activa ? "border-acento bg-acento text-white shadow-lg" : "border-linea bg-blanco text-tinta hover:border-tinta/40 hover:shadow-md"}`}
+              >
+                <span className={`grid h-11 w-11 place-items-center rounded-xl ${activa ? "bg-white/20" : "bg-acento/10 text-acento"}`}><Icono size={22} aria-hidden /></span>
+                <span className="text-[1.05rem] font-semibold leading-tight">{x.nombre}</span>
+                <span className={`text-[0.82rem] ${activa ? "text-white/80" : "text-suave"}`}>{cuenta} {cuenta === 1 ? "demo" : "demos"}</span>
+              </button>
+            );
+          })}
         </div>
+        <a href={whatsappLink("Hola, Joshua. Mi negocio es de ____ y no lo veo en la lista. ¿Me puede armar una demo?")} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-2 font-semibold text-acento underline underline-offset-4">
+          <MessageCircle size={17} aria-hidden /> ¿No ve su rubro? Cuénteme cuál es y le armo la demo
+        </a>
 
         <div
           key={r.id}
@@ -496,7 +532,18 @@ export function Rubros() {
                 </ul>
               </div>
             </div>
-            <p className="mt-8 text-[0.95rem] text-suave">Son ejemplos con datos inventados: puede tocar todo. Cada sistema se arma a la medida de su empresa, sea marcaje, inventario, citas o lo que necesite.</p>
+            {(() => {
+              const info = PANEL_INFO[v?.demo.tipo ?? r.id];
+              if (!info) return null;
+              return (
+                <p className="mt-7 inline-flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-linea bg-blanco px-4 py-2.5 text-[0.92rem]">
+                  <span className="flex gap-1" aria-hidden>{info.c.map((c) => <span key={c} className="h-5 w-5 rounded-full border border-black/10" style={{ background: c }} />)}</span>
+                  <span><b>Su panel:</b> {info.n}</span>
+                  <span className="text-suave">Letra: {info.f}</span>
+                </p>
+              );
+            })()}
+            <p className="mt-4 text-[0.95rem] text-suave">Son ejemplos con datos inventados: puede tocar todo. Cada sistema se arma a la medida de su empresa, sea marcaje, inventario, citas o lo que necesite.</p>
             <div className="mt-3 flex flex-wrap gap-3">
               {v ? (
                 <>
