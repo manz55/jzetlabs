@@ -259,7 +259,7 @@ export default function AppSocio({ gym, num, setNum }: { gym: Gym; num: number; 
         </div>
       )}
 
-      {pagar && <Pagar socio={socio} planId={pagar} alCerrar={() => setPagar(null)} alPagar={(metodo) => { if (pagar !== socio.plan) gym.cambiarPlan(socio.num, pagar); gym.cobrar(socio.num); setPagar(null); setAviso(`Pago registrado (${metodo}). La membresía se actualizó.`); }} />}
+      {pagar && <Pagar socio={socio} planId={pagar} alCerrar={() => setPagar(null)} alPagar={(metodo) => { if (pagar !== socio.plan) gym.cambiarPlan(socio.num, pagar); gym.cobrar(socio.num, metodo); setPagar(null); setAviso(`Pago registrado (${metodo}). La membresía se actualizó.`); }} />}
       {aviso && <div role="status" className="fixed inset-x-0 bottom-6 z-[90] mx-auto w-fit max-w-[calc(100vw-2rem)] rounded-lg px-5 py-3 text-[1.05rem] font-semibold shadow-xl" style={{ background: TIZA, color: GOMA }}>{aviso}</div>}
     </div>
   );

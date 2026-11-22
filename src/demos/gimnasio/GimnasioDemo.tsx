@@ -554,7 +554,7 @@ function Inscripcion({ gym, plan, alCerrar, estudiante, alListo }: { gym: Gym; p
             <button
               type="button"
               disabled={!valido}
-              onClick={() => setNum(gym.inscribir({ nombre: nombre.trim(), plan: p.id, vence, tel: tel.replace(/\D/g, ""), sede }, total))}
+              onClick={() => setNum(gym.inscribir({ nombre: nombre.trim(), plan: p.id, vence, tel: tel.replace(/\D/g, ""), sede }, total, pago))}
               className={`${btn} mt-2 w-full disabled:opacity-40`}
               style={{ background: AMARILLO, color: GOMA }}
             >

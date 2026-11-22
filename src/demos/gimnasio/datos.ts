@@ -113,7 +113,7 @@ export const PREGUNTAS = [
 /* socios y recepción */
 export type Socio = { num: number; nombre: string; plan: string; vence: string; tel: string; sede: string; visitas: number[]; nuevo?: boolean };
 export type Entrada = { num: number; hora: string };
-export type Pago = { num: number; monto: number; que: string; dia: number };
+export type Pago = { num: number; monto: number; que: string; dia: number; metodo?: string; pendiente?: boolean };
 
 export const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 export const enDias = (n: number) => {
@@ -162,10 +162,14 @@ function entradas(lista: Socio[]): Entrada[] {
 function pagos(): Pago[] {
   const hoy = new Date().getDate();
   const base: [number, number, string][] = [[101, 175, "Mensual"], [104, 480, "Trimestral"], [108, 175, "Mensual"], [112, 175, "Mensual"], [114, 480, "Trimestral"], [110, 175, "Mensual"], [116, 175, "Mensual"], [103, 175, "Mensual"], [0, 25, "Pase de día"], [0, 25, "Pase de día"], [0, 25, "Pase de día"]];
-  return base.map(([num, monto, que], i) => ({ num, monto, que, dia: Math.max(1, Math.min(hoy, 1 + ((i * 3) % hoy))) }));
+  const metodos = ["tarjeta", "recepción", "transferencia"];
+  return base.map(([num, monto, que], i) => {
+    const pendiente = i === 2 || i === 5;
+    return { num, monto, que, dia: pendiente || i < 2 ? hoy : Math.max(1, Math.min(hoy, 1 + ((i * 3) % hoy))), metodo: pendiente ? "transferencia" : metodos[i % 3] === "transferencia" ? "tarjeta" : metodos[i % 3], pendiente };
+  });
 }
 
-const CLAVE = "gimnasio:v1";
+const CLAVE = "gimnasio:v3";
 type Estado = { socios: Socio[]; entradas: Entrada[]; pagos: Pago[]; reservas: Record<string, number> };
 export function useGimnasio() {
   const [e, setE] = useState<Estado>(() => {
@@ -191,23 +195,24 @@ export function useGimnasio() {
   };
   return {
     ...e,
-    inscribir: (x: Omit<Socio, "num" | "visitas">, monto: number) => {
+    inscribir: (x: Omit<Socio, "num" | "visitas">, monto: number, metodo = "tarjeta") => {
       const num = Math.max(...e.socios.map((s) => s.num)) + 1;
-      setE((v) => ({ ...v, socios: [...v.socios, { ...x, num, visitas: [], nuevo: true }], pagos: [...v.pagos, { num, monto, que: `Inscripción ${porId(PLANES, x.plan).nombre.toLowerCase()}`, dia: new Date().getDate() }] }));
+      setE((v) => ({ ...v, socios: [...v.socios, { ...x, num, visitas: [], nuevo: true }], pagos: [...v.pagos, { num, monto, que: `Inscripción ${porId(PLANES, x.plan).nombre.toLowerCase()}`, dia: new Date().getDate(), metodo, pendiente: metodo === "transferencia" }] }));
       return num;
     },
     entrar: (num: number) =>
       setE((v) => ({ ...v, entradas: [{ num, hora: hora() }, ...v.entradas], socios: v.socios.map((s) => (s.num === num && !s.visitas.includes(new Date().getDate()) ? { ...s, visitas: [...s.visitas, new Date().getDate()] } : s)) })),
-    cobrar: (num: number) =>
+    cobrar: (num: number, metodo = "recepción") =>
       setE((v) => {
         const s = v.socios.find((x) => x.num === num)!;
         const p = porId(PLANES, s.plan);
         const desde = faltan(s.vence) > 0 ? s.vence : enDias(0);
         const d = new Date(desde + "T00:00");
         d.setDate(d.getDate() + p.dias);
-        return { ...v, socios: v.socios.map((x) => (x.num === num ? { ...x, vence: iso(d) } : x)), pagos: [...v.pagos, { num, monto: p.precio, que: `Renovación ${p.nombre.toLowerCase()}`, dia: new Date().getDate() }] };
+        return { ...v, socios: v.socios.map((x) => (x.num === num ? { ...x, vence: iso(d) } : x)), pagos: [...v.pagos, { num, monto: p.precio, que: `Renovación ${p.nombre.toLowerCase()}`, dia: new Date().getDate(), metodo, pendiente: metodo === "transferencia" }] };
       }),
     cambiarPlan: (num: number, plan: string) => setE((v) => ({ ...v, socios: v.socios.map((x) => (x.num === num ? { ...x, plan } : x)) })),
+    confirmarPago: (i: number) => setE((v) => ({ ...v, pagos: v.pagos.map((x, k) => (k === i ? { ...x, pendiente: false } : x)) })),
     reservar: (id: string) => setE((v) => ({ ...v, reservas: { ...v.reservas, [id]: v.reservas[id] ? 0 : 1 } })),
     reiniciar: () => {
       const s = socios();
