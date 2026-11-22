@@ -30,7 +30,7 @@ export function Rev({ i = 0, className = "", style, children }: { i?: number; cl
   return <div ref={ref} className={className} style={style}>{children}</div>;
 }
 
-export function Ventana({ titulo, alCerrar, ancho = "56rem", children }: { titulo: string; alCerrar: () => void; ancho?: string; children: ReactNode }) {
+export function Ventana({ titulo, alCerrar, ancho = "56rem", fondo = "#fff", color = TINTA, children }: { titulo: string; alCerrar: () => void; ancho?: string; fondo?: string; color?: string; children: ReactNode }) {
   const caja = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const alTeclear = (e: KeyboardEvent) => { if (e.key === "Escape") alCerrar(); };
@@ -42,7 +42,7 @@ export function Ventana({ titulo, alCerrar, ancho = "56rem", children }: { titul
   }, [alCerrar]);
   return (
     <div className="fixed inset-0 z-[70] flex items-end justify-center p-0 sm:items-center sm:p-6 print:hidden" style={{ background: "rgba(42,22,51,.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)" }} onClick={alCerrar}>
-      <div ref={caja} role="dialog" aria-modal="true" aria-label={titulo} onClick={(e) => e.stopPropagation()} className="relative max-h-[94svh] w-full overflow-y-auto rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl" style={{ maxWidth: ancho, color: TINTA }}>
+      <div ref={caja} role="dialog" aria-modal="true" aria-label={titulo} onClick={(e) => e.stopPropagation()} className="relative max-h-[94svh] w-full overflow-y-auto rounded-t-3xl shadow-2xl sm:rounded-3xl" style={{ maxWidth: ancho, color, background: fondo }}>
         <button type="button" aria-label="Cerrar" onClick={alCerrar} className="pf-btn absolute right-3 top-3 z-10 grid h-12 w-12 place-items-center rounded-full bg-white/95 shadow-md" style={{ color: TINTA, border: `2px solid ${SUAVE}` }}><X size={22} /></button>
         {children}
       </div>
