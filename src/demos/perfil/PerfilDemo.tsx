@@ -7,13 +7,14 @@
  * Estética de papel: crema, tinta y vino, Fraunces y líneas finas, como una ficha impresa.
  */
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { ArrowLeft, ArrowRight, Check, ChevronRight, MessageCircle, Pencil, Plus, Printer, Search, Trash2, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, ChevronRight, Pencil, Plus, Printer, Search, Trash2, X } from "lucide-react";
 import { BandaDemos, PartesDemo, CierreJzet, MensajeWhatsApp } from "../comun";
 import { PaginaSofia } from "./Pagina";
+import { Inicio, Mensajes } from "./Inicio";
 import {
   ACABADOS, CONSULTORA, COBERTURAS, EDADES, HORAS, LABIOS, LINEA, LOOKS, MEDIOS, MESES, NECESIDADES, OJOS, PAPEL, PARENTESCOS, PIELES,
   PREOCUPACIONES, PRODUCTOS, SABER_MAS, SUAVE, SUBTONOS, TINTA, TONOS, VACIO, VINO,
-  ESTADOS, MARCAS, TEMAS_AVISO, abonado, fechaTexto, saldo, useAvisos, useInteresadas, mensajePerfil, producto, qz, rutinaPara, telTexto, totalDe, useInventario, usePerfiles,
+  ESTADOS, abonado, fechaTexto, saldo, useInteresadas, mensajePerfil, producto, qz, rutinaPara, telTexto, totalDe, useBandeja, useInventario, usePerfiles,
   type Fecha, type Opcion, type Perfil,
 } from "./datos";
 
@@ -804,10 +805,10 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
   const [abierto, setAbierto] = useState<string | null>(null);
   const [buscar, setBuscar] = useState("");
   const [aviso, setAviso] = useState("");
-  const [pestana, setPestana] = useState<"resumen" | "pedidos" | "inventario" | "clientas">("resumen");
+  const [pestana, setPestana] = useState<"inicio" | "mensajes" | "pedidos" | "inventario" | "clientas">("inicio");
   const inv = useInventario();
-  const avisos = useAvisos().lista;
   const interesadas = useInteresadas().lista;
+  const bandeja = useBandeja();
 
   useEffect(() => {
     if (!aviso) return;
@@ -858,8 +859,6 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
   const vendidos = PRODUCTOS.map((pr) => ({ pr, n: conPedido.reduce((t, x) => t + x.llevo.filter((y) => y === pr.id).length, 0) }))
     .filter((v) => v.n)
     .sort((a, b) => b.n - a.n);
-  const porMarca = MARCAS.map((m) => ({ m, total: conPedido.reduce((t, x) => t + x.llevo.filter((id) => producto(id)?.marca === m.nombre).reduce((u, id) => u + (producto(id)?.precio ?? 0), 0), 0) })).filter((v) => v.total);
-  const totalMarcas = porMarca.reduce((t, v) => t + v.total, 0) || 1;
   const entregar = (x: Perfil) => {
     const falta = x.llevo.find((id) => (inv.stock[id] ?? 0) < x.llevo.filter((y) => y === id).length);
     if (falta) {
@@ -940,8 +939,10 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
     );
   }
 
+  const nuevosWeb = bandeja.lista.filter((e) => !e.leido).length;
   const PESTANAS = [
-    ["resumen", "Resumen"],
+    ["inicio", "Inicio"],
+    ["mensajes", `Mensajes${nuevosWeb ? ` (${nuevosWeb})` : ""}`],
     ["pedidos", `Pedidos${porCobrar.length ? ` (${porCobrar.length})` : ""}`],
     ["inventario", "Inventario"],
     ["clientas", "Clientas"],
@@ -956,8 +957,8 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
   );
 
   return (
-    <div className="mx-auto max-w-4xl px-5 pb-16 pt-8">
-      <p className="text-[1.05rem] opacity-65">Hola, {CONSULTORA.corto}</p>
+    <div className="pf-cont pb-16 pt-8">
+      <p className="text-[1.05rem] opacity-65">Hola, (Tu nombre)</p>
       <h1 className="mt-2 text-[2.8rem] font-medium leading-none" style={{ fontFamily: SERIF }}>
         Mi negocio
       </h1>
@@ -977,148 +978,11 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
         ))}
       </nav>
 
-      {pestana === "resumen" && (
-        <div className="mt-8 grid gap-12">
-          <section>
-            <div className="border-y" style={{ borderColor: TINTA }}>
-              <div className="border-b px-3 py-4" style={{ borderColor: LINEA }}>
-                <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <p className="text-[1rem] opacity-65">Vendido en {MESES[ahora.getMonth()]}</p>
-                  <p className="text-[0.95rem] opacity-65">Meta {qz(META)}</p>
-                </div>
-                <p className="mt-1 text-[2.4rem] leading-none" style={{ fontFamily: SERIF }}>{qz(vendido)}</p>
-                <div className="mt-3" style={{ background: LINEA, height: 6 }}>
-                  <div className="h-full" style={{ width: `${Math.min(100, (vendido / META) * 100)}%`, background: VINO }} />
-                </div>
-                <p className="mt-2 text-[0.95rem] opacity-65">{vendido >= META ? "¡Meta cumplida!" : `Te faltan ${qz(META - vendido)} para tu meta del mes.`}</p>
-              </div>
-              <div className="grid grid-cols-3 [&>*]:border-l [&>*:first-child]:border-l-0" style={{ borderColor: LINEA }}>
-                {bloque("Te queda de ganancia", qz(ganancia), "lo vendido menos lo que te costó")}
-                {bloque("Por cobrar", qz(porCobrar.reduce((t, x) => t + saldo(x), 0)), `${porCobrar.length} ${porCobrar.length === 1 ? "pedido" : "pedidos"}`)}
-                {bloque("Por entregar", String(porEntregar.length), porEntregar.length === 1 ? "pedido pendiente" : "pedidos pendientes")}
-              </div>
-            </div>
-          </section>
-
-          <div className="grid gap-12 perfil-panel">
-            <section className="min-w-0">
-              <h2 className={h2} style={{ fontFamily: SERIF }}>Lo que más vendes</h2>
-              <ul className="mt-3 border-t" style={{ borderColor: LINEA }}>
-                {vendidos.slice(0, 5).map(({ pr, n }) => (
-                  <li key={pr.id} className="flex items-center gap-3 border-b py-3" style={{ borderColor: LINEA }}>
-                    <img src={pr.foto} alt="" className="h-11 w-11 shrink-0 object-cover" />
-                    <span className="min-w-0 flex-1 leading-tight">
-                      <b className="block truncate">{pr.nombre}</b>
-                      <span className="text-[0.92rem] opacity-60">{pr.marca}</span>
-                    </span>
-                    <span className="shrink-0 tabular-nums">{n} {n === 1 ? "vendido" : "vendidos"}</span>
-                  </li>
-                ))}
-              </ul>
-              <h3 className="mt-8 text-[1.15rem] font-semibold">Por marca</h3>
-              <ul className="mt-3 grid gap-3">
-                {porMarca.map(({ m, total }) => (
-                  <li key={m.nombre}>
-                    <div className="flex items-baseline justify-between gap-3 text-[1rem]">
-                      <span>{m.nombre}</span>
-                      <span className="tabular-nums opacity-75">{qz(total)}</span>
-                    </div>
-                    <div className="mt-1.5" style={{ background: LINEA, height: 6 }}>
-                      <div className="h-full" style={{ width: `${(total / totalMarcas) * 100}%`, background: TINTA }} />
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            <aside className="grid min-w-0 content-start gap-10">
-              {faltan.length > 0 && (
-                <section>
-                  <h2 className={h2} style={{ fontFamily: SERIF }}>Se te está acabando</h2>
-                  <ul className="mt-3 border-t" style={{ borderColor: LINEA }}>
-                    {faltan.slice(0, 4).map(({ pr }) => (
-                      <li key={pr.id} className="flex items-baseline justify-between gap-3 border-b py-3" style={{ borderColor: LINEA }}>
-                        <span className="min-w-0 truncate font-semibold">{pr.nombre}</span>
-                        <span className="shrink-0 text-[0.98rem]" style={{ color: VINO }}>
-                          {disponible(pr.id) <= 0 ? "ya no tienes" : `te queda ${disponible(pr.id)}`}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                  <button type="button" onClick={() => setPestana("inventario")} className="mt-3 inline-flex items-center gap-1 font-semibold underline decoration-1 underline-offset-4">
-                    Ver qué pedir <ArrowRight size={16} />
-                  </button>
-                </section>
-              )}
-              {avisos.length > 0 && (
-                <section>
-                  <h2 className={h2} style={{ fontFamily: SERIF }}>Quieren saber de promos</h2>
-                  <p className="mt-1 text-[0.98rem] opacity-60">Se anotaron en tu página. Cuando salga la campaña, avísales solo de lo que pidieron.</p>
-                  <ul className="mt-3 border-t" style={{ borderColor: LINEA }}>
-                    {TEMAS_AVISO.map((t) => {
-                      const quienes = avisos.filter((a) => a.temas.includes(t));
-                      if (!quienes.length) return null;
-                      return (
-                        <li key={t} className="border-b py-3" style={{ borderColor: LINEA }}>
-                          <div className="flex items-baseline justify-between gap-3">
-                            <b>{t}</b>
-                            <button type="button" onClick={() => setAviso(`En su negocio, este botón le manda la promo de ${t.toLowerCase()} a ${quienes.length} ${quienes.length === 1 ? "clienta" : "clientas"} por WhatsApp.`)} className="inline-flex shrink-0 items-center gap-1 text-[0.98rem] font-semibold" style={{ color: VINO }}>
-                              <MessageCircle size={16} /> Avisarles ({quienes.length})
-                            </button>
-                          </div>
-                          <p className="text-[0.95rem] opacity-65">{quienes.map((q) => q.nombre.split(" ")[0]).join(", ")}</p>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </section>
-              )}
-              {seguimiento.length > 0 && (
-                <section>
-                  <h2 className={h2} style={{ fontFamily: SERIF }}>Para dar seguimiento</h2>
-                  <ul className="mt-3 border-t" style={{ borderColor: LINEA }}>
-                    {seguimiento.map(({ x, e }) => (
-                      <li key={x.id} className="border-b py-3" style={{ borderColor: LINEA }}>
-                        <div className="flex items-baseline justify-between gap-3">
-                          <button type="button" onClick={() => setAbierto(x.id)} className="min-w-0 truncate text-left font-semibold">
-                            {x.nombre} {x.apellido}
-                          </button>
-                          <button type="button" onClick={() => setAviso(`En su negocio, este botón abre WhatsApp con ${x.nombre}.`)} className="inline-flex shrink-0 items-center gap-1 text-[0.98rem] font-semibold" style={{ color: VINO }}>
-                            <MessageCircle size={16} /> Escribirle
-                          </button>
-                        </div>
-                        <p className="text-[0.95rem] opacity-65">
-                          Compró hace {e.cuando}: {e.que}
-                        </p>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              )}
-              <section>
-                <h2 className={h2} style={{ fontFamily: SERIF }}>Cumpleaños</h2>
-                {cumples.length === 0 ? (
-                  <p className="mt-3 opacity-55">Nadie cumple este mes.</p>
-                ) : (
-                  <ul className="mt-3 border-t" style={{ borderColor: LINEA }}>
-                    {cumples.map((c) => {
-                      const d = diasParaCumple(c);
-                      return (
-                        <li key={c.id} className="flex items-baseline justify-between gap-3 border-b py-3" style={{ borderColor: LINEA }}>
-                          <span className="font-semibold">{c.nombre} {c.apellido}</span>
-                          <span className="shrink-0 text-[0.98rem]" style={{ color: VINO }}>
-                            {d === 0 ? "hoy" : d === 1 ? "mañana" : `en ${d} días`}
-                          </span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </section>
-            </aside>
-          </div>
-        </div>
+      {pestana === "inicio" && (
+        <Inicio perfiles={perfiles} stock={inv.stock} disponible={disponible} porEntregar={porEntregar} porCobrar={porCobrar} vendido={vendido} meta={META} ganancia={ganancia} vendidos={vendidos} faltan={faltan} cumples={cumples} diasCumple={diasParaCumple} seguimiento={seguimiento} irA={setPestana} abrir={setAbierto} avisar={setAviso} entregar={entregar} />
       )}
+
+      {pestana === "mensajes" && <Mensajes avisar={setAviso} />}
 
       {pestana === "pedidos" && (
         <div className="mt-8">

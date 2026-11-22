@@ -9,7 +9,7 @@ import { Check, Minus, Plus, ShieldCheck, ShoppingBag, X } from "lucide-react";
 import { MensajeWhatsApp } from "../comun";
 import { Seccion } from "./Seccion";
 import { Rev, Ventana, sinMovimiento } from "./Ventana";
-import { CAMPANA, CONSULTORA, ENVIOS, LINEA, MARCAS, PRODUCTOS, PROMOS, ROSA, SUAVE, TINTA, TONOS, VINO, producto, qz, useInventario, type Producto } from "./datos";
+import { CAMPANA, CONSULTORA, ENVIOS, LINEA, MARCAS, PRODUCTOS, PROMOS, ROSA, SUAVE, TINTA, TONOS, VINO, producto, qz, useBandeja, useInventario, type Producto } from "./datos";
 
 const SERIF = '"Fraunces", Georgia, serif';
 type Linea = { key: string; nombre: string; precio: number; n: number };
@@ -128,6 +128,7 @@ function Detalle({ p, stock, alCerrar, alAgregar, alVer }: { p: Producto; stock:
 
 export function Tienda() {
   const { stock } = useInventario();
+  const bandeja = useBandeja();
   const [marca, setMarca] = useState("Todas");
   const [ver, setVer] = useState<Producto | null>(null);
   const [bolsa, setBolsa] = useState<Linea[]>([]);
@@ -158,6 +159,7 @@ export function Tienda() {
   const pedir = () => {
     const l = bolsa.map((x) => `- ${x.n} × ${x.nombre}: ${qz(x.n * x.precio)}`);
     setVerPedido(false);
+    bandeja.agregar({ tipo: "pedido", nombre: "Clienta nueva (desde tu página)", texto: `${bolsa.map((x) => `${x.n} × ${x.nombre}`).join(", ")}. ${env.nombre}. Pago al recibir.`, total });
     setMensaje(`Hola, ${CONSULTORA.corto}. Quiero hacer este pedido:\n${l.join("\n")}\n${env.precio ? `Envío (${env.nombre}): ${qz(env.precio)}` : env.nombre}\nTotal: ${qz(total)}\nPago al recibir.`);
   };
 

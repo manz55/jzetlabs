@@ -26,7 +26,7 @@ import labialRojo from "@/assets/demo-cosmeticos/labial-rojo.jpg";
 import labialNude from "@/assets/demo-cosmeticos/labial-nude.jpg";
 import brochas from "@/assets/demo-cosmeticos/brochas.jpg";
 import polvoNegro from "@/assets/demo-cosmeticos/polvo-negro.jpg";
-import { LINEA, OPINIONES, RAZONES_EQUIPO, ROSA, TEMAS_AVISO, TINTA, VINO, nuevoId, producto, useAvisos, useInteresadas } from "./datos";
+import { LINEA, OPINIONES, RAZONES_EQUIPO, ROSA, TEMAS_AVISO, TINTA, VINO, nuevoId, producto, useAvisos, useBandeja, useInteresadas } from "./datos";
 import { ChatSofia } from "./Chat";
 import { MensajeWhatsApp } from "../comun";
 import { Rev, Ventana } from "./Ventana";
@@ -171,6 +171,7 @@ function Experiencias() {
   const [abierta, setAbierta] = useState<Experiencia | null>(null);
   const [chat, setChat] = useState(false);
   const [mensaje, setMensaje] = useState<string | null>(null);
+  const bandeja = useBandeja();
   const cerrar = useCallback(() => setAbierta(null), []);
   return (
     <Seccion id="hago" etiqueta="Experiencias" titulo="Las experiencias que te brindo" sub="Toca una para ver qué incluye." fondo="#fde6da">
@@ -204,7 +205,7 @@ function Experiencias() {
                 </dl>
               )}
               <p className="mt-5 flex items-start gap-2.5 rounded-xl p-4 text-[1.05rem] font-semibold" style={{ background: "#fde6da" }}><Wallet size={22} className="mt-0.5 shrink-0" style={{ color: VINO }} />{abierta.pago}</p>
-              <button type="button" onClick={() => { const e = abierta; setAbierta(null); if (e.accion === "chat") setChat(true); else setMensaje(e.msg); }} className="pf-btn mt-6 inline-flex min-h-[3.75rem] w-full items-center justify-center gap-2 rounded-full text-[1.25rem] font-semibold text-white" style={{ background: TINTA }}><MessageCircle size={22} /> {abierta.cta}</button>
+              <button type="button" onClick={() => { const e = abierta; setAbierta(null); if (e.accion === "chat") setChat(true); else { setMensaje(e.msg); bandeja.agregar({ tipo: e.id === "facial" ? "facial" : e.id === "amigas" ? "reunion" : "evento", nombre: "Clienta nueva (desde tu página)", texto: e.msg.replace(/^Hola, /, "").replace(/\.? ?$/, ".") }); } }} className="pf-btn mt-6 inline-flex min-h-[3.75rem] w-full items-center justify-center gap-2 rounded-full text-[1.25rem] font-semibold text-white" style={{ background: TINTA }}><MessageCircle size={22} /> {abierta.cta}</button>
             </div>
           </div>
         </Ventana>
@@ -264,6 +265,7 @@ const claseCampo = "w-full min-h-[3.25rem] rounded-xl border-2 border-black/20 b
 /* Avísame de las promos: en lugar del grupo de WhatsApp donde se pierde todo */
 function Avisame() {
   const { agregar } = useAvisos();
+  const bandeja = useBandeja();
   const [nombre, setNombre] = useState("");
   const [tel, setTel] = useState("");
   const [temas, setTemas] = useState<string[]>([]);
@@ -277,7 +279,7 @@ function Avisame() {
       </div>
     );
   return (
-    <form onSubmit={(e) => { e.preventDefault(); if (!valido) return; agregar({ id: nuevoId(), nombre: nombre.trim(), telefono: tel.replace(/\D/g, ""), temas, fecha: new Date().toISOString() }); setListo(true); }}>
+    <form onSubmit={(e) => { e.preventDefault(); if (!valido) return; agregar({ id: nuevoId(), nombre: nombre.trim(), telefono: tel.replace(/\D/g, ""), temas, fecha: new Date().toISOString() }); bandeja.agregar({ tipo: "aviso", nombre: nombre.trim(), texto: `Se anotó para avisos de ${temas.join(", ").toLowerCase()}.`, telefono: tel.replace(/\D/g, "") }); setListo(true); }}>
       <h3 className="text-[clamp(1.6rem,1.3rem+1vw,2.2rem)] font-medium leading-tight" style={{ fontFamily: SERIF }}>Avísame de las promos</h3>
       <p className="mt-2 text-[1.15rem] opacity-75">Elige de qué quieres saber.</p>
       <div className="mt-5 flex flex-wrap gap-2.5">
@@ -297,6 +299,7 @@ function Avisame() {
 /* Únete a mi equipo: para las directoras que buscan consultoras */
 function Unete() {
   const { agregar } = useInteresadas();
+  const bandeja = useBandeja();
   const [nombre, setNombre] = useState("");
   const [tel, setTel] = useState("");
   const [por, setPor] = useState("");
@@ -310,7 +313,7 @@ function Unete() {
       </div>
     );
   return (
-    <form onSubmit={(e) => { e.preventDefault(); if (!valido) return; agregar({ id: nuevoId(), nombre: nombre.trim(), telefono: tel.replace(/\D/g, ""), por, fecha: new Date().toISOString() }); setListo(true); }}>
+    <form onSubmit={(e) => { e.preventDefault(); if (!valido) return; agregar({ id: nuevoId(), nombre: nombre.trim(), telefono: tel.replace(/\D/g, ""), por, fecha: new Date().toISOString() }); bandeja.agregar({ tipo: "equipo", nombre: nombre.trim(), texto: `${por}.`, telefono: tel.replace(/\D/g, "") }); setListo(true); }}>
       <h3 className="flex items-center gap-2 text-[clamp(1.6rem,1.3rem+1vw,2.2rem)] font-medium leading-tight" style={{ fontFamily: SERIF }}><Users size={28} /> Vende conmigo</h3>
       <p className="mt-2 text-[1.15rem] opacity-75">Así empecé yo. Te enseño y te acompaño. — (Tu nombre)</p>
       <div className="mt-5 grid gap-2.5">

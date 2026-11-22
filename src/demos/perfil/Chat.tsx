@@ -4,7 +4,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { Send, X } from "lucide-react";
-import { TINTA, VINO } from "./datos";
+import { TINTA, VINO, useBandeja } from "./datos";
 
 type Msj = { de: "ella" | "tu"; t: string };
 
@@ -20,12 +20,19 @@ export function ChatSofia({ alCerrar }: { alCerrar: () => void }) {
   const [escribe, setEscribe] = useState(false);
   const [texto, setTexto] = useState("");
   const fin = useRef<HTMLDivElement>(null);
+  const bandeja = useBandeja();
+  const entrada = useRef<string | null>(null);
+  const dichos = useRef<string[]>([]);
   useEffect(() => { fin.current?.scrollIntoView({ block: "end", behavior: "smooth" }); }, [msj, escribe]);
 
   const mandar = (t: string) => {
     const limpio = t.trim();
     if (!limpio || escribe) return;
     setMsj((m) => [...m, { de: "tu", t: limpio }]);
+    dichos.current = [...dichos.current, limpio];
+    // la conversación le llega a la consultora, en su panel
+    if (!entrada.current) entrada.current = bandeja.agregar({ tipo: "chat", nombre: "Visitante del chat", texto: limpio });
+    else bandeja.cambiar(entrada.current, { texto: dichos.current.join(" · "), leido: false, fecha: new Date().toISOString() });
     setTexto("");
     setEscribe(true);
     window.setTimeout(() => {

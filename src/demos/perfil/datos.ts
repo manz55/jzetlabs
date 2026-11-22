@@ -2,7 +2,7 @@
  * Perfil de belleza: las preguntas, el tipo de cada perfil y cómo se guardan.
  * Todo vive en el teléfono (localStorage). Los perfiles de ejemplo son inventados.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import fotoLimpiador from "@/assets/demo-cosmeticos/limpiador.jpg";
 import fotoAceite from "@/assets/demo-cosmeticos/aceite.jpg";
 import fotoSerum from "@/assets/demo-cosmeticos/serum.jpg";
@@ -542,3 +542,50 @@ function useLista<T>(clave: string, inicial: T[]) {
 export const useAvisos = () => useLista<Aviso>("perfil-belleza:avisos-v1", EJ_AVISOS);
 export const useInteresadas = () => useLista<Interesada>("perfil-belleza:interesadas-v1", EJ_INTERESADAS);
 export const nuevoId = () => crypto.randomUUID?.() ?? String(Date.now() + Math.random());
+
+/* Todo lo que llega desde la página de la clienta: mensajes del chat, pedidos, citas, avisos y gente que quiere vender.
+ * Es una sola lista compartida: la página escribe y el panel de la consultora la lee. */
+export type TipoBandeja = "chat" | "pedido" | "facial" | "reunion" | "evento" | "aviso" | "equipo";
+export type Entrada = { id: string; tipo: TipoBandeja; nombre: string; texto: string; fecha: string; leido: boolean; hecho?: boolean; total?: number; cuando?: string; telefono?: string };
+export const TIPOS_BANDEJA: Record<TipoBandeja, string> = { chat: "Chat", pedido: "Pedido", facial: "Facial gratis", reunion: "Reunión con amigas", evento: "Maquillaje de evento", aviso: "Promos", equipo: "Quiere vender" };
+const horas = (h: number) => new Date(Date.now() - h * 36e5).toISOString();
+const en = (dias: number, hora: number) => { const d = new Date(Date.now() + dias * 864e5); d.setHours(hora, 0, 0, 0); return d.toISOString(); };
+const EJ_BANDEJA: Entrada[] = [
+  { id: "b-1", tipo: "chat", nombre: "Valeria Ramos", texto: "Hola, ¿tienes el sérum de vitamina C? ¿Cuánto sale el envío a Mixco?", fecha: horas(0.4), leido: false, telefono: "55512211" },
+  { id: "b-2", tipo: "pedido", nombre: "Karen Ordóñez", texto: "1 × Rutina completa de piel. Envío a la capital. Pago al recibir.", fecha: horas(3), leido: false, total: 524, telefono: "44018833" },
+  { id: "b-3", tipo: "facial", nombre: "Mariela Soto", texto: "Quiere su facial gratis, de preferencia el sábado por la tarde.", fecha: horas(5), leido: false, cuando: en(3, 15), telefono: "30112299" },
+  { id: "b-4", tipo: "pedido", nombre: "Lucía Barrios", texto: "1 × Kit para regalar. Lo quiere envuelto, con tarjeta.", fecha: horas(9), leido: true, total: 445, telefono: "41775520" },
+  { id: "b-5", tipo: "reunion", nombre: "Ana Lucía Pérez", texto: "Reunión con 5 amigas en su casa, zona 10. Pregunta qué regalos le tocan.", fecha: horas(20), leido: true, cuando: en(6, 16), telefono: "58200134" },
+  { id: "b-6", tipo: "chat", nombre: "Rosa María Girón", texto: "¿Qué me recomienda para la piel muy seca? Tengo 52 años.", fecha: horas(27), leido: true, telefono: "50331122" },
+  { id: "b-7", tipo: "evento", nombre: "Daniela Cruz", texto: "Maquillaje para su graduación, el 5 de diciembre a las 7 de la mañana.", fecha: horas(31), leido: true, cuando: en(14, 7), telefono: "47715609" },
+  { id: "b-8", tipo: "aviso", nombre: "Sandra López", texto: "Se anotó para avisos de maquillaje y perfumes.", fecha: horas(72), leido: true, telefono: "53318890" },
+  { id: "b-9", tipo: "equipo", nombre: "Paola Méndez", texto: "Quiere ganar dinero extra vendiendo.", fecha: horas(26), leido: false, telefono: "31207745" },
+];
+export const HISTORIAL_EJ: Record<string, { compras: number; total: number; ultima: string }> = {
+  "ej-1": { compras: 5, total: 1840, ultima: hace(12) },
+  "ej-2": { compras: 3, total: 960, ultima: hace(35) },
+  "ej-3": { compras: 2, total: 610, ultima: hace(58) },
+};
+
+const CLAVE_BANDEJA = "perfil-belleza:bandeja-v1";
+let estadoBandeja: Entrada[] | null = null;
+const oyentes = new Set<() => void>();
+const leerBandeja = () => {
+  if (estadoBandeja) return estadoBandeja;
+  try { const t = localStorage.getItem(CLAVE_BANDEJA); estadoBandeja = t ? (JSON.parse(t) as Entrada[]) : EJ_BANDEJA; } catch { estadoBandeja = EJ_BANDEJA; }
+  return estadoBandeja;
+};
+const ponerBandeja = (f: (l: Entrada[]) => Entrada[]) => {
+  estadoBandeja = f(leerBandeja());
+  try { localStorage.setItem(CLAVE_BANDEJA, JSON.stringify(estadoBandeja)); } catch { /* nada */ }
+  oyentes.forEach((o) => o());
+};
+const suscribir = (o: () => void) => { oyentes.add(o); return () => { oyentes.delete(o); }; };
+export function useBandeja() {
+  const lista = useSyncExternalStore(suscribir, leerBandeja);
+  return {
+    lista,
+    agregar: (e: Omit<Entrada, "id" | "fecha" | "leido"> & { id?: string }) => { const id = e.id ?? nuevoId(); ponerBandeja((l) => [{ ...e, id, fecha: new Date().toISOString(), leido: false }, ...l]); return id; },
+    cambiar: (id: string, c: Partial<Entrada>) => ponerBandeja((l) => l.map((x) => (x.id === id ? { ...x, ...c } : x))),
+  };
+}
