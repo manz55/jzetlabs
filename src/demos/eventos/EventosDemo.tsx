@@ -4,10 +4,11 @@
  * y la bodega (eventos del fin de semana, hoja de carga, lo que queda libre y lo que regresó).
  */
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, CalendarDays, Check, Minus, Plus, Truck } from "lucide-react";
+import { ArrowRight, CalendarDays, Minus, Plus, } from "lucide-react";
+import PanelFiestas from "./PanelFiestas";
 import { BandaDemos, PartesDemo, CierreJzet, MensajeWhatsApp } from "../comun";
 import {
-  ANIL, ANIL2, CIELO, COLORES, FOTOS, HOJA, INVENTARIO, MAIZ, PASADO, ROSA, SERIF, TINTA, TURQ, ZONAS,
+  ANIL, ANIL2, CIELO, COLORES, FOTOS, HOJA, INVENTARIO, MAIZ, ROSA, SERIF, TINTA, TURQ, ZONAS,
   armar, clave, fechaCorta, fechaLarga, finesDeSemana, porId, qz, subtotal, useEventos,
   type Cot, type Ev,
 } from "./datos";
@@ -108,7 +109,7 @@ export default function EventosDemo() {
       <style>{ESTILOS}</style>
       <BandaDemos />
       <PartesDemo fondo={ANIL2} actual={vista} alCambiar={setVista} partes={[{ id: "pagina", nombre: "Página del cliente", quien: "Cotiza su fiesta y ve si la fecha está libre" }, { id: "bodega", nombre: "Bodega y calendario", quien: "Usted ve los eventos y qué mobiliario sale" }] as const} />
-      {vista === "pagina" ? <Pagina ev={ev} alApartar={() => setVista("bodega")} /> : <Bodega ev={ev} />}
+      {vista === "pagina" ? <Pagina ev={ev} alApartar={() => setVista("bodega")} /> : <PanelFiestas ev={ev} />}
       <CierreJzet demo="alquiler de mobiliario para eventos" />
     </div>
   );
@@ -384,123 +385,3 @@ function Pagina({ ev, alApartar }: { ev: Ev; alApartar: () => void }) {
 }
 
 /* ---------------- bodega ---------------- */
-
-function Bodega({ ev }: { ev: Ev }) {
-  const fines = useMemo(() => finesDeSemana(6), []);
-  const [fecha, setFecha] = useState(clave(fines[0]));
-  const del = ev.eventos.filter((x) => x.fecha === fecha);
-  const carga = INVENTARIO.map((a) => ({ a, n: ev.usados(fecha, a.id) })).filter((x) => x.n > 0);
-  const fechaD = fines.find((f) => clave(f) === fecha)!;
-  const faltante = PASADO.lineas.map((l) => {
-    const a = porId(INVENTARIO, l.id);
-    const volvio = ev.regreso[l.id] ?? l.n;
-    return { a, salio: l.n, volvio, falta: Math.max(0, l.n - volvio) };
-  });
-  const cobrar = faltante.reduce((s, x) => s + x.falta * x.a.reposicion, 0);
-
-  return (
-    <section className="mx-auto max-w-6xl px-5 py-10">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="font-semibold opacity-70">Bodega · Fiestas La Ceiba</p>
-          <h1 className="fiesta-titulo text-[2.4rem] sm:text-[3rem]">Los fines de semana</h1>
-        </div>
-        <button type="button" onClick={ev.reiniciar} className="text-[0.9rem] font-semibold underline opacity-70">Volver a los datos de ejemplo</button>
-      </div>
-      <div className="-mx-5 mt-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none]">
-        {fines.map((f) => {
-          const k = clave(f);
-          const n = ev.eventos.filter((x) => x.fecha === k).length;
-          return (
-            <button key={k} type="button" onClick={() => setFecha(k)} className="shrink-0 rounded-xl px-4 py-2 text-left leading-tight" style={fecha === k ? { background: ANIL, color: "#fff" } : { background: "#fff" }}>
-              <b className="block capitalize">{fechaCorta(f)}</b>
-              <span className="text-[0.85rem] opacity-75">{n ? `${n} evento${n > 1 ? "s" : ""}` : "libre"}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="bodega mt-6">
-        <div className="grid content-start gap-4">
-          {del.length === 0 && <p className="rounded-2xl bg-white p-5 opacity-75">No hay eventos este día. Todo el mobiliario está libre.</p>}
-          {del.map((x) => (
-            <article key={x.id} className="overflow-hidden rounded-2xl bg-white">
-              <div className="h-2" style={{ background: porId(COLORES, x.color).c }} />
-              <div className="p-5">
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div>
-                    <p className="text-[0.85rem] font-semibold opacity-60">{x.tipo}</p>
-                    <b className="text-[1.2rem]">
-                      {x.cliente} {x.nuevo && <span className="ml-1 rounded-full px-2 py-0.5 text-[0.72rem] text-white" style={{ background: ROSA }}>desde la página</span>}
-                    </b>
-                    <p className="text-[0.92rem] opacity-75">{x.lugar} · montaje {x.montaje}</p>
-                  </div>
-                  <div className="text-right text-[0.92rem]">
-                    <b className="block text-[1.1rem]">{qz(x.total)}</b>
-                    <span style={{ color: HOJA }}>anticipo {qz(x.anticipo)}</span>
-                    <span className="block opacity-70">saldo {qz(x.total - x.anticipo)}</span>
-                  </div>
-                </div>
-                <ul className="mt-3 flex flex-wrap gap-1.5">
-                  {x.lineas.map((l) => (
-                    <li key={l.id} className="rounded-full px-2.5 py-1 text-[0.85rem]" style={{ background: CIELO }}>
-                      {l.n} {porId(INVENTARIO, l.id).nombre.toLowerCase()}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </article>
-          ))}
-        </div>
-
-        <div className="grid content-start gap-4">
-          <div className="rounded-2xl p-5 text-white" style={{ background: ANIL2 }}>
-            <h2 className="flex items-center gap-2 text-[1.2rem] font-semibold">
-              <Truck size={20} /> Hoja de carga · <span className="capitalize">{fechaCorta(fechaD)}</span>
-            </h2>
-            {carga.length === 0 ? (
-              <p className="mt-2 text-white/70">Nada que cargar.</p>
-            ) : (
-              <ul className="mt-3 grid gap-1.5">
-                {carga.map(({ a, n }) => {
-                  const libres = a.total - n;
-                  return (
-                    <li key={a.id} className="flex justify-between gap-3">
-                      <span>{a.nombre}</span>
-                      <span>
-                        <b>{n}</b> <span className="text-[0.85rem]" style={{ color: libres < 0 ? MAIZ : "rgba(255,255,255,.6)" }}>{libres < 0 ? `faltan ${-libres}` : `quedan ${libres}`}</span>
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </div>
-
-          <div className="rounded-2xl bg-white p-5">
-            <h2 className="text-[1.2rem] font-semibold">Lo que regresó del sábado pasado</h2>
-            <p className="text-[0.9rem] opacity-70">{PASADO.cliente}</p>
-            <ul className="mt-3 grid gap-2">
-              {faltante.map(({ a, salio, volvio, falta }) => (
-                <li key={a.id} className="flex items-center justify-between gap-3">
-                  <span className="min-w-0 flex-1 leading-tight">
-                    {a.nombre}
-                    <span className="block text-[0.82rem] opacity-60">salieron {salio}</span>
-                  </span>
-                  <input type="number" min={0} max={salio} value={volvio} onChange={(e) => ev.contar(a.id, Math.max(0, Math.min(salio, Number(e.target.value))))} aria-label={`Regresaron de ${a.nombre}`} className="w-20 rounded-lg border border-black/15 px-2 py-1.5 text-right" />
-                  <span className="w-20 text-right text-[0.9rem] font-semibold" style={{ color: falta ? ROSA : HOJA }}>{falta ? `faltan ${falta}` : <Check size={18} className="ml-auto" />}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-4 flex justify-between border-t border-black/10 pt-3 font-semibold">
-              <span>Cobrar por reposición</span>
-              <span style={{ color: cobrar ? ROSA : HOJA }}>{qz(cobrar)}</span>
-            </p>
-            <p className="mt-1 text-[0.85rem] opacity-65">Se descuenta del depósito o se le cobra al cliente con el detalle.</p>
-          </div>
-          <img src={FOTOS.apiladas} alt="Mesas y sillas guardadas en la bodega" loading="lazy" className="h-44 w-full rounded-2xl object-cover" />
-        </div>
-      </div>
-    </section>
-  );
-}

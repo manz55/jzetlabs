@@ -300,3 +300,33 @@ export function PartesDemo<T extends string>({
     </div>
   );
 }
+
+/**
+ * Para las demos que eran solo página: agrega la segunda parte (el panel del negocio).
+ * La página va como "children" y el panel como "panel"; el enlace #panel abre directo el panel.
+ */
+export function PaginaYPanel({ fondo, pagina, panel: nombrePanel, panelEl, titulo, children }: { fondo: string; pagina: [string, string]; panel: [string, string]; panelEl: ReactNode; titulo: [string, string]; children: ReactNode }) {
+  const leer = () => (location.hash === "#panel" ? "panel" : "pagina") as "pagina" | "panel";
+  const [vista, setVista] = useState<"pagina" | "panel">(leer);
+  useEffect(() => {
+    const cambio = () => setVista(leer());
+    addEventListener("hashchange", cambio);
+    return () => removeEventListener("hashchange", cambio);
+  }, []);
+  useEffect(() => {
+    history.replaceState(null, "", vista === "pagina" ? location.pathname : "#panel");
+    document.title = vista === "panel" ? titulo[1] : titulo[0];
+    window.scrollTo(0, 0);
+  }, [vista, titulo]);
+  return (
+    <>
+      <PartesDemo
+        fondo={fondo}
+        actual={vista}
+        alCambiar={setVista}
+        partes={[{ id: "pagina", nombre: pagina[0], quien: pagina[1] }, { id: "panel", nombre: nombrePanel[0], quien: nombrePanel[1] }] as const}
+      />
+      {vista === "pagina" ? children : panelEl}
+    </>
+  );
+}

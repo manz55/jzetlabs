@@ -15,7 +15,7 @@ import {
 
 const ESTILOS = `
 .plan h1, .plan h2, .plan h3 { color: inherit; }
-.plan .num { font-variant-numeric: tabular-nums; }
+.plan .num { font-family: 'IBM Plex Mono', ui-monospace, Menlo, monospace; font-variant-numeric: tabular-nums; }
 .plan .caja { background: #fff; border: 1px solid ${BORDE}; border-radius: 12px; }
 .plan table th { font-weight: 600; color: ${SUAVE}; font-size: .8rem; text-align: left; padding: .6rem .75rem; border-bottom: 1px solid ${BORDE}; white-space: nowrap; }
 .plan table td { padding: .65rem .75rem; border-bottom: 1px solid ${BORDE}; }
@@ -133,46 +133,32 @@ function Oficina({ p }: { p: Planilla }) {
   const titulo = menu.find((m) => m[0] === sec)![1];
 
   return (
-    <main className="mx-auto max-w-[90rem] pb-16 lg:px-4 lg:pt-4">
-      <div className="overflow-hidden lg:grid lg:min-h-[44rem] lg:grid-cols-[15rem_1fr] lg:rounded-2xl lg:border" style={{ borderColor: BORDE }}>
-        {/* barra lateral */}
-        <aside className="text-white lg:flex lg:flex-col" style={{ background: "#0f2740" }}>
-          <div className="flex items-center justify-between gap-3 px-4 py-4 lg:block">
+    <main className="mx-auto max-w-[90rem] pb-16 lg:px-4 lg:pt-4" style={{ fontFamily: "'Archivo', 'Instrument Sans', system-ui, sans-serif" }}>
+      <div className="overflow-hidden lg:rounded-xl lg:border-2" style={{ borderColor: "#2b2f33" }}>
+        {/* encabezado de obra y pestañas, como las hojas de un libro de cálculo */}
+        <header className="text-white" style={{ background: "#2b2f33" }}>
+          <div className="h-2" style={{ background: "repeating-linear-gradient(-45deg, #ff7a1a 0 14px, #2b2f33 14px 28px)" }} aria-hidden />
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 lg:px-6">
             <span className="flex items-center gap-2.5">
-              <svg width="30" height="30" viewBox="0 0 40 40" aria-hidden>
-                <rect width="40" height="40" rx="8" fill={AMARILLO} />
-                <path d="M8 27h24v3H8z" fill="#0f2740" />
-                <path d="M10 27c0-6.6 4.5-11.5 10-11.5S30 20.4 30 27z" fill="#0f2740" />
+              <svg width="32" height="32" viewBox="0 0 40 40" aria-hidden>
+                <rect width="40" height="40" rx="8" fill="#ff7a1a" />
+                <path d="M8 27h24v3H8z" fill="#2b2f33" />
+                <path d="M10 27c0-6.6 4.5-11.5 10-11.5S30 20.4 30 27z" fill="#2b2f33" />
               </svg>
-              <span className="leading-tight">
-                <span className="block font-bold">Los Cedros</span>
-                <span className="block text-[0.78rem] text-white/60">Panel de la oficina</span>
-              </span>
+              <span className="leading-tight"><span className="block text-[1.25rem] font-bold uppercase tracking-wide">Los Cedros · oficina</span><span className="block text-[0.78rem] text-white/60">Libro de planilla</span></span>
             </span>
+            <p className="ml-auto text-[0.85rem] text-white/75"><b className="text-white">Ana Morales</b> · Administración · <button type="button" onClick={p.reiniciar} className="underline underline-offset-4">Volver a los datos de ejemplo</button></p>
           </div>
-          <nav aria-label="Secciones" className="flex gap-1 overflow-x-auto px-3 pb-3 lg:flex-1 lg:flex-col lg:overflow-visible lg:pb-0">
+          <nav aria-label="Secciones" className="flex gap-1 overflow-x-auto px-3 lg:px-5">
             {menu.map(([id, texto, Icono, badge]) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => ir(id)}
-                aria-current={sec === id ? "page" : undefined}
-                className={`flex shrink-0 items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-[0.92rem] font-semibold transition ${sec === id ? "bg-white text-[#0f2740]" : "text-white/80 hover:bg-white/10"}`}
-              >
-                <Icono size={17} />
+              <button key={id} type="button" onClick={() => ir(id)} aria-current={sec === id ? "page" : undefined} className={`flex shrink-0 items-center gap-2 rounded-t-md px-4 py-2.5 text-[0.92rem] font-semibold transition ${sec === id ? "text-[#2b2f33]" : "text-white/75 hover:bg-white/10"}`} style={sec === id ? { background: FONDO, boxShadow: "inset 0 3px 0 #ff7a1a" } : undefined}>
+                <Icono size={16} />
                 <span className="whitespace-nowrap">{texto}</span>
-                {!!badge && <span className="ml-auto rounded-full bg-[#d9483b] px-2 text-[0.75rem] font-bold text-white">{badge}</span>}
+                {!!badge && <span className="rounded-full bg-[#d9483b] px-2 text-[0.72rem] font-bold text-white">{badge}</span>}
               </button>
             ))}
           </nav>
-          <div className="hidden border-t border-white/10 px-4 py-4 lg:block">
-            <p className="text-[0.85rem] font-semibold">Ana Morales</p>
-            <p className="text-[0.78rem] text-white/60">Administración</p>
-            <button type="button" onClick={p.reiniciar} className="mt-3 text-[0.78rem] text-white/60 underline underline-offset-4">
-              Volver a los datos de ejemplo
-            </button>
-          </div>
-        </aside>
+        </header>
 
         {/* contenido */}
         <div className="min-w-0" style={{ background: FONDO }}>

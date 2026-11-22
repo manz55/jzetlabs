@@ -8,7 +8,8 @@
  */
 import { useEffect, useState } from "react";
 import { ArrowRight, ArrowUpRight, Check, Mic, Newspaper } from "lucide-react";
-import { BandaDemos, CierreJzet, MensajeWhatsApp, qz } from "../comun";
+import PanelFundadora from "./PanelFundadora";
+import { BandaDemos, PaginaYPanel, CierreJzet, MensajeWhatsApp, qz } from "../comun";
 import retrato from "@/assets/demo-fundadora/retrato.jpg";
 import retrato2 from "@/assets/demo-fundadora/retrato-2.jpg";
 import escenario from "@/assets/demo-fundadora/escenario.jpg";
@@ -64,6 +65,7 @@ export default function FundadoraDemo() {
   return (
     <div style={{ background: PAPEL, color: NEGRO }} className="min-h-screen">
       <BandaDemos />
+      <PaginaYPanel fondo="#2b3a2e" pagina={["La página","Mi historia, talleres y mentoría"]} panel={["Agenda de relaciones","A quién escribir y cómo va cada persona"]} titulo={["Valeria Ríos · Demo de Jzet Labs","Agenda · Valeria Ríos"]} panelEl={<PanelFundadora />}>
 
       {/* encabezado */}
       <header className="sticky top-0 z-30 border-b border-white/10 text-white backdrop-blur" style={{ background: "rgba(14,13,12,.92)" }}>
@@ -346,6 +348,7 @@ export default function FundadoraDemo() {
 
       <UnSoloLink />
 
+      </PaginaYPanel>
       <CierreJzet demo="página personal de fundadora" />
 
       <MensajeWhatsApp mensaje={mensaje?.texto ?? null} que={mensaje?.que} alCerrar={() => setMensaje(null)} demo="página personal de fundadora" />

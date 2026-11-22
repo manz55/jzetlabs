@@ -15,7 +15,8 @@ import f3 from "@/assets/demo-tienda/tiempo-3.jpg";
 import f4 from "@/assets/demo-tienda/tiempo-4.jpg";
 import f5 from "@/assets/demo-tienda/tiempo-5.jpg";
 import f6 from "@/assets/demo-tienda/tiempo-6.jpg";
-import { BandaDemos, CierreJzet, Contador, MensajeWhatsApp } from "../comun";
+import PanelClub from "./PanelClub";
+import { BandaDemos, PaginaYPanel, CierreJzet, Contador, MensajeWhatsApp } from "../comun";
 
 const MAR = "#0e3b3a";
 const ARENA = "#d9eee8";
@@ -90,6 +91,7 @@ export default function TiempoDemo() {
   return (
     <div style={{ background: ARENA, color: MAR }} className="min-h-screen">
       <BandaDemos />
+      <PaginaYPanel fondo="#0b3a4a" pagina={["La página del club","Planes, villas y semanas"]} panel={["Calendario del año","Semanas, socios y cuotas"]} titulo={["Costa Serena Club · Demo de Jzet Labs","Oficina · Costa Serena Club"]} panelEl={<PanelClub />}>
 
       {/* portada a pantalla completa con buscador */}
       <section className="relative min-h-[92svh] flex flex-col text-white">
@@ -345,6 +347,7 @@ export default function TiempoDemo() {
         }}
       />
 
+      </PaginaYPanel>
       <CierreJzet demo="tiempo compartido" />
 
       {/* visor de la galería */}

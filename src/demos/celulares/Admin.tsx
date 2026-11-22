@@ -10,10 +10,14 @@ import {
 } from "lucide-react";
 import { qz } from "../comun";
 import {
-  PRIMARIO, ESTADOS_PEDIDO, FONDO, AMARILLO, LAVANDA, LETRA_SISTEMA, PASOS_REPARACION, SUCURSALES, TEXTO_REPARACION, TINTA,
+  PRIMARIO, ESTADOS_PEDIDO, FONDO, LAVANDA, PASOS_REPARACION, SUCURSALES, TEXTO_REPARACION, TINTA,
   fechaCorta, sucursalPor,
   type EstadoPedido, type Pedido, type Producto, type Reparacion, type Tienda,
 } from "./datos";
+
+/* identidad propia del panel: violeta noche y lima, como el mostrador de una tienda de tecnología */
+const AMARILLO = "#b8f23a";
+const LETRA_PANEL = "'Space Grotesk', system-ui, sans-serif";
 
 type Pestana = "resumen" | "pedidos" | "pagos" | "inventario" | "reparaciones" | "tecnicos" | "devoluciones";
 const VENDIDO: EstadoPedido[] = ["pagado", "preparando", "en-camino", "entregado"];
@@ -41,36 +45,17 @@ export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () =>
   ];
 
   return (
-    <div className="min-h-screen lg:grid lg:grid-cols-[230px_1fr]" style={{ background: FONDO, color: TINTA, fontFamily: LETRA_SISTEMA }}>
-      <aside className="hidden lg:flex flex-col gap-1 p-4 text-white" style={{ background: TINTA }}>
-        <p className="px-2 pt-1 pb-4 font-extrabold text-[1.2rem]">Órbita</p>
-        {menu.map(([id, tx, I, n]) => (
-          <button key={id} type="button" onClick={() => setPestana(id)} className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left font-semibold transition ${pestana === id ? "text-white" : "text-white/75 hover:bg-white/5"}`} style={pestana === id ? { background: PRIMARIO } : undefined}>
-            <I size={18} /> <span className="flex-1">{tx}</span>
-            {!!n && <span className={`rounded-full px-2 text-[0.72rem] ${pestana === id ? "bg-black/15" : "bg-white/15"}`}>{n}</span>}
-          </button>
-        ))}
-        <div className="mt-auto space-y-1 pt-6 text-[0.88rem]">
-          <button type="button" onClick={alTienda} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-white/70 hover:bg-white/5">
-            <Store size={16} /> Ver la tienda
-          </button>
-          <button type="button" onClick={t.reiniciar} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-white/70 hover:bg-white/5">
-            <RotateCcw size={16} /> Reiniciar datos de ejemplo
-          </button>
-          <button type="button" onClick={alSalir} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-white/70 hover:bg-white/5">
-            <LogOut size={16} /> Salir
-          </button>
-        </div>
-      </aside>
-
-      <main className="min-w-0 pb-16">
+    <div className="min-h-screen" style={{ background: FONDO, color: TINTA, fontFamily: LETRA_PANEL }}>
+            <main className="min-w-0 pb-16">
         {/* pestañas en celular */}
-        <div className="lg:hidden sticky top-0 z-20 text-white" style={{ background: TINTA }}>
-          <div className="flex items-center justify-between px-4 py-2.5">
-            <p className="font-extrabold">Órbita</p>
-            <button type="button" onClick={alSalir} className="inline-flex items-center gap-1.5 rounded-full border border-white/20 px-3 py-1 text-[0.8rem]">
-              <LogOut size={14} /> Salir
-            </button>
+        <div className="sticky top-0 z-20 text-white" style={{ background: TINTA }}>
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
+            <p className="flex items-center gap-2 text-[1.35rem] font-bold tracking-tight"><span className="grid h-8 w-8 place-items-center rounded-lg text-[1rem]" style={{ background: AMARILLO, color: TINTA }}>Ó</span> Órbita <span className="text-[0.8rem] font-medium opacity-60">· mostrador del dueño</span></p>
+            <div className="ml-auto flex flex-wrap gap-2 text-[0.82rem]">
+              <button type="button" onClick={alTienda} className="inline-flex min-h-[2.5rem] items-center gap-1.5 rounded-full border border-white/25 px-3.5"><Store size={15} /> Ver la tienda</button>
+              <button type="button" onClick={t.reiniciar} className="inline-flex min-h-[2.5rem] items-center gap-1.5 rounded-full border border-white/25 px-3.5"><RotateCcw size={15} /> Reiniciar ejemplo</button>
+              <button type="button" onClick={alSalir} className="inline-flex min-h-[2.5rem] items-center gap-1.5 rounded-full border border-white/25 px-3.5"><LogOut size={15} /> Salir</button>
+            </div>
           </div>
           <nav className="flex overflow-x-auto [scrollbar-width:none]">
             {menu.map(([id, tx, I, n]) => (

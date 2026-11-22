@@ -3,8 +3,9 @@
  * Tres partes: el pedido de la tienda (lista de precios del día), la ruta del piloto
  * (entregado y cobrado) y la oficina (pedidos por ruta, existencias, créditos vencidos y cuadre).
  */
-import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, Banknote, Check, ChevronDown, ChevronUp, MapPin, Package, Search, ShoppingCart, Truck, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowRight, Check, ChevronDown, ChevronUp, MapPin, Package, Search, ShoppingCart, Truck, X } from "lucide-react";
+import PanelDespacho from "./PanelDespacho";
 import { BandaDemos, PartesDemo, Cajon, CierreJzet, Contador, MensajeWhatsApp } from "../comun";
 import {
   CATEGORIAS, DIAS, ETIQUETA, FOTOS, KRAFT, KRAFT2, PEDIDO_MINIMO, PRODUCTOS, RUTAS, SELLO, STENCIL, TIENDAS, TINTA, VERDE,
@@ -82,7 +83,7 @@ export default function DistribuidoraDemo() {
       <PartesDemo fondo={TINTA} actual={vista} alCambiar={setVista} partes={[{ id: "tienda", nombre: "Pedido de la tienda", quien: "La tienda ve los precios del día y pide" }, { id: "piloto", nombre: "Ruta del piloto", quien: "El piloto marca lo entregado y lo cobrado" }, { id: "oficina", nombre: "Oficina", quien: "Usted ve pedidos, el camión y los créditos" }] as const} />
       {vista === "tienda" && <PaginaTienda d={d} alPedir={() => setVista("oficina")} />}
       {vista === "piloto" && <Piloto d={d} />}
-      {vista === "oficina" && <Oficina d={d} />}
+      {vista === "oficina" && <PanelDespacho d={d} />}
       <CierreJzet demo="distribuidora" />
     </div>
   );
@@ -441,156 +442,3 @@ function Piloto({ d }: { d: Dist }) {
 }
 
 /* ---------------- oficina ---------------- */
-
-function Oficina({ d }: { d: Dist }) {
-  const [msg, setMsg] = useState<string | null>(null);
-  const [filtro, setFiltro] = useState("todas");
-  const pedidos = d.pedidos.filter((p) => filtro === "todas" || porId(TIENDAS, p.tienda).ruta === filtro);
-  const vendido = d.pedidos.reduce((s, p) => s + totalDe(p.lineas), 0);
-  const cobrado = d.pedidos.reduce((s, p) => s + p.cobrado, 0);
-  const nuevos = d.pedidos.filter((p) => p.estado === "nuevo").length;
-  const vencidos = TIENDAS.filter((t) => t.saldo > 0 && (t.vence ?? 0) < 3).sort((a, b) => (a.vence ?? 0) - (b.vence ?? 0));
-  const bajos = PRODUCTOS.filter((p) => p.hay < 10);
-  // lo que hay que cargar hoy, sumado por producto
-  const carga = useMemo(() => {
-    const m: Record<string, number> = {};
-    d.pedidos.filter((p) => p.estado === "nuevo").forEach((p) => p.lineas.forEach((l) => (m[l.id] = (m[l.id] ?? 0) + l.n)));
-    return Object.entries(m);
-  }, [d.pedidos]);
-  const estado = (p: Pedido) => (p.estado === "nuevo" ? { t: "Por cargar", c: SELLO } : p.estado === "en-ruta" ? { t: "En ruta", c: "#a36a00" } : { t: "Entregado", c: VERDE });
-
-  return (
-    <section className="mx-auto max-w-6xl px-5 py-10">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="font-bold opacity-70">Oficina · {DIAS[new Date().getDay()]}</p>
-          <h1 className="dist-titulo text-[2.6rem] sm:text-[3.2rem]">Pedidos de hoy</h1>
-        </div>
-        <button type="button" onClick={d.reiniciar} className="text-[0.9rem] font-semibold underline opacity-70">Volver a los datos de ejemplo</button>
-      </div>
-      <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {[
-          ["Vendido hoy", qz(vendido)],
-          ["Cobrado por pilotos", qz(cobrado)],
-          ["Pedidos por cargar", String(nuevos)],
-          ["Crédito vencido", qz(TIENDAS.filter((t) => (t.vence ?? 1) < 0).reduce((s, t) => s + t.saldo, 0))],
-        ].map(([a, b]) => (
-          <div key={a} className="etiqueta p-4">
-            <p className="text-[0.85rem] font-bold opacity-65">{a}</p>
-            <p className="mt-1 text-[1.7rem] font-bold leading-none">{b}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="dist-oficina mt-6">
-        <div className="etiqueta p-4 sm:p-5">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-[1.3rem] font-bold">Pedidos</h2>
-            <select aria-label="Filtrar pedidos" value={filtro} onChange={(e) => setFiltro(e.target.value)} className="rounded-md border border-black/15 px-2 py-1.5 font-semibold">
-              <option value="todas">Todas las rutas</option>
-              {RUTAS.map((x) => (
-                <option key={x.id} value={x.id}>
-                  {x.nombre} · {x.zona}
-                </option>
-              ))}
-            </select>
-          </div>
-          <ul className="mt-3 divide-y divide-black/10">
-            {[...pedidos].reverse().map((p) => {
-              const t = porId(TIENDAS, p.tienda);
-              const e = estado(p);
-              return (
-                <li key={p.num} className="flex flex-wrap items-center gap-x-4 gap-y-2 py-3">
-                  <span className="w-14 font-bold opacity-60">#{p.num}</span>
-                  <span className="min-w-[10rem] flex-1">
-                    <b className="block leading-tight">
-                      {t.nombre} {p.nuevo && <span className="ml-1 rounded px-1.5 py-0.5 text-[0.72rem] text-white" style={{ background: SELLO }}>recién llegado</span>}
-                    </b>
-                    <span className="block text-[0.85rem] opacity-65">
-                      {porId(RUTAS, t.ruta).nombre} · {p.hora} · {p.lineas.length} productos · {p.pago === "credito" ? "crédito" : "contado"}
-                    </span>
-                  </span>
-                  <b className="w-24 text-right">{qz(totalDe(p.lineas))}</b>
-                  <span className="w-24 text-[0.9rem] font-bold" style={{ color: e.c }}>{e.t}</span>
-                  {p.estado === "nuevo" ? (
-                    <button type="button" onClick={() => d.cargar(p.num)} className="rounded-md px-3 py-1.5 text-[0.9rem] font-bold text-white" style={{ background: TINTA }}>
-                      Cargar al camión
-                    </button>
-                  ) : (
-                    <span className="w-[8.6rem]" />
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-
-        <div className="grid content-start gap-6">
-          <div className="etiqueta p-4 sm:p-5">
-            <h2 className="flex items-center gap-2 text-[1.2rem] font-bold">
-              <Truck size={20} /> Para cargar hoy
-            </h2>
-            {carga.length === 0 ? (
-              <p className="mt-2 opacity-70">Todo está cargado.</p>
-            ) : (
-              <ul className="mt-2 grid gap-1">
-                {carga.map(([id, n]) => (
-                  <li key={id} className="flex justify-between">
-                    <span>{porId(PRODUCTOS, id).nombre}</span>
-                    <b>{n}</b>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-          <div className="etiqueta p-4 sm:p-5">
-            <h2 className="flex items-center gap-2 text-[1.2rem] font-bold">
-              <Banknote size={20} /> Créditos por cobrar
-            </h2>
-            <ul className="mt-2 grid gap-3">
-              {vencidos.map((t) => {
-                const ya = d.recordados.includes(t.id);
-                return (
-                  <li key={t.id} className="flex items-center gap-3">
-                    <span className="min-w-0 flex-1">
-                      <b className="block leading-tight">{t.nombre}</b>
-                      <span className="text-[0.88rem]" style={{ color: (t.vence ?? 0) < 0 ? SELLO : undefined }}>
-                        {qz(t.saldo)} · {(t.vence ?? 0) < 0 ? `venció hace ${-(t.vence ?? 0)} días` : `vence en ${t.vence} días`}
-                      </span>
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        d.recordar(t.id);
-                        setMsg(`Buen día, ${t.dueno.split(" ")[0]}. Le saludamos de Distribuidora El Volcán. Su saldo de ${qz(t.saldo)} ${(t.vence ?? 0) < 0 ? `venció hace ${-(t.vence ?? 0)} días` : `vence en ${t.vence} días`}. Puede pagarle al piloto en su próxima visita o por transferencia. Cualquier duda, a la orden.`);
-                      }}
-                      className="rounded-md border-2 px-3 py-1.5 text-[0.88rem] font-bold"
-                      style={{ borderColor: TINTA }}
-                    >
-                      {ya ? "Recordado" : "Recordarle"}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-          <div className="etiqueta p-4 sm:p-5">
-            <h2 className="text-[1.2rem] font-bold">Por acabarse en bodega</h2>
-            <ul className="mt-2 grid gap-1">
-              {bajos.map((p) => (
-                <li key={p.id} className="flex justify-between">
-                  <span>{p.nombre}</span>
-                  <b style={{ color: p.hay === 0 ? SELLO : "#a36a00" }}>{p.hay === 0 ? "agotado" : `quedan ${p.hay}`}</b>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </div>
-      <figure className="mt-8 overflow-hidden rounded-lg">
-        <img src={FOTOS.estantes} alt="Estanterías de la bodega" loading="lazy" className="h-48 w-full object-cover" />
-      </figure>
-      <MensajeWhatsApp mensaje={msg} alCerrar={() => setMsg(null)} demo="distribuidora" que="el recordatorio de cobro" />
-    </section>
-  );
-}

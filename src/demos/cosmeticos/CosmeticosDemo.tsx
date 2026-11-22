@@ -10,7 +10,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Bell, Brush, CalendarDays, Check, Clock, GraduationCap, Leaf, Link2, MapPin, MessageCircle, Palette, ShoppingBag, Trash2, X } from "lucide-react";
 import { Modal } from "@/components/Modal";
-import { BandaDemos, Cajon, CierreJzet, Contador, MensajeWhatsApp, qz } from "../comun";
+import PanelCosmeticos from "./PanelCosmeticos";
+import { BandaDemos, PaginaYPanel, Cajon, CierreJzet, Contador, MensajeWhatsApp, qz } from "../comun";
 import rostro from "@/assets/demo-cosmeticos/rostro.jpg";
 import polvoNegro from "@/assets/demo-cosmeticos/polvo-negro.jpg";
 import academiaFoto from "@/assets/demo-cosmeticos/academia.jpg";
@@ -188,6 +189,7 @@ export default function CosmeticosDemo() {
   return (
     <div style={{ background: PAPEL, color: NEGRO }} className="min-h-screen">
       <BandaDemos />
+      <PaginaYPanel fondo="#3b241b" pagina={["La tienda","Tonos, cursos y pedido"]} panel={["Vitrina de tonos","Existencias, cursos con cupo y pedidos"]} titulo={["Ámbar Cosmetics · Demo de Jzet Labs","Trastienda · Ámbar Cosmetics"]} panelEl={<PanelCosmeticos />}>
 
       {/* cinta con los sellos de la línea */}
       <div className={`text-center text-[0.88rem] sm:text-[0.72rem] py-2 px-4 text-white/80 ${MAYUS}`} style={{ background: NEGRO }}>
@@ -504,6 +506,7 @@ export default function CosmeticosDemo() {
         </div>
       </section>
 
+      </PaginaYPanel>
       <CierreJzet demo="tienda de cosméticos" />
 
       {/* bolsa flotante en celular */}

@@ -15,7 +15,8 @@ import comida3 from "@/assets/demo-tienda/comida-3.jpg";
 import comida4 from "@/assets/demo-tienda/comida-4.jpg";
 import comida5 from "@/assets/demo-tienda/comida-5.jpg";
 import comida6 from "@/assets/demo-tienda/comida-6.jpg";
-import { BandaDemos, CierreJzet, Contador, MensajeWhatsApp, qz } from "../comun";
+import PanelCocina from "./PanelCocina";
+import { BandaDemos, PaginaYPanel, CierreJzet, Contador, MensajeWhatsApp, qz } from "../comun";
 
 const PAPEL = "#fbe7a8";
 const TINTA = "#2b1d16";
@@ -153,6 +154,7 @@ export default function RestauranteDemo() {
   return (
     <div style={{ background: PAPEL, color: TINTA }} className="min-h-screen">
       <BandaDemos />
+      <PaginaYPanel fondo="#1d1512" pagina={["La página","Carta, pedido y reservación"]} panel={["Pantalla de cocina","Pedidos con reloj y platillos agotados"]} titulo={["Trattoria Sole · Demo de Jzet Labs","Cocina · Trattoria Sole"]} panelEl={<PanelCocina />}>
 
       {/* encabezado */}
       <header className="border-b border-[#2b1d16]/15">
@@ -369,6 +371,7 @@ export default function RestauranteDemo() {
         </div>
       </section>
 
+      </PaginaYPanel>
       <CierreJzet demo="restaurante" />
 
       {/* barra del pedido */}

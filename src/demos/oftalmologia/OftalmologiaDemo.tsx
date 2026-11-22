@@ -100,7 +100,7 @@ export default function OftalmologiaDemo() {
         alCambiar={setVista}
         partes={[
           { id: "pagina", nombre: "Página", quien: "Turnos que se respetan, sucursales y reseñas" },
-          { id: "recepcion", nombre: "Panel de la clínica", quien: "Hoy, agenda, pacientes, mensajes, reseñas y reportes" },
+          { id: "recepcion", nombre: "Panel de la clínica", quien: "Turnos, pacientes, cirugías y lentes" },
         ] as const}
       />
       {vista === "pagina" ? <Pagina /> : <PanelLumen />}

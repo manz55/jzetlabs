@@ -77,7 +77,7 @@ export default function TallerDemo() {
         alCambiar={setVista}
         partes={[
           { id: "pagina", nombre: "Página", quien: "Precios, auxilio a domicilio y seguimiento del carro" },
-          { id: "taller", nombre: "Panel del taller", quien: "Hoy, órdenes, clientes, mensajes, reseñas y reportes" },
+          { id: "taller", nombre: "Panel del taller", quien: "Bahías, órdenes, repuestos, auxilio y cobros" },
         ] as const}
       />
       {vista === "pagina" ? <Pagina /> : <PanelTorque />}
