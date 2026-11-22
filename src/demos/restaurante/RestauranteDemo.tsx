@@ -154,7 +154,7 @@ export default function RestauranteDemo() {
   return (
     <div style={{ background: PAPEL, color: TINTA }} className="min-h-screen">
       <BandaDemos />
-      <PaginaYPanel fondo="#1d1512" pagina={["La página","Carta, pedido y reservación"]} panel={["Pantalla de cocina","Pedidos con reloj y platillos agotados"]} titulo={["Trattoria Sole · Demo de Jzet Labs","Cocina · Trattoria Sole"]} panelEl={<PanelCocina />}>
+      <PaginaYPanel fondo="#1d1512" pagina={["La página","Carta, pedido y reservación"]} panel={["Panel de Trattoria Sole","Pedidos con reloj y platillos agotados"]} titulo={["Trattoria Sole · Demo de Jzet Labs","Cocina · Trattoria Sole"]} panelEl={<PanelCocina />}>
 
       {/* encabezado */}
       <header className="border-b border-[#2b1d16]/15">

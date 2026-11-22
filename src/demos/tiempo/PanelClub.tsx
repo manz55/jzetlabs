@@ -54,7 +54,7 @@ export default function PanelClub() {
     <div className="min-h-[calc(100vh-8rem)]" style={{ background: SAL, color: MAR, fontFamily: CUERPO }}>
       <header style={{ background: MAR }} className="text-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-end gap-x-8 gap-y-3 px-5 py-5">
-          <div><p className="text-[0.78rem] font-semibold uppercase tracking-[0.22em] opacity-60">Costa Serena Club · oficina</p><h1 className="text-[2.8rem] italic leading-none" style={{ fontFamily: TITULO, fontWeight: 600 }}>Calendario del año</h1></div>
+          <div><p className="text-[0.78rem] font-semibold uppercase tracking-[0.22em] opacity-60">Panel de oficina</p><h1 className="text-[2.8rem] italic leading-none" style={{ fontFamily: TITULO, fontWeight: 600 }}>Costa Serena Club</h1></div>
           <div className="ml-auto flex flex-wrap gap-x-8 gap-y-1">{[[String(n("libre")), "semanas libres", "#9fe3e3"], [String(n("apartada")), "apartadas", "#fff"], [String(atrasadas.length), "socios atrasados", "#ffb59f"], [qz(porCobrar), "por cobrar", "#ffb59f"]].map(([x, t, c]) => <p key={t}><b className="block text-[1.9rem] leading-none" style={{ fontFamily: TITULO, color: c }}>{x}</b><span className="text-[0.78rem] opacity-65">{t}</span></p>)}</div>
         </div>
         <nav aria-label="Oficina" className="mx-auto flex max-w-7xl gap-1 px-3">

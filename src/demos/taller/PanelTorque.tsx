@@ -72,7 +72,7 @@ export default function PanelTorque() {
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-4 px-5 py-3">
           <span className="flex items-center gap-2.5">
             <svg viewBox="0 0 48 48" width={36} height={36} aria-hidden><rect width="48" height="48" rx="6" fill={AMARILLO} /><path d="M14 14 H34 V20 H27 V36 H21 V20 H14 Z" fill={ASFALTO} /></svg>
-            <span className="leading-none"><span className="block text-[1.5rem] font-extrabold uppercase" style={{ fontFamily: TITULO }}>Torque · Taller</span><span className="text-[0.72rem] uppercase tracking-wider opacity-65">Tablero de Don Chepe</span></span>
+            <span className="leading-none"><span className="block text-[1.5rem] font-extrabold uppercase" style={{ fontFamily: TITULO }}>Torque · Taller</span><span className="text-[0.72rem] uppercase tracking-wider opacity-65">Panel del taller</span></span>
           </span>
           <span className="ml-auto text-[0.85rem] opacity-75">Sábado 21 de noviembre · 5 mecánicos</span>
         </div>

@@ -91,7 +91,7 @@ export default function TiempoDemo() {
   return (
     <div style={{ background: ARENA, color: MAR }} className="min-h-screen">
       <BandaDemos />
-      <PaginaYPanel fondo="#0b3a4a" pagina={["La página del club","Planes, villas y semanas"]} panel={["Calendario del año","Semanas, socios y cuotas"]} titulo={["Costa Serena Club · Demo de Jzet Labs","Oficina · Costa Serena Club"]} panelEl={<PanelClub />}>
+      <PaginaYPanel fondo="#0b3a4a" pagina={["La página del club","Planes, villas y semanas"]} panel={["Panel de Costa Serena","Semanas, socios y cuotas"]} titulo={["Costa Serena Club · Demo de Jzet Labs","Oficina · Costa Serena Club"]} panelEl={<PanelClub />}>
 
       {/* portada a pantalla completa con buscador */}
       <section className="relative min-h-[92svh] flex flex-col text-white">

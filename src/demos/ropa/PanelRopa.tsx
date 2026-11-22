@@ -51,7 +51,7 @@ export default function PanelRopa() {
     <div className="min-h-[calc(100vh-8rem)]" style={{ background: ARENA, color: VERDE, fontFamily: CUERPO }}>
       <header style={{ background: VERDE }} className="text-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-end gap-x-8 gap-y-3 px-5 py-5">
-          <div><p className="text-[0.78rem] font-semibold uppercase tracking-[0.2em] opacity-60">Nómada Studio · taller</p><h1 className="text-[2.6rem] uppercase leading-none" style={{ fontFamily: TITULO }}>Tablero de prendas</h1></div>
+          <div><p className="text-[0.78rem] font-semibold uppercase tracking-[0.2em] opacity-60">Panel de la tienda</p><h1 className="text-[2.6rem] uppercase leading-none" style={{ fontFamily: TITULO }}>Nómada Studio</h1></div>
           <div className="ml-auto flex flex-wrap gap-x-8 gap-y-1">{[[String(total), "piezas en stock"], [String(agotadas), "tallas agotadas"], [qz(vendido), "pedidos abiertos"]].map(([n, t]) => <p key={t}><b className="block text-[1.9rem] leading-none" style={{ fontFamily: TITULO, color: "#f0c58a" }}>{n}</b><span className="text-[0.78rem] opacity-65">{t}</span></p>)}</div>
         </div>
         <div className="h-2" style={{ background: `repeating-linear-gradient(90deg, ${TERRA} 0 40px, ${OLIVA} 40px 80px, ${AMBAR} 80px 120px)` }} aria-hidden />

@@ -45,7 +45,7 @@ export default function PanelDespacho({ d }: { d: Dist }) {
       <header style={{ background: NEGRO }} className="text-white">
         <div className="h-3" style={{ background: `repeating-linear-gradient(90deg, ${SELLO} 0 32px, ${NEGRO} 32px 64px)` }} aria-hidden />
         <div className="mx-auto flex max-w-7xl flex-wrap items-end gap-x-8 gap-y-3 px-5 py-4">
-          <div><p className="text-[0.78rem] font-bold uppercase tracking-[0.2em] opacity-60" style={{ fontFamily: MONO }}>El Volcán · oficina · {DIAS[new Date().getDay()]}</p><h1 className="text-[3rem] font-extrabold uppercase leading-[0.9]" style={{ fontFamily: TITULO }}>Mesa de despacho</h1></div>
+          <div><p className="text-[0.78rem] font-bold uppercase tracking-[0.2em] opacity-60" style={{ fontFamily: MONO }}>Panel de oficina · {DIAS[new Date().getDay()]}</p><h1 className="text-[3rem] font-extrabold uppercase leading-[0.9]" style={{ fontFamily: TITULO }}>Distribuidora El Volcán</h1></div>
           <div className="ml-auto flex flex-wrap gap-x-8 gap-y-1">{[[qz(vendido), "vendido hoy", "#fff"], [qz(cobrado), "cobrado por pilotos", "#8be0a8"], [String(nuevos), "pedidos por cargar", "#ffd37a"], [qz(vencido), "crédito vencido", "#ff9aa8"]].map(([n, t, c]) => <p key={t}><b className="block text-[1.9rem] leading-none" style={{ fontFamily: TITULO, color: c }}>{n}</b><span className="text-[0.78rem] opacity-65">{t}</span></p>)}</div>
         </div>
         <nav aria-label="Oficina" className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-3">

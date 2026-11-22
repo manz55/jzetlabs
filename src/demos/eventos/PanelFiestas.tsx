@@ -41,7 +41,7 @@ export default function PanelFiestas({ ev }: { ev: Ev }) {
       <header style={{ background: ANIL2 }} className="relative overflow-hidden text-white">
         <div className="flex" aria-hidden>{Array.from({ length: 22 }, (_, i) => <span key={i} className="h-5 flex-1" style={{ background: PICADO[i % 5], clipPath: "polygon(0 0, 100% 0, 100% 60%, 50% 100%, 0 60%)" }} />)}</div>
         <div className="mx-auto flex max-w-7xl flex-wrap items-end gap-x-8 gap-y-3 px-5 py-5">
-          <div><p className="text-[0.8rem] font-bold uppercase tracking-[0.2em] opacity-70">Fiestas La Ceiba · bodega</p><h1 className="text-[2.6rem] leading-none" style={{ fontFamily: TITULO, fontWeight: 600 }}>Calendario de fiestas</h1></div>
+          <div><p className="text-[0.8rem] font-bold uppercase tracking-[0.2em] opacity-70">Panel de bodega y calendario</p><h1 className="text-[2.6rem] leading-none" style={{ fontFamily: TITULO, fontWeight: 600 }}>Fiestas La Ceiba</h1></div>
           <div className="ml-auto flex flex-wrap gap-x-8 gap-y-1">{[[String(ev.eventos.length), "eventos apartados"], [qz(anticipos), "en anticipos"], [qz(porCobrar), "saldos por cobrar"]].map(([n, t]) => <p key={t}><b className="block text-[1.8rem] leading-none" style={{ fontFamily: TITULO, color: MAIZ }}>{n}</b><span className="text-[0.82rem] opacity-70">{t}</span></p>)}<button type="button" onClick={ev.reiniciar} className="self-end text-[0.85rem] underline opacity-70">Volver a los datos de ejemplo</button></div>
         </div>
       </header>

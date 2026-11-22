@@ -49,8 +49,8 @@ export default function PanelBoutique({ d, setD, inicial, alSalir }: { d: Datos;
   return (
     <div className="min-h-[calc(100vh-8rem)] pb-14" style={{ background: MARFIL, color: TINTA, fontFamily: CUERPO }}>
       <header className="mx-auto max-w-6xl px-5 pt-8 text-center">
-        <p className={`text-[0.75rem] ${versal} opacity-70`} style={{ color: BRONCE }}>Maison Solène · reventa de lujo</p>
-        <h1 className="mt-1 text-[3.2rem] italic leading-none" style={{ fontFamily: TITULO, fontWeight: 500 }}>Libro de la dueña</h1>
+        <p className={`text-[0.75rem] ${versal} opacity-70`} style={{ color: BRONCE }}>Panel de la dueña</p>
+        <h1 className="mt-1 text-[3.2rem] italic leading-none" style={{ fontFamily: TITULO, fontWeight: 500 }}>Maison Solène</h1>
         <div className="mt-5 flex flex-wrap items-center justify-center gap-x-10 gap-y-2 py-3" style={doble}>
           {[["Piezas disponibles", String(PIEZAS.filter((p) => estadoDe(d, p.id) === "disponible").length)], ["Apartadas", String(apartadas.length)], ["Vendido", qz(ventas)], ["Ganancia de la Maison", qz(ganancia)]].map(([t, v]) => <p key={t} className="text-center"><b className="block text-[1.9rem] leading-none" style={{ fontFamily: TITULO, fontWeight: 600 }}>{v}</b><span className={`text-[0.68rem] ${versal} opacity-65`}>{t}</span></p>)}
         </div>

@@ -50,7 +50,7 @@ export default function PanelFundadora() {
     <div className="min-h-[calc(100vh-8rem)]" style={{ background: CREMA, color: TINTA, fontFamily: CUERPO }}>
       <header style={{ background: TINTA }} className="text-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-end gap-x-8 gap-y-3 px-5 py-5">
-          <div><p className="text-[0.78rem] font-bold uppercase tracking-[0.2em] opacity-60">Valeria Ríos · mi agenda</p><h1 className="text-[2.6rem] italic leading-none" style={{ fontFamily: TITULO, fontWeight: 600 }}>Agenda de relaciones</h1></div>
+          <div><p className="text-[0.78rem] font-bold uppercase tracking-[0.2em] opacity-60">Mi panel</p><h1 className="text-[2.6rem] italic leading-none" style={{ fontFamily: TITULO, fontWeight: 600 }}>Valeria Ríos</h1></div>
           <div className="ml-auto flex flex-wrap gap-x-8 gap-y-1">{[[String(personas.filter((p) => p.etapa === 0).length), "me escribieron", "#f0b89d"], [String(activas), "en mentoría", "#c9d8b6"], [qz(ingresos), "facturado en total", "#fff"]].map(([n, t, c]) => <p key={t}><b className="block text-[1.9rem] leading-none" style={{ fontFamily: TITULO, color: c }}>{n}</b><span className="text-[0.78rem] opacity-65">{t}</span></p>)}</div>
         </div>
       </header>

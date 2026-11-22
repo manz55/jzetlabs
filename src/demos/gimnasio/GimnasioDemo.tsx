@@ -83,7 +83,7 @@ export default function GimnasioDemo() {
   }, []);
   useEffect(() => {
     history.replaceState(null, "", vista === "pagina" ? location.pathname : `#${vista}`);
-    document.title = vista === "recepcion" ? "Recepción · Spartan Force" : vista === "socio" ? "Mi membresía · Spartan Force" : "Spartan Force Gym · Demo de Jzet Labs";
+    document.title = vista === "recepcion" ? "Panel · Spartan Force" : vista === "socio" ? "Mi membresía · Spartan Force" : "Spartan Force Gym · Demo de Jzet Labs";
     window.scrollTo(0, 0);
   }, [vista]);
 
@@ -91,7 +91,7 @@ export default function GimnasioDemo() {
     <div className="gym min-h-screen" style={{ background: GOMA, color: TIZA }}>
       <style>{ESTILOS}</style>
       <BandaDemos />
-      <PartesDemo fondo={"#0d0e0f"} actual={vista} alCambiar={setVista} partes={[{ id: "pagina", nombre: "Página", quien: "Cuánta gente hay, planes y clases" }, { id: "socio", nombre: "App del socio", quien: "Su carnet, sus días y su rutina" }, { id: "recepcion", nombre: "Recepción", quien: "Quién entró y a quién se le venció" }] as const} />
+      <PartesDemo fondo={"#0d0e0f"} actual={vista} alCambiar={setVista} partes={[{ id: "pagina", nombre: "Página", quien: "Cuánta gente hay, planes y clases" }, { id: "socio", nombre: "App del socio", quien: "Su carnet, sus días y su rutina" }, { id: "recepcion", nombre: "Panel de Spartan Force", quien: "Socios, acceso, clases y pagos" }] as const} />
       {vista === "pagina" && <Pagina gym={gym} alInscribir={(n) => { setSocio(n); setVista("socio"); }} />}
       {vista === "socio" && <MiMembresia gym={gym} num={socio} setNum={setSocio} />}
       {vista === "recepcion" && <PanelGimnasio gym={gym} />}

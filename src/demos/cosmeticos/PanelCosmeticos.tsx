@@ -51,7 +51,7 @@ export default function PanelCosmeticos() {
     <div className="min-h-[calc(100vh-8rem)]" style={{ background: CREMA, color: MOCCA, fontFamily: CUERPO }}>
       <header style={{ background: MOCCA }} className="text-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-end gap-x-8 gap-y-3 px-5 py-5">
-          <div><p className="text-[0.78rem] font-semibold uppercase tracking-[0.22em] opacity-60">Ámbar Cosmetics · trastienda</p><h1 className="text-[2.6rem] italic leading-none" style={{ fontFamily: TITULO }}>Vitrina de tonos</h1></div>
+          <div><p className="text-[0.78rem] font-semibold uppercase tracking-[0.22em] opacity-60">Panel del dueño</p><h1 className="text-[2.6rem] italic leading-none" style={{ fontFamily: TITULO }}>Ámbar Cosmetics</h1></div>
           <div className="ml-auto flex flex-wrap gap-x-8 gap-y-1">{[[String(tonos.reduce((s, x) => s + x.s, 0)), "bases en stock"], [String(agotados), "tonos agotados"], [String(cursos.reduce((s, c) => s + c.inscritas.length, 0)), "inscritas a cursos"]].map(([n, tx]) => <p key={tx}><b className="block text-[1.9rem] leading-none" style={{ fontFamily: TITULO, color: AMBAR }}>{n}</b><span className="text-[0.78rem] opacity-65">{tx}</span></p>)}</div>
         </div>
       </header>

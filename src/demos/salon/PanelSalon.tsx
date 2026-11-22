@@ -49,7 +49,7 @@ export default function PanelSalon({ store }: { store: ReturnType<typeof useCita
     <div className="min-h-[calc(100vh-8rem)]" style={{ background: MARFIL, color: TINTA, fontFamily: CUERPO }}>
       <header style={{ background: CIRUELA }} className="text-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-end gap-x-8 gap-y-3 px-5 py-5">
-          <div><p className="text-[0.8rem] uppercase tracking-[0.2em] opacity-70">Lirio Salón · agenda</p><h1 className="text-[2.6rem] leading-none" style={{ fontFamily: TITULO }}>{fechaLarga(hoy).replace(/^./, (x) => x.toUpperCase())}</h1></div>
+          <div><p className="text-[0.8rem] uppercase tracking-[0.2em] opacity-70">Panel de agenda · {fechaLarga(hoy)}</p><h1 className="text-[2.6rem] leading-none" style={{ fontFamily: TITULO }}>Lirio Salón</h1></div>
           <div className="ml-auto flex flex-wrap gap-2" role="tablist" aria-label="Sucursales">
             {SUCURSALES.map((x) => <button key={x.id} type="button" role="tab" aria-selected={suc === x.id} onClick={() => setSuc(x.id)} className="rounded-full border px-4 py-2 font-medium" style={suc === x.id ? { background: ORO, borderColor: ORO, color: "#fff" } : { borderColor: "rgba(255,255,255,.4)" }}>{x.nombre}</button>)}
           </div>

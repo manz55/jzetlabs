@@ -189,7 +189,7 @@ export default function CosmeticosDemo() {
   return (
     <div style={{ background: PAPEL, color: NEGRO }} className="min-h-screen">
       <BandaDemos />
-      <PaginaYPanel fondo="#3b241b" pagina={["La tienda","Tonos, cursos y pedido"]} panel={["Vitrina de tonos","Existencias, cursos con cupo y pedidos"]} titulo={["Ámbar Cosmetics · Demo de Jzet Labs","Trastienda · Ámbar Cosmetics"]} panelEl={<PanelCosmeticos />}>
+      <PaginaYPanel fondo="#3b241b" pagina={["La tienda","Tonos, cursos y pedido"]} panel={["Panel de Ámbar","Existencias, cursos con cupo y pedidos"]} titulo={["Ámbar Cosmetics · Demo de Jzet Labs","Trastienda · Ámbar Cosmetics"]} panelEl={<PanelCosmeticos />}>
 
       {/* cinta con los sellos de la línea */}
       <div className={`text-center text-[0.88rem] sm:text-[0.72rem] py-2 px-4 text-white/80 ${MAYUS}`} style={{ background: NEGRO }}>

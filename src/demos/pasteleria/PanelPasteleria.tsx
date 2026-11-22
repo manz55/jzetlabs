@@ -64,7 +64,7 @@ export default function PanelPasteleria({ store, vit }: { store: ReturnType<type
     <div className="min-h-[calc(100vh-8rem)]" style={{ background: CACAO, color: CREMA, fontFamily: CUERPO }}>
       <header className="border-b" style={{ borderColor: "rgba(255,244,230,.15)" }}>
         <div className="mx-auto flex max-w-7xl flex-wrap items-end gap-x-8 gap-y-3 px-5 py-5">
-          <div><p className="text-[0.8rem] font-extrabold uppercase tracking-[0.2em] opacity-60">Dulce Abril · cocina</p><h1 className="text-[2.6rem] leading-none" style={{ fontFamily: TITULO }}>{fechaLarga(hoy).replace(/^./, (c) => c.toUpperCase())}</h1></div>
+          <div><p className="text-[0.8rem] font-extrabold uppercase tracking-[0.2em] opacity-60">Panel de cocina · {fechaLarga(hoy)}</p><h1 className="text-[2.6rem] leading-none" style={{ fontFamily: TITULO }}>Dulce Abril</h1></div>
           <div className="ml-auto flex gap-6 text-[0.9rem]">{[[String(porHacer.length), "por hornear"], [String(listos.length), "listos"], [qz(cobrado), "cobrado"], [qz(falta), "falta cobrar"]].map(([n, t]) => <p key={t}><b className="block text-[1.7rem] leading-none" style={{ fontFamily: TITULO, color: MANTEQUILLA }}>{n}</b><span className="opacity-65">{t}</span></p>)}</div>
         </div>
         <nav aria-label="Cocina" className="mx-auto flex max-w-7xl gap-1 px-4">

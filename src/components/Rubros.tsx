@@ -238,24 +238,24 @@ const ICONO_RUBRO: Record<string, typeof Store> = { empresas: Building2, clinica
 
 /* Cómo se ve el panel de cada demo: su nombre, sus colores y su letra (cada negocio tiene el suyo) */
 const PANEL_INFO: Record<string, { n: string; c: string[]; f: string }> = {
-  clinica: { n: "Sistema de la clínica", c: ["#0f2a43", "#1f6fb2", "#f0634a"], f: "Outfit" },
-  pediatria: { n: "La pared del consultorio", c: ["#17365d", "#f26b4f", "#7cbf3a"], f: "Baloo 2" },
-  medicina: { n: "Historia clínica de tres columnas", c: ["#1d4a42", "#c47f26", "#f6f4ec"], f: "Lora" },
-  oftalmologia: { n: "Pantalla de turnos", c: ["#0b2545", "#0f7f8c", "#d9503f"], f: "Fraunces" },
-  veterinaria: { n: "Hoja de hospitalización", c: ["#12312b", "#c98a14", "#fbf8ee"], f: "Young Serif" },
-  perfil: { n: "La libreta de la consultora", c: ["#7a2e5c", "#f7cfbd", "#2a1633"], f: "DM Serif Display" },
-  ropa: { n: "Tablero de prendas", c: ["#2f3a22", "#b5532f", "#efe6d6"], f: "Archivo Black" },
-  cosmeticos: { n: "Vitrina de tonos", c: ["#3b241b", "#d98a2b", "#f3d3cb"], f: "Playfair Display" },
-  salon: { n: "Cuadrícula por estilista", c: ["#4a1d3f", "#b88a3c", "#f3dde0"], f: "Bodoni Moda" },
-  boutique: { n: "Libro de registro", c: ["#14110f", "#8c6a35", "#f6f1e7"], f: "Cormorant Garamond" },
-  celulares: { n: "Mostrador del dueño", c: ["#1c1230", "#6d28d9", "#b8f23a"], f: "Space Grotesk" },
-  restaurante: { n: "Pantalla de cocina", c: ["#1d1512", "#c4352a", "#fbf1d8"], f: "Playfair Display" },
-  tiempo: { n: "Calendario del año", c: ["#0b3a4a", "#12a3a8", "#ef6f4f"], f: "Cormorant Garamond" },
-  distribuidora: { n: "Mesa de despacho", c: ["#1a1a1c", "#b3261e", "#f4ead7"], f: "Archivo Narrow" },
-  asistencia: { n: "Libro de planilla", c: ["#2b2f33", "#ff7a1a", "#f4f5f7"], f: "Archivo" },
-  taller: { n: "Tablero de bahías", c: ["#15171c", "#ffc21a", "#e9ecef"], f: "Barlow Condensed" },
-  gimnasios: { n: "Torniquete", c: ["#16181a", "#f2c230", "#2e9b57"], f: "Big Shoulders Display" },
-  eventos: { n: "Calendario de fiestas", c: ["#1a275c", "#d6457a", "#efb22e"], f: "Fraunces" },
+  clinica: { n: "Panel de Clínica Aurora", c: ["#0f2a43", "#1f6fb2", "#f0634a"], f: "Outfit" },
+  pediatria: { n: "Panel de Pediatría Semillita", c: ["#17365d", "#f26b4f", "#7cbf3a"], f: "Baloo 2" },
+  medicina: { n: "Panel del Dr. Samayoa", c: ["#1d4a42", "#c47f26", "#f6f4ec"], f: "Lora" },
+  oftalmologia: { n: "Panel de Lumen", c: ["#0b2545", "#0f7f8c", "#d9503f"], f: "Fraunces" },
+  veterinaria: { n: "Panel de Huesitos", c: ["#12312b", "#c98a14", "#fbf8ee"], f: "Young Serif" },
+  perfil: { n: "Panel de la consultora", c: ["#7a2e5c", "#f7cfbd", "#2a1633"], f: "DM Serif Display" },
+  ropa: { n: "Panel de Nómada Studio", c: ["#2f3a22", "#b5532f", "#efe6d6"], f: "Archivo Black" },
+  cosmeticos: { n: "Panel de Ámbar", c: ["#3b241b", "#d98a2b", "#f3d3cb"], f: "Playfair Display" },
+  salon: { n: "Panel de Lirio Salón", c: ["#4a1d3f", "#b88a3c", "#f3dde0"], f: "Bodoni Moda" },
+  boutique: { n: "Panel de Maison Solène", c: ["#14110f", "#8c6a35", "#f6f1e7"], f: "Cormorant Garamond" },
+  celulares: { n: "Panel de Órbita", c: ["#1c1230", "#6d28d9", "#b8f23a"], f: "Space Grotesk" },
+  restaurante: { n: "Panel de Trattoria Sole", c: ["#1d1512", "#c4352a", "#fbf1d8"], f: "Playfair Display" },
+  tiempo: { n: "Panel de Costa Serena", c: ["#0b3a4a", "#12a3a8", "#ef6f4f"], f: "Cormorant Garamond" },
+  distribuidora: { n: "Panel de El Volcán", c: ["#1a1a1c", "#b3261e", "#f4ead7"], f: "Archivo Narrow" },
+  asistencia: { n: "Panel de Los Cedros", c: ["#2b2f33", "#ff7a1a", "#f4f5f7"], f: "Archivo" },
+  taller: { n: "Panel de Taller Torque", c: ["#15171c", "#ffc21a", "#e9ecef"], f: "Barlow Condensed" },
+  gimnasios: { n: "Panel de Spartan Force", c: ["#16181a", "#f2c230", "#2e9b57"], f: "Big Shoulders Display" },
+  eventos: { n: "Panel de La Ceiba", c: ["#1a275c", "#d6457a", "#efb22e"], f: "Fraunces" },
 };
 
 const RUTA_DEMO: Record<string, string> = { distribuidora: "/demos/distribuidora/", asistencia: "/demos/planilla/", clinica: "/demos/clinica/", pediatria: "/demos/pediatria/", medicina: "/demos/medicina/", perfil: "/demos/perfil-belleza/", salon: "/demos/salon/", boutique: "/demos/boutique/", ropa: "/demos/ropa/", cosmeticos: "/demos/cosmeticos/", celulares: "/demos/celulares/", restaurante: "/demos/restaurante/", tiempo: "/demos/tiempo-compartido/", oftalmologia: "/demos/oftalmologia/", veterinaria: "/demos/veterinaria/", taller: "/demos/taller/" };
@@ -533,7 +533,7 @@ export function Rubros() {
               return (
                 <p className="mt-7 inline-flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-linea bg-blanco px-4 py-2.5 text-[0.92rem]">
                   <span className="flex gap-1" aria-hidden>{info.c.map((c) => <span key={c} className="h-5 w-5 rounded-full border border-black/10" style={{ background: c }} />)}</span>
-                  <span><b>Su panel:</b> {info.n}</span>
+                  <span><b>{info.n}</b></span>
                   <span className="text-suave">Tipografía: {info.f}</span>
                 </p>
               );

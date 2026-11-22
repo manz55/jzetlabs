@@ -65,7 +65,7 @@ export default function FundadoraDemo() {
   return (
     <div style={{ background: PAPEL, color: NEGRO }} className="min-h-screen">
       <BandaDemos />
-      <PaginaYPanel fondo="#2b3a2e" pagina={["La página","Mi historia, talleres y mentoría"]} panel={["Agenda de relaciones","A quién escribir y cómo va cada persona"]} titulo={["Valeria Ríos · Demo de Jzet Labs","Agenda · Valeria Ríos"]} panelEl={<PanelFundadora />}>
+      <PaginaYPanel fondo="#2b3a2e" pagina={["La página","Mi historia, talleres y mentoría"]} panel={["Panel de Valeria","A quién escribir y cómo va cada persona"]} titulo={["Valeria Ríos · Demo de Jzet Labs","Agenda · Valeria Ríos"]} panelEl={<PanelFundadora />}>
 
       {/* encabezado */}
       <header className="sticky top-0 z-30 border-b border-white/10 text-white backdrop-blur" style={{ background: "rgba(14,13,12,.92)" }}>

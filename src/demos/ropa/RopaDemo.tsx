@@ -98,7 +98,7 @@ export default function RopaDemo() {
   return (
     <div style={{ background: FONDO, color: TINTA }} className="min-h-screen">
       <BandaDemos />
-      <PaginaYPanel fondo="#2f3a22" pagina={["La tienda","Catálogo con tallas y pedido"]} panel={["Tablero de prendas","Qué talla queda y pedidos del día"]} titulo={["Nómada Studio · Demo de Jzet Labs","Taller · Nómada Studio"]} panelEl={<PanelRopa />}>
+      <PaginaYPanel fondo="#2f3a22" pagina={["La tienda","Catálogo con tallas y pedido"]} panel={["Panel de Nómada Studio","Qué talla queda y pedidos del día"]} titulo={["Nómada Studio · Demo de Jzet Labs","Taller · Nómada Studio"]} panelEl={<PanelRopa />}>
 
       {/* encabezado */}
       <header className="sticky top-0 z-30 border-b border-black/10 bg-[#dcd9d2]/90 backdrop-blur">
