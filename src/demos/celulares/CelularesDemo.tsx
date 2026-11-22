@@ -33,7 +33,7 @@ export default function CelularesDemo() {
       <PartesDemo fondo={"#2a1b45"} actual={vista} alCambiar={irA} partes={[{ id: "tienda", nombre: "La tienda", quien: "Lo que ve su cliente: equipos, precios y pedido" }, { id: "admin", nombre: "Panel del dueño", quien: "Lo que ve usted: pedidos, ventas e inventario" }] as const} />
 
       {vista === "tienda" ? (
-        <TiendaCliente t={t} alAdmin={() => irA("admin")} />
+        <TiendaCliente t={t} />
       ) : (
         // por ahora se entra sin contraseña; en la tienda real cada quien tendrá su usuario
         <PanelDueno t={t} alSalir={() => irA("tienda")} alTienda={() => irA("tienda")} />

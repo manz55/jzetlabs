@@ -37,7 +37,7 @@ const pasa = (p: Producto, f: Filtro) =>
           ? p.condicion === "Seminuevo"
           : p.categoria === "Celulares" && (f === "Celulares" || (f === "iPhone" ? p.marca === "Apple" : p.marca === f));
 
-export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }) {
+export function TiendaCliente({ t }: { t: Tienda }) {
   const [filtro, setFiltro] = useState<Filtro>("Celulares");
   const [buscar, setBuscar] = useState("");
   const [ficha, setFicha] = useState<Producto | null>(null);
@@ -86,7 +86,7 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
     <div style={{ background: FONDO, color: TINTA }} className="min-h-screen">
       {/* barra de promociones */}
       <div className="text-white text-[0.8rem]" style={{ background: PRIMARIO }}>
-        <div className="mx-auto max-w-7xl px-5 py-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-center">
+        <div className="mx-auto max-w-[140rem] px-[clamp(1rem,4vw,5rem)] py-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-center">
           <span><b>Black Week:</b> hasta 20% en seminuevos · Celulares, iPad, Mac y laptops con garantía</span>
           <span className="hidden sm:inline text-white/50">|</span>
           <span className="hidden sm:inline">Envíos a toda Guatemala · Paga al recibir</span>
@@ -97,7 +97,7 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
 
       {/* encabezado */}
       <header className="sticky top-0 z-30 bg-white border-b border-black/10">
-        <div className="mx-auto max-w-7xl px-5 h-16 flex items-center gap-4">
+        <div className="mx-auto max-w-[140rem] px-[clamp(1rem,4vw,5rem)] h-16 flex items-center gap-4">
           <a href="#inicio" className="shrink-0 leading-none">
             <span className="block text-[1.4rem] font-extrabold tracking-[-0.02em]" style={{ fontFamily: TITULO }}>
               Órbita
@@ -133,7 +133,7 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
           </div>
         </div>
         <nav className="border-t border-black/5" aria-label="Categorías">
-          <div className="mx-auto max-w-7xl px-5 flex gap-5 overflow-x-auto [scrollbar-width:none] text-[0.88rem] font-semibold">
+          <div className="mx-auto max-w-[140rem] px-[clamp(1rem,4vw,5rem)] flex gap-5 overflow-x-auto [scrollbar-width:none] text-[0.88rem] font-semibold">
             {FILTROS.map((f) => (
               <button key={f} type="button" onClick={() => verFiltro(f)} className={`shrink-0 border-b-2 py-2.5 transition ${!q && filtro === f ? "" : "border-transparent text-black/60 hover:text-black"}`} style={!q && filtro === f ? { borderColor: PRIMARIO, color: PRIMARIO } : undefined}>
                 {f}
@@ -150,7 +150,7 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
       </header>
 
       {/* banner del mes y promociones: cada foto es del equipo que nombra */}
-      <section id="inicio" className="mx-auto max-w-7xl px-5 pt-5 grid lg:grid-cols-[2fr_1fr] gap-4">
+      <section id="inicio" className="mx-auto max-w-[140rem] px-[clamp(1rem,4vw,5rem)] pt-5 grid lg:grid-cols-[2fr_1fr] gap-4">
         <div className="overflow-hidden rounded-2xl text-white grid sm:grid-cols-[1.05fr_1fr]" style={{ background: TINTA }}>
           <div className="relative order-2 sm:order-1 flex flex-col justify-center p-6 sm:p-10">
             <span className="self-start rounded px-2 py-1 text-[0.72rem] font-bold uppercase tracking-wider text-black" style={{ background: AMARILLO }}>
@@ -199,7 +199,7 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
       </section>
 
       {/* qué vendemos, en 5 segundos */}
-      <section className="mx-auto max-w-7xl px-5 pt-4">
+      <section className="mx-auto max-w-[140rem] px-[clamp(1rem,4vw,5rem)] pt-4">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {(
             [
@@ -233,7 +233,7 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
       </section>
 
       {/* beneficios */}
-      <section className="mx-auto max-w-7xl px-5 pt-4">
+      <section className="mx-auto max-w-[140rem] px-[clamp(1rem,4vw,5rem)] pt-4">
         <ul className="grid grid-cols-2 lg:grid-cols-4 gap-px overflow-hidden rounded-2xl bg-black/10">
           {[
             [CreditCard, "12 cuotas sin recargo", "Con tarjetas participantes"],
@@ -256,7 +256,7 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
       </section>
 
       {/* catálogo */}
-      <section id="catalogo" className="scroll-mt-28 mx-auto max-w-7xl px-5 py-12 sm:py-16">
+      <section id="catalogo" className="scroll-mt-28 mx-auto max-w-[140rem] px-[clamp(1rem,4vw,5rem)] py-12 sm:py-16">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <h2 className="text-[1.8rem] sm:text-[2.3rem] font-extrabold tracking-[-0.02em] !text-[#1c1230]" style={{ fontFamily: TITULO }}>
             {q ? `Resultados para “${buscar.trim()}”` : filtro === "Celulares" ? "Celulares" : filtro}
@@ -314,7 +314,7 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
 
       {/* quiénes somos y de dónde los traemos */}
       <section className="bg-white">
-        <div className="mx-auto max-w-7xl px-5 py-12 sm:py-16 grid lg:grid-cols-[1fr_1.1fr] gap-10 items-center">
+        <div className="mx-auto max-w-[140rem] px-[clamp(1rem,4vw,5rem)] py-12 sm:py-16 grid lg:grid-cols-[1fr_1.1fr] gap-10 items-center">
           <img src={tecnico} alt="Técnico de Órbita revisando la placa de un celular" className="w-full aspect-[4/3] object-cover rounded-2xl" loading="lazy" />
           <div>
             <p className="text-[0.8rem] font-bold uppercase tracking-[0.14em]" style={{ color: PRIMARIO }}>
@@ -362,7 +362,7 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
       </section>
 
       {/* formas de pago */}
-      <section className="mx-auto max-w-7xl px-5 pt-12 sm:pt-16">
+      <section className="mx-auto max-w-[140rem] px-[clamp(1rem,4vw,5rem)] pt-12 sm:pt-16">
         <div className="grid md:grid-cols-[1fr_2fr] gap-6 items-center rounded-2xl border border-black/10 bg-white p-6 sm:p-8">
           <div>
             <p className="inline-flex items-center gap-2 text-[1.3rem] font-extrabold">
@@ -396,7 +396,7 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
       <Devoluciones t={t} />
 
       {/* sucursales */}
-      <section id="sucursales" className="scroll-mt-28 mx-auto max-w-7xl px-5 py-12 sm:py-16">
+      <section id="sucursales" className="scroll-mt-28 mx-auto max-w-[140rem] px-[clamp(1rem,4vw,5rem)] py-12 sm:py-16">
         <h2 className="text-[1.8rem] sm:text-[2.3rem] font-extrabold !text-[#1c1230]" style={{ fontFamily: TITULO }}>
           Sucursales
         </h2>
@@ -414,7 +414,7 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
       </section>
 
       {/* opiniones y preguntas */}
-      <section className="mx-auto max-w-7xl px-5 pb-14 sm:pb-20 grid lg:grid-cols-2 gap-10">
+      <section className="mx-auto max-w-[140rem] px-[clamp(1rem,4vw,5rem)] pb-14 sm:pb-20 grid lg:grid-cols-2 gap-10">
         <div>
           <h2 className="text-[1.8rem] sm:text-[2.3rem] font-extrabold !text-[#1c1230]" style={{ fontFamily: TITULO }}>
             Lo que dicen
@@ -459,9 +459,6 @@ export function TiendaCliente({ t, alAdmin }: { t: Tienda; alAdmin: () => void }
           <a href="https://wa.me/" onClick={(e) => e.preventDefault()} className="mt-5 inline-flex items-center gap-2 rounded-lg px-4 py-2.5 font-bold text-white" style={{ background: "#1f9d55" }}>
             <MessageCircle size={18} /> ¿Otra duda? Escríbenos
           </a>
-          <button type="button" onClick={alAdmin} className="mt-6 flex items-center gap-2 text-sm font-semibold text-black/45 hover:text-black">
-            <Lock size={14} /> Acceso para el dueño
-          </button>
         </div>
       </section>
 
@@ -1036,7 +1033,7 @@ function Reparaciones({ t, alAgendado, alRastrear }: { t: Tienda; alAgendado: (i
   const [hecho, setHecho] = useState<string | null>(null);
   const precio = falla.precio[modelo.gama];
   return (
-    <section id="reparaciones" className="scroll-mt-16 mx-auto max-w-7xl px-5 py-14 sm:py-20">
+    <section id="reparaciones" className="scroll-mt-16 mx-auto max-w-[140rem] px-[clamp(1rem,4vw,5rem)] py-14 sm:py-20">
       <div className="grid lg:grid-cols-[1fr_1.1fr] gap-8 items-stretch">
         <div className="relative overflow-hidden rounded-3xl min-h-[260px]">
           <img src={tecnico} alt="Técnico reparando la placa de un celular" className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
@@ -1128,7 +1125,7 @@ function Rastreo({ t, codigo, setCodigo }: { t: Tienda; codigo: string; setCodig
 
   return (
     <section id="rastreo" className="scroll-mt-16 px-5">
-      <div className="mx-auto max-w-7xl grid lg:grid-cols-[1fr_1.1fr] gap-8 items-center rounded-3xl bg-white p-6 sm:p-10">
+      <div className="mx-auto max-w-[140rem] grid lg:grid-cols-[1fr_1.1fr] gap-8 items-center rounded-3xl bg-white p-6 sm:p-10">
         <div>
           <p className="inline-flex items-center gap-2 text-[0.8rem] font-bold uppercase tracking-[0.14em]" style={{ color: PRIMARIO }}>
             <PackageSearch size={16} /> Rastreo
@@ -1231,7 +1228,7 @@ function Devoluciones({ t }: { t: Tienda }) {
   const [hecha, setHecha] = useState<string | null>(null);
   const dev = hecha ? t.devoluciones.find((d) => d.id === hecha) : null;
   return (
-    <section className="mx-auto max-w-7xl px-5 py-14 sm:py-20 grid lg:grid-cols-2 gap-8">
+    <section className="mx-auto max-w-[140rem] px-[clamp(1rem,4vw,5rem)] py-14 sm:py-20 grid lg:grid-cols-2 gap-8">
       <div>
         <p className="inline-flex items-center gap-2 text-[0.8rem] font-bold uppercase tracking-[0.14em]" style={{ color: PRIMARIO }}>
           <Undo2 size={16} /> Devoluciones
