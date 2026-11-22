@@ -3,18 +3,18 @@
  * Lo que resuelve: la sala de espera y el retraso del día (la queja más repetida de los pacientes),
  * pacientes con su ficha, el recorrido de cada paciente, mensajes con plantillas y reseñas por responder.
  */
-import { useState } from "react";
-import { Bell, Check } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import { ArrowRight, Bell, Check, CircleCheck, Clock, Hourglass, Stethoscope, UserCheck } from "lucide-react";
 import { MensajeWhatsApp, qz } from "../comun";
-import { Agenda, Barras, Boton, Caja, Clientes, Equipo, Kpis, Mensajes, PanelCRM, PorAtender, Ranking, Resenas, Tablero, Titulo, type Atencion, type Evento, type Tarjeta } from "../panelcrm";
+import { Agenda, Barras, Boton, Caja, Clientes, Equipo, Insignia, Kpis, Mensajes, PanelCRM, PorAtender, Ranking, Resenas, Tablero, Titulo, type Atencion, type Evento, type Tarjeta } from "../panelcrm";
 import { IRIS, NOCHE, PACIENTES_INICIAL, SEDES, type Estado, type Paciente } from "./datos";
 import { AUTOMATICOS, AVISOS, CONVERSACIONES, EQUIPO, PACIENTES, PACIENTES_MES, PLANTILLAS, POR_SEDE, RESENAS_PANEL, SERVICIOS_TOP, TARJETAS, TEMA } from "./panel";
 
-const ETIQUETA: Record<Estado, { t: string; c: string }> = {
-  cita: { t: "Aún no llega", c: "#5d6b80" },
-  espera: { t: "En sala de espera", c: "#b97800" },
-  consulta: { t: "En consulta", c: "#0f7f8c" },
-  listo: { t: "Atendido", c: "#1f7a46" },
+const ETIQUETA: Record<Estado, { t: string; c: string; i: ReactNode; boton: string; ib: ReactNode }> = {
+  cita: { t: "Todavía no llega", c: "#4a5a70", i: <Clock size={15} />, boton: "Ya llegó", ib: <UserCheck size={18} /> },
+  espera: { t: "Esperando su turno", c: "#9a6400", i: <Hourglass size={15} />, boton: "Pasar a consulta", ib: <ArrowRight size={18} /> },
+  consulta: { t: "Con el doctor", c: "#0f7f8c", i: <Stethoscope size={15} />, boton: "Terminó la consulta", ib: <Check size={18} /> },
+  listo: { t: "Ya fue atendido", c: "#1f7a46", i: <CircleCheck size={15} />, boton: "", ib: null },
 };
 const ESTADO_AGENDA: Record<Estado, Evento["estado"]> = { cita: "confirmada", espera: "pendiente", consulta: "en curso", listo: "atendida" };
 
@@ -83,6 +83,7 @@ export default function PanelLumen() {
                   <PorAtender items={atender} vacio="Todo al día. Nada urgente." />
                   <Caja>
                     <h2 className="text-[1.1rem] font-bold" style={{ fontFamily: TEMA.titulo }}>Sala de espera</h2>
+                    <p className="mt-1 text-[0.9rem] opacity-70">Cuando pase algo, toque el botón de color de ese paciente.</p>
                     <ul className="mt-3 divide-y" style={{ borderColor: TEMA.borde }}>
                       {lista.map((p) => {
                         const e = ETIQUETA[p.estado];
@@ -90,8 +91,8 @@ export default function PanelLumen() {
                           <li key={p.id} className="flex flex-wrap items-center gap-3 py-2.5">
                             <b className="w-12 tabular-nums">{p.hora}</b>
                             <span className="min-w-[8rem] flex-1"><span className="block font-bold leading-tight">{p.nombre}</span><span className="text-[0.82rem] opacity-70">{p.servicio} · {p.doctor}</span>{p.nota && <span className="block text-[0.8rem] font-semibold" style={{ color: TEMA.acento }}>{p.nota}</span>}</span>
-                            <span className="rounded-full px-2.5 py-1 text-[0.78rem] font-bold text-white" style={{ background: e.c }}>{e.t}</span>
-                            {p.estado !== "listo" && <Boton alTocar={() => avanzar(p.id)} chico tipo="borde">{p.estado === "cita" ? "Llegó" : p.estado === "espera" ? "Pasar a consulta" : "Terminó"}</Boton>}
+                            <Insignia icono={e.i} texto={e.t} color={e.c} />
+                            {p.estado !== "listo" && <Boton alTocar={() => avanzar(p.id)} chico>{e.ib} {e.boton}</Boton>}
                           </li>
                         );
                       })}

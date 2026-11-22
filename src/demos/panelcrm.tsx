@@ -6,7 +6,7 @@
  * mensajes con plantillas, reseñas y reportes. Cada demo pone sus datos y sus colores.
  */
 import { createContext, useContext, useState, type ReactNode } from "react";
-import { Bell, CalendarDays, Check, ChevronLeft, ChevronRight, Columns3, House, MessageCircle, Search, Send, Star, TrendingUp, UserCog, Users, X } from "lucide-react";
+import { ArrowRight, Bell, CalendarDays, Check, ChevronLeft, ChevronRight, Columns3, House, MessageCircle, Search, Send, Star, TrendingUp, UserCog, Users, X } from "lucide-react";
 import { MensajeWhatsApp, qz } from "./comun";
 
 export type Tema = { fondo: string; menu: string; tinta: string; acento: string; sobreAcento: string; suave: string; borde: string; titulo: string; bueno: string; malo: string; medio: string; radio: string };
@@ -116,12 +116,26 @@ export function Caja({ children, className = "" }: { children: ReactNode; classN
   const tema = useTema();
   return <div className={`rounded-xl border bg-white p-4 ${className}`} style={{ borderColor: tema.borde, borderRadius: tema.radio }}>{children}</div>;
 }
-export function Boton({ children, alTocar, tipo = "lleno", chico = false }: { children: ReactNode; alTocar: () => void; tipo?: "lleno" | "borde"; chico?: boolean }) {
+export function Boton({ children, alTocar, tipo = "lleno", chico = false, ancho = false }: { children: ReactNode; alTocar: () => void; tipo?: "lleno" | "borde"; chico?: boolean; ancho?: boolean }) {
   const tema = useTema();
   return (
-    <button type="button" onClick={alTocar} className={`inline-flex items-center gap-2 rounded-lg font-bold transition active:scale-[0.98] ${chico ? "px-3 py-1.5 text-[0.85rem]" : "px-4 py-2.5 text-[0.92rem]"}`} style={tipo === "lleno" ? { background: tema.acento, color: tema.sobreAcento } : { border: `1.5px solid ${tema.tinta}`, color: tema.tinta }}>
+    <button
+      type="button"
+      onClick={alTocar}
+      className={`inline-flex items-center justify-center gap-2 rounded-lg font-bold shadow-sm transition hover:brightness-95 active:translate-y-px active:scale-[0.98] ${chico ? "min-h-[2.75rem] px-4 py-2.5 text-[0.95rem]" : "min-h-[3rem] px-5 py-3 text-[1rem]"} ${ancho ? "w-full" : ""}`}
+      style={tipo === "lleno" ? { background: tema.acento, color: tema.sobreAcento, border: `2px solid ${tema.tinta}` } : { background: "#fff", border: `2px solid ${tema.tinta}`, color: tema.tinta }}
+    >
       {children}
     </button>
+  );
+}
+
+/* Estado en palabras sencillas, con icono y color: no hay que adivinar qué significa */
+export function Insignia({ icono, texto, color }: { icono: ReactNode; texto: string; color: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-[0.88rem] font-bold text-white" style={{ background: color }}>
+      {icono} {texto}
+    </span>
   );
 }
 
@@ -154,7 +168,7 @@ export function PorAtender({ items, vacio }: { items: Atencion[]; vacio: string 
           {items.map((a) => (
             <li key={a.id} className="flex flex-wrap items-center justify-between gap-3 py-2.5">
               <p className="flex items-start gap-2 text-[0.95rem]"><span className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: a.urgencia === "alta" ? tema.malo : tema.medio }} aria-hidden /> {a.texto}</p>
-              <Boton alTocar={a.alTocar} chico tipo="borde">{a.boton}</Boton>
+              <Boton alTocar={a.alTocar} chico>{a.boton} <ArrowRight size={16} /></Boton>
             </li>
           ))}
         </ul>
@@ -273,7 +287,7 @@ export function Tablero({ etapas, tarjetas, setTarjetas, alAvisar }: { etapas: s
   const tema = useTema();
   const mover = (id: string, d: number) => setTarjetas((l) => l.map((t) => (t.id === id ? { ...t, etapa: Math.min(etapas.length - 1, Math.max(0, t.etapa + d)) } : t)));
   return (
-    <div className="grid gap-3 overflow-x-auto pb-2" style={{ gridTemplateColumns: `repeat(${etapas.length}, minmax(13.5rem, 1fr))` }}>
+    <div className="grid gap-3 overflow-x-auto pb-2" style={{ gridTemplateColumns: `repeat(${etapas.length}, minmax(15rem, 1fr))` }}>
       {etapas.map((e, i) => {
         const col = tarjetas.filter((t) => t.etapa === i);
         const suma = col.reduce((a, t) => a + (t.monto ?? 0), 0);
@@ -290,10 +304,12 @@ export function Tablero({ etapas, tarjetas, setTarjetas, alAvisar }: { etapas: s
                   {t.etiqueta && <span className="mb-1 inline-block rounded px-1.5 py-0.5 text-[0.7rem] font-bold uppercase" style={{ background: tema.acento, color: tema.sobreAcento }}>{t.etiqueta}</span>}
                   <p className="font-bold leading-tight">{t.titulo}</p>
                   <p className="text-[0.82rem] opacity-70">{t.sub}{t.monto ? ` · ${qz(t.monto)}` : ""}</p>
-                  <div className="mt-2 flex items-center gap-1.5">
-                    <button type="button" onClick={() => mover(t.id, -1)} disabled={i === 0} aria-label={`Regresar ${t.titulo}`} className="rounded border p-1 disabled:opacity-30" style={{ borderColor: tema.borde }}><ChevronLeft size={15} /></button>
-                    <button type="button" onClick={() => mover(t.id, 1)} disabled={i === etapas.length - 1} aria-label={`Avanzar ${t.titulo}`} className="rounded border p-1 disabled:opacity-30" style={{ borderColor: tema.borde }}><ChevronRight size={15} /></button>
-                    {alAvisar && <button type="button" onClick={() => alAvisar(t)} className="ml-auto flex items-center gap-1 rounded px-2 py-1 text-[0.78rem] font-bold" style={{ background: tema.tinta, color: "#fff" }}><Bell size={12} /> Avisar</button>}
+                  <div className="mt-3 space-y-2">
+                    {i < etapas.length - 1 && <Boton alTocar={() => mover(t.id, 1)} chico ancho>Pasar a: {etapas[i + 1]} <ArrowRight size={16} /></Boton>}
+                    <div className="flex items-center justify-between gap-2">
+                      {i > 0 ? <button type="button" onClick={() => mover(t.id, -1)} aria-label={`Regresar ${t.titulo} a ${etapas[i - 1]}`} className="inline-flex min-h-[2.25rem] items-center gap-1 whitespace-nowrap text-[0.85rem] font-semibold underline underline-offset-2"><ChevronLeft size={15} /> Volver atrás</button> : <span />}
+                      {alAvisar && <button type="button" onClick={() => alAvisar(t)} className="inline-flex min-h-[2.25rem] items-center gap-1.5 rounded-lg border-2 px-2.5 text-[0.85rem] font-bold" style={{ borderColor: tema.tinta }}><Bell size={14} /> Avisar</button>}
+                    </div>
                   </div>
                 </div>
               ))}

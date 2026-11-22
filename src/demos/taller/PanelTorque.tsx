@@ -4,6 +4,7 @@
  * saber a quién le toca volver (aceite, alineación), contestar el auxilio a domicilio y responder reseñas.
  */
 import { useState } from "react";
+import { ArrowRight } from "lucide-react";
 import { MensajeWhatsApp, qz } from "../comun";
 import { Agenda, Barras, Boton, Caja, Clientes, Equipo, Kpis, Mensajes, PanelCRM, PorAtender, Ranking, Resenas, Tablero, Titulo, type Atencion, type Tarjeta } from "../panelcrm";
 import { AMARILLO, ASFALTO, PASOS } from "./datos";
@@ -67,12 +68,13 @@ export default function PanelTorque() {
                   <PorAtender items={atender} vacio="Todo al día. Nada frena el trabajo." />
                   <Caja>
                     <h2 className="text-[1.1rem] font-bold" style={{ fontFamily: TEMA.titulo }}>Órdenes de hoy</h2>
+                    <p className="mt-1 text-[0.9rem] opacity-70">Cuando un carro avance, toque el botón amarillo de esa orden.</p>
                     <ul className="mt-3 divide-y" style={{ borderColor: TEMA.borde }}>
                       {tarjetas.map((t) => (
                         <li key={t.id} className="flex flex-wrap items-center gap-3 py-2.5">
                           <span className="min-w-[10rem] flex-1"><span className="block font-bold leading-tight">{t.titulo}</span><span className="text-[0.82rem] opacity-70">{t.sub}{t.monto ? ` · ${qz(t.monto)}` : ""}</span></span>
                           <span className="rounded px-2.5 py-1 text-[0.78rem] font-bold uppercase" style={{ background: t.etapa === 4 ? "#1f7a46" : t.etapa === 2 ? "#b97800" : AMARILLO, color: t.etapa === 2 || t.etapa === 4 ? "#fff" : ASFALTO }}>{PASOS[t.etapa]}</span>
-                          {t.etapa < 4 && <Boton alTocar={() => setTarjetas((l) => l.map((x) => (x.id === t.id ? { ...x, etapa: x.etapa + 1 } : x)))} chico tipo="borde">Pasar a: {PASOS[t.etapa + 1]}</Boton>}
+                          {t.etapa < 4 && <Boton alTocar={() => setTarjetas((l) => l.map((x) => (x.id === t.id ? { ...x, etapa: x.etapa + 1 } : x)))} chico>Pasar a: {PASOS[t.etapa + 1]} <ArrowRight size={16} /></Boton>}
                         </li>
                       ))}
                     </ul>
