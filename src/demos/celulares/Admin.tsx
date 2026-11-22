@@ -3,14 +3,16 @@
  * El dueño también puede pedirle todo esto por WhatsApp al asistente; el panel es la vista de consulta y control.
  * Lo que hace el cliente en la tienda (pedidos, pagos, reparaciones, devoluciones) aparece aquí.
  */
-import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
-import { BarChart3, Boxes, Camera, Check, CreditCard, Eye, EyeOff, LogOut, MessageCircle, Minus, Package, Plus, RotateCcw, Search, Store, Undo2, Users, Wrench, X } from "lucide-react";
+import { Fragment, useEffect, useMemo, useState } from "react";
+import { BarChart3, Boxes, Camera, Check, CreditCard, Eye, EyeOff, LogOut, MessageCircle, Minus, Package, Plus, RotateCcw, Store, Undo2, Users, Wrench, X } from "lucide-react";
 import { qz } from "../comun";
-import { Asistente, simularCompra } from "./Asistente";
-import { chatReiniciar } from "./bot";
+import { iniciarChat } from "./Asistente";
+import { chatReiniciar, registrar, setDock, useRegistro } from "./bot";
+import { DockBot, FranjaBot, PaginaBot } from "./BotCentro";
 import { achicarFoto } from "./fotos";
+import { BORDE, BTN, Buscar, Cifras, Estado, EstadoPed, EstadoRep, FONDO, Filtros, MUTED, Panel, ROJO, TD, TH, Titulo, borde, principal, ACCION_REP, textoEstadoPanel } from "./ui";
 import {
-  PRIMARIO, ESTADOS_PEDIDO, LETRA_SISTEMA, PASOS_REPARACION, SUCURSALES, TEXTO_REPARACION, TINTA,
+  PRIMARIO, LETRA_SISTEMA, PASOS_REPARACION, SUCURSALES, TEXTO_REPARACION, TINTA,
   fechaCorta, sucursalPor,
   type EstadoPedido, type Pedido, type Producto, type Reparacion, type Tienda,
 } from "./datos";
@@ -18,81 +20,26 @@ import {
 type Pestana = "resumen" | "asistente" | "pedidos" | "pagos" | "inventario" | "reparaciones" | "tecnicos" | "devoluciones";
 const VENDIDO: EstadoPedido[] = ["pagado", "preparando", "en-camino", "entregado"];
 const diaIso = (iso: string) => new Date(iso).toDateString();
-const BORDE = "#dde0e6";
-const FONDO = "#f3f4f6";
-const MUTED = "#5b6270";
-const ROJO = "#b42318";
 const NOMBRE_PESTANA: Record<Pestana, string> = { resumen: "Resumen", asistente: "Bot de WhatsApp", pedidos: "Pedidos", pagos: "Pagos", inventario: "Productos", reparaciones: "Reparaciones", tecnicos: "Técnicos", devoluciones: "Devoluciones" };
-
-/* piezas sobrias: nada de cajitas redondeadas, líneas finas y tablas */
-const TH = "bg-[#f7f8fa] px-3 py-2 text-left text-[0.72rem] font-bold uppercase tracking-[0.06em] text-[#5b6270]";
-const TD = "px-3 py-2.5 align-middle";
-const BTN = "inline-flex min-h-[2.4rem] items-center justify-center gap-1.5 whitespace-nowrap rounded-[5px] px-3 text-[0.86rem] font-semibold transition hover:brightness-95 active:scale-[0.97]";
-const principal = { background: PRIMARIO, color: "#fff" };
-const borde = { border: `1px solid ${BORDE}`, background: "#fff", color: TINTA };
-
-function Panel({ titulo, nota, derecha, className = "", flush = false, children }: { titulo?: string; nota?: string; derecha?: ReactNode; className?: string; flush?: boolean; children: ReactNode }) {
-  return (
-    <section className={`min-w-0 rounded-md border bg-white ${className}`} style={{ borderColor: BORDE }}>
-      {(titulo || derecha) && (
-        <header className="flex flex-wrap items-center justify-between gap-2 border-b px-4 py-3" style={{ borderColor: BORDE }}>
-          <div className="flex flex-wrap items-baseline gap-x-3"><h2 className="text-[1rem] font-bold">{titulo}</h2>{nota && <p className="text-[0.85rem]" style={{ color: MUTED }}>{nota}</p>}</div>
-          {derecha}
-        </header>
-      )}
-      <div className={flush ? "overflow-x-auto" : "p-4"}>{children}</div>
-    </section>
-  );
-}
-
-function Estado({ texto, color, fondo }: { texto: string; color: string; fondo: string }) {
-  return <span className="inline-block whitespace-nowrap rounded-[3px] px-2 py-0.5 text-[0.78rem] font-bold" style={{ background: fondo, color }}>{texto}</span>;
-}
-const EstadoPed = ({ e }: { e: EstadoPedido }) => <Estado texto={ESTADOS_PEDIDO[e].texto} color={ESTADOS_PEDIDO[e].color} fondo={ESTADOS_PEDIDO[e].fondo} />;
-const ESTADO_REP: Record<Reparacion["estado"], [string, string]> = { recibido: ["#4b5563", "#eceef1"], diagnostico: ["#8a4b00", "#fff1d6"], reparando: ["#5a3fc0", "#ece6ff"], listo: ["#1f7a3a", "#e1f5e6"], entregado: ["#4b5563", "#eceef1"] };
-const EstadoRep = ({ e }: { e: Reparacion["estado"] }) => <Estado texto={TEXTO_REPARACION[e]} color={ESTADO_REP[e][0]} fondo={ESTADO_REP[e][1]} />;
-
-/* barra de filtros pegada: una sola pieza */
-function Filtros<T extends string>({ valor, alCambiar, opciones, etiqueta }: { valor: T; alCambiar: (v: T) => void; opciones: readonly (readonly [T, string, number])[]; etiqueta: string }) {
-  return (
-    <div role="group" aria-label={etiqueta} className="inline-flex max-w-full overflow-x-auto rounded-[5px] border bg-white [scrollbar-width:none]" style={{ borderColor: BORDE }}>
-      {opciones.map(([id, t, n], i) => (
-        <button key={id} type="button" aria-pressed={valor === id} onClick={() => alCambiar(id)} className="inline-flex min-h-[2.4rem] shrink-0 items-center gap-2 whitespace-nowrap px-3.5 text-[0.86rem] font-semibold transition hover:bg-[#f3f4f6]" style={{ borderLeft: i ? `1px solid ${BORDE}` : undefined, ...(valor === id ? { background: TINTA, color: "#fff" } : {}) }}>{t}<span className="tabular-nums opacity-70">{n}</span></button>
-      ))}
-    </div>
-  );
-}
-const Buscar = ({ valor, alCambiar, texto }: { valor: string; alCambiar: (v: string) => void; texto: string }) => (
-  <label className="relative block w-full sm:w-72"><span className="sr-only">{texto}</span><Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 opacity-45" /><input value={valor} onChange={(e) => alCambiar(e.target.value)} placeholder={texto} className="min-h-[2.4rem] w-full rounded-[5px] border bg-white pl-9 pr-3 text-[0.9rem]" style={{ borderColor: BORDE }} /></label>
-);
-
-/* franja de cifras: una sola fila con líneas divisorias */
-function Cifras({ items }: { items: { t: string; v: string | number; n?: string; alerta?: boolean }[] }) {
-  return (
-    <div className="grid overflow-hidden rounded-md border bg-white" style={{ borderColor: BORDE, gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 11.5rem), 1fr))" }}>
-      {items.map((x, i) => (
-        <div key={x.t} className="px-4 py-3.5" style={{ borderLeft: i ? `1px solid ${BORDE}` : undefined, borderTop: `1px solid transparent` }}>
-          <p className="text-[0.8rem] font-semibold" style={{ color: MUTED }}>{x.t}</p>
-          <p className="mt-0.5 text-[1.65rem] font-extrabold leading-tight tabular-nums" style={{ color: x.alerta ? ROJO : TINTA }}>{x.v}</p>
-          {x.n && <p className="text-[0.8rem]" style={{ color: MUTED }}>{x.n}</p>}
-        </div>
-      ))}
-    </div>
-  );
-}
-
 const ESTADOS_ELEGIBLES: EstadoPedido[] = ["pago-pendiente", "pagado", "preparando", "en-camino", "entregado", "rechazado", "devuelto"];
 const SIGUIENTE: Partial<Record<EstadoPedido, { a: EstadoPedido; texto: string }>> = {
   "pago-pendiente": { a: "pagado", texto: "Confirmar pago" },
-  pagado: { a: "preparando", texto: "Preparar" },
-  preparando: { a: "en-camino", texto: "Enviar" },
+  pagado: { a: "preparando", texto: "Pasar a preparación" },
+  preparando: { a: "en-camino", texto: "Entregar al transporte" },
   "en-camino": { a: "entregado", texto: "Marcar entregado" },
 };
+function moverPedido(t: Tienda, p: Pedido, a: EstadoPedido) {
+  registrar("Ventas", "Panel", `${p.id} pasó a ${textoEstadoPanel(a).toLowerCase()}`);
+  t.setPedidos((ps) => ps.map((x) => (x.id === p.id ? { ...x, estado: a, guia: a === "en-camino" && !x.guia ? `GT-${String(Date.now()).slice(-6)}` : x.guia, nuevo: false } : x)));
+}
 const textoMetodo = (p: Pedido) => (p.metodo === "tarjeta" ? `Tarjeta ···${p.tarjeta}` : p.metodo === "transferencia" ? "Transferencia" : "Al recibir");
 
 export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () => void; alTienda: () => void }) {
   const [pestana, setPestana] = useState<Pestana>("resumen");
   useEffect(() => { document.title = "Panel del dueño · Órbita Celulares · Demo de Jzet Labs"; }, []);
+  const [v, setV] = useState(0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { iniciarChat(t); }, [v]);
 
   const porVerificar = t.pedidos.filter((p) => p.estado === "pago-pendiente");
   const devPend = t.devoluciones.filter((d) => d.estado === "pendiente");
@@ -128,7 +75,7 @@ export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () =>
           <p className="flex items-center gap-2 text-[0.82rem] text-white/75"><span className="h-2 w-2 rounded-full bg-[#34d399]" /> Bot de WhatsApp conectado</p>
           <div className="mt-2 grid gap-0.5 text-[0.86rem]">
             <button type="button" onClick={alTienda} className="flex min-h-[2.4rem] items-center gap-2 text-left text-white/75 hover:text-white"><Store size={15} /> Ver la tienda</button>
-            <button type="button" onClick={() => { t.reiniciar(); chatReiniciar(); }} className="flex min-h-[2.4rem] items-center gap-2 text-left text-white/75 hover:text-white"><RotateCcw size={15} /> Reiniciar el ejemplo</button>
+            <button type="button" onClick={() => { t.reiniciar(); chatReiniciar(); setV((x) => x + 1); }} className="flex min-h-[2.4rem] items-center gap-2 text-left text-white/75 hover:text-white"><RotateCcw size={15} /> Reiniciar el ejemplo</button>
             <button type="button" onClick={alSalir} className="flex min-h-[2.4rem] items-center gap-2 text-left text-white/75 hover:text-white"><LogOut size={15} /> Salir</button>
           </div>
         </div>
@@ -141,7 +88,7 @@ export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () =>
         </div>
         <div className="grid grid-cols-[minmax(0,1fr)] gap-4 px-[clamp(1rem,3vw,2.5rem)] py-5 pb-14">
           {pestana === "resumen" && <Resumen t={t} irA={setPestana} />}
-          {pestana === "asistente" && <PaginaAsistente t={t} alTienda={alTienda} />}
+          {pestana === "asistente" && <PaginaBot t={t} alTienda={alTienda} />}
           {pestana === "pedidos" && <Pedidos t={t} />}
           {pestana === "pagos" && <Pagos t={t} />}
           {pestana === "inventario" && <Inventario t={t} />}
@@ -150,20 +97,12 @@ export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () =>
           {pestana === "devoluciones" && <Devoluciones t={t} />}
           <div className="mt-2 flex flex-wrap items-center justify-between gap-2 md:hidden">
             <button type="button" onClick={alTienda} className={BTN} style={borde}><Store size={15} /> Ver la tienda</button>
-            <button type="button" onClick={() => { t.reiniciar(); chatReiniciar(); }} className={BTN} style={borde}><RotateCcw size={15} /> Reiniciar</button>
+            <button type="button" onClick={() => { t.reiniciar(); chatReiniciar(); setV((x) => x + 1); }} className={BTN} style={borde}><RotateCcw size={15} /> Reiniciar</button>
           </div>
           <p className="text-center text-xs" style={{ color: MUTED }}>Panel de demostración con datos de ejemplo. Lo que cambie aquí solo se guarda en este navegador.</p>
         </div>
       </main>
-    </div>
-  );
-}
-
-function Titulo({ children, sub, derecha }: { children: string; sub?: string; derecha?: ReactNode }) {
-  return (
-    <div className="flex flex-wrap items-end justify-between gap-3">
-      <div><h1 className="text-[1.6rem] font-extrabold leading-tight tracking-[-0.01em]">{children}</h1>{sub && <p className="text-[0.95rem]" style={{ color: MUTED }}>{sub}</p>}</div>
-      {derecha}
+      {pestana !== "asistente" && <DockBot t={t} />}
     </div>
   );
 }
@@ -172,6 +111,7 @@ function Titulo({ children, sub, derecha }: { children: string; sub?: string; de
 
 
 function Resumen({ t, irA }: { t: Tienda; irA: (p: Pestana) => void }) {
+  const registro = useRegistro();
   const vendidos = t.pedidos.filter((p) => VENDIDO.includes(p.estado));
   const hoy = new Date().toDateString();
   const ventasHoy = vendidos.filter((p) => diaIso(p.fecha) === hoy);
@@ -184,7 +124,7 @@ function Resumen({ t, irA }: { t: Tienda; irA: (p: Pestana) => void }) {
   const promedioDia = total7 / 7;
   const vsPromedio = promedioDia ? Math.round(((totalHoy - promedioDia) / promedioDia) * 100) : 0;
 
-  const mover = (p: Pedido, a: EstadoPedido) => t.setPedidos((ps) => ps.map((x) => (x.id === p.id ? { ...x, estado: a, guia: a === "en-camino" && !x.guia ? `GT-${String(Date.now()).slice(-6)}` : x.guia, nuevo: false } : x)));
+  const mover = (p: Pedido, a: EstadoPedido) => moverPedido(t, p, a);
   const confirmarPago = (p: Pedido) => {
     mover(p, "pagado");
     t.setStock((s) => { const n = structuredClone(s); p.lineas.forEach((l) => { const suc = Object.keys(n[l.id] ?? {}).find((k) => n[l.id][k] > 0); if (suc) n[l.id][suc] = Math.max(0, n[l.id][suc] - l.cantidad); }); return n; });
@@ -205,8 +145,8 @@ function Resumen({ t, irA }: { t: Tienda; irA: (p: Pestana) => void }) {
   type Accion = { tipo: string; ref: string; detalle: string; monto?: string; boton: string; hacer: () => void; urgente?: boolean };
   const acciones: Accion[] = [
     ...pend.map((p) => ({ tipo: "Pago por verificar", ref: p.id, detalle: `${p.cliente} · transferencia con comprobante`, monto: qz(p.total), boton: "Confirmar pago", hacer: () => confirmarPago(p), urgente: true })),
-    ...t.pedidos.filter((p) => p.estado === "pagado").map((p) => ({ tipo: "Pedido por preparar", ref: p.id, detalle: `${p.cliente} · ${p.lineas.map((l) => l.nombre).join(", ")}`, monto: qz(p.total), boton: "Preparar", hacer: () => mover(p, "preparando") })),
-    ...t.reparaciones.filter((r) => r.estado === "listo").map((r) => ({ tipo: "Reparación lista", ref: r.id, detalle: `${r.cliente} · ${r.modelo}, ${r.falla}`, monto: qz(r.precio), boton: "Marcar entregada", hacer: () => t.setReparaciones((rs) => rs.map((x) => (x.id === r.id ? { ...x, estado: "entregado", nueva: false } : x))) })),
+    ...t.pedidos.filter((p) => p.estado === "pagado").map((p) => ({ tipo: "Pedido por preparar", ref: p.id, detalle: `${p.cliente} · ${p.lineas.map((l) => l.nombre).join(", ")}`, monto: qz(p.total), boton: "Pasar a preparación", hacer: () => mover(p, "preparando") })),
+    ...t.reparaciones.filter((r) => r.estado === "listo").map((r) => ({ tipo: "Reparación lista", ref: r.id, detalle: `${r.cliente} · ${r.modelo}, ${r.falla}`, monto: qz(r.precio), boton: "Marcar entregada", hacer: () => { registrar("Taller", "Panel", `${r.id} entregada`); t.setReparaciones((rs) => rs.map((x) => (x.id === r.id ? { ...x, estado: "entregado", nueva: false } : x))); } })),
     ...t.devoluciones.filter((d) => d.estado === "pendiente").map((d) => ({ tipo: "Devolución por revisar", ref: d.id, detalle: `Pedido ${d.pedido} · ${d.motivo}`, boton: "Revisar", hacer: () => irA("devoluciones"), urgente: true })),
     ...bajos.slice(0, 3).map((p) => ({ tipo: "Poco stock", ref: "—", detalle: `${p.nombre} · ${unidades(p.id) === 0 ? "agotado" : `quedan ${unidades(p.id)}`}`, boton: "Ver producto", hacer: () => irA("inventario") })),
   ];
@@ -220,6 +160,7 @@ function Resumen({ t, irA }: { t: Tienda; irA: (p: Pestana) => void }) {
   return (
     <>
       <Titulo sub="Estado de la tienda en los últimos 7 días.">Resumen</Titulo>
+      <FranjaBot area="General" />
       <Cifras items={[
         { t: "Ventas de hoy", v: qz(totalHoy), n: `${ventasHoy.length} ${ventasHoy.length === 1 ? "pedido" : "pedidos"} · ${vsPromedio >= 0 ? "+" : ""}${vsPromedio}% vs promedio diario` },
         { t: "Ventas de 7 días", v: qz(total7), n: `${vendidos.length} pedidos pagados` },
@@ -247,11 +188,14 @@ function Resumen({ t, irA }: { t: Tienda; irA: (p: Pestana) => void }) {
           </table>
         </Panel>
         <Panel titulo="Bot de WhatsApp" nota="Conectado" derecha={<MessageCircle size={18} className="text-[#1f9d55]" />}>
-          <p className="text-[0.9rem]" style={{ color: MUTED }}>El dueño delega y el bot trabaja: sube productos con fotos, avisa de cada venta y acompaña el pedido hasta la entrega.</p>
-          <ul className="mt-3 divide-y text-[0.9rem]" style={{ borderColor: BORDE }}>
-            {["Sube productos desde las fotos", "Avisa cuando alguien compra", "El dueño marca cada paso con un toque", "Controla el stock por mensaje"].map((x) => <li key={x} className="py-2" style={{ borderColor: BORDE }}>{x}</li>)}
+          <p className="text-[0.9rem]" style={{ color: MUTED }}>Lo último que hizo el bot, el dueño por WhatsApp y los clientes:</p>
+          <ul className="mt-2 divide-y text-[0.88rem]" style={{ borderColor: BORDE }}>
+            {registro.slice(0, 5).map((r) => <li key={r.id} className="py-2" style={{ borderColor: BORDE }}><span className="tabular-nums" style={{ color: MUTED }}>{new Date(r.f).toLocaleTimeString("es-GT", { hour: "2-digit", minute: "2-digit", hour12: false })}</span> · <b>{r.origen}</b><span className="block">{r.texto}</span></li>)}
           </ul>
-          <button type="button" onClick={() => irA("asistente")} className={`${BTN} mt-4 w-full`} style={principal}><MessageCircle size={16} /> Probar el bot</button>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <button type="button" onClick={() => irA("asistente")} className={BTN} style={borde}>Ver registro</button>
+            <button type="button" onClick={() => setDock(true)} className={BTN} style={principal}><MessageCircle size={15} /> Abrir chat</button>
+          </div>
         </Panel>
       </div>
 
@@ -302,63 +246,6 @@ function Resumen({ t, irA }: { t: Tienda; irA: (p: Pestana) => void }) {
   );
 }
 
-/* ---------------- bot de WhatsApp ---------------- */
-
-function PaginaAsistente({ t, alTienda }: { t: Tienda; alTienda: () => void }) {
-  const [msg, setMsg] = useState("");
-  const pasos: [string, string][] = [
-    ["1. El dueño manda las fotos", "Adjunta las fotos del equipo y escribe el nombre, el precio y las unidades. Si falta un dato, el bot lo pregunta."],
-    ["2. El bot lo publica", "Arma la ficha con todas las fotos, los dos precios (tarjeta y efectivo) y el stock. Ya aparece en la tienda."],
-    ["3. El bot avisa de lo que pasa", "Cuando un cliente lo agrega al carrito, cuando hace el pedido y cuando paga."],
-    ["4. El dueño marca el avance", "Con un toque: en preparación, entregado al transporte, entregado. El cliente lo ve en su rastreo."],
-    ["5. El bot cuida el stock", "Descuenta lo vendido, avisa cuando se agota y puede ocultar el producto."],
-  ];
-  const comandos: [string, string][] = [
-    ["Adjuntar fotos + texto", "Publica un producto nuevo en la tienda"],
-    ["agregar 2 iphone air", "Suma unidades al stock (también quitar)"],
-    ["stock iphone air", "Existencias por sucursal"],
-    ["precio s26 7500", "Cambia el precio en la tienda"],
-    ["ventas · pedidos · pagos", "Consultas rápidas con botones"],
-    ["rep RP-512 listo", "Cambia el estado de una reparación"],
-  ];
-  return (
-    <>
-      <Titulo sub="Sistema a medida: el dueño delega y el bot hace el trabajo diario.">Bot de WhatsApp</Titulo>
-      <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
-        <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3">
-          <Asistente t={t} />
-          <Panel titulo="Probar el recorrido completo" nota="Para la demostración">
-            <ol className="list-decimal space-y-1 pl-5 text-[0.92rem]" style={{ color: MUTED }}>
-              <li>Toque <b className="text-[#14101f]">Adjuntar 3 fotos de ejemplo</b> en el chat y luego <b className="text-[#14101f]">Publicar en la tienda</b>.</li>
-              <li>Toque <b className="text-[#14101f]">Simular compra de un cliente</b>: el bot avisa y el dueño marca el avance.</li>
-              <li>También se puede abrir la tienda y comprar de verdad: el bot avisa igual.</li>
-            </ol>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button type="button" onClick={() => setMsg(`Compra simulada de ${simularCompra(t)}. Revise el chat.`)} className={BTN} style={principal}>Simular compra de un cliente</button>
-              <button type="button" onClick={alTienda} className={BTN} style={borde}><Store size={15} /> Abrir la tienda</button>
-            </div>
-            {msg && <p className="mt-2 text-[0.88rem] font-semibold text-[#1f7a3a]">{msg}</p>}
-          </Panel>
-        </div>
-        <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4">
-          <Panel titulo="Cómo trabaja">
-            <ul className="divide-y" style={{ borderColor: BORDE }}>{pasos.map(([a, b]) => <li key={a} className="py-2.5" style={{ borderColor: BORDE }}><p className="font-bold">{a}</p><p className="text-[0.9rem]" style={{ color: MUTED }}>{b}</p></li>)}</ul>
-          </Panel>
-          <Panel titulo="Qué se le puede pedir" nota="También funciona con el menú de botones" flush>
-            <table className="w-full text-[0.92rem]"><thead><tr><th className={TH}>Escribir</th><th className={TH}>Resultado</th></tr></thead>
-              <tbody>{comandos.map(([a, b]) => <tr key={a} className="border-t" style={{ borderColor: BORDE }}><td className={`${TD} font-mono text-[0.86rem] font-semibold`}>{a}</td><td className={TD} style={{ color: MUTED }}>{b}</td></tr>)}</tbody></table>
-          </Panel>
-          <Panel titulo="Seguridad y control">
-            <ul className="space-y-1.5 text-[0.92rem]">
-              {["Solo responde a los números autorizados por el dueño.", "Pide confirmación antes de mover dinero, stock o precios.", "Todo queda en el panel, con fecha y hora.", "Si no entiende un mensaje, lo dice y ofrece el menú."].map((x) => <li key={x} className="flex gap-2"><Check size={17} className="mt-0.5 shrink-0 text-[#1f7a3a]" /> {x}</li>)}
-            </ul>
-          </Panel>
-        </div>
-      </div>
-    </>
-  );
-}
-
 /* ---------------- pedidos ---------------- */
 
 type FPed = "activos" | "todos" | EstadoPedido;
@@ -369,12 +256,13 @@ function Pedidos({ t }: { t: Tienda }) {
   const activos: EstadoPedido[] = ["pago-pendiente", "pagado", "preparando", "en-camino"];
   const coincide = (p: Pedido) => `${p.id} ${p.cliente} ${p.telefono}`.toLowerCase().includes(q.toLowerCase().trim());
   const lista = t.pedidos.filter((p) => (filtro === "todos" || (filtro === "activos" ? activos.includes(p.estado) : p.estado === filtro)) && coincide(p));
-  const mover = (p: Pedido, a: EstadoPedido) => t.setPedidos((ps) => ps.map((x) => (x.id === p.id ? { ...x, estado: a, guia: a === "en-camino" && !x.guia ? `GT-${String(Date.now()).slice(-6)}` : x.guia, nuevo: false } : x)));
+  const mover = (p: Pedido, a: EstadoPedido) => moverPedido(t, p, a);
   const n = (f: FPed) => (f === "todos" ? t.pedidos.length : f === "activos" ? t.pedidos.filter((p) => activos.includes(p.estado)).length : t.pedidos.filter((p) => p.estado === f).length);
-  const opciones = (["activos", "todos", "pago-pendiente", "pagado", "preparando", "en-camino", "entregado", "rechazado", "devuelto"] as const).map((f) => [f, f === "todos" ? "Todos" : f === "activos" ? "Por atender" : ESTADOS_PEDIDO[f].texto, n(f)] as const);
+  const opciones = (["activos", "todos", "pago-pendiente", "pagado", "preparando", "en-camino", "entregado", "rechazado", "devuelto"] as const).map((f) => [f, f === "todos" ? "Todos" : f === "activos" ? "Por atender" : textoEstadoPanel(f), n(f)] as const);
   return (
     <>
       <Titulo sub="Cada cambio de estado se ve al instante en el rastreo del cliente.">Pedidos</Titulo>
+      <FranjaBot area="Ventas" />
       <div className="flex flex-wrap items-center justify-between gap-3"><Filtros etiqueta="Filtrar pedidos" valor={filtro} alCambiar={setFiltro} opciones={opciones} /><Buscar valor={q} alCambiar={setQ} texto="Código, nombre o teléfono" /></div>
       <Panel flush>
         <table className="w-full min-w-[60rem] text-[0.92rem]">
@@ -403,7 +291,7 @@ function Pedidos({ t }: { t: Tienda }) {
                             <p style={{ color: MUTED }}>{p.entrega.tipo === "envio" ? `Dirección: ${p.entrega.direccion}` : `Punto de entrega: ${sucursalPor(p.entrega.sucursal).nombre}`}{p.guia ? ` · Guía ${p.guia}` : ""}</p>
                             {p.motivoRechazo && <p className="font-semibold" style={{ color: ROJO }}>Motivo del rechazo: {p.motivoRechazo}</p>}
                             <label className="flex items-center gap-2 text-[0.84rem] font-semibold">Cambiar estado
-                              <select value={p.estado} onChange={(e) => mover(p, e.target.value as EstadoPedido)} className="min-h-[2.3rem] rounded-[5px] border bg-white px-2" style={{ borderColor: BORDE }}>{ESTADOS_ELEGIBLES.map((e) => <option key={e} value={e}>{ESTADOS_PEDIDO[e].texto}</option>)}</select>
+                              <select value={p.estado} onChange={(e) => mover(p, e.target.value as EstadoPedido)} className="min-h-[2.3rem] rounded-[5px] border bg-white px-2" style={{ borderColor: BORDE }}>{ESTADOS_ELEGIBLES.map((e) => <option key={e} value={e}>{textoEstadoPanel(e)}</option>)}</select>
                             </label>
                           </div>
                         </div>
@@ -429,12 +317,14 @@ function Pagos({ t }: { t: Tienda }) {
   const vendidos = t.pedidos.filter((p) => VENDIDO.includes(p.estado));
   const suma = (f: (p: Pedido) => boolean) => vendidos.filter(f).reduce((s, p) => s + p.total, 0);
   const decidir = (p: Pedido, ok: boolean) => {
+    registrar("Ventas", "Panel", `${ok ? "Confirmó" : "Rechazó"} el pago de ${p.id}`);
     t.setPedidos((ps) => ps.map((x) => (x.id === p.id ? { ...x, estado: ok ? "pagado" : "rechazado", motivoRechazo: ok ? undefined : "Comprobante no coincide con el depósito", nuevo: false } : x)));
     if (ok) t.setStock((s) => { const n = structuredClone(s); p.lineas.forEach((l) => { const suc = Object.keys(n[l.id] ?? {}).find((k) => n[l.id][k] > 0); if (suc) n[l.id][suc] = Math.max(0, n[l.id][suc] - l.cantidad); }); return n; });
   };
   return (
     <>
-      <Titulo sub="Las transferencias se confirman contra el estado de cuenta. El cliente lo ve en el rastreo.">Pagos</Titulo>
+      <Titulo sub="Los pagos por transferencia se confirman contra el estado de cuenta. El cliente lo ve en el rastreo.">Pagos</Titulo>
+      <FranjaBot area="Ventas" />
       <Cifras items={[
         { t: "Por verificar", v: qz(pendientes.reduce((s, p) => s + p.total, 0)), n: `${pendientes.length} transferencias`, alerta: pendientes.length > 0 },
         { t: "Cobrado con tarjeta", v: qz(suma((p) => p.metodo === "tarjeta")) },
@@ -442,7 +332,7 @@ function Pagos({ t }: { t: Tienda }) {
         { t: "Pago al recibir", v: qz(suma((p) => p.metodo !== "tarjeta" && p.metodo !== "transferencia")) },
         { t: "Rechazados", v: rechazados.length, n: "no se cobró nada" },
       ]} />
-      <Panel titulo="Transferencias por verificar" nota="Comparar el comprobante con el depósito" flush>
+      <Panel titulo="Pagos por verificar" nota="Comparar el comprobante con el depósito" flush>
         <table className="w-full min-w-[40rem] text-[0.92rem]">
           <thead><tr><th className={TH}>Código</th><th className={TH}>Fecha</th><th className={TH}>Cliente</th><th className={`${TH} text-right`}>Monto</th><th className={TH}>Comprobante</th><th className={TH} /></tr></thead>
           <tbody>
@@ -478,6 +368,7 @@ function Inventario({ t }: { t: Tienda }) {
   return (
     <>
       <Titulo sub="Fotos, precios y existencias por sucursal. El cliente solo ve si hay, nunca los números." derecha={<button type="button" onClick={() => setNuevo(true)} className={BTN} style={principal}><Plus size={16} /> Nuevo producto</button>}>Productos</Titulo>
+      <FranjaBot area="Tienda" />
       <Cifras items={[
         { t: "Unidades en tienda", v: t.productos.reduce((s, p) => s + total(p.id), 0) },
         { t: "Valor del inventario", v: qz(valor), n: "a precio con tarjeta" },
@@ -571,13 +462,18 @@ function NuevoProducto({ t, alCerrar }: { t: Tienda; alCerrar: () => void }) {
 type FRep = "activas" | Reparacion["estado"] | "todas";
 function Reparaciones({ t }: { t: Tienda }) {
   const [filtro, setFiltro] = useState<FRep>("activas");
-  const editar = (id: string, cambio: Partial<Reparacion>) => t.setReparaciones((rs) => rs.map((r) => (r.id === id ? { ...r, ...cambio, nueva: false } : r)));
+  const editar = (id: string, cambio: Partial<Reparacion>) => {
+    if (cambio.estado) registrar("Taller", "Panel", `${id} pasó a “${TEXTO_REPARACION[cambio.estado].toLowerCase()}”`);
+    else if ("tecnico" in cambio) registrar("Taller", "Panel", `${id}: técnico ${cambio.tecnico ? "asignado" : "sin asignar"}`);
+    t.setReparaciones((rs) => rs.map((r) => (r.id === id ? { ...r, ...cambio, nueva: false } : r)));
+  };
   const n = (f: FRep) => (f === "todas" ? t.reparaciones.length : f === "activas" ? t.reparaciones.filter((r) => r.estado !== "entregado").length : t.reparaciones.filter((r) => r.estado === f).length);
   const lista = t.reparaciones.filter((r) => (filtro === "todas" ? true : filtro === "activas" ? r.estado !== "entregado" : r.estado === filtro));
   const opciones = (["activas", "recibido", "diagnostico", "reparando", "listo", "entregado", "todas"] as const).map((f) => [f, f === "activas" ? "En curso" : f === "todas" ? "Todas" : TEXTO_REPARACION[f], n(f)] as const);
   return (
     <>
       <Titulo sub="El estado de cada equipo y su técnico. El cliente lo consulta con su código en el rastreo.">Reparaciones</Titulo>
+      <FranjaBot area="Taller" />
       <Filtros etiqueta="Filtrar reparaciones" valor={filtro} alCambiar={setFiltro} opciones={opciones} />
       <Panel flush>
         <table className="w-full min-w-[58rem] text-[0.92rem]">
@@ -593,7 +489,7 @@ function Reparaciones({ t }: { t: Tienda }) {
                 <td className={TD}><select aria-label={`Técnico de ${r.id}`} value={r.tecnico ?? ""} onChange={(e) => editar(r.id, { tecnico: e.target.value || undefined })} className="min-h-[2.3rem] w-44 rounded-[5px] border bg-white px-2 text-[0.88rem]" style={{ borderColor: BORDE }}><option value="">Sin asignar</option>{t.tecnicos.filter((x) => x.activo).map((x) => <option key={x.id} value={x.id}>{x.nombre}</option>)}</select></td>
                 <td className={`${TD} text-right tabular-nums`}>{qz(r.precio)}</td>
                 <td className={TD}><EstadoRep e={r.estado} /></td>
-                <td className={`${TD} text-right`}>{sig ? <button type="button" onClick={() => editar(r.id, { estado: sig })} className={BTN} style={principal}>{TEXTO_REPARACION[sig]}</button> : <span style={{ color: MUTED }}>—</span>}</td>
+                <td className={`${TD} text-right`}>{sig ? <button type="button" onClick={() => editar(r.id, { estado: sig })} className={BTN} style={principal}>{ACCION_REP[r.estado]}</button> : <span style={{ color: MUTED }}>—</span>}</td>
               </tr>
             ); })}
             {!lista.length && <tr><td colSpan={9} className="p-8 text-center" style={{ color: MUTED }}>No hay reparaciones con este filtro.</td></tr>}
@@ -613,6 +509,7 @@ function Tecnicos({ t }: { t: Tienda }) {
   return (
     <>
       <Titulo sub="Quién repara qué, en qué sucursal y cuánto trabajo tiene.">Técnicos</Titulo>
+      <FranjaBot area="Taller" />
       <Panel flush>
         <table className="w-full min-w-[46rem] text-[0.92rem]">
           <thead><tr><th className={TH}>Técnico</th><th className={TH}>Especialidad</th><th className={TH}>Sucursal</th><th className={TH}>Teléfono</th><th className={`${TH} text-right`}>En curso</th><th className={TH}>Disponibilidad</th></tr></thead>
@@ -638,6 +535,7 @@ function Tecnicos({ t }: { t: Tienda }) {
 
 function Devoluciones({ t }: { t: Tienda }) {
   const decidir = (id: string, ok: boolean) => {
+    registrar("Postventa", "Panel", `${ok ? "Aprobó" : "Rechazó"} la devolución ${id}`);
     const d = t.devoluciones.find((x) => x.id === id)!;
     t.setDevoluciones((ds) => ds.map((x) => (x.id === id ? { ...x, estado: ok ? "aprobada" : "rechazada", nueva: false } : x)));
     if (ok) {
@@ -650,6 +548,7 @@ function Devoluciones({ t }: { t: Tienda }) {
   return (
     <>
       <Titulo sub="Al aprobar, el pedido queda como devuelto y el producto regresa al inventario de la sucursal.">Devoluciones</Titulo>
+      <FranjaBot area="Postventa" />
       <Panel flush>
         <table className="w-full min-w-[52rem] text-[0.92rem]">
           <thead><tr><th className={TH}>Código</th><th className={TH}>Fecha</th><th className={TH}>Pedido y cliente</th><th className={TH}>Motivo</th><th className={`${TH} text-right`}>Monto</th><th className={TH}>Estado</th><th className={TH} /></tr></thead>

@@ -9,11 +9,15 @@ import { BandaDemos, PartesDemo, CierreJzet } from "../comun";
 import { TiendaCliente } from "./Tienda";
 import { PanelDueno } from "./Admin";
 import { useTienda } from "./datos";
+import { ganchos } from "./bot";
 
 type Vista = "tienda" | "admin";
 
 export default function CelularesDemo() {
   const t = useTienda();
+  /* el bot puede preparar pedidos y ocultar productos desde cualquier pantalla */
+  ganchos.preparar = (p) => t.setPedidos((ps) => ps.map((x) => (x.id === p.id ? { ...x, estado: "preparando", nuevo: false } : x)));
+  ganchos.ocultar = (nombre) => t.setProductos((ps) => ps.map((x) => (x.nombre === nombre ? { ...x, visible: false } : x)));
   const [vista, setVista] = useState<Vista>(() => (location.hash === "#admin" ? "admin" : "tienda"));
 
   useEffect(() => {

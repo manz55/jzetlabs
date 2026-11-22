@@ -18,7 +18,7 @@ import {
   type Linea, type Metodo, type Pedido, type Producto, type Tienda,
 } from "./datos";
 import { cobrarConTarjeta } from "./pasarela";
-import { avisoInteres, avisoPedido } from "./bot";
+import { avisoDevolucion, avisoInteres, avisoPedido, avisoReparacion } from "./bot";
 
 const ENVIO = 35;
 const ENVIO_GRATIS = 1000;
@@ -1103,6 +1103,7 @@ function Reparaciones({ t, alAgendado, alRastrear }: { t: Tienda; alAgendado: (i
                 if (!nombre.trim()) return;
                 const id = sigId("RP", t.reparaciones, 512);
                 t.setReparaciones((r) => [{ id, cliente: nombre.trim(), modelo: modelo.nombre, falla: falla.nombre, precio, fecha: new Date().toISOString(), estado: "recibido", sucursal, nueva: true }, ...r.map((x) => ({ ...x, nueva: false }))]);
+                avisoReparacion({ id, cliente: nombre.trim(), modelo: modelo.nombre, falla: falla.nombre, precio });
                 setHecho(id);
                 alAgendado(id);
               }}
@@ -1283,6 +1284,7 @@ function Devoluciones({ t }: { t: Tienda }) {
               if (!t.pedidos.some((p) => p.id === id)) return setError("No encontramos ese pedido. Prueba con OR-1036.");
               const nueva = { id: sigId("DV", t.devoluciones, 209), pedido: id, motivo, detalle: detalle.trim(), fecha: new Date().toISOString(), estado: "pendiente" as const, nueva: true };
               t.setDevoluciones((d) => [nueva, ...d.map((x) => ({ ...x, nueva: false }))]);
+              avisoDevolucion(nueva);
               setHecha(nueva.id);
               setError("");
             }}

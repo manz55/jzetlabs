@@ -11,7 +11,7 @@ import ipairFoto from "@/assets/demo-celulares/ipair.jpg";
 import ip17Foto from "@/assets/demo-celulares/ip17.jpg";
 import ip17proFoto from "@/assets/demo-celulares/ip17pro.jpg";
 import { efectivo, SUCURSALES, TEXTO_REPARACION, sucursalPor, type EstadoPedido, type Pedido, type Producto, type Reparacion, type Tienda } from "./datos";
-import { avisoInteres, avisoPedido, chatAgregar, chatMarcarUsada, getBorrador, hayChat, horaAhora, msgBot, setBorrador, useChat, type Borrador, type Boton, type Msg } from "./bot";
+import { avisoInteres, avisoPedido, chatAgregar, chatMarcarUsada, getBorrador, getReglas, hayChat, horaAhora, msgBot, registrar, setBorrador, setChatVisible, useChat, type Area, type Borrador, type Boton, type Msg } from "./bot";
 import { achicarFoto, urlAFoto } from "./fotos";
 
 const MUTED = "#5b6270";
@@ -44,7 +44,18 @@ function leerDatos(texto: string, base: Borrador): Borrador {
   return out;
 }
 
-export function Asistente({ t }: { t: Tienda }) {
+/* los primeros avisos de la conversación, con lo que hay pendiente en el panel */
+export function iniciarChat(t: Tienda) {
+  if (hayChat()) return;
+  const unidades = (id: string) => Object.values(t.stock[id] ?? {}).reduce((s, n) => s + n, 0);
+  t.pedidos.filter((p) => p.estado === "pago-pendiente").forEach((p) => chatAgregar(msgBot(`Pago por verificar.\n${p.id} · ${p.cliente} · ${qz(p.total)}.`, [{ id: `do:pago:${p.id}`, t: "Confirmar pago" }, { id: `do:rechazar:${p.id}`, t: "Rechazar" }])));
+  t.reparaciones.filter((r) => r.estado === "listo").forEach((r) => chatAgregar(msgBot(`Reparación lista.\n${r.id} · ${r.cliente} · ${r.modelo}.`, [{ id: `do:rep:${r.id}:entregado`, t: "Marcar entregada" }])));
+  const bajos = t.productos.filter((p) => unidades(p.id) <= 3);
+  if (bajos.length && getReglas().avisarStockBajo) chatAgregar(msgBot(`Poco stock: ${bajos.slice(0, 3).map((p) => `${p.nombre} (${unidades(p.id)})`).join(", ")}.`, [{ id: "c:stock", t: "Consultar stock" }]));
+  chatAgregar(msgBot("Para empezar, toque una opción o escriba *menú*.", MENU.slice(0, 3)));
+}
+
+export function Asistente({ t, alto = "h-[min(36rem,68vh)]", raiz = "" }: { t: Tienda; alto?: string; raiz?: string }) {
   const msgs = useChat();
   const unidades = (id: string) => Object.values(t.stock[id] ?? {}).reduce((s, n) => s + n, 0);
   const [texto, setTexto] = useState("");
@@ -52,16 +63,14 @@ export function Asistente({ t }: { t: Tienda }) {
   const caja = useRef<HTMLDivElement>(null);
   const archivo = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (hayChat()) return;
-    t.pedidos.filter((p) => p.estado === "pago-pendiente").forEach((p) => chatAgregar(msgBot(`Transferencia con comprobante.\n${p.id} · ${p.cliente} · ${qz(p.total)}.`, [{ id: `do:pago:${p.id}`, t: "Confirmar pago" }, { id: `do:rechazar:${p.id}`, t: "Rechazar" }])));
-    t.reparaciones.filter((r) => r.estado === "listo").forEach((r) => chatAgregar(msgBot(`Reparación lista.\n${r.id} · ${r.cliente} · ${r.modelo}.`, [{ id: `do:rep:${r.id}:entregado`, t: "Marcar entregada" }])));
-    const bajos = t.productos.filter((p) => unidades(p.id) <= 3);
-    if (bajos.length) chatAgregar(msgBot(`Poco stock: ${bajos.slice(0, 3).map((p) => `${p.nombre} (${unidades(p.id)})`).join(", ")}.`, [{ id: "c:stock", t: "Consultar stock" }]));
-    chatAgregar(msgBot("Para empezar, toque una opción o escriba *menú*.", MENU.slice(0, 3)));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { setChatVisible(true); return () => setChatVisible(false); }, []);
+  useEffect(() => { iniciarChat(t); // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => { const c = caja.current; if (c) c.scrollTo({ top: c.scrollHeight, behavior: "smooth" }); }, [msgs]);
+
+  /* todo lo que el dueño pide por WhatsApp queda en el registro; si la regla está activa, el cliente recibe su aviso */
+  const hizo = (area: Area, texto: string, aviso?: string) => { registrar(area, "Dueño por WhatsApp", texto); if (aviso && getReglas().avisarClienteEstado) registrar(area, "Bot automático", `Aviso al cliente: ${aviso}`); };
+  const avisoCliente = () => (getReglas().avisarClienteEstado ? "El cliente recibió el aviso por WhatsApp y lo ve en su rastreo." : "El cliente lo ve en su rastreo.");
 
   /* acciones que cambian los datos del panel */
   const moverPedido = (p: Pedido, a: EstadoPedido, guia?: string) => t.setPedidos((ps) => ps.map((x) => (x.id === p.id ? { ...x, estado: a, guia: a === "en-camino" ? guia ?? x.guia : x.guia, nuevo: false } : x)));
@@ -97,6 +106,7 @@ export function Asistente({ t }: { t: Tienda }) {
       t.setProductos((ps) => [{ ...p, visible: true }, ...ps]);
       t.setStock((s) => ({ ...s, [pid]: { z10: 0, mix: 0, xela: 0, [b.sucursal]: u } }));
       setBorrador(null);
+      hizo("Tienda", `Publicó ${b.nombre} con ${b.fotos.length} ${b.fotos.length === 1 ? "foto" : "fotos"} y ${u} ${u === 1 ? "unidad" : "unidades"}`);
       return [msgBot(`Publicado.\n${b.nombre} ya aparece en la tienda con ${b.fotos.length} ${b.fotos.length === 1 ? "foto" : "fotos"} y ${u} ${u === 1 ? "unidad" : "unidades"}. Le aviso cuando un cliente lo mire o lo compre.`)];
     }
     if (id.startsWith("do:")) {
@@ -104,8 +114,9 @@ export function Asistente({ t }: { t: Tienda }) {
       if (que === "pago" || que === "rechazar") {
         const p = t.pedidos.find((x) => x.id === ref);
         if (!p || p.estado !== "pago-pendiente") return [msgBot(`El pedido ${ref} ya no tiene un pago por verificar.`)];
-        if (que === "pago") { confirmarPago(p); return [msgBot(`Pago confirmado.\n${p.id} pasó a Pagado y se descontó el stock. El cliente lo ve en su rastreo.`, [{ id: `do:mover:${p.id}:preparando`, t: "Pasar a preparación" }])]; }
+        if (que === "pago") { confirmarPago(p); hizo("Ventas", `Confirmó el pago de ${p.id} (${qz(p.total)})`, `pago de ${p.id} recibido`); return [msgBot(`Pago confirmado.\n${p.id} pasó a Pagado y se descontó el stock. ${avisoCliente()}`, [{ id: `do:mover:${p.id}:preparando`, t: "Pasar a preparación" }])]; }
         t.setPedidos((ps) => ps.map((x) => (x.id === p.id ? { ...x, estado: "rechazado", motivoRechazo: "Comprobante no coincide con el depósito", nuevo: false } : x)));
+        hizo("Ventas", `Rechazó el pago de ${p.id}`, `pago de ${p.id} no coincide con el depósito`);
         return [msgBot(`Pago rechazado.\n${p.id} quedó como rechazado. No se cobró nada.`)];
       }
       if (que === "mover") {
@@ -113,18 +124,20 @@ export function Asistente({ t }: { t: Tienda }) {
         if (!p) return [msgBot("No encontré ese pedido.")];
         const guia = `GT-${String(Date.now()).slice(-6)}`;
         moverPedido(p, extra as EstadoPedido, guia);
-        if (extra === "preparando") return [msgBot(`${p.id} en preparación.\nEl cliente ya lo ve en su rastreo.`, [{ id: `do:mover:${p.id}:en-camino`, t: "Entregar al transporte" }])];
-        if (extra === "en-camino") return [msgBot(`${p.id} entregado al transporte.\nGuía ${p.guia ?? guia}. El cliente recibe el aviso de que va en camino.`, [{ id: `do:mover:${p.id}:entregado`, t: "Marcar entregado" }])];
-        return [msgBot(`${p.id} entregado.\nPedido cerrado. Gracias.`)];
+        if (extra === "preparando") { hizo("Ventas", `Pasó ${p.id} a preparación`, `${p.id} en preparación`); return [msgBot(`${p.id} en preparación.\n${avisoCliente()}`, [{ id: `do:mover:${p.id}:en-camino`, t: "Entregar al transporte" }])]; }
+        if (extra === "en-camino") { hizo("Ventas", `Entregó ${p.id} al transporte (guía ${p.guia ?? guia})`, `${p.id} va en camino, guía ${p.guia ?? guia}`); return [msgBot(`${p.id} entregado al transporte.\nGuía ${p.guia ?? guia}. ${avisoCliente()}`, [{ id: `do:mover:${p.id}:entregado`, t: "Marcar entregado" }])]; }
+        hizo("Ventas", `Marcó ${p.id} como entregado`, `${p.id} entregado`);
+        return [msgBot(`${p.id} entregado.\nPedido cerrado.`)];
       }
-      if (que === "rep") { t.setReparaciones((rs) => rs.map((r) => (r.id === ref ? { ...r, estado: extra as Reparacion["estado"], nueva: false } : r))); return [msgBot(`Listo.\n${ref}: ${TEXTO_REPARACION[extra as Reparacion["estado"]]}.${extra === "listo" ? " Se avisó al cliente que puede recoger." : ""}`)]; }
-      if (que === "precio") { const monto = Number(extra); t.setProductos((ps) => ps.map((p) => (p.id === ref ? { ...p, variantes: p.variantes.map((v, i) => (i === 0 ? { ...v, precio: monto } : v)) } : p))); const p = t.productos.find((x) => x.id === ref); return [msgBot(`Precio actualizado.\n${p?.nombre}: ${qz(monto)}. Ya se ve en la tienda.`)]; }
-      if (que === "ocultar") { const p = t.productos.find((x) => x.nombre === ref); if (p) t.setProductos((ps) => ps.map((x) => (x.id === p.id ? { ...x, visible: false } : x))); return [msgBot(`Listo. ${ref} ya no se ve en la tienda.`)]; }
+      if (que === "rep") { hizo("Taller", `Pasó ${ref} a “${TEXTO_REPARACION[extra as Reparacion["estado"]]}”`, extra === "listo" && getReglas().avisarReparacionLista ? `${ref} lista para recoger` : undefined); t.setReparaciones((rs) => rs.map((r) => (r.id === ref ? { ...r, estado: extra as Reparacion["estado"], nueva: false } : r))); return [msgBot(`Listo.\n${ref}: ${TEXTO_REPARACION[extra as Reparacion["estado"]]}.${extra === "listo" && getReglas().avisarReparacionLista ? " Se avisó al cliente que puede recoger." : ""}`)]; }
+      if (que === "precio") { const monto = Number(extra); t.setProductos((ps) => ps.map((p) => (p.id === ref ? { ...p, variantes: p.variantes.map((v, i) => (i === 0 ? { ...v, precio: monto } : v)) } : p))); const p = t.productos.find((x) => x.id === ref); hizo("Tienda", `Cambió el precio de ${p?.nombre} a ${qz(monto)}`); return [msgBot(`Precio actualizado.\n${p?.nombre}: ${qz(monto)}. Ya se ve en la tienda.`)]; }
+      if (que === "ocultar") { const p = t.productos.find((x) => x.nombre === ref); if (p) t.setProductos((ps) => ps.map((x) => (x.id === p.id ? { ...x, visible: false } : x))); hizo("Tienda", `Ocultó ${ref} de la tienda`); return [msgBot(`Listo. ${ref} ya no se ve en la tienda.`)]; }
       if (que === "stock") {
         const [, , pid, suc, signo, cant] = id.split(":");
         const k = Number(cant);
         t.setStock((s) => ({ ...s, [pid]: { ...(s[pid] ?? {}), [suc]: Math.max(0, (s[pid]?.[suc] ?? 0) + (signo === "+" ? k : -k)) } }));
         const p = t.productos.find((x) => x.id === pid)!;
+        hizo("Tienda", `${signo === "+" ? "Agregó" : "Quitó"} ${k} ${k === 1 ? "unidad" : "unidades"} de ${p.nombre} (${sucursalPor(suc).nombre})`);
         return [msgBot(`Hecho.\n${p.nombre}: ${Math.max(0, unidades(pid) + (signo === "+" ? k : -k))} en total.`)];
       }
     }
@@ -144,13 +157,13 @@ export function Asistente({ t }: { t: Tienda }) {
       if (!l.length) return [msgBot("No hay pedidos por atender.")];
       return l.slice(0, 5).map((p) => {
         const sig = p.estado === "pago-pendiente" ? { id: `c:pago:${p.id}`, t: "Confirmar pago" } : p.estado === "pagado" ? { id: `do:mover:${p.id}:preparando`, t: "Pasar a preparación" } : p.estado === "preparando" ? { id: `do:mover:${p.id}:en-camino`, t: "Entregar al transporte" } : { id: `do:mover:${p.id}:entregado`, t: "Marcar entregado" };
-        return msgBot(`${p.id} · ${p.cliente} · ${qz(p.total)}\n${p.estado === "pago-pendiente" ? "Verificando pago" : p.estado === "pagado" ? "Pagado, sin preparar" : p.estado === "preparando" ? "En preparación" : "Con el transporte"}`, [sig]);
+        return msgBot(`${p.id} · ${p.cliente} · ${qz(p.total)}\n${p.estado === "pago-pendiente" ? "Pago por verificar" : p.estado === "pagado" ? "Pagado, sin preparar" : p.estado === "preparando" ? "En preparación" : "Con el transporte"}`, [sig]);
       });
     }
     if (/^pagos/.test(n)) {
       const l = t.pedidos.filter((p) => p.estado === "pago-pendiente");
-      if (!l.length) return [msgBot("No hay transferencias por verificar.")];
-      return l.map((p) => msgBot(`Transferencia por verificar.\n${p.id} · ${p.cliente} · ${qz(p.total)}.`, [{ id: `c:pago:${p.id}`, t: "Confirmar pago" }, { id: `do:rechazar:${p.id}`, t: "Rechazar" }]));
+      if (!l.length) return [msgBot("No hay pagos por verificar.")];
+      return l.map((p) => msgBot(`Pago por verificar.\n${p.id} · ${p.cliente} · ${qz(p.total)}.`, [{ id: `c:pago:${p.id}`, t: "Confirmar pago" }, { id: `do:rechazar:${p.id}`, t: "Rechazar" }]));
     }
     if (/^reparaciones/.test(n)) {
       const l = t.reparaciones.filter((r) => r.estado !== "entregado");
@@ -241,12 +254,12 @@ export function Asistente({ t }: { t: Tienda }) {
 
   const ejemplos = ["menú", "ventas", "stock iphone air", "agregar 2 iphone air", "precio s26 7500"];
   return (
-    <div className="flex w-full flex-col overflow-hidden rounded-md border bg-[#efeae2]" style={{ borderColor: "#dde0e6" }}>
+    <div className={`flex w-full flex-col overflow-hidden rounded-md border bg-[#efeae2] ${raiz}`} style={{ borderColor: "#dde0e6" }}>
       <header className="flex items-center gap-3 px-4 py-3 text-white" style={{ background: "#075e54" }}>
         <span className="grid h-10 w-10 place-items-center rounded-full bg-white text-[1.05rem] font-extrabold text-[#14101f]">Ó</span>
         <span className="leading-tight"><b className="block">Bot de Órbita</b><span className="text-[0.78rem] opacity-80">cuenta de empresa · en línea</span></span>
       </header>
-      <div ref={caja} className="h-[min(36rem,68vh)] overflow-y-auto px-3 py-3 sm:px-5">
+      <div ref={caja} className={`${alto} overflow-y-auto px-3 py-3 sm:px-5`}>
         <div className="space-y-2">
           {msgs.map((m, i) => (
             <div key={i} className={`flex flex-col ${m.de === "yo" ? "items-end" : "items-start"}`}>
