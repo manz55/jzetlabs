@@ -207,6 +207,7 @@ export function useGimnasio() {
         d.setDate(d.getDate() + p.dias);
         return { ...v, socios: v.socios.map((x) => (x.num === num ? { ...x, vence: iso(d) } : x)), pagos: [...v.pagos, { num, monto: p.precio, que: `Renovación ${p.nombre.toLowerCase()}`, dia: new Date().getDate() }] };
       }),
+    cambiarPlan: (num: number, plan: string) => setE((v) => ({ ...v, socios: v.socios.map((x) => (x.num === num ? { ...x, plan } : x)) })),
     reservar: (id: string) => setE((v) => ({ ...v, reservas: { ...v.reservas, [id]: v.reservas[id] ? 0 : 1 } })),
     reiniciar: () => {
       const s = socios();
