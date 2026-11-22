@@ -22,6 +22,9 @@ import fotoEventos from "@/assets/demo-eventos/carpa.jpg";
 import fotoDental from "@/assets/demo-clinica/paciente.jpg";
 import fotoPediatria from "@/assets/demo-pediatria/examen.jpg";
 import fotoMedicina from "@/assets/demo-medicina/presion.jpg";
+import fotoVeterinaria from "@/assets/demo-veterinaria/hero.jpg";
+import fotoOftalmologia from "@/assets/demos/oftalmologia.svg";
+import fotoTaller from "@/assets/demos/taller.svg";
 import { whatsappLink } from "@/data/site";
 import { Titulo } from "./Titulo";
 
@@ -151,6 +154,17 @@ const VARIANTES_EMPRESAS: Variante[] = [
     demo: { texto: "Ver el panel de la oficina", tipo: "asistencia" },
     panel: { texto: "Ver el portal del empleado", href: "/demos/planilla/#empleado" },
   },
+  {
+    id: "taller",
+    nombre: "Taller mecánico",
+    foto: fotoTaller,
+    problema: "“¿Cuánto cuesta?” y “¿ya está mi carro?”, todo el día por mensaje.",
+    hoy: ["La cotización es “venga y vemos”, y el cliente se va a comparar.", "Para saber si su carro ya está listo, el cliente tiene que llamar."],
+    sistema: ["El cliente ve los precios en rango y pide su cotización por WhatsApp.", "Con su placa ve en qué paso va su carro y cuánto va a pagar.", "El taller avisa en cada paso y recuerda el cambio de aceite."],
+    visual: "foto",
+    demo: { texto: "Ver la página del taller", tipo: "taller" },
+    panel: { texto: "Ver el panel del taller", href: "/demos/taller/#taller" },
+  },
 ];
 
 /* Clínicas: dental, niños y adultos, cada una con lo suyo */
@@ -188,11 +202,33 @@ const VARIANTES_CLINICAS: Variante[] = [
     demo: { texto: "Ver la página de pacientes", tipo: "medicina" },
     panel: { texto: "Ver el sistema del consultorio", href: "/demos/medicina/#consultorio" },
   },
+  {
+    id: "oftalmologia",
+    nombre: "Oftalmología",
+    foto: fotoOftalmologia,
+    problema: "Citas que no se respetan y colas de horas: el paciente espera y la queja queda en Google.",
+    hoy: ["Se da una hora y se atiende cuando se puede.", "Si el doctor se atrasa, nadie le avisa al paciente."],
+    sistema: ["El paciente pide su turno y sabe a qué hora le toca.", "Si hay retraso, recepción avisa por WhatsApp con un toque.", "Sucursales, reseñas con respuesta y reportes en un solo panel."],
+    visual: "foto",
+    demo: { texto: "Ver la página de pacientes", tipo: "oftalmologia" },
+    panel: { texto: "Ver el panel de la clínica", href: "/demos/oftalmologia/#recepcion" },
+  },
+  {
+    id: "veterinaria",
+    nombre: "Veterinaria",
+    foto: fotoVeterinaria,
+    problema: "“¿Es urgencia o puede esperar?”, y el teléfono sonando todo el día.",
+    hoy: ["El dueño no sabe si traer a su mascota hoy o esperar.", "El carné de vacunas es de cartón y se pierde."],
+    sistema: ["El dueño marca los síntomas y ve qué hacer.", "Carné de vacunas en el teléfono, con aviso de la próxima.", "La clínica ve la agenda, las vacunas vencidas y a los internados."],
+    visual: "foto",
+    demo: { texto: "Ver la página para dueños", tipo: "veterinaria" },
+    panel: { texto: "Ver el sistema de la clínica", href: "/demos/veterinaria/#clinica" },
+  },
 ];
 
 const VARIANTES: Record<string, Variante[]> = { belleza: VARIANTES_BELLEZA, tiendas: VARIANTES_TIENDA, empresas: VARIANTES_EMPRESAS, clinicas: VARIANTES_CLINICAS };
 
-const RUTA_DEMO: Record<string, string> = { distribuidora: "/demos/distribuidora/", asistencia: "/demos/planilla/", clinica: "/demos/clinica/", pediatria: "/demos/pediatria/", medicina: "/demos/medicina/", perfil: "/demos/perfil-belleza/", salon: "/demos/salon/", boutique: "/demos/boutique/", ropa: "/demos/ropa/", cosmeticos: "/demos/cosmeticos/", celulares: "/demos/celulares/", restaurante: "/demos/restaurante/", tiempo: "/demos/tiempo-compartido/" };
+const RUTA_DEMO: Record<string, string> = { distribuidora: "/demos/distribuidora/", asistencia: "/demos/planilla/", clinica: "/demos/clinica/", pediatria: "/demos/pediatria/", medicina: "/demos/medicina/", perfil: "/demos/perfil-belleza/", salon: "/demos/salon/", boutique: "/demos/boutique/", ropa: "/demos/ropa/", cosmeticos: "/demos/cosmeticos/", celulares: "/demos/celulares/", restaurante: "/demos/restaurante/", tiempo: "/demos/tiempo-compartido/", oftalmologia: "/demos/oftalmologia/", veterinaria: "/demos/veterinaria/", taller: "/demos/taller/" };
 
 /* Tipos de negocio: tarjetas que se ven claramente como opciones para escoger */
 function TarjetasFoco({ variantes, elegida, alElegir }: { variantes: Variante[]; elegida: number; alElegir: (i: number) => void }) {
