@@ -4,7 +4,7 @@
  * la membresía del socio (carnet, días que le quedan, asistencias) y recepción (quién entró y a quién cobrarle).
  */
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
-import { ArrowRight, Car, Check, Clock, Dumbbell, MapPin, Users, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Car, Check, Clock, Dumbbell, MapPin, Navigation, Users, X } from "lucide-react";
 import PanelGimnasio from "./PanelGimnasio";
 import { Rev, Ventana } from "../perfil/Ventana";
 import { BandaDemos, PartesDemo, Cajon, CierreJzet, MensajeWhatsApp } from "../comun";
@@ -48,6 +48,11 @@ const ESTILOS = `
 .gy-btn { transition: transform .2s, box-shadow .2s, filter .2s; }
 .gy-btn:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 0 0 3px rgba(242,194,48,.6); }
 .gy-btn:active { transform: scale(.97); }
+.gy-flip { perspective: 1600px; }
+.gy-flip-in { position: relative; height: 100%; transition: transform .9s cubic-bezier(.2,.8,.2,1); transform-style: preserve-3d; }
+.gy-flip[data-vuelta="1"] .gy-flip-in { transform: rotateY(180deg); }
+.gy-face { position: absolute; inset: 0; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.gy-back { transform: rotateY(180deg); }
 .pf-zoom { animation: pfzoom 1s cubic-bezier(.2,.8,.2,1) both; }
 @keyframes pfzoom { from { transform: scale(1.15); opacity: .4; } to { transform: scale(1); opacity: 1; } }
 @media (hover: none) { .gy-card:hover { transform: none; box-shadow: none; } .gy-card:hover .gy-img, .gy-card:hover .gy-disco { transform: none; } }
@@ -135,20 +140,26 @@ const INFO_CLASE: Record<string, { nivel: string; dura: string; trae: string[]; 
   "Funcional en parejas": { nivel: "Todos los niveles", dura: "50 min", trae: ["Toalla", "Agua", "A tu pareja o amigo"], que: "Rondas en parejas: uno trabaja y el otro anima.", intensidad: 4 },
   "Movilidad y estiramiento": { nivel: "Principiante", dura: "40 min", trae: ["Toalla", "Ropa cómoda"], que: "Estiramiento y movilidad de cadera, espalda y hombro.", intensidad: 1 },
 };
-const INFO_COACH: Record<string, { frase: string; certs: string[]; clases: string }> = {
-  "Ricardo Méndez": { frase: "Primero la técnica, después el peso.", certs: ["Entrenador de fuerza certificado", "Funcional y kettlebell", "Primeros auxilios"], clases: "Funcional y spinning en las mañanas" },
-  "María José Pérez": { frase: "Todos pueden empezar. Yo te acompaño.", certs: ["Entrenadora personal certificada", "Especialista en glúteo y pierna", "Instructora de spinning"], clases: "Glúteo, pierna y spinning" },
+const INFO_COACH: Record<string, { alias: string; frase: string; certs: string[]; fotos: { f: string; p: string }[] }> = {
+  "Ricardo Méndez": { alias: "Ricardo", frase: "Primero la técnica, después el peso.", certs: ["Entrenador de fuerza certificado", "Funcional y kettlebell", "Primeros auxilios"], fotos: [{ f: FOTOS.coach, p: "Ricardo corrigiendo la postura de una socia" }, { f: FOTOS.funcional, p: "En su clase de funcional" }, { f: FOTOS.spinning, p: "Dirigiendo spinning" }, { f: FOTOS.mancuernas, p: "En la sala de pesas" }] },
+  "María José Pérez": { alias: "Majo", frase: "Todos pueden empezar. Yo te acompaño.", certs: ["Entrenadora personal certificada", "Especialista en glúteo y pierna", "Instructora de spinning"], fotos: [{ f: FOTOS.coach2, p: "Majo guiando un ejercicio de suelo" }, { f: FOTOS.sentadilla, p: "Clase de glúteo y pierna" }, { f: FOTOS.spinning, p: "Spinning de las 5:30" }, { f: FOTOS.funcional, p: "Entrenamiento funcional" }] },
 };
-const NAV = [["planes", "Planes"], ["clases", "Clases"], ["entrenadores", "Entrenadores"], ["socios", "Socios"], ["sedes", "Sedes"], ["preguntas", "Preguntas"]];
+const RESULTADOS = [
+  { n: "-12 kg", t: "en 5 meses", d: "Llegué con miedo a los aparatos. Con la rutina de inicio y las clases de las 5:30 cambió mi energía y hasta mi ropa.", q: "Andrea, socia desde hace 8 meses", foto: AVANCES[0].foto },
+  { n: "3 veces", t: "por semana", d: "Antes pagaba otro gimnasio y no iba. Aquí apartar la clase me obliga a llegar, y vengo con mi hermana.", q: "Wendy, socia desde hace 1 año", foto: AVANCES[1].foto },
+  { n: "+20 kg", t: "en sentadilla", d: "En tres meses subí mi peso. El coach me corrige la técnica y no me he lesionado ni una vez.", q: "Kevin, socio desde hace 3 meses", foto: AVANCES[3].foto },
+  { n: "5 meses", t: "sin faltar", d: "Ver cuánta gente hay antes de salir me ahorra tiempo. El gimnasio ya es parte de mi día.", q: "Paola, socia desde hace 5 meses", foto: AVANCES[2].foto },
+];
+const NAV = [["planes", "Planes"], ["clases", "Clases"], ["entrenadores", "Entrenadores"], ["socios", "Resultados"], ["sedes", "Sedes"], ["preguntas", "Preguntas"]];
 
-function Seccion({ id, etiqueta, titulo, sub, fondo, color = TIZA, borde = AMARILLO, derecha, children }: { id: string; etiqueta: string; titulo: string; sub?: string; fondo: string; color?: string; borde?: string; derecha?: ReactNode; children: ReactNode }) {
+function Seccion({ id, etiqueta, titulo, sub, fondo, color = TIZA, borde = AMARILLO, derecha, logo = false, children }: { id: string; etiqueta: string; titulo: string; sub?: string; fondo: string; color?: string; borde?: string; derecha?: ReactNode; logo?: boolean; children: ReactNode }) {
   return (
     <section id={id} className="gy-sec scroll-mt-32" style={{ background: fondo, color, borderTop: `8px solid ${borde}` }}>
       <div className="gy-cont">
         <p className="gy-eyebrow" style={{ color: borde === ACERO ? GOMA : borde }}>{etiqueta}</p>
         <div className="mt-3 flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
           <div>
-            <h2 className="gym-titulo gy-h2">{titulo}</h2>
+            <h2 className="gym-titulo gy-h2 flex items-center gap-[0.25em]">{logo && <Logo tam={72} />}{titulo}</h2>
             {sub && <p className="mt-2 max-w-2xl text-[clamp(1.1rem,1rem+0.5vw,1.4rem)] opacity-75">{sub}</p>}
           </div>
           {derecha}
@@ -167,6 +178,8 @@ function Pagina({ gym, alInscribir }: { gym: Gym; alInscribir: (n: number) => vo
   const [msg, setMsg] = useState<string | null>(null);
   const [clase, setClase] = useState<Clase | null>(null);
   const [coach, setCoach] = useState<(typeof COACHES)[number] | null>(null);
+  const [fotoCoach, setFotoCoach] = useState(0);
+  const [vueltas, setVueltas] = useState<Record<string, boolean>>({});
   const cerrarClase = useCallback(() => setClase(null), []);
   const cerrarCoach = useCallback(() => setCoach(null), []);
   const hReal = horaAhora();
@@ -177,9 +190,7 @@ function Pagina({ gym, alInscribir }: { gym: Gym; alInscribir: (n: number) => vo
   const ahora = aforo(sede, h);
   const nv = nivel(ahora, s.capacidad);
   const hoy = new Date().getDay();
-  const piz = PIZARRA[hoy];
   const precio = (p: (typeof PLANES)[number]) => (estudiante && (p.id === "mensual" || p.id === "trimestral") ? Math.round((p.precio * 0.8) / 5) * 5 : p.precio);
-  const pase = "Hola, Spartan Force. Quiero mi pase de un día gratis para conocer el gym. ¿Puedo ir mañana a las 6:00 a la sede de Mixco?";
 
   return (
     <>
@@ -201,17 +212,14 @@ function Pagina({ gym, alInscribir }: { gym: Gym; alInscribir: (n: number) => vo
         <div className="gy-cont">
           <div className="gym-hero">
             <div>
-              <p className="inline-flex items-center gap-2 rounded-md px-4 py-2 text-[1.05rem] font-bold" style={{ background: GOMA2 }}>
-                <span className="h-3 w-3 rounded-full" style={{ background: abierto ? VERDE : ROJO }} /> {abierto ? "Abierto ahora" : "Cerrado, abrimos a las 4:30"} · Mixco y Villa Nueva
-              </p>
-              <h1 className="gym-titulo gy-h1 mt-5">Mira cuánta gente hay antes de venir.</h1>
+              <h1 className="gym-titulo gy-h1">Mira cuánta gente hay antes de venir.</h1>
               <p className="mt-5 max-w-xl text-[clamp(1.2rem,1.05rem+0.6vw,1.6rem)] leading-snug text-white/80">Desde {qz(25)} el día. Abierto desde las 4:30 de la mañana. Te inscribes desde el teléfono.</p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <a href="#planes" className={`${btn} gy-btn !px-8 !py-4 text-[1.2rem]`} style={{ background: AMARILLO, color: GOMA }}>Ver planes y precios <ArrowRight size={20} /></a>
-                <button type="button" onClick={() => setMsg(pase)} className={`${btn} gy-btn !px-8 !py-4 text-[1.2rem] border-2 border-white/30`}>Pase de un día gratis</button>
+                <button type="button" onClick={() => setPlan("dia")} className={`${btn} gy-btn !px-8 !py-4 text-[1.2rem] border-2 border-white/30`}>Pagar pase del día</button>
               </div>
               <ul className="mt-9 grid gap-3 sm:grid-cols-3">
-                {[[Clock, "4:30 am", "primera clase"], [MapPin, "2 sedes", "con parqueo"], [Dumbbell, "Desde Q25", "pase de un día"]].map(([I, a, b]) => { const Icono = I as typeof Clock; return (
+                {[[Clock, "4:30 am", "primera clase"], [MapPin, "2 sedes", "con parqueo"], [Dumbbell, "Desde Q25", "pase del día con QR"]].map(([I, a, b]) => { const Icono = I as typeof Clock; return (
                   <li key={a as string} className="flex items-center gap-3 rounded-lg p-3.5" style={{ background: GOMA2 }}><span className="grid h-12 w-12 shrink-0 place-items-center rounded-md" style={{ background: AMARILLO, color: GOMA }}><Icono size={24} /></span><span className="leading-tight"><b className="block text-[1.25rem]">{a as string}</b><span className="text-[1rem] text-white/65">{b as string}</span></span></li>
                 ); })}
               </ul>
@@ -225,7 +233,7 @@ function Pagina({ gym, alInscribir }: { gym: Gym; alInscribir: (n: number) => vo
                   ))}
                 </div>
                 <div className="mt-3 flex items-end justify-between gap-3">
-                  <p><span className="gym-titulo text-[clamp(3.4rem,3rem+1.4vw,4.6rem)]">{ahora}</span><span className="ml-2 text-[1.05rem] text-white/75">{abierto ? "personas ahora" : "personas a las 18:00"}</span></p>
+                  <p><span className="gym-titulo text-[clamp(3.4rem,3rem+1.4vw,4.6rem)]">{ahora}</span><span className="ml-2 text-[1.05rem] text-white/75">{abierto ? "personas aprox. ahora" : "personas aprox. a las 18:00"}</span></p>
                   <span className="rounded px-3 py-1.5 text-[1rem] font-bold" style={{ background: nv.c, color: nv.c === AMARILLO ? GOMA : "#fff" }}>{nv.t}</span>
                 </div>
                 <div className="mt-3 flex h-16 items-end gap-[3px]" aria-label="Gente por hora hoy">
@@ -236,6 +244,7 @@ function Pagina({ gym, alInscribir }: { gym: Gym; alInscribir: (n: number) => vo
                   })}
                 </div>
                 <div className="mt-1 flex justify-between text-[0.9rem] text-white/60"><span>4:00</span><span>13:00</span><span>21:00</span></div>
+                <p className="mt-2 text-[0.95rem] text-white/70">Capacidad aproximada: {s.capacidad} personas. Nunca se niega la entrada.</p>
               </div>
             </div>
           </div>
@@ -270,32 +279,32 @@ function Pagina({ gym, alInscribir }: { gym: Gym; alInscribir: (n: number) => vo
         </div>
       </Seccion>
 
-      {/* clases con cupo */}
-      <Seccion id="clases" etiqueta="Clases" titulo="Clases con cupo" sub="Aparta tu lugar desde aquí. Toca una clase para ver de qué trata." fondo={GOMA} borde={ROJO}>
-        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none]" role="group" aria-label="Día de la semana">
+      {/* clases Spartan */}
+      <Seccion id="clases" etiqueta="Clases" titulo="Clases Spartan" logo sub="Aparta tu lugar desde aquí. Toca una clase para ver de qué trata." fondo={GOMA} borde={ROJO}>
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Día de la semana">
           {[1, 2, 3, 4, 5, 6, 0].map((d) => (
-            <button key={d} type="button" aria-pressed={dia === d} onClick={() => setDia(d)} className="gy-btn min-h-[3.25rem] shrink-0 rounded-md px-6 text-[1.15rem] font-bold" style={dia === d ? { background: TIZA, color: GOMA } : { background: GOMA2 }}>{d === hoy ? "Hoy" : DIAS[d]}</button>
+            <button key={d} type="button" aria-pressed={dia === d} onClick={() => setDia(d)} className="gy-btn min-h-[3.5rem] flex-1 rounded-md px-5 text-[1.2rem] font-bold" style={dia === d ? { background: TIZA, color: GOMA } : { background: GOMA2 }}>{d === hoy ? "Hoy" : DIAS[d]}</button>
           ))}
         </div>
-        <div key={dia} className="gy-fill mt-6" style={{ ["--min" as string]: "24rem" }}>
+        <div key={dia} className="gy-auto mt-6" style={{ ["--min" as string]: "27rem" }}>
           {CLASES.filter((c) => c.dia === dia).map((c, i) => {
             const mia = !!gym.reservas[c.id];
             const van = c.van + (mia ? 1 : 0);
             const lleno = van >= c.cupo && !mia;
             return (
               <Rev key={c.id} i={i} className="h-full">
-                <div className="gy-card flex h-full items-center gap-4 rounded-xl p-4" style={{ background: GOMA2 }}>
-                  <button type="button" onClick={() => setClase(c)} aria-label={`Ver ${c.nombre}`} className="flex min-w-0 flex-1 items-center gap-4 text-left">
-                    <img src={c.foto} alt="" className="gy-img h-24 w-24 shrink-0 rounded-lg object-cover" />
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-[1.1rem] font-bold" style={{ color: AMARILLO }}>{c.hora}</span>
-                      <span className="block text-[1.35rem] font-bold leading-tight">{c.nombre}</span>
-                      <span className="block text-[1rem] text-white/65">con {c.coach}</span>
-                      <span className="mt-2 block h-2 overflow-hidden rounded-full bg-white/10"><span className="block h-full" style={{ width: `${Math.min(100, (van / c.cupo) * 100)}%`, background: van >= c.cupo ? ROJO : van / c.cupo > 0.75 ? AMARILLO : VERDE }} /></span>
-                      <span className="mt-1 block text-[0.95rem] text-white/65">{lleno ? "Lleno" : `Quedan ${c.cupo - van} de ${c.cupo}`}</span>
-                    </span>
-                  </button>
-                  <button type="button" disabled={lleno} onClick={() => gym.reservar(c.id)} className="gy-btn min-h-[3rem] shrink-0 rounded-md px-4 text-[1.05rem] font-bold disabled:opacity-35" style={mia ? { background: VERDE, color: "#fff" } : { background: TIZA, color: GOMA }}>{mia ? "Apartado" : lleno ? "Lleno" : "Apartar"}</button>
+                <div className="gy-card flex h-full flex-col overflow-hidden rounded-xl sm:flex-row" style={{ background: GOMA2 }}>
+                  <button type="button" onClick={() => setClase(c)} aria-label={`Ver ${c.nombre}`} className="relative block h-48 shrink-0 overflow-hidden sm:h-auto sm:w-[38%]"><img src={c.foto} alt="" className="gy-img absolute inset-0 h-full w-full object-cover" /></button>
+                  <div className="flex min-w-0 flex-1 flex-col p-5">
+                    <button type="button" onClick={() => setClase(c)} className="text-left">
+                      <span className="block text-[1.3rem] font-bold" style={{ color: AMARILLO }}>{c.hora}</span>
+                      <span className="gym-titulo mt-1 block text-[clamp(2rem,1.7rem+0.8vw,2.6rem)]">{c.nombre}</span>
+                      <span className="block text-[1.1rem] text-white/70">con {c.coach}</span>
+                    </button>
+                    <span className="mt-3 block h-2.5 overflow-hidden rounded-full bg-white/10"><span className="block h-full" style={{ width: `${Math.min(100, (van / c.cupo) * 100)}%`, background: van >= c.cupo ? ROJO : van / c.cupo > 0.75 ? AMARILLO : VERDE }} /></span>
+                    <span className="mt-1.5 block text-[1.05rem] text-white/75">{lleno ? "Clase llena" : `Quedan ${c.cupo - van} de ${c.cupo} lugares`}</span>
+                    <button type="button" disabled={lleno} onClick={() => gym.reservar(c.id)} className="gy-btn mt-auto min-h-[3.25rem] w-full rounded-md pt-0 text-[1.15rem] font-bold disabled:opacity-35" style={{ marginTop: 16, ...(mia ? { background: VERDE, color: "#fff" } : { background: TIZA, color: GOMA }) }}>{mia ? "Apartado" : lleno ? "Lleno" : "Apartar mi lugar"}</button>
+                  </div>
                 </div>
               </Rev>
             );
@@ -303,40 +312,39 @@ function Pagina({ gym, alInscribir }: { gym: Gym; alInscribir: (n: number) => vo
         </div>
       </Seccion>
 
-      {/* pizarra y coaches */}
-      <Seccion id="entrenadores" etiqueta="Entrenadores" titulo="Quién te entrena" sub="Toca un coach para conocerlo. Abajo, la pizarra de hoy." fondo="#0e0f10" borde={AZUL}>
-        <div className="grid gap-[clamp(1rem,3vw,2.5rem)] lg:grid-cols-[1.15fr_1fr]">
-          <div className="gy-auto" style={{ ["--min" as string]: "15rem" }}>
-            {COACHES.map((c, i) => (
-              <Rev key={c.nombre} i={i} className="h-full">
-                <button type="button" onClick={() => setCoach(c)} className="gy-card block h-full w-full overflow-hidden rounded-xl text-left" style={{ background: GOMA2 }}>
-                  <span className="block overflow-hidden"><img src={c.foto} alt={`Coach ${c.nombre}`} loading="lazy" className="gy-img h-[clamp(18rem,26vw,28rem)] w-full object-cover" /></span>
-                  <span className="block p-5"><b className="block text-[1.4rem] leading-tight">{c.nombre}</b><span className="mt-1 block text-[1.1rem] text-white/75">{c.que}</span><span className="mt-3 inline-flex items-center gap-1.5 text-[1.05rem] font-bold" style={{ color: AMARILLO }}>Conocerlo <ArrowRight size={18} /></span></span>
-                </button>
-              </Rev>
-            ))}
-          </div>
-          <div className="pizarra rounded-lg p-[clamp(1.5rem,3vw,3rem)] text-white">
-            <p className="text-[1.15rem] text-white/70">La pizarra de hoy, {DIAS[hoy].toLowerCase()}</p>
-            <p className="mt-2 text-[clamp(3rem,2.4rem+2vw,4.4rem)] leading-none" style={{ fontFamily: "Caveat, cursive" }}>{piz.titulo}</p>
-            <ul className="mt-5 grid gap-2 text-[clamp(1.8rem,1.5rem+1vw,2.3rem)] leading-tight text-white/90" style={{ fontFamily: "Caveat, cursive" }}>
-              {piz.lista.map((x) => <li key={x}>– {x}</li>)}
-            </ul>
-            <p className="mt-6 text-[1.05rem] text-white/65">Los socios también la ven en su app, con los pesos que llevan.</p>
-          </div>
+      {/* coaches */}
+      <Seccion id="entrenadores" etiqueta="Entrenadores" titulo="Quién te entrena" sub="Toca un coach para ver sus fotos, sus clases y cómo trabaja." fondo="#0e0f10" borde={AZUL}>
+        <div className="gy-auto" style={{ ["--min" as string]: "26rem" }}>
+          {COACHES.map((c, i) => (
+            <Rev key={c.nombre} i={i} className="h-full">
+              <button type="button" onClick={() => { setCoach(c); setFotoCoach(0); }} className="gy-card flex h-full w-full flex-col overflow-hidden rounded-xl text-left sm:flex-row" style={{ background: GOMA2 }}>
+                <span className="block h-[clamp(18rem,30vw,28rem)] overflow-hidden sm:h-auto sm:w-1/2"><img src={c.foto} alt={`Coach ${c.nombre}`} loading="lazy" className="gy-img h-full w-full object-cover" /></span>
+                <span className="flex flex-1 flex-col justify-center p-6">
+                  <span className="text-[1rem] font-bold uppercase tracking-[0.12em]" style={{ color: AMARILLO }}>{c.desde}</span>
+                  <b className="gym-titulo mt-1 block text-[clamp(2.2rem,1.9rem+1vw,3rem)]">{c.nombre}</b>
+                  <span className="mt-1 block text-[1.2rem] text-white/80">{c.que}</span>
+                  <span className="mt-4 text-[1.15rem] italic text-white/70">“{INFO_COACH[c.nombre].frase}”</span>
+                  <span className="mt-5 inline-flex items-center gap-1.5 text-[1.1rem] font-bold" style={{ color: AMARILLO }}>Conocerlo <ArrowRight size={18} /></span>
+                </span>
+              </button>
+            </Rev>
+          ))}
         </div>
       </Seccion>
 
-      {/* avances */}
-      <Seccion id="socios" etiqueta="Socios" titulo="Los de aquí" sub="Socios que entrenan con nosotros, en sus palabras." fondo={AMARILLO} color={GOMA} borde={GOMA}>
-        <div className="gy-auto" style={{ ["--min" as string]: "17rem" }}>
-          {AVANCES.map((a, i) => (
-            <Rev key={a.quien} i={i} className="h-full">
-              <figure className="gy-card h-full overflow-hidden rounded-xl bg-white">
-                <span className="block overflow-hidden"><img src={a.foto} alt={a.quien} loading="lazy" className="gy-img h-[clamp(16rem,22vw,24rem)] w-full object-cover" /></span>
-                <div className="p-5">
-                  <blockquote className="text-[1.15rem] leading-snug">“{a.d}”</blockquote>
-                  <figcaption className="mt-3 text-[1.05rem] font-bold">{a.quien}</figcaption>
+      {/* resultados de los socios */}
+      <Seccion id="socios" etiqueta="Resultados" titulo="Lo que cambia entrenando aquí" sub="Lo que cuentan los socios después de unos meses en Spartan Force." fondo={AMARILLO} color={GOMA} borde={GOMA}>
+        <dl className="gy-auto mb-8" style={{ ["--min" as string]: "11rem" }}>
+          {[["800", "socios activos"], ["2", "sedes con parqueo"], ["7 días", "de clases"], ["4:30 am", "abrimos"]].map(([n, t]) => <div key={t} className="rounded-xl p-5 text-center" style={{ background: GOMA, color: TIZA }}><dt className="gym-titulo text-[clamp(2.6rem,2.2rem+1.2vw,3.4rem)]" style={{ color: AMARILLO }}>{n}</dt><dd className="text-[1.1rem] opacity-80">{t}</dd></div>)}
+        </dl>
+        <div className="gy-auto" style={{ ["--min" as string]: "19rem" }}>
+          {RESULTADOS.map((a, i) => (
+            <Rev key={a.q} i={i} className="h-full">
+              <figure className="gy-card flex h-full flex-col overflow-hidden rounded-xl bg-white">
+                <span className="relative block overflow-hidden"><img src={a.foto} alt={a.q} loading="lazy" className="gy-img h-[clamp(13rem,17vw,18rem)] w-full object-cover" /><span className="absolute bottom-0 left-0 rounded-tr-xl px-4 py-2" style={{ background: GOMA, color: AMARILLO }}><span className="gym-titulo text-[2.6rem]">{a.n}</span> <span className="text-[1rem] font-semibold text-white">{a.t}</span></span></span>
+                <div className="flex flex-1 flex-col p-5">
+                  <blockquote className="text-[1.2rem] leading-snug">“{a.d}”</blockquote>
+                  <figcaption className="mt-auto pt-4 text-[1.1rem] font-bold">{a.q}</figcaption>
                 </div>
               </figure>
             </Rev>
@@ -345,21 +353,41 @@ function Pagina({ gym, alInscribir }: { gym: Gym; alInscribir: (n: number) => vo
       </Seccion>
 
       {/* sedes con parqueo */}
-      <Seccion id="sedes" etiqueta="Sedes" titulo="Dónde estamos" fondo={ACERO} color={GOMA} borde={GOMA}>
-        <div className="gy-auto" style={{ ["--min" as string]: "24rem" }}>
-          {SEDES.map((x, i) => (
-            <Rev key={x.id} i={i} className="h-full">
-              <article className="gy-card h-full overflow-hidden rounded-xl bg-white">
-                <span className="block overflow-hidden"><img src={x.foto} alt={`Sede ${x.nombre}`} loading="lazy" className="gy-img h-[clamp(13rem,18vw,20rem)] w-full object-cover" /></span>
-                <div className="grid gap-3 p-6">
-                  <h3 className="gym-titulo text-[clamp(2.4rem,2rem+1vw,3rem)]">{x.nombre}</h3>
-                  <p className="flex gap-2.5 text-[1.15rem]"><MapPin size={24} className="mt-0.5 shrink-0" style={{ color: ROJO }} /> {x.dir}</p>
-                  <p className="flex gap-2.5 text-[1.15rem] font-semibold"><Car size={24} className="mt-0.5 shrink-0" style={{ color: AZUL }} /> {x.parqueo}</p>
-                  <p className="flex gap-2.5 text-[1.15rem]"><Users size={24} className="mt-0.5 shrink-0" style={{ color: VERDE }} /> {abierto ? `Ahora hay ${aforo(x.id, h)} personas` : `Capacidad para ${x.capacidad} personas`}</p>
+      <Seccion id="sedes" etiqueta="Sedes" titulo="Dónde estamos" sub="Toca una sede para ver el mapa y cómo llegar." fondo={ACERO} color={GOMA} borde={GOMA}>
+        <div className="gy-auto" style={{ ["--min" as string]: "26rem" }}>
+          {SEDES.map((x, i) => {
+            const vuelta = !!vueltas[x.id];
+            const nvx = nivel(aforo(x.id, h), x.capacidad);
+            const maps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`Spartan Force Gym ${x.nombre}, ${x.dir}`)}`;
+            return (
+              <Rev key={x.id} i={i} className="h-full">
+                <div className="gy-flip h-[clamp(32rem,38vw,38rem)]" data-vuelta={vuelta ? "1" : "0"}>
+                  <div className="gy-flip-in">
+                    <button type="button" tabIndex={vuelta ? -1 : 0} onClick={() => setVueltas({ ...vueltas, [x.id]: true })} className="gy-face gy-card flex flex-col overflow-hidden rounded-xl bg-white text-left" aria-label={`Ver el mapa de la sede ${x.nombre}`}>
+                      <span className="relative block h-[48%] overflow-hidden"><img src={x.foto} alt={`Sede ${x.nombre}`} loading="lazy" className="gy-img h-full w-full object-cover" /><span className="absolute left-4 top-4 rounded-md px-3 py-1.5 text-[1.05rem] font-bold" style={abierto ? { background: VERDE, color: "#fff" } : { background: ROJO, color: "#fff" }}>{abierto ? "Abierto ahora" : "Cerrado ahora"}</span></span>
+                      <span className="grid flex-1 content-start gap-2.5 p-6">
+                        <span className="gym-titulo text-[clamp(2.4rem,2rem+1vw,3rem)]">{x.nombre}</span>
+                        <span className="flex gap-2.5 text-[1.15rem]"><MapPin size={24} className="mt-0.5 shrink-0" style={{ color: ROJO }} /> {x.dir}</span>
+                        <span className="flex gap-2.5 text-[1.15rem] font-semibold"><Car size={24} className="mt-0.5 shrink-0" style={{ color: AZUL }} /> {x.parqueo}</span>
+                        <span className="flex gap-2.5 text-[1.15rem]"><Users size={24} className="mt-0.5 shrink-0" style={{ color: VERDE }} /> Ahora: {nvx.t.toLowerCase()}, unas {aforo(x.id, h)} personas</span>
+                        <span className="mt-auto inline-flex items-center gap-1.5 pt-1 text-[1.1rem] font-bold" style={{ color: AZUL }}>Ver mapa <ArrowRight size={18} /></span>
+                      </span>
+                    </button>
+                    <div className="gy-face gy-back flex flex-col overflow-hidden rounded-xl bg-white" aria-hidden={!vuelta}>
+                      <iframe title={`Mapa de ${x.nombre}`} loading="lazy" src={`https://maps.google.com/maps?q=${encodeURIComponent(x.dir + ", Guatemala")}&output=embed`} className="min-h-0 w-full flex-1 border-0" tabIndex={vuelta ? 0 : -1} />
+                      <div className="grid gap-3 p-5">
+                        <p className="flex gap-2.5 text-[1.1rem]"><MapPin size={22} className="mt-0.5 shrink-0" style={{ color: ROJO }} /><span><b>Spartan Force {x.nombre}</b><br />{x.dir}</span></p>
+                        <div className="grid grid-cols-[1fr_auto] gap-3">
+                          <a href={maps} target="_blank" rel="noopener noreferrer" tabIndex={vuelta ? 0 : -1} className={`${btn} gy-btn !py-3.5 text-[1.15rem] text-white`} style={{ background: AZUL }}><Navigation size={20} /> Cómo llegar</a>
+                          <button type="button" tabIndex={vuelta ? 0 : -1} onClick={() => setVueltas({ ...vueltas, [x.id]: false })} className={`${btn} gy-btn !py-3.5 text-[1.1rem] border-2`} style={{ borderColor: GOMA }}>Volver</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </article>
-            </Rev>
-          ))}
+              </Rev>
+            );
+          })}
         </div>
         <dl className="gy-auto mt-6 rounded-xl bg-white p-6" style={{ ["--min" as string]: "15rem" }}>
           {HORARIO.map(([d, hh]) => (
@@ -386,8 +414,8 @@ function Pagina({ gym, alInscribir }: { gym: Gym; alInscribir: (n: number) => vo
       {/* cierre */}
       <section style={{ background: AMARILLO, color: GOMA, borderTop: `8px solid ${GOMA}` }}>
         <div className="gy-cont flex flex-col gap-6 py-[clamp(2.5rem,5vw,5rem)] md:flex-row md:items-center md:justify-between">
-          <div><h2 className="gym-titulo gy-h2">Ven a probar gratis</h2><p className="mt-2 text-[clamp(1.1rem,1rem+0.5vw,1.4rem)] font-semibold opacity-80">Un pase de un día, sin compromiso.</p></div>
-          <div className="flex flex-col gap-3 sm:flex-row"><button type="button" onClick={() => setMsg(pase)} className={`${btn} gy-btn !px-9 !py-4 text-[1.25rem]`} style={{ background: GOMA, color: TIZA }}>Pedir mi pase</button><a href="#planes" className={`${btn} gy-btn !px-9 !py-4 text-[1.25rem] border-2`} style={{ borderColor: GOMA }}>Ver planes</a></div>
+          <div><h2 className="gym-titulo gy-h2">Entra hoy mismo</h2><p className="mt-2 text-[clamp(1.1rem,1rem+0.5vw,1.4rem)] font-semibold opacity-80">Paga tu pase del día y entra a la talanquera con tu código QR.</p></div>
+          <div className="flex flex-col gap-3 sm:flex-row"><button type="button" onClick={() => setPlan("dia")} className={`${btn} gy-btn !px-9 !py-4 text-[1.25rem]`} style={{ background: GOMA, color: TIZA }}>Pagar pase del día</button><a href="#planes" className={`${btn} gy-btn !px-9 !py-4 text-[1.25rem] border-2`} style={{ borderColor: GOMA }}>Ver planes</a></div>
         </div>
       </section>
 
@@ -420,20 +448,35 @@ function Pagina({ gym, alInscribir }: { gym: Gym; alInscribir: (n: number) => vo
       })()}
       {coach && (() => {
         const inf = INFO_COACH[coach.nombre];
+        const f = inf.fotos[fotoCoach];
+        const sus: Record<string, { dias: Set<number>; horas: Set<string> }> = {};
+        CLASES.filter((c) => c.coach === inf.alias).forEach((c) => { (sus[c.nombre] ??= { dias: new Set(), horas: new Set() }); sus[c.nombre].dias.add(c.dia); sus[c.nombre].horas.add(c.hora); });
         return (
-          <Ventana titulo={coach.nombre} alCerrar={cerrarCoach} fondo={GOMA2} color={TIZA} ancho="58rem">
-            <div className="grid md:grid-cols-[1fr_1.1fr]">
-              <div className="relative min-h-[18rem] md:min-h-[30rem]"><img src={coach.foto} alt={coach.nombre} className="pf-zoom absolute inset-0 h-full w-full object-cover" /></div>
-              <div className="flex flex-col p-6 pt-8 md:p-9">
+          <Ventana titulo={coach.nombre} alCerrar={cerrarCoach} fondo={GOMA2} color={TIZA} ancho="70rem">
+            <div className="grid lg:grid-cols-[1.1fr_1fr]">
+              <div className="p-4 pt-5 sm:p-6">
+                <figure className="relative overflow-hidden rounded-xl" style={{ background: GOMA }}>
+                  <img key={fotoCoach} src={f.f} alt={f.p} className="pf-zoom block max-h-[62svh] w-full object-cover" style={{ aspectRatio: "4 / 3" }} />
+                  <figcaption className="absolute inset-x-0 bottom-0 px-5 pb-4 pt-12 text-[1.15rem] font-bold" style={{ background: "linear-gradient(transparent, rgba(0,0,0,.8))" }}>{f.p} · {fotoCoach + 1} de {inf.fotos.length}</figcaption>
+                  <button type="button" aria-label="Foto anterior" onClick={() => setFotoCoach((fotoCoach + inf.fotos.length - 1) % inf.fotos.length)} className="gy-btn absolute left-3 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white/95 text-black shadow-md"><ArrowLeft size={22} /></button>
+                  <button type="button" aria-label="Foto siguiente" onClick={() => setFotoCoach((fotoCoach + 1) % inf.fotos.length)} className="gy-btn absolute right-3 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white/95 text-black shadow-md"><ArrowRight size={22} /></button>
+                </figure>
+                <div className="mt-3 flex gap-2.5 overflow-x-auto pb-1">
+                  {inf.fotos.map((x, i) => <button key={i} type="button" aria-label={`Ver foto ${i + 1}`} aria-pressed={i === fotoCoach} onClick={() => setFotoCoach(i)} className="h-20 w-24 shrink-0 overflow-hidden rounded-lg transition" style={{ boxShadow: i === fotoCoach ? `0 0 0 3px ${AMARILLO}` : "none", opacity: i === fotoCoach ? 1 : 0.6 }}><img src={x.f} alt="" className="h-full w-full object-cover" /></button>)}
+                </div>
+              </div>
+              <div className="flex flex-col p-6 pt-4 lg:p-9 lg:pt-10">
                 <p className="text-[1rem] font-bold uppercase tracking-[0.15em]" style={{ color: AMARILLO }}>{coach.desde}</p>
                 <h3 className="gym-titulo mt-1 text-[clamp(2.6rem,2rem+2vw,4rem)]">{coach.nombre}</h3>
                 <p className="mt-1 text-[1.3rem] text-white/80">{coach.que}</p>
-                <p className="mt-5 text-[1.5rem] font-semibold leading-snug" style={{ color: AMARILLO }}>“{inf.frase}”</p>
+                <p className="mt-4 text-[1.4rem] font-semibold leading-snug" style={{ color: AMARILLO }}>“{inf.frase}”</p>
                 <p className="mt-5 text-[1.05rem] font-bold">Certificaciones</p>
                 <ul className="mt-2 grid gap-2">{inf.certs.map((c) => <li key={c} className="flex gap-2.5 text-[1.1rem]"><Check size={20} className="mt-0.5 shrink-0" style={{ color: VERDE }} /> {c}</li>)}</ul>
-                <p className="mt-5 text-[1.05rem] font-bold">Sus clases</p>
-                <p className="text-[1.1rem] text-white/80">{inf.clases}</p>
-                <button type="button" onClick={() => { cerrarCoach(); setMsg(`Hola, Spartan Force. Quiero entrenar con ${coach.nombre.split(" ")[0]}. ¿Qué clases tiene esta semana?`); }} className="gy-btn mt-7 min-h-[3.75rem] w-full rounded-md text-[1.25rem] font-bold" style={{ background: AMARILLO, color: GOMA }}>Escribirle a {coach.nombre.split(" ")[0]}</button>
+                <p className="mt-5 text-[1.05rem] font-bold">Clases que imparte</p>
+                <ul className="mt-2 grid gap-2">
+                  {Object.entries(sus).map(([n, v]) => <li key={n} className="rounded-lg px-4 py-2.5 text-[1.05rem]" style={{ background: GOMA }}><b>{n}</b> · {[...v.horas].join(" y ")} · {[...v.dias].sort((a, b) => ((a || 7) - (b || 7))).map((d) => DIAS[d].slice(0, 3)).join(", ")}</li>)}
+                </ul>
+                <button type="button" onClick={() => { cerrarCoach(); setMsg(`Hola, Spartan Force. Quiero entrenar con ${coach.nombre.split(" ")[0]}. ¿Qué clases tiene esta semana?`); }} className="gy-btn mt-6 min-h-[3.75rem] w-full rounded-md text-[1.25rem] font-bold" style={{ background: AMARILLO, color: GOMA }}>Escribirle a {coach.nombre.split(" ")[0]}</button>
               </div>
             </div>
           </Ventana>
@@ -447,6 +490,20 @@ function Pagina({ gym, alInscribir }: { gym: Gym; alInscribir: (n: number) => vo
 }
 
 /* ---------------- inscripción en línea ---------------- */
+
+/* los logos de las tarjetas: los colores y la letra de cada marca, para reconocerlas de un vistazo */
+function Visa() {
+  return <span className="inline-flex items-center rounded border px-2 py-0.5" style={{ background: "#fff", borderColor: "#d8dce6" }}><span style={{ fontFamily: '"Barlow", "Arial Black", sans-serif', fontStyle: "italic", fontWeight: 900, fontSize: "1.2rem", letterSpacing: "-0.03em", color: "#1434CB" }}>VISA</span></span>;
+}
+function Mastercard() {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded border px-2 py-0.5" style={{ background: "#fff", borderColor: "#d8dce6" }}>
+      <svg viewBox="0 0 38 24" width="34" height="22" aria-hidden><circle cx="13" cy="12" r="11" fill="#EB001B" /><circle cx="25" cy="12" r="11" fill="#F79E1B" /><path d="M19 3.1a11 11 0 0 1 0 17.8 11 11 0 0 1 0-17.8Z" fill="#FF5F00" /></svg>
+      <span style={{ fontFamily: '"Barlow", Arial, sans-serif', fontWeight: 700, fontSize: "0.82rem", letterSpacing: "-0.02em", color: "#1f2937" }}>mastercard</span>
+    </span>
+  );
+}
+
 
 function Inscripcion({ gym, plan, alCerrar, estudiante, alListo }: { gym: Gym; plan: string | null; alCerrar: () => void; estudiante: boolean; alListo: (n: number) => void }) {
   const [sede, setSede] = useState("mixco");
@@ -484,7 +541,7 @@ function Inscripcion({ gym, plan, alCerrar, estudiante, alListo }: { gym: Gym; p
           <div className="p-6">
             <Carnet socio={gym.socios.find((x) => x.num === num)!} />
             <h3 className="mt-6 text-[1.6rem] font-bold leading-tight">¡Bienvenido a Spartan Force, {nombre.trim().split(" ")[0]}!</h3>
-            <p className="mt-2 opacity-75">Muestra este carnet en recepción. Tu plan vence el {fechaCorta(vence)} y te avisamos por WhatsApp 3 días antes.</p>
+            <p className="mt-2 opacity-75">Pasa el código QR por la talanquera para entrar. Tu plan vence el {fechaCorta(vence)} y te avisamos por WhatsApp 3 días antes.</p>
             <button type="button" onClick={() => { alCerrar(); alListo(num); }} className={`${btn} mt-6 w-full text-white`} style={{ background: GOMA }}>
               Ver mi membresía <ArrowRight size={18} />
             </button>
@@ -507,10 +564,11 @@ function Inscripcion({ gym, plan, alCerrar, estudiante, alListo }: { gym: Gym; p
                 {[
                   [0, "Hoy"],
                   [1, "Mañana"],
-                  [(8 - new Date().getDay()) % 7 || 7, "El lunes"],
+                  [(8 - new Date().getDay()) % 7 || 7, "Lunes"],
                 ].map(([n, t]) => (
-                  <button key={t} type="button" onClick={() => setInicio(n as number)} className="rounded-md border-2 px-3 py-2.5 font-semibold" style={chip(inicio === n)}>
-                    {t}
+                  <button key={t} type="button" onClick={() => setInicio(n as number)} className="rounded-md border-2 px-2 py-2.5 leading-tight" style={chip(inicio === n)}>
+                    <b className="block">{t}</b>
+                    <span className="text-[0.92rem] opacity-80">{fechaCorta(enDias(n as number))}</span>
                   </button>
                 ))}
               </div>
@@ -523,13 +581,14 @@ function Inscripcion({ gym, plan, alCerrar, estudiante, alListo }: { gym: Gym; p
             <div>
               <p className="font-bold">¿Cómo pagas?</p>
               <div className="mt-2 grid gap-2">
-                {[
-                  ["tarjeta", "Con tarjeta, aquí mismo", "Visa o Mastercard"],
-                  ["recepcion", "En recepción", "Efectivo o tarjeta al llegar"],
-                ].map(([id, t, n]) => (
-                  <button key={id} type="button" onClick={() => setPago(id)} className="rounded-md border-2 px-4 py-2.5 text-left" style={chip(pago === id)}>
-                    <b className="block">{t}</b>
-                    <span className="text-[0.88rem] opacity-70">{n}</span>
+                {([
+                  ["tarjeta", "Con tarjeta, aquí mismo", "Entras hoy con tu código QR", <span key="t" className="flex items-center gap-2"><Visa /><Mastercard /></span>],
+                  ["transferencia", "Por transferencia", "Sube tu comprobante y listo", <span key="b" className="rounded px-2 py-1 text-[0.85rem] font-bold text-white" style={{ background: AZUL }}>BANCA EN LÍNEA</span>],
+                  ["recepcion", "En recepción", "Paga al llegar, en efectivo o tarjeta", <span key="r" className="rounded px-2 py-1 text-[0.85rem] font-bold" style={{ background: AMARILLO, color: GOMA }}>EFECTIVO</span>],
+                ] as [string, string, string, ReactNode][]).map(([id, t, n, logo]) => (
+                  <button key={id} type="button" onClick={() => setPago(id)} className="flex items-center justify-between gap-3 rounded-md border-2 px-4 py-3 text-left" style={chip(pago === id)}>
+                    <span><b className="block text-[1.05rem]">{t}</b><span className="text-[0.92rem] opacity-80">{n}</span></span>
+                    <span className="shrink-0">{logo}</span>
                   </button>
                 ))}
               </div>
@@ -549,7 +608,7 @@ function Inscripcion({ gym, plan, alCerrar, estudiante, alListo }: { gym: Gym; p
               className={`${btn} mt-2 w-full disabled:opacity-40`}
               style={{ background: AMARILLO, color: GOMA }}
             >
-              {valido ? (pago === "tarjeta" ? `Pagar ${qz(total)}` : "Apartar mi inscripción") : "Pon tu nombre y WhatsApp"}
+              {valido ? (pago === "tarjeta" ? `Pagar ${qz(total)} con tarjeta` : pago === "transferencia" ? "Ya hice la transferencia" : "Apartar mi inscripción") : "Pon tu nombre y WhatsApp"}
             </button>
           </div>
         )}

@@ -47,8 +47,8 @@ export const HORARIO = [
 
 /* los planes van con el color del disco: más peso, más tiempo */
 export const PLANES = [
-  { id: "dia", nombre: "Día", precio: 25, dias: 1, kg: "10", color: VERDE, texto: "#fff", incluye: ["Todo el equipo por un día", "Ideal si vienes de visita"] },
-  { id: "mensual", nombre: "Mensual", precio: 175, dias: 30, kg: "15", color: AMARILLO, texto: GOMA, incluye: ["Sala de pesas y cardio", "Clases grupales con reserva", "Rutina de inicio con coach"] },
+  { id: "dia", nombre: "Día", precio: 25, dias: 1, kg: "10", color: VERDE, texto: "#fff", incluye: ["Todo el equipo por un día", "Entras con tu código QR", "Pagas por transferencia o tarjeta"] },
+  { id: "mensual", nombre: "Mensual", precio: 175, dias: 30, kg: "15", color: AMARILLO, texto: GOMA, incluye: ["Sala de pesas y cardio", "Clases Spartan con reserva", "Rutina de inicio con coach", "Regaderas y lockers"] },
   { id: "trimestral", nombre: "Trimestral", precio: 480, dias: 90, kg: "20", color: AZUL, texto: "#fff", incluye: ["Todo lo del mensual", "Entras a las dos sedes", "Inscripción gratis en noviembre"], marca: "El más escogido" },
   { id: "anual", nombre: "Anual", precio: 1650, dias: 365, kg: "25", color: ROJO, texto: "#fff", incluye: ["Todo lo del trimestral", "Congelas hasta 30 días", "Playera de Spartan Force"] },
 ];
@@ -65,7 +65,7 @@ export function aforo(sede: string, h: number) {
 }
 export function nivel(n: number, cap: number) {
   const p = n / cap;
-  return p < 0.35 ? { t: "Tranquilo", c: VERDE } : p < 0.7 ? { t: "Normal", c: AMARILLO } : { t: "Lleno", c: ROJO };
+  return p < 0.12 ? { t: "Vacío", c: VERDE } : p < 0.4 ? { t: "Poco concurrido", c: VERDE } : p < 0.75 ? { t: "Concurrido", c: AMARILLO } : { t: "Muy concurrido", c: ROJO };
 }
 
 /* clases de la semana: 0 domingo ... 6 sábado */
