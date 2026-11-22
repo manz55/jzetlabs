@@ -7,7 +7,7 @@
  */
 import { useEffect, useMemo, useState } from "react";
 import {
-  BadgeCheck, Banknote, Check, CreditCard, Lock, MapPin, MessageCircle, PackageSearch, RefreshCcw, Search, ShieldCheck, ShoppingCart, Store, Trash2, Truck, Undo2, Wrench, X,
+  BadgeCheck, Banknote, Check, Copy, CreditCard, Lock, MapPin, MessageCircle, PackageSearch, RefreshCcw, Search, ShieldCheck, ShoppingCart, Store, Trash2, Truck, Undo2, Wrench, X,
 } from "lucide-react";
 import { Modal } from "@/components/Modal";
 import { Cajon, Contador, qz } from "../comun";
@@ -37,6 +37,25 @@ const pasa = (p: Producto, f: Filtro) =>
         : f === "Seminuevos"
           ? p.condicion === "Seminuevo"
           : p.categoria === "Celulares" && (f === "Celulares" || (f === "iPhone" ? p.marca === "Apple" : p.marca === f));
+
+/* botón que copia un texto (código de pedido o guía) y avisa que ya se copió */
+function Copiar({ texto, etiqueta = "Copiar", className = "" }: { texto: string; etiqueta?: string; className?: string }) {
+  const [ok, setOk] = useState(false);
+  const copiar = async () => {
+    try { await navigator.clipboard.writeText(texto); }
+    catch { const a = document.createElement("textarea"); a.value = texto; document.body.appendChild(a); a.select(); document.execCommand("copy"); a.remove(); }
+    setOk(true);
+    setTimeout(() => setOk(false), 2000);
+  };
+  return (
+    <button type="button" onClick={copiar} aria-live="polite" className={`inline-flex min-h-[2.75rem] items-center gap-2 rounded-lg border px-4 font-bold transition hover:shadow ${className}`} style={ok ? { background: "#e1f5e6", borderColor: "#1f7a3a", color: "#1f7a3a" } : { borderColor: "rgba(0,0,0,.15)" }}>
+      {ok ? <><Check size={17} /> ¡Copiado!</> : <><Copy size={17} /> {etiqueta}</>}
+    </button>
+  );
+}
+
+/* empresa de envíos que lleva los pedidos; con la guía se rastrea en su página */
+const TRANSPORTE = "Forza";
 
 export function TiendaCliente({ t }: { t: Tienda }) {
   const [filtro, setFiltro] = useState<Filtro>("Celulares");
@@ -810,9 +829,11 @@ function Pago({ t, carro, subtotal, alTerminar, alRastrear, alCerrar }: { t: Tie
                   ? `Pagas ${qz(pedido.total)} al recibir, en efectivo o con tarjeta. Revisa tu equipo antes de pagar. La tienda ya recibió tu pedido y te escribe por WhatsApp para coordinar la entrega.`
                   : `Verificamos tu transferencia en menos de 2 horas. Tu pedido es el ${pedido.id}.`}
             </p>
-            <p className="mt-4 inline-block rounded-xl px-4 py-2 font-mono text-[1.2rem] font-bold" style={{ background: FONDO }}>
-              {pedido.id}
-            </p>
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+              <p className="rounded-xl px-4 py-2 font-mono text-[1.3rem] font-bold" style={{ background: FONDO }}>{pedido.id}</p>
+              <Copiar texto={pedido.id} etiqueta="Copiar código" />
+            </div>
+            <p className="mt-2 text-sm text-black/55">Guarda este código: con él ves en qué va tu pedido.</p>
             <div className="mt-6 flex flex-col sm:flex-row gap-2 justify-center">
               <button type="button" onClick={() => alRastrear(pedido.id)} className="rounded-lg px-5 py-3 font-bold text-white" style={{ background: PRIMARIO }}>
                 Rastrear mi pedido
@@ -1178,6 +1199,7 @@ function Rastreo({ t, codigo, setCodigo }: { t: Tienda; codigo: string; setCodig
         </div>
         <div className="min-h-[220px]">
           {pedido ? (
+            <>
             <LineaTiempo
               titulo={`Pedido ${pedido.id}`}
               sub={`${pedido.lineas.map((l) => l.nombre).join(", ")} · ${fechaCorta(pedido.fecha)}`}
@@ -1195,6 +1217,13 @@ function Rastreo({ t, codigo, setCodigo }: { t: Tienda; codigo: string; setCodig
                         : undefined
               }
             />
+            {pedido.guia && (
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-black/10 p-4">
+                <p className="leading-tight"><span className="block text-xs font-bold uppercase tracking-wide text-black/50">Envío con {TRANSPORTE}</span><span className="font-mono text-[1.15rem] font-bold">{pedido.guia}</span></p>
+                <Copiar texto={pedido.guia} etiqueta="Copiar guía" />
+              </div>
+            )}
+            </>
           ) : rep ? (
             <LineaTiempo titulo={`Reparación ${rep.id}`} sub={`${rep.modelo} · ${rep.falla}`} pasos={PASOS_REPARACION.map((x) => TEXTO_REPARACION[x])} actual={PASOS_REPARACION.indexOf(rep.estado)} aviso={rep.estado === "listo" ? `Ya puede pasar por él a ${sucursalPor(rep.sucursal).nombre}. Total: ${qz(rep.precio)}.` : undefined} />
           ) : c ? (

@@ -229,7 +229,7 @@ export function Asistente({ t, alto = "h-[min(36rem,68vh)]", raiz = "" }: { t: T
         const guia = `GT-${String(Date.now()).slice(-6)}`;
         moverPedido(p, extra as EstadoPedido, guia);
         if (extra === "preparando") { hizo("Ventas", `Pasó ${p.id} a preparación`, `${p.id} en preparación`); return [msgBot(`📦 ${p.id} en preparación\n${avisoCliente()}`, [{ id: `do:mover:${p.id}:en-camino`, t: "Entregar al transporte" }])]; }
-        if (extra === "en-camino") { hizo("Ventas", `Entregó ${p.id} al transporte (guía ${p.guia ?? guia})`, `${p.id} va en camino, guía ${p.guia ?? guia}`); return [msgBot(`🚚 ${p.id} con el transporte\nGuía: ${p.guia ?? guia}\n${avisoCliente()}`, [{ id: `do:mover:${p.id}:entregado`, t: "Marcar entregado" }])]; }
+        if (extra === "en-camino") { hizo("Ventas", `Entregó ${p.id} al transporte (guía ${p.guia ?? guia})`, `${p.id} va en camino, guía ${p.guia ?? guia}`); return [msgBot(`🚚 ${p.id} con Forza\nGuía: ${p.guia ?? guia}\n${avisoCliente()}`, [{ id: `do:mover:${p.id}:entregado`, t: "Marcar entregado" }])]; }
         hizo("Ventas", `Marcó ${p.id} como entregado`, `${p.id} entregado`);
         return [msgBot(`✅ ${p.id} entregado\nPedido cerrado.`)];
       }
