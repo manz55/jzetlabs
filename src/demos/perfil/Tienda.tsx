@@ -3,11 +3,13 @@
  * y "¿cómo se usa?" que hoy le preguntan uno por uno por mensaje. Lo que dice si hay o no sale de su inventario.
  * Tres secciones, cada una en su franja. Las columnas crecen con el ancho de la pantalla.
  */
-import { useMemo, useState } from "react";
-import { ChevronDown, Minus, Plus, ShoppingBag, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { animate, stagger } from "animejs";
+import { Check, Minus, Plus, ShieldCheck, ShoppingBag, X } from "lucide-react";
 import { MensajeWhatsApp } from "../comun";
 import { Seccion } from "./Seccion";
-import { CAMPANA, CONSULTORA, ENVIOS, LINEA, MARCAS, PRODUCTOS, PROMOS, SUAVE, TINTA, TONOS, VINO, producto, qz, useInventario, type Producto } from "./datos";
+import { Rev, Ventana, sinMovimiento } from "./Ventana";
+import { CAMPANA, CONSULTORA, ENVIOS, LINEA, MARCAS, PRODUCTOS, PROMOS, ROSA, SUAVE, TINTA, TONOS, VINO, producto, qz, useInventario, type Producto } from "./datos";
 
 const SERIF = '"Fraunces", Georgia, serif';
 type Linea = { key: string; nombre: string; precio: number; n: number };
@@ -15,13 +17,119 @@ type Linea = { key: string; nombre: string; precio: number; n: number };
 function Disponible({ n }: { n: number }) {
   if (n <= 0) return <span className="opacity-70">Bajo pedido · 5 días</span>;
   if (n <= 2) return <span style={{ color: VINO }}>{n === 1 ? "Queda 1" : `Quedan ${n}`}</span>;
-  return <span style={{ color: "#2f6b45" }}>Entrega inmediata</span>;
+  return <span style={{ color: "#2f6b45" }}>Entrega el mismo día</span>;
+}
+
+function Cuenta({ fin }: { fin: Date }) {
+  const [ahora, setAhora] = useState(() => Date.now());
+  useEffect(() => { const t = window.setInterval(() => setAhora(Date.now()), 1000); return () => window.clearInterval(t); }, []);
+  const falta = Math.max(0, fin.getTime() - ahora);
+  const partes = [[Math.floor(falta / 864e5), "días"], [Math.floor(falta / 36e5) % 24, "horas"], [Math.floor(falta / 6e4) % 60, "min"], [Math.floor(falta / 1e3) % 60, "seg"]] as const;
+  return (
+    <div className="flex w-full flex-wrap items-center gap-x-5 gap-y-3 rounded-2xl p-4 text-white sm:inline-flex sm:w-auto" style={{ background: VINO }} role="timer" aria-label="Tiempo que queda de la campaña">
+      <p className="text-[1.15rem] font-bold leading-tight">La campaña termina en</p>
+      <div className="flex w-full gap-2 sm:w-auto sm:gap-2.5">
+        {partes.map(([n, t]) => (
+          <div key={t} className="grid min-w-0 flex-1 place-items-center rounded-xl bg-white px-1 py-2 sm:min-w-[4.4rem] sm:flex-none sm:px-2" style={{ color: TINTA }}>
+            <span className="text-[1.9rem] font-semibold leading-none tabular-nums" style={{ fontFamily: SERIF }}>{String(n).padStart(2, "0")}</span>
+            <span className="mt-1 text-[0.8rem] font-semibold uppercase tracking-wide opacity-65">{t}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* Las promos en abanico: al pasar el mouse o tocar una, se abre y las demás se hacen angostas */
+function Abanico({ alAgregar }: { alAgregar: (key: string, nombre: string, precio: number) => void }) {
+  const [a, setA] = useState(0);
+  useEffect(() => {
+    if (sinMovimiento()) return;
+    const q = `.pf-ab [data-on="1"] .pf-ab-in`;
+    animate(q, { opacity: [0, 1], translateY: [18, 0], duration: 600, delay: stagger(70, { start: 260 }), ease: "outExpo" });
+  }, [a]);
+  return (
+    <div className="pf-ab">
+      {PROMOS.map((p, i) => {
+        const on = a === i;
+        const items = p.ids.map((id) => producto(id)!);
+        const ahorro = p.antes > p.ahora ? p.antes - p.ahora : 0;
+        return (
+          <article key={p.t} data-on={on ? "1" : "0"} onMouseEnter={() => { if (window.matchMedia?.("(hover: hover)").matches) setA(i); }} onClick={() => setA(i)} className="pf-ab-p relative cursor-pointer overflow-hidden rounded-2xl text-white" style={{ background: VINO }}>
+            <img src={items[0].foto} alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
+            <div className="absolute inset-0" style={{ background: on ? "linear-gradient(180deg, rgba(42,22,51,.15) 0%, rgba(42,22,51,.9) 62%)" : "linear-gradient(180deg, rgba(42,22,51,.25), rgba(42,22,51,.75))" }} />
+            {!on && (
+              <div className="absolute inset-0 flex items-center justify-between gap-3 px-4 md:flex-col md:justify-end md:px-0 md:py-6">
+                <span className="text-[1.2rem] font-semibold leading-tight md:[writing-mode:vertical-rl] md:rotate-180 md:text-[1.3rem]" style={{ fontFamily: SERIF }}>{p.t}</span>
+                <span className="shrink-0 rounded-full bg-white px-3 py-1 text-[1rem] font-bold" style={{ color: VINO }}>{qz(p.ahora)}</span>
+              </div>
+            )}
+            <div className={`relative flex h-full flex-col justify-end p-5 md:p-7 ${on ? "" : "pointer-events-none opacity-0"}`} style={{ transition: "opacity .4s .25s" }}>
+              <div className="pf-ab-in flex flex-wrap gap-2">
+                {p.limitada && <span className="rounded-full px-3 py-1 text-[0.9rem] font-bold uppercase tracking-wide" style={{ background: "#fff", color: VINO }}>Edición limitada</span>}
+                <span className="rounded-full px-3 py-1 text-[0.9rem] font-bold" style={{ background: "rgba(229,143,168,.95)", color: TINTA }}>{p.quedan === 1 ? "Queda 1" : `Quedan ${p.quedan}`}</span>
+              </div>
+              <h3 className="pf-ab-in mt-3 text-[clamp(1.7rem,1.2rem+1.6vw,2.8rem)] font-medium leading-[1.05]" style={{ fontFamily: SERIF, color: "#fff" }}>{p.t}</h3>
+              <p className="pf-ab-in mt-2 max-w-xl text-[clamp(1.1rem,1rem+0.4vw,1.35rem)] leading-snug text-white/90">{p.gancho}</p>
+              <ul className="pf-ab-in mt-4 grid max-w-xl gap-1.5 sm:grid-cols-2">
+                {p.incluye.map((x) => <li key={x} className="flex items-start gap-2 text-[1.05rem] leading-tight"><Check size={18} className="mt-0.5 shrink-0" style={{ color: ROSA }} strokeWidth={3} />{x}</li>)}
+              </ul>
+              <p className="pf-ab-in mt-3 hidden max-w-xl text-[1rem] text-white/75 sm:block"><b className="text-white">Es para:</b> {p.para}</p>
+              <div className="pf-ab-in mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
+                <p className="flex items-baseline gap-3">
+                  <span className="text-[clamp(2rem,1.5rem+1.4vw,3rem)] font-semibold leading-none" style={{ fontFamily: SERIF }}>{qz(p.ahora)}</span>
+                  {p.antes > p.ahora && <span className="text-[1.15rem] line-through opacity-60">{qz(p.antes)}</span>}
+                  {ahorro > 0 && <span className="rounded-full px-3 py-1 text-[0.95rem] font-bold" style={{ background: ROSA, color: TINTA }}>Ahorras {qz(ahorro)}</span>}
+                </p>
+                <button type="button" onClick={(e) => { e.stopPropagation(); alAgregar(`promo-${i}`, p.t, p.ahora); }} className="pf-btn min-h-[3.25rem] rounded-full bg-white px-8 text-[1.15rem] font-semibold" style={{ color: VINO }}>La quiero</button>
+              </div>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
+function Detalle({ p, stock, alCerrar, alAgregar, alVer }: { p: Producto; stock: number; alCerrar: () => void; alAgregar: () => void; alVer: (p: Producto) => void }) {
+  const hermanos = PRODUCTOS.filter((x) => x.id !== p.id && x.marca === p.marca).slice(0, 3);
+  return (
+    <Ventana titulo={p.nombre} alCerrar={alCerrar} ancho="62rem">
+      <div className="grid md:grid-cols-2">
+        <div className="relative min-h-[18rem] md:min-h-[34rem]">
+          <img src={p.foto} alt={p.nombre} className="pf-zoom absolute inset-0 h-full w-full object-cover" />
+        </div>
+        <div className="flex flex-col p-6 pt-8 md:p-9">
+          <p className="text-[1rem] font-bold uppercase tracking-[0.12em]" style={{ color: VINO }}>{p.marca}</p>
+          <h3 className="mt-1 text-[clamp(1.9rem,1.4rem+1.5vw,2.8rem)] font-medium leading-[1.05]" style={{ fontFamily: SERIF }}>{p.nombre}</h3>
+          <p className="mt-2 text-[1.3rem] opacity-80">{p.corto}</p>
+          <p className="mt-4 flex flex-wrap items-baseline gap-x-4 gap-y-1"><span className="text-[2.6rem] font-semibold leading-none" style={{ fontFamily: SERIF }}>{qz(p.precio)}</span><span className="text-[1.1rem] font-semibold"><Disponible n={stock} /></span></p>
+          <p className="mt-6 text-[1.15rem] font-bold">Cómo se usa</p>
+          <ol className="mt-2 grid gap-2">
+            {p.uso.map((u, i) => <li key={i} className="flex gap-3 text-[1.1rem] leading-snug"><span className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[0.95rem] font-bold text-white" style={{ background: VINO }}>{i + 1}</span>{u}</li>)}
+          </ol>
+          <ul className="mt-5 grid gap-2 rounded-2xl p-4 text-[1.05rem]" style={{ background: "#fde6da" }}>
+            {["Producto original y sellado", "Pagas cuando te llegue", "Si no te gusta, te lo cambio"].map((t) => <li key={t} className="flex items-center gap-2.5 font-semibold"><ShieldCheck size={20} style={{ color: VINO }} />{t}</li>)}
+          </ul>
+          {hermanos.length > 0 && (
+            <div className="mt-5">
+              <p className="text-[1.05rem] font-bold">También te puede gustar</p>
+              <div className="mt-2 flex gap-3">
+                {hermanos.map((h) => <button key={h.id} type="button" onClick={() => alVer(h)} aria-label={`Ver ${h.nombre}`} className="pf-card h-20 w-20 overflow-hidden rounded-xl"><img src={h.foto} alt="" className="h-full w-full object-cover" /></button>)}
+              </div>
+            </div>
+          )}
+          <button type="button" onClick={alAgregar} className="pf-btn mt-7 min-h-[3.75rem] w-full rounded-full text-[1.25rem] font-semibold text-white" style={{ background: TINTA }}>Lo quiero · {qz(p.precio)}</button>
+        </div>
+      </div>
+    </Ventana>
+  );
 }
 
 export function Tienda() {
   const { stock } = useInventario();
   const [marca, setMarca] = useState("Todas");
-  const [uso, setUso] = useState<string | null>(null);
+  const [ver, setVer] = useState<Producto | null>(null);
   const [bolsa, setBolsa] = useState<Linea[]>([]);
   const [envio, setEnvio] = useState(ENVIOS[0].id);
   const [verPedido, setVerPedido] = useState(false);
@@ -40,8 +148,6 @@ export function Tienda() {
 
   const marcas = ["Todas", ...MARCAS.filter((m) => PRODUCTOS.some((p) => p.marca === m.nombre)).map((m) => m.nombre)];
   const lista = PRODUCTOS.filter((p) => marca === "Todas" || p.marca === marca);
-  const diasPromo = Math.max(1, Math.ceil((CAMPANA.fin.getTime() - Date.now()) / 864e5));
-  const finTexto = CAMPANA.fin.toLocaleDateString("es-GT", { day: "numeric", month: "long" });
 
   const sugerido = useMemo(() => {
     if (!tono || !sub) return null;
@@ -59,28 +165,13 @@ export function Tienda() {
 
   return (
     <>
-      {/* 02 promos */}
-      <Seccion id="promos" num="02" etiqueta="Promos" titulo="Promos de esta campaña" fondo="#ffffff" derecha={<p className="rounded-full px-5 py-2.5 text-[1.1rem] font-bold text-white" style={{ background: VINO }}>{diasPromo === 1 ? "Último día" : `Quedan ${diasPromo} días`} · hasta el {finTexto}</p>}>
-        <div className="pf-auto" style={{ ["--min" as string]: "19rem" }}>
-          {PROMOS.map((p, i) => (
-            <article key={p.t} className="flex flex-col overflow-hidden rounded-2xl" style={{ background: "#fde6da", boxShadow: p.limitada ? `inset 0 0 0 3px ${VINO}` : "none" }}>
-              <div className="flex">{p.ids.slice(0, 3).map((id) => <img key={id} src={producto(id)!.foto} alt="" className="aspect-square min-w-0 flex-1 object-cover" loading="lazy" />)}</div>
-              <div className="flex flex-1 flex-col p-5">
-                {p.limitada && <p className="text-[0.95rem] font-bold uppercase tracking-wide" style={{ color: VINO }}>Edición limitada</p>}
-                <h3 className="text-[clamp(1.35rem,1.1rem+0.8vw,1.9rem)] font-medium leading-tight" style={{ fontFamily: SERIF }}>{p.t}</h3>
-                <p className="mt-3 flex items-baseline gap-3">
-                  <span className="text-[clamp(1.8rem,1.4rem+1.2vw,2.5rem)] font-semibold leading-none" style={{ fontFamily: SERIF }}>{qz(p.ahora)}</span>
-                  {p.antes > p.ahora && <span className="text-[1.1rem] line-through opacity-50">{qz(p.antes)}</span>}
-                </p>
-                <button type="button" onClick={() => agregar(`promo-${i}`, p.t, p.ahora)} className={`${boton} mt-auto w-full text-white`} style={{ background: TINTA, marginTop: 18 }}>La quiero</button>
-              </div>
-            </article>
-          ))}
-        </div>
+      {/* promos */}
+      <Seccion id="promos" etiqueta="Promos" titulo="Promos de esta campaña" sub="Pasa el mouse o toca una para verla completa." fondo="#ffffff" bajo={<Cuenta fin={CAMPANA.fin} />}>
+        <Abanico alAgregar={agregar} />
       </Seccion>
 
       {/* 03 tu tono */}
-      <Seccion id="tono" num="03" etiqueta="Tu tono" titulo="¿Qué tono me queda?" sub="Dos preguntas y listo." fondo="#f9cdb9">
+      <Seccion id="tono" etiqueta="Tu tono" titulo="¿Qué tono me queda?" sub="Dos preguntas y listo." fondo="#f9cdb9">
         <div className="grid gap-[clamp(1.5rem,4vw,4rem)] lg:grid-cols-2">
           <div className="grid content-start gap-7">
             <div>
@@ -124,30 +215,36 @@ export function Tienda() {
         </div>
       </Seccion>
 
-      {/* 04 catálogo */}
-      <Seccion id="catalogo" num="04" etiqueta="Catálogo" titulo="Mi catálogo" sub="«Entrega inmediata» es que lo tengo en mano." fondo="#ffffff">
+      {/* catálogo */}
+      <Seccion id="catalogo" etiqueta="Catálogo" titulo="Mi catálogo" sub={<><span className="block text-[clamp(1.5rem,1.1rem+1.4vw,2.3rem)] font-semibold leading-tight opacity-100" style={{ fontFamily: SERIF, color: VINO }}>Entrega el mismo día</span><span className="mt-1 block opacity-80">Productos de mi inventario</span></>} fondo="#ffffff">
         <div className="flex flex-wrap gap-3" role="group" aria-label="Filtrar por marca">
           {marcas.map((m) => (
-            <button key={m} type="button" aria-pressed={marca === m} onClick={() => setMarca(m)} className="min-h-[3rem] rounded-full border-2 px-6 text-[1.1rem] font-semibold" style={marca === m ? { background: TINTA, borderColor: TINTA, color: "#fff" } : { borderColor: "rgba(42,22,51,.3)" }}>{m}</button>
+            <button key={m} type="button" aria-pressed={marca === m} onClick={() => setMarca(m)} className="pf-btn min-h-[3rem] rounded-full border-2 px-6 text-[1.1rem] font-semibold" style={marca === m ? { background: TINTA, borderColor: TINTA, color: "#fff" } : { borderColor: "rgba(42,22,51,.3)" }}>{m}</button>
           ))}
         </div>
-        <div className="pf-fill mt-8" style={{ ["--min" as string]: "13rem" }}>
-          {lista.map((p: Producto) => (
-            <article key={p.id} className="flex flex-col overflow-hidden rounded-2xl" style={{ background: "#fde6da" }}>
-              <img src={p.foto} alt={p.nombre} className="aspect-square w-full object-cover" loading="lazy" />
-              <div className="flex flex-1 flex-col p-4">
-                <p className="text-[0.9rem] font-medium opacity-60">{p.marca}</p>
-                <h3 className="text-[1.15rem] font-semibold leading-tight">{p.nombre}</h3>
-                <p className="mt-2 text-[1.6rem] font-semibold leading-none" style={{ fontFamily: SERIF }}>{qz(p.precio)}</p>
-                <p className="mt-1.5 text-[0.95rem] font-semibold"><Disponible n={stock[p.id] ?? 0} /></p>
-                <button type="button" onClick={() => agregar(p.id, p.nombre, p.precio)} className={`${boton} mt-4 w-full text-white`} style={{ background: TINTA }}>Lo quiero</button>
-                <button type="button" aria-expanded={uso === p.id} onClick={() => setUso(uso === p.id ? null : p.id)} className="mt-2 inline-flex min-h-[2.5rem] items-center justify-center gap-1 text-[1rem] font-semibold underline decoration-1 underline-offset-4">Cómo se usa <ChevronDown size={16} className={`transition ${uso === p.id ? "rotate-180" : ""}`} /></button>
-                {uso === p.id && <ol className="mt-1 grid gap-1.5 rounded-xl bg-white p-3 text-[1rem] leading-snug">{p.uso.map((u, i) => <li key={i}><b>{i + 1}.</b> {u}</li>)}</ol>}
-              </div>
-            </article>
+        <div key={marca} className="pf-fill mt-8" style={{ ["--min" as string]: "13.5rem" }}>
+          {lista.map((p: Producto, i) => (
+            <Rev key={p.id} i={i} className="h-full">
+              <article className="pf-card flex h-full flex-col rounded-2xl" style={{ background: "#fde6da" }}>
+                <button type="button" onClick={() => setVer(p)} aria-label={`Ver ${p.nombre}`} className="block w-full overflow-hidden text-left">
+                  <span className="block overflow-hidden"><img src={p.foto} alt="" className="pf-img aspect-square w-full object-cover" loading="lazy" /></span>
+                  <span className="block p-4 pb-2">
+                    <span className="block text-[0.9rem] font-medium opacity-60">{p.marca}</span>
+                    <span className="block text-[1.15rem] font-semibold leading-tight">{p.nombre}</span>
+                    <span className="mt-2 block text-[1.6rem] font-semibold leading-none" style={{ fontFamily: SERIF }}>{qz(p.precio)}</span>
+                    <span className="mt-1.5 block text-[0.95rem] font-semibold"><Disponible n={stock[p.id] ?? 0} /></span>
+                  </span>
+                </button>
+                <div className="mt-auto grid gap-1 p-4 pt-2">
+                  <button type="button" onClick={() => agregar(p.id, p.nombre, p.precio)} className={`${boton} pf-btn w-full text-white`} style={{ background: TINTA }}>Lo quiero</button>
+                  <button type="button" onClick={() => setVer(p)} className="min-h-[2.5rem] text-[1rem] font-semibold underline decoration-1 underline-offset-4">Ver más</button>
+                </div>
+              </article>
+            </Rev>
           ))}
         </div>
       </Seccion>
+      {ver && <Detalle p={ver} stock={stock[ver.id] ?? 0} alCerrar={() => setVer(null)} alVer={setVer} alAgregar={() => { agregar(ver.id, ver.nombre, ver.precio); setVer(null); }} />}
 
       {/* el pedido: barra fija mientras haya algo */}
       {piezas > 0 && !verPedido && (

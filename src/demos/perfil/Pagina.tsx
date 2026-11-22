@@ -4,8 +4,8 @@
  * Orden de la venta: quién es y qué promete, promos, su tono, catálogo, lo que hace, trabajos, opiniones, cómo pedir y contacto.
  * Todo es de ejemplo (persona y marcas inventadas).
  */
-import { useState } from "react";
-import { ArrowRight, Check, Gift, MessageCircle, Package, RefreshCw, ShieldCheck, Sparkles, Truck, Users, Wallet, Clock } from "lucide-react";
+import { useCallback, useState } from "react";
+import { ArrowLeft, ArrowRight, Check, Gift, MessageCircle, Package, RefreshCw, ShieldCheck, Sparkles, Truck, Users, Wallet, Clock } from "lucide-react";
 import estudio from "@/assets/demo-cosmeticos/estudio.jpg";
 import lookGlam from "@/assets/demo-cosmeticos/rostro.jpg";
 import lookDelineado from "@/assets/demo-cosmeticos/delineado.jpg";
@@ -13,26 +13,44 @@ import lookClase from "@/assets/demo-cosmeticos/academia.jpg";
 import lookFiesta from "@/assets/demo-cosmeticos/maquillista.jpg";
 import lookGraduacion from "@/assets/demo-cosmeticos/graduada-2.jpg";
 import lookGraduacion2 from "@/assets/demo-cosmeticos/graduada-5.jpg";
-import { CONSULTORA, LINEA, OPINIONES, RAZONES_EQUIPO, TEMAS_AVISO, TINTA, VINO, nuevoId, producto, useAvisos, useInteresadas } from "./datos";
+import grad1 from "@/assets/demo-cosmeticos/graduada-1.jpg";
+import grad3 from "@/assets/demo-cosmeticos/graduada-3.jpg";
+import grad6 from "@/assets/demo-cosmeticos/graduada-6.jpg";
+import espejo from "@/assets/demo-cosmeticos/espejo.jpg";
+import kit from "@/assets/demo-cosmeticos/kit.jpg";
+import aceite from "@/assets/demo-cosmeticos/aceite.jpg";
+import crema from "@/assets/demo-cosmeticos/crema.jpg";
+import paleta from "@/assets/demo-cosmeticos/paleta.jpg";
+import rubor from "@/assets/demo-cosmeticos/rubor.jpg";
+import labialRojo from "@/assets/demo-cosmeticos/labial-rojo.jpg";
+import labialNude from "@/assets/demo-cosmeticos/labial-nude.jpg";
+import brochas from "@/assets/demo-cosmeticos/brochas.jpg";
+import polvoNegro from "@/assets/demo-cosmeticos/polvo-negro.jpg";
+import { LINEA, OPINIONES, RAZONES_EQUIPO, ROSA, TEMAS_AVISO, TINTA, VINO, nuevoId, producto, useAvisos, useInteresadas } from "./datos";
+import { ChatSofia } from "./Chat";
+import { MensajeWhatsApp } from "../comun";
+import { Rev, Ventana } from "./Ventana";
 import { Seccion } from "./Seccion";
 import { Tienda } from "./Tienda";
 
 const SERIF = '"Fraunces", Georgia, serif';
 
-const HAGO = [
-  { foto: estudio, t: "Facial gratis", dato: "45 minutos", d: "Pruebas tu rutina en tu propia cara." },
-  { foto: lookClase, t: "Reunión con amigas", dato: "Tú ganas regalos", d: "Invitas a 3 amigas o más. Yo llevo todo." },
-  { foto: lookGraduacion, t: "Maquillaje para eventos", dato: "Desde Q250", d: "Bodas, graduaciones y quince años." },
-  { foto: lookGlam, t: "Asesoría por WhatsApp", dato: "El mismo día", d: "Mándame una foto y te digo qué usar." },
+type Experiencia = { id: string; foto: string; t: string; dato: string; d: string; vende: string; puntos: string[]; precios?: [string, string][]; pago: string; cta: string; accion: "chat" | "wa"; msg: string };
+const EXPERIENCIAS: Experiencia[] = [
+  { id: "facial", foto: estudio, t: "Facial gratis", dato: "45 minutos", d: "Pruebas tu rutina en tu propia cara.", vende: "Sales viendo la diferencia en tu piel, sin comprar nada.", puntos: ["Limpieza y mascarilla en una mitad de tu cara, para que compares", "Te explico para qué sirve cada paso, con calma", "Te llevas una muestra para probar en tu casa", "Voy a tu casa o a la de una amiga"], pago: "No pagas nada. Si te gusta algo, lo pides después.", cta: "Agendar mi facial", accion: "wa", msg: "Hola, quiero agendar mi facial gratis. ¿Qué días tienes libres?" },
+  { id: "amigas", foto: lookClase, t: "Reunión con amigas", dato: "Tú ganas regalos", d: "Invitas a 3 amigas o más. Yo llevo todo.", vende: "Una tarde de risas, y la que invita se lleva productos de regalo.", puntos: ["Llevo todo lo necesario: espejos, brochas y muestras", "Cada invitada prueba y se lleva su rutina", "Tú, como anfitriona, eliges regalos según lo que se venda", "Dura 2 horas y no necesitas preparar nada"], pago: "Cada quien paga lo que pida. Tú no pagas por invitar.", cta: "Armar mi reunión", accion: "wa", msg: "Hola, quiero armar una reunión con mis amigas. Somos más o menos 4. ¿Qué día puedes?" },
+  { id: "eventos", foto: lookGraduacion, t: "Maquillaje para eventos", dato: "Desde Q250", d: "Bodas, graduaciones y quince años.", vende: "Te ves bien en la foto y aguanta toda la noche.", puntos: ["Prueba previa para que te guste antes del gran día", "Productos que no se corren con el calor ni las lágrimas", "Voy hasta donde te estés arreglando", "Retoque para llevar en la bolsa"], precios: [["Graduación", "Q250"], ["Quince años", "Q400"], ["Novia", "Q650"], ["Invitada", "Q300"]], pago: "Apartas con la mitad y el resto lo pagas el día del evento.", cta: "Cotizar mi evento", accion: "wa", msg: "Hola, quiero cotizar maquillaje para un evento. La fecha es " },
+  { id: "whatsapp", foto: lookGlam, t: "Asesoría por WhatsApp", dato: "El mismo día", d: "Mándame una foto y te digo qué usar.", vende: "Respuesta rápida, sin ir a ningún lado y sin pena de preguntar.", puntos: ["Me cuentas qué tipo de piel tienes", "Te digo qué usar en la mañana y en la noche", "Te mando el precio y si lo tengo en mano", "Te contesto el mismo día, de lunes a sábado"], pago: "La asesoría no cuesta. Pagas solo si pides algo.", cta: "Chatear ahora", accion: "chat", msg: "" },
 ];
 
-const TRABAJOS = [
-  { foto: lookGraduacion, t: "Graduación" },
-  { foto: lookGlam, t: "Piel iluminada" },
-  { foto: lookFiesta, t: "Color para fiesta" },
-  { foto: lookDelineado, t: "Delineado clásico" },
-  { foto: lookClase, t: "Maquillaje de día" },
-  { foto: lookGraduacion2, t: "Labios intensos" },
+type Trabajo = { t: string; desc: string; fotos: { f: string; p: string }[] };
+const TRABAJOS: Trabajo[] = [
+  { t: "Graduación", desc: "Maquillaje que dura todo el día y se ve bien en las fotos. También enseño a las chicas a maquillarse solas.", fotos: [{ f: lookGraduacion, p: "Lista para la ceremonia" }, { f: grad1, p: "Rizos y piel pareja" }, { f: lookGraduacion2, p: "Labios y ojos suaves" }, { f: grad6, p: "Con toga y sonrisa" }, { f: grad3, p: "Un look natural" }, { f: lookClase, p: "Enseñándole a una clienta cómo aplicarse la sombra" }, { f: estudio, p: "Clase para varias chicas en el estudio" }] },
+  { t: "Piel iluminada", desc: "Piel con luz, parejita y sin verse cargada.", fotos: [{ f: lookGlam, p: "Luz en pómulos y nariz" }, { f: kit, p: "Los productos que usé" }, { f: aceite, p: "Sérum antes del maquillaje" }, { f: crema, p: "Hidratación como base" }] },
+  { t: "Color para fiesta", desc: "Ojos con color y mucha personalidad para la noche.", fotos: [{ f: lookFiesta, p: "Sombra rosa y delineado" }, { f: paleta, p: "La paleta de la campaña" }, { f: rubor, p: "Rubor que se difumina" }, { f: labialRojo, p: "Labio rojo clásico" }] },
+  { t: "Delineado clásico", desc: "Un trazo limpio que alarga la mirada.", fotos: [{ f: lookDelineado, p: "Trazo con colita" }, { f: lookClase, p: "Paso a paso con pincel" }, { f: brochas, p: "Las herramientas" }] },
+  { t: "Maquillaje de día", desc: "Fresco, ligero y listo en 10 minutos.", fotos: [{ f: lookClase, p: "Sombra suave" }, { f: lookGlam, p: "Piel de día" }, { f: espejo, p: "Mi espejo de trabajo" }, { f: polvoNegro, p: "Polvo para sellar" }] },
+  { t: "Labios intensos", desc: "El color que más piden en las fiestas.", fotos: [{ f: lookGraduacion2, p: "Labios con sonrisa" }, { f: labialRojo, p: "Rojo clásico" }, { f: labialNude, p: "Nude de todos los días" }] },
 ];
 
 const COMO = [
@@ -43,7 +61,7 @@ const COMO = [
   { I: Clock, t: "Horario", d: "Lun a sáb, 8 a 19" },
 ];
 
-const NAV = [["promos", "Promos"], ["tono", "Tu tono"], ["catalogo", "Catálogo"], ["hago", "Lo que hago"], ["trabajos", "Trabajos"], ["opiniones", "Opiniones"], ["como", "Cómo pido"], ["contacto", "Contacto"]];
+const NAV = [["promos", "Promos"], ["tono", "Tu tono"], ["catalogo", "Catálogo"], ["hago", "Experiencias"], ["trabajos", "Trabajos"], ["opiniones", "Opiniones"], ["como", "Cómo pido"], ["contacto", "Contacto"]];
 
 function Portada({ alEmpezar }: { alEmpezar: () => void }) {
   const muestra = [producto("limpiador")!, producto("serum")!, producto("crema-dia")!];
@@ -53,7 +71,7 @@ function Portada({ alEmpezar }: { alEmpezar: () => void }) {
         <div className="flex flex-col justify-center">
           <p className="flex items-center gap-3">
             <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full text-[1.15rem] font-bold text-white" style={{ background: VINO }}>SM</span>
-            <span className="leading-tight"><span className="block text-[1.25rem] font-semibold">Hola, soy {CONSULTORA.corto}</span><span className="block opacity-65">Tu consultora de belleza</span></span>
+            <span className="leading-tight"><span className="block text-[1.25rem] font-semibold">Hola, soy (Tu nombre)</span><span className="block opacity-65">Tu consultora de belleza</span></span>
           </p>
           <h1 className="mt-6 font-medium leading-[1.02] tracking-[-0.015em]" style={{ fontFamily: SERIF, fontSize: "clamp(2.6rem, 1.2rem + 4.4vw, 5.6rem)", color: "inherit" }}>
             Tu rutina de piel, en 3 minutos.
@@ -98,32 +116,11 @@ export function PaginaSofia({ alEmpezar }: { alEmpezar: () => void }) {
 
       <Tienda />
 
-      {/* 05 lo que hago */}
-      <Seccion id="hago" num="05" etiqueta="Lo que hago" titulo="Lo que hago por ti" fondo="#fde6da">
-        <div className="pf-auto" style={{ ["--min" as string]: "16rem" }}>
-          {HAGO.map((h) => (
-            <article key={h.t} className="overflow-hidden rounded-2xl bg-white">
-              <div className="relative"><img src={h.foto} alt="" className="aspect-[4/3] w-full object-cover" loading="lazy" /><span className="absolute bottom-3 left-3 rounded-full px-4 py-1.5 text-[1rem] font-bold text-white" style={{ background: VINO }}>{h.dato}</span></div>
-              <div className="p-5"><h3 className="text-[1.4rem] font-medium leading-tight" style={{ fontFamily: SERIF }}>{h.t}</h3><p className="mt-1.5 text-[1.1rem] opacity-75">{h.d}</p></div>
-            </article>
-          ))}
-        </div>
-      </Seccion>
-
-      {/* 06 trabajos */}
-      <Seccion id="trabajos" num="06" etiqueta="Trabajos" titulo="Mis trabajos" sub="Fotos de mis clientas, con su permiso." fondo="#ffffff">
-        <div className="pf-fill" style={{ ["--min" as string]: "15rem" }}>
-          {TRABAJOS.map((t, i) => (
-            <figure key={i} className="relative overflow-hidden rounded-2xl">
-              <img src={t.foto} alt={t.t} className="aspect-[4/5] w-full object-cover" loading="lazy" />
-              <figcaption className="absolute inset-x-0 bottom-0 px-4 pb-3 pt-10 text-[1.15rem] font-semibold text-white" style={{ background: "linear-gradient(transparent, rgba(30,10,30,.75))" }}>{t.t}</figcaption>
-            </figure>
-          ))}
-        </div>
-      </Seccion>
+      <Experiencias />
+      <Trabajos />
 
       {/* 07 opiniones */}
-      <Seccion id="opiniones" num="07" etiqueta="Opiniones" titulo="Lo que dicen mis clientas" fondo={TINTA} oscuro>
+      <Seccion id="opiniones" etiqueta="Opiniones" titulo="Lo que dicen mis clientas" fondo={TINTA} oscuro>
         <div className="pf-auto" style={{ ["--min" as string]: "18rem" }}>
           {OPINIONES.map((o) => (
             <figure key={o.quien} className="rounded-2xl p-6" style={{ background: "rgba(255,255,255,.08)" }}>
@@ -137,7 +134,7 @@ export function PaginaSofia({ alEmpezar }: { alEmpezar: () => void }) {
       </Seccion>
 
       {/* 08 cómo pido */}
-      <Seccion id="como" num="08" etiqueta="Cómo pido" titulo="Así pides" fondo="#f9cdb9">
+      <Seccion id="como" etiqueta="Cómo pido" titulo="Así pides" fondo="#f9cdb9">
         <ul className="pf-auto" style={{ ["--min" as string]: "13rem" }}>
           {COMO.map(({ I, t, d }) => (
             <li key={t} className="flex items-center gap-4 rounded-2xl bg-white p-5"><span className="grid h-14 w-14 shrink-0 place-items-center rounded-full text-white" style={{ background: VINO }}><I size={26} /></span><span className="leading-tight"><b className="block text-[1.2rem]">{t}</b><span className="text-[1.05rem] opacity-75">{d}</span></span></li>
@@ -146,7 +143,7 @@ export function PaginaSofia({ alEmpezar }: { alEmpezar: () => void }) {
       </Seccion>
 
       {/* 09 contacto */}
-      <Seccion id="contacto" num="09" etiqueta="Contacto" titulo="Hablemos" fondo="#ffffff">
+      <Seccion id="contacto" etiqueta="Contacto" titulo="Hablemos" fondo="#ffffff">
         <div className="grid gap-[clamp(1rem,3vw,2.5rem)] lg:grid-cols-2">
           <div className="rounded-3xl p-[clamp(1.25rem,3vw,2.5rem)]" style={{ background: "#fde6da" }}><Avisame /></div>
           <div className="rounded-3xl p-[clamp(1.25rem,3vw,2.5rem)]" style={{ background: "#f9cdb9" }}><Unete /></div>
@@ -167,6 +164,98 @@ export function PaginaSofia({ alEmpezar }: { alEmpezar: () => void }) {
         </div>
       </section>
     </div>
+  );
+}
+
+function Experiencias() {
+  const [abierta, setAbierta] = useState<Experiencia | null>(null);
+  const [chat, setChat] = useState(false);
+  const [mensaje, setMensaje] = useState<string | null>(null);
+  const cerrar = useCallback(() => setAbierta(null), []);
+  return (
+    <Seccion id="hago" etiqueta="Experiencias" titulo="Las experiencias que te brindo" sub="Toca una para ver qué incluye." fondo="#fde6da">
+      <div className="pf-auto" style={{ ["--min" as string]: "16rem" }}>
+        {EXPERIENCIAS.map((h, i) => (
+          <Rev key={h.id} i={i} className="h-full">
+            <button type="button" onClick={() => setAbierta(h)} className="pf-card flex h-full w-full flex-col rounded-2xl bg-white text-left">
+              <span className="relative block overflow-hidden"><img src={h.foto} alt="" className="pf-img aspect-[4/3] w-full object-cover" loading="lazy" /><span className="absolute bottom-3 left-3 rounded-full px-4 py-1.5 text-[1rem] font-bold text-white" style={{ background: VINO }}>{h.dato}</span></span>
+              <span className="flex flex-1 flex-col p-5">
+                <span className="text-[1.4rem] font-medium leading-tight" style={{ fontFamily: SERIF }}>{h.t}</span>
+                <span className="mt-1.5 text-[1.1rem] opacity-75">{h.d}</span>
+                <span className="mt-auto inline-flex items-center gap-1.5 pt-4 text-[1.05rem] font-semibold" style={{ color: VINO }}>Ver qué incluye <ArrowRight size={18} /></span>
+              </span>
+            </button>
+          </Rev>
+        ))}
+      </div>
+      {abierta && (
+        <Ventana titulo={abierta.t} alCerrar={cerrar} ancho="60rem">
+          <div className="grid md:grid-cols-[1fr_1.1fr]">
+            <div className="relative min-h-[16rem] md:min-h-[30rem]"><img src={abierta.foto} alt="" className="pf-zoom absolute inset-0 h-full w-full object-cover" /><span className="absolute bottom-4 left-4 rounded-full px-5 py-2 text-[1.1rem] font-bold text-white" style={{ background: VINO }}>{abierta.dato}</span></div>
+            <div className="flex flex-col p-6 pt-8 md:p-9">
+              <h3 className="text-[clamp(1.9rem,1.4rem+1.5vw,2.8rem)] font-medium leading-[1.05]" style={{ fontFamily: SERIF }}>{abierta.t}</h3>
+              <p className="mt-3 text-[1.3rem] leading-snug" style={{ color: VINO }}>{abierta.vende}</p>
+              <ul className="mt-5 grid gap-2.5">
+                {abierta.puntos.map((x) => <li key={x} className="flex items-start gap-3 text-[1.1rem] leading-snug"><span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full text-white" style={{ background: VINO }}><Check size={15} strokeWidth={3} /></span>{x}</li>)}
+              </ul>
+              {abierta.precios && (
+                <dl className="mt-5 grid grid-cols-2 gap-2.5">
+                  {abierta.precios.map(([n, pr]) => <div key={n} className="rounded-xl px-4 py-3" style={{ background: "#fde6da" }}><dt className="text-[0.95rem] opacity-70">{n}</dt><dd className="text-[1.5rem] font-semibold leading-tight" style={{ fontFamily: SERIF }}>{pr}</dd></div>)}
+                </dl>
+              )}
+              <p className="mt-5 flex items-start gap-2.5 rounded-xl p-4 text-[1.05rem] font-semibold" style={{ background: "#fde6da" }}><Wallet size={22} className="mt-0.5 shrink-0" style={{ color: VINO }} />{abierta.pago}</p>
+              <button type="button" onClick={() => { const e = abierta; setAbierta(null); if (e.accion === "chat") setChat(true); else setMensaje(e.msg); }} className="pf-btn mt-6 inline-flex min-h-[3.75rem] w-full items-center justify-center gap-2 rounded-full text-[1.25rem] font-semibold text-white" style={{ background: TINTA }}><MessageCircle size={22} /> {abierta.cta}</button>
+            </div>
+          </div>
+        </Ventana>
+      )}
+      {chat && <ChatSofia alCerrar={() => setChat(false)} />}
+      <MensajeWhatsApp mensaje={mensaje} alCerrar={() => setMensaje(null)} demo="perfil de belleza" que="cada mensaje" />
+    </Seccion>
+  );
+}
+
+function Trabajos() {
+  const [t, setT] = useState<Trabajo | null>(null);
+  const [n, setN] = useState(0);
+  const abrir = (x: Trabajo) => { setT(x); setN(0); };
+  const cerrar = useCallback(() => setT(null), []);
+  const ir = (d: number) => t && setN((v) => (v + d + t.fotos.length) % t.fotos.length);
+  return (
+    <Seccion id="trabajos" etiqueta="Trabajos" titulo="Mis trabajos" sub="Toca uno para ver más fotos." fondo="#ffffff">
+      <div className="pf-fill" style={{ ["--min" as string]: "15rem" }}>
+        {TRABAJOS.map((x, i) => (
+          <Rev key={x.t} i={i} className="h-full">
+            <button type="button" onClick={() => abrir(x)} className="pf-card relative block h-full w-full rounded-2xl text-left">
+              <img src={x.fotos[0].f} alt="" className="pf-img aspect-[4/5] w-full object-cover" loading="lazy" />
+              <span className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 px-4 pb-3 pt-14 text-white" style={{ background: "linear-gradient(transparent, rgba(30,10,30,.8))" }}>
+                <span className="text-[1.2rem] font-semibold leading-tight">{x.t}</span>
+                <span className="shrink-0 rounded-full px-3 py-1 text-[0.9rem] font-bold" style={{ background: ROSA, color: TINTA }}>{x.fotos.length} fotos</span>
+              </span>
+            </button>
+          </Rev>
+        ))}
+      </div>
+      {t && (
+        <Ventana titulo={t.t} alCerrar={cerrar} ancho="64rem">
+          <div className="p-5 pt-6 md:p-8">
+            <h3 className="pr-14 text-[clamp(1.8rem,1.3rem+1.4vw,2.6rem)] font-medium leading-tight" style={{ fontFamily: SERIF }}>{t.t}</h3>
+            <p className="mt-1 text-[1.15rem] opacity-75">{t.desc}</p>
+            <figure className="relative mt-5 overflow-hidden rounded-2xl" style={{ background: "#fde6da" }}>
+              <img key={n} src={t.fotos[n].f} alt={t.fotos[n].p} className="pf-zoom mx-auto block max-h-[60svh] w-full object-contain" />
+              <figcaption className="absolute inset-x-0 bottom-0 px-5 pb-4 pt-12 text-[1.15rem] font-semibold text-white" style={{ background: "linear-gradient(transparent, rgba(30,10,30,.8))" }}>{t.fotos[n].p} · {n + 1} de {t.fotos.length}</figcaption>
+              {t.fotos.length > 1 && (<>
+                <button type="button" aria-label="Foto anterior" onClick={() => ir(-1)} className="pf-btn absolute left-3 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white/95 shadow-md" style={{ color: TINTA }}><ArrowLeft size={22} /></button>
+                <button type="button" aria-label="Foto siguiente" onClick={() => ir(1)} className="pf-btn absolute right-3 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white/95 shadow-md" style={{ color: TINTA }}><ArrowRight size={22} /></button>
+              </>)}
+            </figure>
+            <div className="mt-4 flex gap-2.5 overflow-x-auto pb-1">
+              {t.fotos.map((f, i) => <button key={i} type="button" aria-label={`Ver foto ${i + 1}`} aria-pressed={i === n} onClick={() => setN(i)} className="h-20 w-20 shrink-0 overflow-hidden rounded-xl transition" style={{ boxShadow: i === n ? `0 0 0 3px ${VINO}` : "none", opacity: i === n ? 1 : 0.65 }}><img src={f.f} alt="" className="h-full w-full object-cover" /></button>)}
+            </div>
+          </div>
+        </Ventana>
+      )}
+    </Seccion>
   );
 }
 
@@ -223,7 +312,7 @@ function Unete() {
   return (
     <form onSubmit={(e) => { e.preventDefault(); if (!valido) return; agregar({ id: nuevoId(), nombre: nombre.trim(), telefono: tel.replace(/\D/g, ""), por, fecha: new Date().toISOString() }); setListo(true); }}>
       <h3 className="flex items-center gap-2 text-[clamp(1.6rem,1.3rem+1vw,2.2rem)] font-medium leading-tight" style={{ fontFamily: SERIF }}><Users size={28} /> Vende conmigo</h3>
-      <p className="mt-2 text-[1.15rem] opacity-75">Así empecé yo. Te enseño y te acompaño. — {CONSULTORA.corto}</p>
+      <p className="mt-2 text-[1.15rem] opacity-75">Así empecé yo. Te enseño y te acompaño. — (Tu nombre)</p>
       <div className="mt-5 grid gap-2.5">
         {RAZONES_EQUIPO.map((r) => (
           <button key={r} type="button" aria-pressed={por === r} onClick={() => setPor(r)} className="flex min-h-[3.25rem] items-center gap-3 rounded-xl border-2 bg-white px-4 py-2.5 text-left text-[1.05rem] font-semibold" style={{ borderColor: por === r ? TINTA : "rgba(42,22,51,.18)" }}>

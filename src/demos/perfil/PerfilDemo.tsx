@@ -1425,6 +1425,24 @@ export default function PerfilDemo() {
         .pf-fill{display:grid;gap:clamp(.75rem,1.6vw,1.75rem);grid-template-columns:repeat(auto-fill,minmax(min(100%,var(--min,11rem)),1fr))}
         .pf-hero{display:grid;grid-template-columns:minmax(0,1fr)}
         @media (min-width:900px){.pf-hero{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);min-height:min(52rem,calc(100svh - 9rem))}}
+        .pf-card{position:relative;overflow:hidden;transition:transform .45s cubic-bezier(.2,.8,.2,1),box-shadow .45s}
+        .pf-card::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 38%,rgba(255,200,220,.55) 50%,transparent 62%);transform:translateX(-130%);transition:transform .9s ease}
+        .pf-card:hover,.pf-card:focus-within{transform:translateY(-8px) rotate(-.5deg);box-shadow:0 22px 44px -14px rgba(229,143,168,.85),0 0 0 3px #e58fa8}
+        .pf-card:hover::after{transform:translateX(130%)}
+        .pf-card .pf-img{transition:transform .8s cubic-bezier(.2,.8,.2,1)}
+        .pf-card:hover .pf-img{transform:scale(1.1) rotate(.6deg)}
+        .pf-btn{transition:transform .25s,box-shadow .25s,filter .25s}
+        .pf-btn:hover{transform:translateY(-2px);filter:saturate(1.15) brightness(1.08);box-shadow:0 0 0 4px rgba(229,143,168,.55),0 10px 22px -8px rgba(229,143,168,.9)}
+        .pf-btn:active{transform:scale(.97)}
+        .pf-zoom{animation:pfzoom 1.1s cubic-bezier(.2,.8,.2,1) both}
+        @keyframes pfzoom{from{transform:scale(1.18);opacity:.4}to{transform:scale(1);opacity:1}}
+        .pf-ab{display:flex;flex-direction:column;gap:.75rem}
+        .pf-ab-p{height:5.5rem;transition:height .7s cubic-bezier(.2,.8,.2,1),flex-grow .7s cubic-bezier(.2,.8,.2,1),box-shadow .4s}
+        .pf-ab-p[data-on="1"]{height:40rem;box-shadow:0 0 0 3px #e58fa8,0 24px 50px -18px rgba(229,143,168,.9)}
+        .pf-ab-p:not([data-on="1"]):hover{box-shadow:0 0 0 3px #e58fa8}
+        @media (min-width:900px){.pf-ab{flex-direction:row;height:clamp(32rem,58vh,44rem)}.pf-ab-p,.pf-ab-p[data-on="1"]{height:auto;flex:1 1 0}.pf-ab-p[data-on="1"]{flex:7 1 0}}
+        @media (hover:none){.pf-card:hover{transform:none;box-shadow:none}.pf-card:hover .pf-img{transform:none}}
+        @media (prefers-reduced-motion:reduce){.pf-card,.pf-card::after,.pf-card .pf-img,.pf-btn,.pf-ab-p{transition:none}.pf-zoom{animation:none}}
         @media print{body{background:#fff}}`}</style>
       <div className="print:hidden">
         <BandaDemos />
@@ -1434,7 +1452,7 @@ export default function PerfilDemo() {
         <div className="pf-cont flex items-center justify-between gap-4 py-3">
           <button type="button" onClick={() => setVista("clienta")} className="text-left leading-tight">
             <span className="block text-[1.4rem] font-semibold" style={{ fontFamily: SERIF }}>
-              Sofía Morales
+              (Tu nombre)
             </span>
             <span className="block text-[0.9rem] opacity-60">Consultora de belleza</span>
           </button>

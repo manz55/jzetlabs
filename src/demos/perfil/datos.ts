@@ -14,10 +14,16 @@ import fotoPaleta from "@/assets/demo-cosmeticos/paleta.jpg";
 import fotoLabialNude from "@/assets/demo-cosmeticos/labial-nude.jpg";
 import fotoLabialRojo from "@/assets/demo-cosmeticos/labial-rojo.jpg";
 import fotoBrochas from "@/assets/demo-cosmeticos/brochas.jpg";
+import fotoDelineado from "@/assets/demo-cosmeticos/delineado.jpg";
+import fotoBronceador from "@/assets/demo-cosmeticos/polvo-negro.jpg";
+import fotoEspejo from "@/assets/demo-cosmeticos/espejo.jpg";
+import fotoIlumina from "@/assets/demo-cosmeticos/rostro.jpg";
 
 export const VINO = "#7a2e5c";
 export const SUAVE = "#f7cfbd";
 export const TINTA = "#2a1633";
+/* el color nuevo de la paleta: rosa pétalo, para brillos y toques al pasar el mouse */
+export const ROSA = "#e58fa8";
 export const PAPEL = "#fde6da";
 export const LINEA = "rgba(42,22,51,.16)";
 
@@ -218,6 +224,10 @@ export const PRODUCTOS: Producto[] = [
   { id: "paleta", nombre: "Paleta de sombras", corto: "6 tonos, edición de temporada", precio: 230, costo: 140, marca: "Nativa Color", foto: fotoPaleta , uso: ["El tono claro en todo el párpado.", "El medio en la línea del ojo, difuminado.", "El oscuro pegado a las pestañas."] },
   { id: "labial-nude", nombre: "Labial nude", corto: "Para todos los días", precio: 110, costo: 65, marca: "Nativa Color", foto: fotoLabialNude , uso: ["Hidrata tus labios antes.", "Aplica directo desde el centro hacia afuera.", "Para que dure más, una segunda capa."] },
   { id: "labial-rojo", nombre: "Labial rojo", corto: "El clásico de las fiestas", precio: 110, costo: 65, marca: "Nativa Color", foto: fotoLabialRojo , uso: ["Delinea primero el contorno.", "Rellena con el labial.", "Quita el exceso con un pañuelo y repite."] },
+  { id: "delineador", nombre: "Delineador líquido", corto: "Trazo fino que no se corre", precio: 95, costo: 55, marca: "Nativa Color", foto: fotoDelineado , uso: ["Apoya el codo en la mesa para que no te tiemble el pulso.", "Traza desde el centro del párpado hacia afuera.", "Termina con una colita pequeña hacia arriba."] },
+  { id: "bronceador", nombre: "Polvo bronceador", corto: "Calidez y contorno suave", precio: 165, costo: 98, marca: "Nativa Color", foto: fotoBronceador , uso: ["Con brocha esponjada, en forma de 3 en la cara.", "Sacude el exceso antes de aplicar.", "Difumina hasta que no se note dónde empieza."] },
+  { id: "iluminador", nombre: "Iluminador facial", corto: "Luz en pómulos y nariz", precio: 135, costo: 80, marca: "Nativa Color", foto: fotoIlumina , uso: ["Después del rubor, sobre la parte alta del pómulo.", "Un toque en el arco de las cejas.", "Con el dedo anular, a toquecitos."] },
+  { id: "espejo", nombre: "Espejo de viaje con luz", corto: "Para retocarte donde sea", precio: 85, costo: 45, marca: "Nativa Color", foto: fotoEspejo , uso: ["Carga por USB.", "Tres niveles de luz: tenue, día y fiesta.", "Cabe en cualquier bolsa."] },
   { id: "brochas", nombre: "Set de brochas", corto: "5 brochas para empezar", precio: 285, costo: 170, marca: "Nativa Color", foto: fotoBrochas , uso: ["Una para base, una para polvo, una para rubor y dos para ojos.", "Lávalas cada semana con jabón neutro.", "Sécalas acostadas, nunca paradas."] },
 ];
 export const producto = (id: string) => PRODUCTOS.find((p) => p.id === id);
@@ -439,7 +449,7 @@ export function mensajePerfil(p: Perfil) {
 
 /* Inventario de la consultora: lo que tiene en mano (datos de ejemplo) */
 const STOCK_INICIAL: Record<string, number> = {
-  limpiador: 4, serum: 2, "crema-dia": 3, "crema-noche": 1, base: 3, polvo: 1, rubor: 2, paleta: 1, "labial-nude": 4, "labial-rojo": 3, brochas: 1,
+  limpiador: 4, serum: 2, "crema-dia": 3, "crema-noche": 1, base: 3, polvo: 1, rubor: 2, paleta: 1, "labial-nude": 4, "labial-rojo": 3, brochas: 1, delineador: 5, bronceador: 2, iluminador: 3, espejo: 1,
 };
 const CLAVE_STOCK = "perfil-belleza:stock-v1";
 export function useInventario() {
@@ -484,14 +494,18 @@ export const ENVIOS = [
 
 /* Promos de la campaña (cambian cada tres semanas) */
 export const CAMPANA = { nombre: "Campaña 17", fin: new Date(Date.now() + 9 * 864e5) };
-export const PROMOS = [
-  { t: "Rutina completa de piel", d: "Limpiador, sérum de vitamina C y crema de día", antes: 600, ahora: 499, ids: ["limpiador", "serum", "crema-dia"], limitada: false },
-  { t: "Dos labiales", d: "El nude y el rojo, para el día y la noche", antes: 220, ahora: 175, ids: ["labial-nude", "labial-rojo"], limitada: false },
-  { t: "Paleta de temporada", d: "Edición limitada: cuando se acabe, ya no vuelve", antes: 0, ahora: 230, ids: ["paleta"], limitada: true },
+export type Promo = { t: string; d: string; antes: number; ahora: number; ids: string[]; limitada: boolean; gancho: string; incluye: string[]; para: string; quedan: number };
+export const PROMOS: Promo[] = [
+  { t: "Rutina completa de piel", d: "Limpiador, sérum de vitamina C y crema de día", antes: 600, ahora: 499, ids: ["limpiador", "serum", "crema-dia"], limitada: false, gancho: "Tres pasos y tu piel cambia en 4 semanas.", incluye: ["Limpiador en gel", "Sérum de vitamina C", "Crema de día con FPS 30", "Guía de uso impresa"], para: "Piel opaca, con manchas o que no sabe por dónde empezar.", quedan: 4 },
+  { t: "Dos labiales", d: "El nude y el rojo, para el día y la noche", antes: 220, ahora: 175, ids: ["labial-nude", "labial-rojo"], limitada: false, gancho: "Uno para la oficina y otro para la fiesta.", incluye: ["Labial nude", "Labial rojo", "Delineador de labios de regalo"], para: "Quien quiere verse bien rápido, sin pensarlo.", quedan: 6 },
+  { t: "Paleta de temporada", d: "Edición limitada: cuando se acabe, ya no vuelve", antes: 0, ahora: 230, ids: ["paleta"], limitada: true, gancho: "6 tonos cálidos que solo salen esta campaña.", incluye: ["Paleta de 6 sombras", "Guía de 3 looks", "Espejo en la tapa"], para: "Quien ama el maquillaje de ojos y colecciona.", quedan: 3 },
+  { t: "Rostro de fiesta", d: "Base, polvo y rubor para una cara pareja", antes: 465, ahora: 399, ids: ["base", "polvo", "rubor"], limitada: false, gancho: "Se ve bien en la foto y aguanta toda la noche.", incluye: ["Base líquida a tu tono", "Polvo traslúcido", "Rubor", "Esponja de regalo"], para: "Bodas, graduaciones y fiestas de quince.", quedan: 3 },
+  { t: "Piel y luz", d: "Sérum de noche, iluminador y espejo con luz", antes: 485, ahora: 420, ids: ["crema-noche", "iluminador", "espejo"], limitada: false, gancho: "Descansa de noche, brilla de día.", incluye: ["Sérum de noche reafirmante", "Iluminador facial", "Espejo de viaje con luz"], para: "Mujeres de 40 en adelante que quieren verse descansadas.", quedan: 2 },
+  { t: "Kit para regalar", d: "Brochas, labial nude y delineador en caja", antes: 490, ahora: 420, ids: ["brochas", "labial-nude", "delineador"], limitada: true, gancho: "Se lo lleva envuelto y con tarjeta.", incluye: ["Set de 5 brochas", "Labial nude", "Delineador líquido", "Caja y tarjeta con tu mensaje"], para: "Para regalar a mamá, a tu hermana o a una amiga.", quedan: 5 },
 ];
 
 export const OPINIONES = [
-  { quien: "Ana Lucía, 58 años", d: "Me daba pena preguntar cómo se usaba todo. Sofía me lo explicó con calma y ahora ya no se me reseca la cara." },
+  { quien: "Ana Lucía, 58 años", d: "Me daba pena preguntar cómo se usaba todo. Mi consultora me lo explicó con calma y ahora ya no se me reseca la cara." },
   { quien: "Karla, 24 años", d: "Pedí el lunes y el martes ya lo tenía. Le pagué al recibir, sin complicaciones." },
   { quien: "Rosa María, 41 años", d: "Encontré mi tono de base a la primera. Antes compraba en la farmacia y nunca me quedaba." },
 ];
