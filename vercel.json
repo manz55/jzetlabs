@@ -121,6 +121,14 @@
       "destination": "/muestras/tustore/index.html"
     },
     {
+      "source": "/muestras/mixmarket",
+      "destination": "/muestras/mixmarket/index.html"
+    },
+    {
+      "source": "/muestras/mixmarket/",
+      "destination": "/muestras/mixmarket/index.html"
+    },
+    {
       "source": "/muestras/studioprivee",
       "destination": "/muestras/studioprivee/index.html"
     },
