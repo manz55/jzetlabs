@@ -238,24 +238,24 @@ const ICONO_RUBRO: Record<string, typeof Store> = { empresas: Building2, clinica
 
 /* Cómo se ve el panel de cada demo: su nombre, sus colores y su letra (cada negocio tiene el suyo) */
 const PANEL_INFO: Record<string, { n: string; c: string[]; f: string }> = {
-  clinica: { n: "Panel de Clínica Aurora", c: ["#0f2a43", "#1f6fb2", "#f0634a"], f: "Outfit" },
-  pediatria: { n: "Panel de Pediatría Semillita", c: ["#17365d", "#f26b4f", "#7cbf3a"], f: "Baloo 2" },
-  medicina: { n: "Panel del Dr. Samayoa", c: ["#1d4a42", "#c47f26", "#f6f4ec"], f: "Lora" },
+  clinica: { n: "Panel de Clínica Aurora", c: ["#123b40", "#14555d", "#e07a2f"], f: "DM Serif Display" },
+  pediatria: { n: "Panel de Pediatría Semillita", c: ["#17365d", "#f26b4f", "#dcf0fa"], f: "Baloo 2" },
+  medicina: { n: "Panel del Dr. Samayoa", c: ["#1d4a42", "#c47f26", "#e4eae7"], f: "Libre Franklin" },
   oftalmologia: { n: "Panel de Lumen", c: ["#0b2545", "#0f7f8c", "#d9503f"], f: "Fraunces" },
-  veterinaria: { n: "Panel de Huesitos", c: ["#12312b", "#c98a14", "#fbf8ee"], f: "Young Serif" },
+  veterinaria: { n: "Panel de Huesitos", c: ["#1d4d3f", "#e8a33d", "#f7f3ea"], f: "Young Serif" },
   perfil: { n: "Panel de la consultora", c: ["#7a2e5c", "#f7cfbd", "#2a1633"], f: "DM Serif Display" },
-  ropa: { n: "Panel de Nómada Studio", c: ["#2f3a22", "#b5532f", "#efe6d6"], f: "Archivo Black" },
-  cosmeticos: { n: "Panel de Ámbar", c: ["#3b241b", "#d98a2b", "#f3d3cb"], f: "Playfair Display" },
-  salon: { n: "Panel de Lirio Salón", c: ["#4a1d3f", "#b88a3c", "#f3dde0"], f: "Bodoni Moda" },
-  boutique: { n: "Panel de Maison Solène", c: ["#14110f", "#8c6a35", "#f6f1e7"], f: "Cormorant Garamond" },
-  celulares: { n: "Panel de Órbita", c: ["#1c1230", "#6d28d9", "#b8f23a"], f: "Space Grotesk" },
-  restaurante: { n: "Panel de Trattoria Sole", c: ["#1d1512", "#c4352a", "#fbf1d8"], f: "Playfair Display" },
-  tiempo: { n: "Panel de Costa Serena", c: ["#0b3a4a", "#12a3a8", "#ef6f4f"], f: "Cormorant Garamond" },
-  distribuidora: { n: "Panel de El Volcán", c: ["#1a1a1c", "#b3261e", "#f4ead7"], f: "Archivo Narrow" },
-  asistencia: { n: "Panel de Los Cedros", c: ["#2b2f33", "#ff7a1a", "#f4f5f7"], f: "Archivo" },
+  ropa: { n: "Panel de Nómada Studio", c: ["#141210", "#e8470f", "#dcd9d2"], f: "Bricolage Grotesque" },
+  cosmeticos: { n: "Panel de Ámbar", c: ["#1b1209", "#c8781e", "#f1d4a6"], f: "Fraunces" },
+  salon: { n: "Panel de Lirio Salón", c: ["#46593f", "#cbd8c0", "#16261b"], f: "DM Serif Display" },
+  boutique: { n: "Panel de Maison Solène", c: ["#0f2a21", "#9a7440", "#d3ddd0"], f: "Bodoni Moda" },
+  celulares: { n: "Panel de Órbita", c: ["#1c1230", "#6d28d9", "#ffd23f"], f: "Fuente del sistema" },
+  restaurante: { n: "Panel de Trattoria Sole", c: ["#2b1d16", "#c4352a", "#fbe7a8"], f: "Fraunces" },
+  tiempo: { n: "Panel de Costa Serena", c: ["#0e3b3a", "#d9693f", "#d9eee8"], f: "DM Serif Display" },
+  distribuidora: { n: "Panel de El Volcán", c: ["#1f2d45", "#b3261e", "#d6bf98"], f: "Saira Stencil One" },
+  asistencia: { n: "Panel de Los Cedros", c: ["#173a5e", "#f2b400", "#f4f5f7"], f: "Instrument Sans" },
   taller: { n: "Panel de Taller Torque", c: ["#15171c", "#ffc21a", "#e9ecef"], f: "Barlow Condensed" },
   gimnasios: { n: "Panel de Spartan Force", c: ["#16181a", "#f2c230", "#2e9b57"], f: "Big Shoulders Display" },
-  eventos: { n: "Panel de La Ceiba", c: ["#1a275c", "#d6457a", "#efb22e"], f: "Fraunces" },
+  eventos: { n: "Panel de La Ceiba", c: ["#1a275c", "#d6457a", "#e7ebf7"], f: "Young Serif" },
 };
 
 const RUTA_DEMO: Record<string, string> = { distribuidora: "/demos/distribuidora/", asistencia: "/demos/planilla/", clinica: "/demos/clinica/", pediatria: "/demos/pediatria/", medicina: "/demos/medicina/", perfil: "/demos/perfil-belleza/", salon: "/demos/salon/", boutique: "/demos/boutique/", ropa: "/demos/ropa/", cosmeticos: "/demos/cosmeticos/", celulares: "/demos/celulares/", restaurante: "/demos/restaurante/", tiempo: "/demos/tiempo-compartido/", oftalmologia: "/demos/oftalmologia/", veterinaria: "/demos/veterinaria/", taller: "/demos/taller/" };

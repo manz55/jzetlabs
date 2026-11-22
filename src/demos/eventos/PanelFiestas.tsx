@@ -8,10 +8,10 @@ import { Check, Printer, Truck } from "lucide-react";
 import { MensajeWhatsApp } from "../comun";
 import { ANIL, ANIL2, CIELO, COLORES, HOJA, INVENTARIO, MAIZ, PASADO, ROSA, TURQ, clave, fechaCorta, fechaLarga, finesDeSemana, porId, qz, type Ev } from "./datos";
 
-const PAPEL = "#fff9ee";
+const PAPEL = "#e7ebf7";
 const TINTA = "#1b1f33";
-const TITULO = "'Fraunces', Georgia, serif";
-const CUERPO = "'Karla', 'Instrument Sans', system-ui, sans-serif";
+const TITULO = "'Young Serif', 'Fraunces', serif";
+const CUERPO = "'Instrument Sans', system-ui, sans-serif";
 const PICADO = [ROSA, MAIZ, HOJA, TURQ, "#ffffff"];
 
 function Btn({ children, alTocar, tipo = "anil" }: { children: ReactNode; alTocar: () => void; tipo?: "anil" | "rosa" | "borde" }) {
@@ -37,7 +37,7 @@ export default function PanelFiestas({ ev }: { ev: Ev }) {
   const listoCarga = carga.length > 0 && carga.every(({ a }) => cargado[`${fecha}-${a.id}`]);
 
   return (
-    <div className="min-h-[calc(100vh-8rem)]" style={{ background: PAPEL, color: TINTA, fontFamily: CUERPO }}>
+    <div className="panel-demo min-h-[calc(100vh-8rem)]" style={{ background: PAPEL, color: TINTA, fontFamily: CUERPO }}>
       <header style={{ background: ANIL2 }} className="relative overflow-hidden text-white">
         <div className="flex" aria-hidden>{Array.from({ length: 22 }, (_, i) => <span key={i} className="h-5 flex-1" style={{ background: PICADO[i % 5], clipPath: "polygon(0 0, 100% 0, 100% 60%, 50% 100%, 0 60%)" }} />)}</div>
         <div className="mx-auto flex max-w-7xl flex-wrap items-end gap-x-8 gap-y-3 px-5 py-5">

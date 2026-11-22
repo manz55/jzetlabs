@@ -8,10 +8,10 @@ import { Banknote, Check, PackageSearch, Truck } from "lucide-react";
 import { MensajeWhatsApp } from "../comun";
 import { DIAS, KRAFT, KRAFT2, PEDIDO_MINIMO, PRODUCTOS, RUTAS, SELLO, TIENDAS, VERDE, porId, qz, totalDe, type Dist, type Pedido } from "./datos";
 
-const NEGRO = "#1a1a1c";
-const PAPEL = "#f4ead7";
-const TITULO = "'Archivo Narrow', 'Barlow Condensed', system-ui, sans-serif";
-const CUERPO = "'Archivo', 'Instrument Sans', system-ui, sans-serif";
+const NEGRO = "#1f2d45";
+const PAPEL = "#d6bf98";
+const TITULO = "'Saira Stencil One', 'Bricolage Grotesque', sans-serif";
+const CUERPO = "'Instrument Sans', system-ui, sans-serif";
 const MONO = "'IBM Plex Mono', ui-monospace, Menlo, monospace";
 const AMBAR = "#a36a00";
 
@@ -41,7 +41,7 @@ export default function PanelDespacho({ d }: { d: Dist }) {
   }), [d.pedidos]);
 
   return (
-    <div className="min-h-[calc(100vh-8rem)]" style={{ background: PAPEL, color: NEGRO, fontFamily: CUERPO }}>
+    <div className="panel-demo min-h-[calc(100vh-8rem)]" style={{ background: PAPEL, color: NEGRO, fontFamily: CUERPO }}>
       <header style={{ background: NEGRO }} className="text-white">
         <div className="h-3" style={{ background: `repeating-linear-gradient(90deg, ${SELLO} 0 32px, ${NEGRO} 32px 64px)` }} aria-hidden />
         <div className="mx-auto flex max-w-7xl flex-wrap items-end gap-x-8 gap-y-3 px-5 py-4">

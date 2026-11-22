@@ -8,8 +8,8 @@ import { ArrowRight, Bell, Check, ClipboardList, HeartPulse, Pill, Plus, Syringe
 import { MensajeWhatsApp } from "../comun";
 import { AGENDA_INICIAL, PENDIENTES_INICIAL, SERVICIOS, TIENDA, qz, type Cita, type Internado, type Nota, type Pendiente } from "./datos";
 
-const BOTELLA = "#12312b";
-const PAPEL = "#fbf8ee";
+const BOTELLA = "#1d4d3f";
+const PAPEL = "#fffdf8";
 const RENGLON = "#d9d3bf";
 const SELLO = "#c98a14";
 const ROJO = "#c2402f";
@@ -82,14 +82,14 @@ export default function PanelVet({ internados, setInternados }: { internados: In
   }
 
   return (
-    <div className="min-h-[calc(100vh-8rem)]" style={{ background: "#e9e4d2", color: BOTELLA, fontFamily: "'Instrument Sans', system-ui, sans-serif" }}>
+    <div className="panel-demo min-h-[calc(100vh-8rem)]" style={{ background: "#f7f3ea", color: BOTELLA, fontFamily: "'Instrument Sans', system-ui, sans-serif" }}>
       <header style={{ background: BOTELLA }} className="text-white">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-5 py-3">
           <span className="flex items-center gap-2.5"><span className="grid h-10 w-10 place-items-center rounded-full bg-white/10"><HeartPulse size={22} /></span><span className="leading-none"><span className="block text-[1.35rem]" style={{ fontFamily: TITULO }}>Huesitos · Clínica</span><span className="text-[0.72rem] opacity-65">Hoja de hoy · Dr. Rodrigo Pérez</span></span></span>
           <span className="ml-auto text-[0.85rem] opacity-70" style={{ fontFamily: MONO }}>SÁB 21 NOV</span>
         </div>
         <nav aria-label="Panel de la clínica" className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-3">
-          {TABS.map((t) => <button key={t} type="button" onClick={() => setTab(t)} aria-current={tab === t ? "page" : undefined} className="whitespace-nowrap rounded-t-xl px-4 py-2.5 font-bold" style={tab === t ? { background: "#e9e4d2", color: BOTELLA } : { color: "rgba(255,255,255,.72)" }}>{t}{badge(t) > 0 && <span className="ml-1.5 rounded-full px-1.5 py-0.5 text-[0.7rem] text-white" style={{ background: ROJO }}>{badge(t)}</span>}</button>)}
+          {TABS.map((t) => <button key={t} type="button" onClick={() => setTab(t)} aria-current={tab === t ? "page" : undefined} className="whitespace-nowrap rounded-t-xl px-4 py-2.5 font-bold" style={tab === t ? { background: "#f7f3ea", color: BOTELLA } : { color: "rgba(255,255,255,.72)" }}>{t}{badge(t) > 0 && <span className="ml-1.5 rounded-full px-1.5 py-0.5 text-[0.7rem] text-white" style={{ background: ROJO }}>{badge(t)}</span>}</button>)}
         </nav>
       </header>
 

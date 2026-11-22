@@ -7,19 +7,19 @@ import { useState, type ReactNode } from "react";
 import { ArrowRight, Check, Send } from "lucide-react";
 import { MensajeWhatsApp, qz } from "../comun";
 
-const CREMA = "#f7f1e3";
-const TINTA = "#2b3a2e";
-const SALVIA = "#7a8f6a";
-const TERRA = "#c4673f";
-const HOJA = "#e3ead9";
+const CREMA = "#f7e3de";
+const TINTA = "#2b0d16";
+const SALVIA = "#c9705a";
+const TERRA = "#9c3d2e";
+const HOJA = "#ecc9c0";
 const TITULO = "'Fraunces', Georgia, serif";
-const CUERPO = "'Karla', 'Instrument Sans', system-ui, sans-serif";
+const CUERPO = "'Instrument Sans', system-ui, sans-serif";
 
 const ETAPAS = [
   { t: "Me escribieron", sub: "Preguntaron por mi trabajo", color: TERRA },
-  { t: "Llamada agendada", sub: "Ya tienen día y hora", color: "#b8862b" },
+  { t: "Llamada agendada", sub: "Ya tienen día y hora", color: "#b5542f" },
   { t: "En mentoría", sub: "Trabajamos juntas", color: SALVIA },
-  { t: "Cerradas", sub: "Terminaron el proceso", color: "#5b6f66" },
+  { t: "Cerradas", sub: "Terminaron el proceso", color: "#6b2e3d" },
 ] as const;
 type Persona = { id: string; n: string; de: string; etapa: number; nota: string; siguiente: string; monto?: number; tel: string };
 const PERSONAS_INICIAL: Persona[] = [
@@ -47,7 +47,7 @@ export default function PanelFundadora() {
   const max = Math.max(...MESES.map((m) => m.v));
 
   return (
-    <div className="min-h-[calc(100vh-8rem)]" style={{ background: CREMA, color: TINTA, fontFamily: CUERPO }}>
+    <div className="panel-demo min-h-[calc(100vh-8rem)]" style={{ background: CREMA, color: TINTA, fontFamily: CUERPO }}>
       <header style={{ background: TINTA }} className="text-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-end gap-x-8 gap-y-3 px-5 py-5">
           <div><p className="text-[0.78rem] font-bold uppercase tracking-[0.2em] opacity-60">Mi panel</p><h1 className="text-[2.6rem] italic leading-none" style={{ fontFamily: TITULO, fontWeight: 600 }}>Valeria Ríos</h1></div>

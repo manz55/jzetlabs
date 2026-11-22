@@ -10,7 +10,7 @@ import { MensajeWhatsApp } from "../comun";
 import { Curva } from "./Curva";
 import { ATRASADOS, CIELO, CIELO2, CORAL, LIMA, MARINO, REDONDA, SOL, VACUNAS, edadTexto, mesesDe, type Cita, type Pedi } from "./datos";
 
-const CUERPO = "'Nunito', 'Plus Jakarta Sans', system-ui, sans-serif";
+const CUERPO = "'Instrument Sans', system-ui, sans-serif";
 
 const TIPO: Record<Cita["tipo"], { t: string; c: string; i: ReactNode }> = {
   enfermedad: { t: "Enfermedad", c: CORAL, i: <Thermometer size={20} /> },
@@ -45,7 +45,7 @@ export default function PanelPediatria({ p }: { p: Pedi }) {
   };
 
   return (
-    <div className="min-h-[calc(100vh-8rem)]" style={{ background: CIELO, color: MARINO, fontFamily: CUERPO }}>
+    <div className="panel-demo min-h-[calc(100vh-8rem)]" style={{ background: CIELO, color: MARINO, fontFamily: CUERPO }}>
       <header style={{ background: MARINO }} className="text-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-4 px-5 py-3.5">
           <span className="grid h-11 w-11 place-items-center rounded-full" style={{ background: SOL, color: MARINO }}><Baby size={24} /></span>

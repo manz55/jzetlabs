@@ -7,14 +7,14 @@ import { useState, type ReactNode } from "react";
 import { Check, Send } from "lucide-react";
 import { MensajeWhatsApp, qz } from "../comun";
 
-const MAR = "#0b3a4a";
-const TURQ = "#12a3a8";
-const CORAL = "#ef6f4f";
-const ARENA = "#f6ead2";
-const SAL = "#fdf7ea";
+const MAR = "#0e3b3a";
+const TURQ = "#2f8f86";
+const CORAL = "#d9693f";
+const ARENA = "#c4e3da";
+const SAL = "#d9eee8";
 const OK = "#2f8f63";
-const TITULO = "'Cormorant Garamond', Georgia, serif";
-const CUERPO = "'Inter', 'Instrument Sans', system-ui, sans-serif";
+const TITULO = "'DM Serif Display', Georgia, serif";
+const CUERPO = "'Instrument Sans', system-ui, sans-serif";
 const MESES = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
 const ALTA = new Set([2, 3, 11]);
 
@@ -51,7 +51,7 @@ export default function PanelClub() {
   const fondo = (e: Estado, k: string) => (e === "apartada" ? MAR : e === "mantenimiento" ? "#b7bcc0" : ALTA.has(Number(k.split("-")[0])) ? "#f9cdbd" : "#cfeeee");
 
   return (
-    <div className="min-h-[calc(100vh-8rem)]" style={{ background: SAL, color: MAR, fontFamily: CUERPO }}>
+    <div className="panel-demo min-h-[calc(100vh-8rem)]" style={{ background: SAL, color: MAR, fontFamily: CUERPO }}>
       <header style={{ background: MAR }} className="text-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-end gap-x-8 gap-y-3 px-5 py-5">
           <div><p className="text-[0.78rem] font-semibold uppercase tracking-[0.22em] opacity-60">Panel de oficina</p><h1 className="text-[2.8rem] italic leading-none" style={{ fontFamily: TITULO, fontWeight: 600 }}>Costa Serena Club</h1></div>

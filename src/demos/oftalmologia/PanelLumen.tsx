@@ -67,7 +67,7 @@ export default function PanelLumen() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-8rem)]" style={{ background: PAPEL, color: NOCHE, fontFamily: "'Instrument Sans', system-ui, sans-serif" }}>
+    <div className="panel-demo min-h-[calc(100vh-8rem)]" style={{ background: PAPEL, color: NOCHE, fontFamily: "'Instrument Sans', system-ui, sans-serif" }}>
       {/* barra de arriba: marca, sucursal y pestañas */}
       <header style={{ background: NOCHE }} className="text-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-3 px-5 py-3">

@@ -15,18 +15,11 @@ import {
 import { Modal } from "@/components/Modal";
 import { qz } from "../comun";
 import {
-  DOCTORES, SERVICIOS,
+  AZUL, CIELO, DOCTORES, MENTA, SERVICIOS, TINTA,
   DIAS_CORTOS, DIAS_LARGOS, MESES_LARGOS, ROLES,
   desdeIso, doctorPor, horasDelDia, iso, proximosDias, servicioPor, tomado, useExpediente, yaPaso,
   type Cita, type CitaExtra, type Consulta, type Doctor, type Estado, type Metodo, type Permisos, type Sesion,
 } from "./datos";
-
-/* identidad propia del sistema: marino de bata, azul clínico y coral */
-const TINTA = "#0f2a43";
-const AZUL = "#1f6fb2";
-const CIELO = "#e3edf8";
-const MENTA = "#f0634a";
-const LETRA = "'Outfit', 'Instrument Sans', system-ui, sans-serif";
 
 const ESTADOS: Record<Estado, { texto: string; fondo: string; tinta: string; punto: string }> = {
   "por-confirmar": { texto: "Por confirmar", fondo: "#fff4e5", tinta: "#8a4b00", punto: "#f0a020" },
@@ -103,9 +96,9 @@ export function PanelClinica({ sesion, citas, setCitas, extras, setExtras, permi
   const citaConsulta = consulta ? citas.find((c) => c.id === consulta) : null;
 
   return (
-    <div className="min-h-screen bg-[#f4f7fb] text-[#0f2a43] lg:grid lg:grid-cols-[240px_1fr]" style={{ fontFamily: LETRA }}>
+    <div className="min-h-screen bg-[#f2f6f9] text-[#123b40] lg:grid lg:grid-cols-[240px_1fr]">
       {/* menú lateral (compu) */}
-      <aside className="hidden lg:flex flex-col gap-1 bg-[#0f2a43] p-4 text-white">
+      <aside className="hidden lg:flex flex-col gap-1 border-r border-[#123b40]/10 bg-white p-4">
         <div className="px-2 pb-4 pt-1">
           <p className="font-extrabold text-[1.15rem]">Aurora</p>
           <p className="text-[0.78rem] opacity-55">Sistema de la clínica</p>
@@ -117,20 +110,20 @@ export function PanelClinica({ sesion, citas, setCitas, extras, setExtras, permi
             key={id}
             type="button"
             onClick={() => setPestana(id)}
-            className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left font-semibold transition ${pestana === id ? "text-white" : "hover:bg-white/10"}`}
-            style={pestana === id ? { background: MENTA } : undefined}
+            className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left font-semibold transition ${pestana === id ? "text-white" : "hover:bg-[#123b40]/5"}`}
+            style={pestana === id ? { background: AZUL } : undefined}
           >
             <Icono size={18} /> {t}
           </button>
         ))}
         <div className="mt-auto space-y-1 pt-6">
-          <button type="button" onClick={alSalir} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-[0.9rem] font-semibold hover:bg-white/10">
+          <button type="button" onClick={alSalir} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-[0.9rem] font-semibold hover:bg-[#123b40]/5">
             <LogOut size={16} /> Cambiar de usuario
           </button>
-          <button type="button" onClick={irAPagina} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-[0.9rem] opacity-75 hover:bg-white/10">
+          <button type="button" onClick={irAPagina} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-[0.9rem] opacity-75 hover:bg-[#123b40]/5">
             <ExternalLink size={16} /> Ver página de pacientes
           </button>
-          <button type="button" onClick={reiniciar} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-[0.9rem] opacity-75 hover:bg-white/10">
+          <button type="button" onClick={reiniciar} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-[0.9rem] opacity-75 hover:bg-[#123b40]/5">
             <RotateCcw size={16} /> Reiniciar datos de ejemplo
           </button>
         </div>
@@ -138,10 +131,10 @@ export function PanelClinica({ sesion, citas, setCitas, extras, setExtras, permi
 
       <main className="min-w-0 pb-24 lg:pb-10">
         {/* barra de usuario y pestañas (celular) */}
-        <div className="lg:hidden sticky top-0 z-20 bg-white border-b border-[#0f2a43]/10">
+        <div className="lg:hidden sticky top-0 z-20 bg-white border-b border-[#123b40]/10">
           <div className="flex items-center justify-between gap-3 px-4 py-2.5">
             <Usuario nombre={usuario.nombre} cargo={usuario.cargo} foto={yo?.foto} />
-            <button type="button" onClick={alSalir} className="inline-flex items-center gap-1.5 rounded-full border border-[#0f2a43]/15 px-3 py-1.5 text-[0.78rem] font-semibold">
+            <button type="button" onClick={alSalir} className="inline-flex items-center gap-1.5 rounded-full border border-[#123b40]/15 px-3 py-1.5 text-[0.78rem] font-semibold">
               <LogOut size={14} /> Cambiar
             </button>
           </div>
@@ -302,7 +295,7 @@ function Agenda({
             {dia === iso(new Date()) ? "Hoy · " : ""}
             {DIAS_LARGOS[d.getDay()]}
           </p>
-          <h1 className="!text-[#0f2a43] text-[1.9rem] sm:text-[2.3rem] font-extrabold tracking-[-0.02em]">
+          <h1 className="!text-[#123b40] text-[1.9rem] sm:text-[2.3rem] font-extrabold tracking-[-0.02em]">
             {d.getDate()} de {MESES_LARGOS[d.getMonth()]}
           </h1>
         </div>
@@ -349,7 +342,7 @@ function Agenda({
                     <span className="truncate">{doc.corto}</span>
                     <span className="shrink-0 opacity-60">{trabaja ? `${pct}%` : "No atiende"}</span>
                   </div>
-                  <div className="mt-1 h-1.5 rounded-full bg-[#0f2a43]/8">
+                  <div className="mt-1 h-1.5 rounded-full bg-[#123b40]/8">
                     <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: MENTA }} />
                   </div>
                 </div>
@@ -361,10 +354,10 @@ function Agenda({
 
       {/* agenda por doctor */}
       <div className="mt-5 overflow-hidden rounded-2xl bg-white">
-        <div className="grid border-b border-[#0f2a43]/10" style={{ gridTemplateColumns: columnas }}>
+        <div className="grid border-b border-[#123b40]/10" style={{ gridTemplateColumns: columnas }}>
           <span />
           {doctores.map((doc) => (
-            <div key={doc.id} className="flex items-center gap-2 px-3 py-3 border-l border-[#0f2a43]/8">
+            <div key={doc.id} className="flex items-center gap-2 px-3 py-3 border-l border-[#123b40]/8">
               <img src={doc.foto} alt="" className="w-8 h-8 rounded-full object-cover" />
               <div className="min-w-0">
                 <p className="truncate text-[0.88rem] font-bold">{doc.corto}</p>
@@ -375,7 +368,7 @@ function Agenda({
         </div>
         <div className="max-h-[560px] overflow-y-auto">
           {horas.map((h) => (
-            <div key={h} className="grid border-b border-[#0f2a43]/6 last:border-0" style={{ gridTemplateColumns: columnas }}>
+            <div key={h} className="grid border-b border-[#123b40]/6 last:border-0" style={{ gridTemplateColumns: columnas }}>
               <span className={`px-3 py-2 text-[0.75rem] font-semibold tabular-nums ${yaPaso(d, h, 0) ? "opacity-30" : "opacity-60"}`}>{h}</span>
               {doctores.map((doc) => {
                 const c = delDia.find((x) => x.hora === h && x.doctor === doc.id);
@@ -383,7 +376,7 @@ function Agenda({
                 if (c) {
                   const e = ESTADOS[c.estado];
                   return (
-                    <div key={doc.id} className="border-l border-[#0f2a43]/8 p-1">
+                    <div key={doc.id} className="border-l border-[#123b40]/8 p-1">
                       <button
                         type="button"
                         onClick={() => alAbrir(c)}
@@ -401,7 +394,7 @@ function Agenda({
                   );
                 }
                 return (
-                  <div key={doc.id} className="border-l border-[#0f2a43]/8 p-1">
+                  <div key={doc.id} className="border-l border-[#123b40]/8 p-1">
                     {trabaja && !yaPaso(d, h, 0) ? (
                       <button type="button" onClick={() => alNueva(h, doc.id)} className="h-full min-h-[38px] w-full rounded-lg text-[0.72rem] font-semibold opacity-0 hover:opacity-100 focus:opacity-100 transition" style={{ background: CIELO, color: AZUL }}>
                         <Plus size={13} className="inline -mt-0.5" /> Agendar
@@ -465,16 +458,16 @@ function DetalleCita({
   const d = desdeIso(cita.dia);
   const e = ESTADOS[cita.estado];
   const esDoc = sesion.rol === "doctor";
-  const boton = "inline-flex items-center justify-center gap-1.5 rounded-xl border border-[#0f2a43]/15 py-2.5 text-[0.9rem] font-bold active:scale-[0.98]";
+  const boton = "inline-flex items-center justify-center gap-1.5 rounded-xl border border-[#123b40]/15 py-2.5 text-[0.9rem] font-bold active:scale-[0.98]";
   return (
-    <div className="px-6 pt-6 pb-6 text-[#0f2a43]">
+    <div className="px-6 pt-6 pb-6 text-[#123b40]">
       <div className="flex flex-wrap gap-2">
         <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[0.75rem] font-bold" style={{ background: e.fondo, color: e.tinta }}>
           <span className="w-1.5 h-1.5 rounded-full" style={{ background: e.punto }} /> {e.texto}
         </span>
         {extra?.pago && <span className="rounded-full bg-[#e7f6f1] px-2.5 py-1 text-[0.75rem] font-bold text-[#1d6b5a]">Pagado · {METODOS.find((m) => m.id === extra.pago)!.texto}</span>}
       </div>
-      <h3 className="mt-3 pr-8 !text-[#0f2a43] text-[1.6rem] font-extrabold">{cita.paciente}</h3>
+      <h3 className="mt-3 pr-8 !text-[#123b40] text-[1.6rem] font-extrabold">{cita.paciente}</h3>
       <ul className="mt-4 space-y-1.5 text-[0.95rem]">
         <li>
           <b>{s.nombre}</b> · {s.desde ? "desde " : ""}
@@ -526,7 +519,7 @@ function DetalleCita({
       </div>
 
       {puedeCobrar && cita.estado === "atendida" && !extra?.pago && (
-        <div className="mt-5 border-t border-[#0f2a43]/10 pt-4">
+        <div className="mt-5 border-t border-[#123b40]/10 pt-4">
           <p className="text-sm font-bold">Cobrar {qz(s.precio)}</p>
           <div className="mt-2 grid grid-cols-3 gap-2">
             {METODOS.map((m) => (
@@ -557,13 +550,13 @@ function FormConsulta({ cita, inicial, soloLeer, alGuardar }: { cita: Cita; inic
           setError("");
         }}
         placeholder={ph}
-        className="mt-1.5 w-full resize-none rounded-xl border border-[#0f2a43]/20 px-3 py-2 text-[0.95rem] focus:outline-none focus:border-[#14555d]"
+        className="mt-1.5 w-full resize-none rounded-xl border border-[#123b40]/20 px-3 py-2 text-[0.95rem] focus:outline-none focus:border-[#14555d]"
       />
     </label>
   );
   return (
     <form
-      className="px-6 pt-6 pb-6 space-y-3 text-[#0f2a43]"
+      className="px-6 pt-6 pb-6 space-y-3 text-[#123b40]"
       onSubmit={(e) => {
         e.preventDefault();
         if (!c.diagnostico.trim()) return setError("Escriba el diagnóstico.");
@@ -572,7 +565,7 @@ function FormConsulta({ cita, inicial, soloLeer, alGuardar }: { cita: Cita; inic
       noValidate
     >
       <p className="text-sm font-semibold opacity-60">Consulta</p>
-      <h3 className="-mt-2 pr-8 !text-[#0f2a43] text-[1.5rem] font-extrabold">{cita.paciente}</h3>
+      <h3 className="-mt-2 pr-8 !text-[#123b40] text-[1.5rem] font-extrabold">{cita.paciente}</h3>
       {campo("motivo", "Motivo de la visita", "Dolor en una muela de arriba…")}
       {campo("diagnostico", "Diagnóstico", "Caries en la pieza 26…")}
       {campo("tratamiento", "Tratamiento realizado", "Resina en la pieza 26…")}
@@ -609,11 +602,11 @@ function NuevaCita({
   const [paciente, setPaciente] = useState("");
   const [error, setError] = useState("");
 
-  if (!doctoresDia.length) return <p className="px-6 py-10 text-center text-[#0f2a43]">Este día no hay doctores atendiendo.</p>;
+  if (!doctoresDia.length) return <p className="px-6 py-10 text-center text-[#123b40]">Este día no hay doctores atendiendo.</p>;
 
   return (
     <form
-      className="px-6 pt-6 pb-6 space-y-4 text-[#0f2a43]"
+      className="px-6 pt-6 pb-6 space-y-4 text-[#123b40]"
       onSubmit={(e) => {
         e.preventDefault();
         if (!paciente.trim()) return setError("Escriba el nombre del paciente.");
@@ -622,7 +615,7 @@ function NuevaCita({
       }}
       noValidate
     >
-      <h3 className="pr-8 !text-[#0f2a43] text-[1.5rem] font-extrabold">Nueva cita</h3>
+      <h3 className="pr-8 !text-[#123b40] text-[1.5rem] font-extrabold">Nueva cita</h3>
       <p className="-mt-2 text-sm opacity-60">
         {DIAS_LARGOS[dia.getDay()]} {dia.getDate()} de {MESES_LARGOS[dia.getMonth()]}
       </p>
@@ -635,7 +628,7 @@ function NuevaCita({
             setError("");
           }}
           placeholder="Nombre y apellido"
-          className="mt-1.5 w-full rounded-xl border border-[#0f2a43]/20 px-3 py-2.5 focus:outline-none focus:border-[#14555d]"
+          className="mt-1.5 w-full rounded-xl border border-[#123b40]/20 px-3 py-2.5 focus:outline-none focus:border-[#14555d]"
         />
       </label>
       <div className="grid grid-cols-2 gap-3">
@@ -647,7 +640,7 @@ function NuevaCita({
               setDoctor(e.target.value);
               setHora("");
             }}
-            className="mt-1.5 w-full rounded-xl border border-[#0f2a43]/20 bg-white px-3 py-2.5"
+            className="mt-1.5 w-full rounded-xl border border-[#123b40]/20 bg-white px-3 py-2.5"
           >
             {doctoresDia.map((x) => (
               <option key={x.id} value={x.id}>
@@ -658,7 +651,7 @@ function NuevaCita({
         </label>
         <label className="block">
           <span className="text-sm font-semibold">Hora</span>
-          <select value={hora} onChange={(e) => setHora(e.target.value)} className="mt-1.5 w-full rounded-xl border border-[#0f2a43]/20 bg-white px-3 py-2.5">
+          <select value={hora} onChange={(e) => setHora(e.target.value)} className="mt-1.5 w-full rounded-xl border border-[#123b40]/20 bg-white px-3 py-2.5">
             <option value="">Elija</option>
             {libres.map((h) => (
               <option key={h}>{h}</option>
@@ -668,7 +661,7 @@ function NuevaCita({
       </div>
       <label className="block">
         <span className="text-sm font-semibold">Servicio</span>
-        <select value={servicio} onChange={(e) => setServicio(e.target.value)} className="mt-1.5 w-full rounded-xl border border-[#0f2a43]/20 bg-white px-3 py-2.5">
+        <select value={servicio} onChange={(e) => setServicio(e.target.value)} className="mt-1.5 w-full rounded-xl border border-[#123b40]/20 bg-white px-3 py-2.5">
           {SERVICIOS.map((s) => (
             <option key={s.id} value={s.id}>
               {s.nombre} · {qz(s.precio)}
@@ -699,7 +692,7 @@ function Pacientes({ citas, soloMios, alAbrir }: { citas: Cita[]; soloMios: bool
 
   return (
     <>
-      <h1 className="!text-[#0f2a43] text-[1.9rem] sm:text-[2.3rem] font-extrabold tracking-[-0.02em]">{soloMios ? "Mis pacientes" : "Pacientes"}</h1>
+      <h1 className="!text-[#123b40] text-[1.9rem] sm:text-[2.3rem] font-extrabold tracking-[-0.02em]">{soloMios ? "Mis pacientes" : "Pacientes"}</h1>
       {soloMios && <p className="mt-1 text-sm opacity-60">Solo ve a sus pacientes. El dueño de la clínica puede darle acceso a todos.</p>}
       <label className="mt-5 flex items-center gap-2 rounded-xl bg-white px-4 py-3">
         <Search size={18} className="opacity-50" />
@@ -790,13 +783,13 @@ function Expediente({ paciente, citas, extras, editable }: { paciente: string; c
   const etiqueta = "text-[0.78rem] font-bold uppercase tracking-[0.1em] opacity-55";
 
   return (
-    <div className="px-6 pt-6 pb-7 text-[#0f2a43]">
+    <div className="px-6 pt-6 pb-7 text-[#123b40]">
       <div className="flex items-center gap-3 pr-8">
         <span className="grid place-items-center w-12 h-12 rounded-full font-bold text-white" style={{ background: AZUL }}>
           {iniciales(paciente)}
         </span>
         <div>
-          <h3 className="!text-[#0f2a43] text-[1.5rem] font-extrabold leading-tight">{paciente}</h3>
+          <h3 className="!text-[#123b40] text-[1.5rem] font-extrabold leading-tight">{paciente}</h3>
           <p className="text-sm opacity-60">Tel. {tel} (de ejemplo)</p>
         </div>
       </div>
@@ -816,7 +809,7 @@ function Expediente({ paciente, citas, extras, editable }: { paciente: string; c
               readOnly={!editable}
               onChange={(e) => setDatos((x) => ({ ...x, [k]: e.target.value }))}
               placeholder={ph}
-              className={`mt-1.5 w-full rounded-xl border px-3 py-2.5 text-[0.95rem] focus:outline-none ${k === "alergias" && datos.alergias ? "border-[#f0a020] bg-[#fff8ec] font-semibold" : "border-[#0f2a43]/20"}`}
+              className={`mt-1.5 w-full rounded-xl border px-3 py-2.5 text-[0.95rem] focus:outline-none ${k === "alergias" && datos.alergias ? "border-[#f0a020] bg-[#fff8ec] font-semibold" : "border-[#123b40]/20"}`}
             />
           </label>
         ))}
@@ -834,7 +827,7 @@ function Expediente({ paciente, citas, extras, editable }: { paciente: string; c
           Saldo pendiente: <span style={{ color: AZUL }}>{qz(saldo)}</span>
         </p>
       </div>
-      <ul className="mt-2 divide-y divide-[#0f2a43]/10 rounded-xl border border-[#0f2a43]/10">
+      <ul className="mt-2 divide-y divide-[#123b40]/10 rounded-xl border border-[#123b40]/10">
         {datos.plan.map((p) => (
           <li key={p.id} className="flex items-center gap-3 px-3 py-2.5 text-[0.92rem]">
             <button
@@ -869,9 +862,9 @@ function Expediente({ paciente, citas, extras, editable }: { paciente: string; c
             setNuevoProc({ pieza: "", proc: "", costo: "" });
           }}
         >
-          <input aria-label="Pieza" value={nuevoProc.pieza} onChange={(e) => setNuevoProc({ ...nuevoProc, pieza: e.target.value })} placeholder="Pieza" className="rounded-lg border border-[#0f2a43]/20 px-2 py-2 text-sm" />
-          <input aria-label="Procedimiento" value={nuevoProc.proc} onChange={(e) => setNuevoProc({ ...nuevoProc, proc: e.target.value })} placeholder="Procedimiento" className="rounded-lg border border-[#0f2a43]/20 px-2 py-2 text-sm" />
-          <input aria-label="Costo en quetzales" value={nuevoProc.costo} inputMode="numeric" onChange={(e) => setNuevoProc({ ...nuevoProc, costo: e.target.value.replace(/\D/g, "") })} placeholder="Q" className="rounded-lg border border-[#0f2a43]/20 px-2 py-2 text-sm" />
+          <input aria-label="Pieza" value={nuevoProc.pieza} onChange={(e) => setNuevoProc({ ...nuevoProc, pieza: e.target.value })} placeholder="Pieza" className="rounded-lg border border-[#123b40]/20 px-2 py-2 text-sm" />
+          <input aria-label="Procedimiento" value={nuevoProc.proc} onChange={(e) => setNuevoProc({ ...nuevoProc, proc: e.target.value })} placeholder="Procedimiento" className="rounded-lg border border-[#123b40]/20 px-2 py-2 text-sm" />
+          <input aria-label="Costo en quetzales" value={nuevoProc.costo} inputMode="numeric" onChange={(e) => setNuevoProc({ ...nuevoProc, costo: e.target.value.replace(/\D/g, "") })} placeholder="Q" className="rounded-lg border border-[#123b40]/20 px-2 py-2 text-sm" />
           <button type="submit" className="rounded-lg px-3 text-sm font-bold text-white" style={{ background: AZUL }}>
             Agregar
           </button>
@@ -905,7 +898,7 @@ function Expediente({ paciente, citas, extras, editable }: { paciente: string; c
             readOnly={!editable}
             onChange={(e) => setDatos((x) => ({ ...x, notas: e.target.value }))}
             placeholder="Solo las ven los doctores y el dueño."
-            className="mt-2 w-full resize-none rounded-xl border border-[#0f2a43]/20 px-3 py-2 text-[0.92rem] focus:outline-none focus:border-[#14555d]"
+            className="mt-2 w-full resize-none rounded-xl border border-[#123b40]/20 px-3 py-2 text-[0.92rem] focus:outline-none focus:border-[#14555d]"
           />
         </label>
       </div>
@@ -936,7 +929,7 @@ function Cobros({
   const porCobrar = delDia.filter((c) => !extras[c.id]?.pago).reduce((s, c) => s + servicioPor(c.servicio).precio, 0);
   return (
     <>
-      <h1 className="!text-[#0f2a43] text-[1.9rem] sm:text-[2.3rem] font-extrabold tracking-[-0.02em]">Cobros</h1>
+      <h1 className="!text-[#123b40] text-[1.9rem] sm:text-[2.3rem] font-extrabold tracking-[-0.02em]">Cobros</h1>
       <div className="mt-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
         {dias.map((x) => (
           <button
@@ -957,7 +950,7 @@ function Cobros({
           <Tarjeta key={m.id} titulo={m.texto} valor={qz(pagadas.filter((c) => extras[c.id]?.pago === m.id).reduce((s, c) => s + servicioPor(c.servicio).precio, 0))} nota="Cobrado hoy" />
         ))}
       </div>
-      <ul className="mt-5 divide-y divide-[#0f2a43]/8 overflow-hidden rounded-2xl bg-white">
+      <ul className="mt-5 divide-y divide-[#123b40]/8 overflow-hidden rounded-2xl bg-white">
         {delDia.map((c) => {
           const pago = extras[c.id]?.pago;
           return (
@@ -1004,7 +997,7 @@ function Reportes({ citas, dias, extras }: { citas: Cita[]; dias: Date[]; extras
 
   return (
     <>
-      <h1 className="!text-[#0f2a43] text-[1.9rem] sm:text-[2.3rem] font-extrabold tracking-[-0.02em]">Reportes</h1>
+      <h1 className="!text-[#123b40] text-[1.9rem] sm:text-[2.3rem] font-extrabold tracking-[-0.02em]">Reportes</h1>
       <p className="mt-1 opacity-60">Próximos 10 días de atención.</p>
       <div className="mt-5 grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Tarjeta titulo="Citas agendadas" valor={citas.length} nota="En los próximos 10 días" />
@@ -1034,7 +1027,7 @@ function Reportes({ citas, dias, extras }: { citas: Cita[]; dias: Date[]; extras
                   <span className="font-semibold">{s.nombre}</span>
                   <span className="opacity-60">{n}</span>
                 </div>
-                <div className="mt-1 h-2 rounded-full bg-[#0f2a43]/8">
+                <div className="mt-1 h-2 rounded-full bg-[#123b40]/8">
                   <div className="h-full rounded-full" style={{ width: `${(n / maxS) * 100}%`, background: MENTA }} />
                 </div>
               </li>
@@ -1071,7 +1064,7 @@ function Equipo({ permisos, setPermisos, citas }: { permisos: Permisos; setPermi
   ];
   return (
     <>
-      <h1 className="!text-[#0f2a43] text-[1.9rem] sm:text-[2.3rem] font-extrabold tracking-[-0.02em]">Equipo y permisos</h1>
+      <h1 className="!text-[#123b40] text-[1.9rem] sm:text-[2.3rem] font-extrabold tracking-[-0.02em]">Equipo y permisos</h1>
       <p className="mt-1 opacity-65 max-w-2xl">Cada quien entra con su usuario y ve solo lo que le toca. Cambie un permiso aquí y entre como ese doctor para ver la diferencia.</p>
 
       <div className="mt-6 grid lg:grid-cols-2 gap-4">
@@ -1116,7 +1109,7 @@ function Equipo({ permisos, setPermisos, citas }: { permisos: Permisos; setPermi
 
       <div className="mt-4 rounded-2xl bg-white p-5">
         <p className="font-bold">Todos los usuarios</p>
-        <ul className="mt-3 divide-y divide-[#0f2a43]/8">
+        <ul className="mt-3 divide-y divide-[#123b40]/8">
           {ROLES.map((r) => (
             <li key={r.nombre} className="flex flex-wrap items-center justify-between gap-2 py-2.5">
               <span>

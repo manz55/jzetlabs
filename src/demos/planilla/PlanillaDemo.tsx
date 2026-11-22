@@ -15,7 +15,7 @@ import {
 
 const ESTILOS = `
 .plan h1, .plan h2, .plan h3 { color: inherit; }
-.plan .num { font-family: 'IBM Plex Mono', ui-monospace, Menlo, monospace; font-variant-numeric: tabular-nums; }
+.plan .num { font-variant-numeric: tabular-nums; }
 .plan .caja { background: #fff; border: 1px solid ${BORDE}; border-radius: 12px; }
 .plan table th { font-weight: 600; color: ${SUAVE}; font-size: .8rem; text-align: left; padding: .6rem .75rem; border-bottom: 1px solid ${BORDE}; white-space: nowrap; }
 .plan table td { padding: .65rem .75rem; border-bottom: 1px solid ${BORDE}; }
@@ -133,17 +133,17 @@ function Oficina({ p }: { p: Planilla }) {
   const titulo = menu.find((m) => m[0] === sec)![1];
 
   return (
-    <main className="mx-auto max-w-[90rem] pb-16 lg:px-4 lg:pt-4" style={{ fontFamily: "'Archivo', 'Instrument Sans', system-ui, sans-serif" }}>
-      <div className="overflow-hidden lg:rounded-xl lg:border-2" style={{ borderColor: "#2b2f33" }}>
+    <main className="mx-auto max-w-[90rem] pb-16 lg:px-4 lg:pt-4">
+      <div className="overflow-hidden lg:rounded-xl lg:border-2" style={{ borderColor: "#173a5e" }}>
         {/* encabezado de obra y pestañas, como las hojas de un libro de cálculo */}
-        <header className="text-white" style={{ background: "#2b2f33" }}>
-          <div className="h-2" style={{ background: "repeating-linear-gradient(-45deg, #ff7a1a 0 14px, #2b2f33 14px 28px)" }} aria-hidden />
+        <header className="text-white" style={{ background: "#173a5e" }}>
+          <div className="h-2" style={{ background: "repeating-linear-gradient(-45deg, #f2b400 0 14px, #173a5e 14px 28px)" }} aria-hidden />
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 lg:px-6">
             <span className="flex items-center gap-2.5">
               <svg width="32" height="32" viewBox="0 0 40 40" aria-hidden>
-                <rect width="40" height="40" rx="8" fill="#ff7a1a" />
-                <path d="M8 27h24v3H8z" fill="#2b2f33" />
-                <path d="M10 27c0-6.6 4.5-11.5 10-11.5S30 20.4 30 27z" fill="#2b2f33" />
+                <rect width="40" height="40" rx="8" fill="#f2b400" />
+                <path d="M8 27h24v3H8z" fill="#173a5e" />
+                <path d="M10 27c0-6.6 4.5-11.5 10-11.5S30 20.4 30 27z" fill="#173a5e" />
               </svg>
               <span className="leading-tight"><span className="block text-[1.25rem] font-bold uppercase tracking-wide">Los Cedros · oficina</span><span className="block text-[0.78rem] text-white/60">Libro de planilla</span></span>
             </span>
@@ -151,7 +151,7 @@ function Oficina({ p }: { p: Planilla }) {
           </div>
           <nav aria-label="Secciones" className="flex gap-1 overflow-x-auto px-3 lg:px-5">
             {menu.map(([id, texto, Icono, badge]) => (
-              <button key={id} type="button" onClick={() => ir(id)} aria-current={sec === id ? "page" : undefined} className={`flex shrink-0 items-center gap-2 rounded-t-md px-4 py-2.5 text-[0.92rem] font-semibold transition ${sec === id ? "text-[#2b2f33]" : "text-white/75 hover:bg-white/10"}`} style={sec === id ? { background: FONDO, boxShadow: "inset 0 3px 0 #ff7a1a" } : undefined}>
+              <button key={id} type="button" onClick={() => ir(id)} aria-current={sec === id ? "page" : undefined} className={`flex shrink-0 items-center gap-2 rounded-t-md px-4 py-2.5 text-[0.92rem] font-semibold transition ${sec === id ? "text-[#173a5e]" : "text-white/75 hover:bg-white/10"}`} style={sec === id ? { background: FONDO, boxShadow: "inset 0 3px 0 #f2b400" } : undefined}>
                 <Icono size={16} />
                 <span className="whitespace-nowrap">{texto}</span>
                 {!!badge && <span className="rounded-full bg-[#d9483b] px-2 text-[0.72rem] font-bold text-white">{badge}</span>}

@@ -13,9 +13,9 @@ const PINO2 = "#2c6458";
 const OCRE = "#c47f26";
 const ROJO = "#c2412d";
 const TINTA = "#16231f";
-const PAPEL = "#f6f4ec";
-const TITULO = "'Lora', Georgia, serif";
-const CUERPO = "'Public Sans', 'Instrument Sans', system-ui, sans-serif";
+const PAPEL = "#e4eae7";
+const TITULO = "'Libre Franklin', 'Instrument Sans', sans-serif";
+const CUERPO = "'Libre Franklin', 'Instrument Sans', sans-serif";
 
 type Lectura = { dia: string; sis: number; dia2: number; glu: number };
 type CitaMed = { hora: string; quien: string; edad: number; motivo: string; tipo: string; listo?: boolean; nueva?: boolean };
@@ -81,7 +81,7 @@ export default function PanelConsultorio({ m }: { m: Med }) {
   const crónicos = pacientes.filter((x) => /Diabetes|Hipertensión/.test(x.tiene)).sort((a, b) => Number(b.alto) - Number(a.alto));
 
   return (
-    <div className="min-h-[calc(100vh-8rem)]" style={{ background: PAPEL, color: TINTA, fontFamily: CUERPO }}>
+    <div className="panel-demo min-h-[calc(100vh-8rem)]" style={{ background: PAPEL, color: TINTA, fontFamily: CUERPO }}>
       <header style={{ background: PINO }} className="text-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-4 px-5 py-3">
           <span className="grid h-10 w-10 place-items-center rounded-lg bg-white/10"><Activity size={22} /></span>

@@ -67,7 +67,7 @@ export default function PanelTorque() {
   const badge = (t: Tab) => (t === "Órdenes" ? porAprobar : t === "Auxilio 24 h" ? auxNuevos : t === "Repuestos" ? bajos : t === "Cobros" ? porCobrar : 0);
 
   return (
-    <div className="min-h-[calc(100vh-8rem)]" style={{ background: ACERO, color: ASFALTO, fontFamily: "'Libre Franklin', system-ui, sans-serif" }}>
+    <div className="panel-demo min-h-[calc(100vh-8rem)]" style={{ background: ACERO, color: ASFALTO, fontFamily: "'Libre Franklin', system-ui, sans-serif" }}>
       <header style={{ background: ASFALTO }} className="text-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-4 px-5 py-3">
           <span className="flex items-center gap-2.5">

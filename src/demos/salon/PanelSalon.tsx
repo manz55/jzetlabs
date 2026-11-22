@@ -8,14 +8,14 @@ import { Check, MessageCircle, X } from "lucide-react";
 import { MensajeWhatsApp, qz } from "../comun";
 import { aHora, aMin, estilista, fechaLarga, hora12, hoyIso, iso, masDias, servicio, sucursal, SERVICIOS, SUCURSALES, ESTILISTAS, type Cita, type useCitas } from "./datos";
 
-const CIRUELA = "#4a1d3f";
-const ROSA = "#f3dde0";
-const ORO = "#b88a3c";
-const MARFIL = "#fbf5f2";
-const TINTA = "#2a1425";
-const OK = "#3e7a52";
-const TITULO = "'Bodoni Moda', Georgia, serif";
-const CUERPO = "'Jost', 'Instrument Sans', system-ui, sans-serif";
+const CIRUELA = "#46593f";
+const ROSA = "#cbd8c0";
+const ORO = "#7d9a6b";
+const MARFIL = "#e5ecdd";
+const TINTA = "#16261b";
+const OK = "#2f7a4a";
+const TITULO = "'DM Serif Display', Georgia, serif";
+const CUERPO = "'Instrument Sans', system-ui, sans-serif";
 const PX = 1.25; // píxeles por minuto
 
 const color = (e: Cita["estado"]) => (e === "llego" ? OK : e === "no-vino" ? "#8d8d8d" : CIRUELA);
@@ -46,7 +46,7 @@ export default function PanelSalon({ store }: { store: ReturnType<typeof useCita
   const masPedidos = SERVICIOS.map((x) => ({ x, n: citas.filter((c) => c.servicio === x.id && c.suc === suc).length })).filter((q) => q.n).sort((a, b) => b.n - a.n).slice(0, 4);
 
   return (
-    <div className="min-h-[calc(100vh-8rem)]" style={{ background: MARFIL, color: TINTA, fontFamily: CUERPO }}>
+    <div className="panel-demo min-h-[calc(100vh-8rem)]" style={{ background: MARFIL, color: TINTA, fontFamily: CUERPO }}>
       <header style={{ background: CIRUELA }} className="text-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-end gap-x-8 gap-y-3 px-5 py-5">
           <div><p className="text-[0.8rem] uppercase tracking-[0.2em] opacity-70">Panel de agenda · {fechaLarga(hoy)}</p><h1 className="text-[2.6rem] leading-none" style={{ fontFamily: TITULO }}>Lirio Salón</h1></div>

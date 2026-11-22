@@ -8,14 +8,14 @@ import { Check, X } from "lucide-react";
 import { MensajeWhatsApp, qz } from "../comun";
 import { PARTE_CONSIGNANTE, PIEZAS, estadoDe, type Datos, type Estado, type Pieza } from "./datos";
 
-const MARFIL = "#f6f1e7";
-const TINTA = "#14110f";
-const BRONCE = "#8c6a35";
-const FILETE = "rgba(20,17,15,.25)";
+const MARFIL = "#e6ebe3";
+const TINTA = "#0f2a21";
+const BRONCE = "#9a7440";
+const FILETE = "rgba(15,42,33,.25)";
 const VERDE = "#2f6b4a";
 const ROJO = "#9c3b2e";
-const TITULO = "'Cormorant Garamond', 'Bodoni Moda', Georgia, serif";
-const CUERPO = "'Karla', 'Instrument Sans', system-ui, sans-serif";
+const TITULO = "'Bodoni Moda', Georgia, serif";
+const CUERPO = "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif";
 
 const doble = { borderTop: `3px double ${TINTA}`, borderBottom: `3px double ${TINTA}` } as const;
 const versal = "uppercase tracking-[0.18em]";
@@ -47,7 +47,7 @@ export default function PanelBoutique({ d, setD, inicial, alSalir }: { d: Datos;
   const aviso = (t: Tab) => (t === "Apartados" ? apartadas.length : t === "Consignantes" ? porPagar.length : t === "Ofertas" ? nuevas.length : 0);
 
   return (
-    <div className="min-h-[calc(100vh-8rem)] pb-14" style={{ background: MARFIL, color: TINTA, fontFamily: CUERPO }}>
+    <div className="panel-demo min-h-[calc(100vh-8rem)] pb-14" style={{ background: MARFIL, color: TINTA, fontFamily: CUERPO }}>
       <header className="mx-auto max-w-6xl px-5 pt-8 text-center">
         <p className={`text-[0.75rem] ${versal} opacity-70`} style={{ color: BRONCE }}>Panel de la dueña</p>
         <h1 className="mt-1 text-[3.2rem] italic leading-none" style={{ fontFamily: TITULO, fontWeight: 500 }}>Maison Solène</h1>

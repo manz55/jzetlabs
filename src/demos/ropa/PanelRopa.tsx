@@ -7,13 +7,13 @@ import { useState, type ReactNode } from "react";
 import { Check, Minus, Package, Plus, Send } from "lucide-react";
 import { MensajeWhatsApp, qz } from "../comun";
 
-const ARENA = "#efe6d6";
-const VERDE = "#2f3a22";
-const TERRA = "#b5532f";
-const OLIVA = "#6b7a3f";
+const ARENA = "#dcd9d2";
+const VERDE = "#141210";
+const TERRA = "#e8470f";
+const OLIVA = "#55603a";
 const AMBAR = "#c9861a";
-const TITULO = "'Archivo Black', 'Archivo', system-ui, sans-serif";
-const CUERPO = "'Work Sans', 'Instrument Sans', system-ui, sans-serif";
+const TITULO = "'Bricolage Grotesque', 'Instrument Sans', sans-serif";
+const CUERPO = "'Instrument Sans', system-ui, sans-serif";
 
 const PRENDAS = [
   { id: "playera", n: "Playera básica", p: 129, tallas: ["S", "M", "L", "XL"], stock: [6, 3, 0, 2] },
@@ -48,7 +48,7 @@ export default function PanelRopa() {
   const vendido = pedidos.reduce((s, p) => s + p.total, 0);
 
   return (
-    <div className="min-h-[calc(100vh-8rem)]" style={{ background: ARENA, color: VERDE, fontFamily: CUERPO }}>
+    <div className="panel-demo min-h-[calc(100vh-8rem)]" style={{ background: ARENA, color: VERDE, fontFamily: CUERPO }}>
       <header style={{ background: VERDE }} className="text-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-end gap-x-8 gap-y-3 px-5 py-5">
           <div><p className="text-[0.78rem] font-semibold uppercase tracking-[0.2em] opacity-60">Panel de la tienda</p><h1 className="text-[2.6rem] uppercase leading-none" style={{ fontFamily: TITULO }}>Nómada Studio</h1></div>

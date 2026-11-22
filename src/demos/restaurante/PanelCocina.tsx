@@ -7,14 +7,14 @@ import { useState, type ReactNode } from "react";
 import { ArrowRight, Bell, Check, Clock, Flame, Truck } from "lucide-react";
 import { MensajeWhatsApp, qz } from "../comun";
 
-const CARBON = "#1d1512";
-const CARBON2 = "#2a201b";
-const CREMA = "#fbf1d8";
+const CARBON = "#fbe7a8";
+const CARBON2 = "#f3d58a";
+const CREMA = "#2b1d16";
 const TOMATE = "#c4352a";
-const OLIVA = "#7d8a45";
-const AMBAR = "#e0a02a";
-const TITULO = "'Playfair Display', Georgia, serif";
-const CUERPO = "'Inter', 'Instrument Sans', system-ui, sans-serif";
+const OLIVA = "#5f6b3a";
+const AMBAR = "#a86200";
+const TITULO = "'Fraunces', Georgia, serif";
+const CUERPO = "'Instrument Sans', system-ui, sans-serif";
 
 type Tipo = "Domicilio" | "Recoger" | "Mesa";
 type Estado = "nuevo" | "horno" | "listo";
@@ -48,17 +48,17 @@ export default function PanelCocina() {
   const activos = ordenes.filter((o) => o.estado !== "listo");
   const promedio = Math.round(ordenes.reduce((s, o) => s + o.min, 0) / ordenes.length);
   const ventas = 4820 + ordenes.reduce((s, o) => s + o.total, 0);
-  const reloj = (m: number) => (m >= 20 ? { c: "#ff6b5b", t: "¡tarde!" } : m >= 12 ? { c: AMBAR, t: "va lento" } : { c: "#8fd19a", t: "a tiempo" });
+  const reloj = (m: number) => (m >= 20 ? { c: "#c4352a", t: "¡tarde!" } : m >= 12 ? { c: AMBAR, t: "va lento" } : { c: "#2f7a3a", t: "a tiempo" });
   const porTipo = (t: Tipo) => ordenes.filter((o) => o.tipo === t).reduce((s, o) => s + o.total, 0);
 
   return (
-    <div className="min-h-[calc(100vh-8rem)]" style={{ background: CARBON, color: CREMA, fontFamily: CUERPO }}>
-      <header className="border-b" style={{ borderColor: "rgba(251,241,216,.15)" }}>
+    <div className="panel-demo min-h-[calc(100vh-8rem)]" style={{ background: CARBON, color: CREMA, fontFamily: CUERPO }}>
+      <header className="border-b" style={{ borderColor: "rgba(43,29,22,.15)" }}>
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-8 gap-y-3 px-5 py-4">
           <div><p className="text-[0.78rem] font-semibold uppercase tracking-[0.22em] opacity-60">Panel de cocina</p><h1 className="flex items-center gap-2 text-[2.4rem] italic leading-none" style={{ fontFamily: TITULO }}><Flame size={30} style={{ color: TOMATE }} /> Trattoria Sole</h1></div>
           <div className="ml-auto flex flex-wrap items-center gap-x-8 gap-y-2">
-            {[[String(activos.length), "pedidos activos", AMBAR], [`${promedio} min`, "espera promedio", promedio > 12 ? "#ff6b5b" : "#8fd19a"], [qz(ventas), "ventas de hoy", CREMA]].map(([n, t, c]) => <p key={t}><b className="block text-[1.8rem] leading-none" style={{ fontFamily: TITULO, color: c }}>{n}</b><span className="text-[0.78rem] opacity-60">{t}</span></p>)}
-            <button type="button" role="switch" aria-checked={abierto} onClick={() => setAbierto((v) => !v)} className="flex min-h-[2.75rem] items-center gap-3 rounded-full border-2 px-4 font-bold" style={{ borderColor: abierto ? OLIVA : TOMATE, color: abierto ? "#b9c97a" : "#ff8a7a" }}><span className="h-3 w-3 rounded-full" style={{ background: abierto ? OLIVA : TOMATE }} /> {abierto ? "Aceptando pedidos" : "Pausa: no se aceptan pedidos"}</button>
+            {[[String(activos.length), "pedidos activos", AMBAR], [`${promedio} min`, "espera promedio", promedio > 12 ? "#c4352a" : "#2f7a3a"], [qz(ventas), "ventas de hoy", CREMA]].map(([n, t, c]) => <p key={t}><b className="block text-[1.8rem] leading-none" style={{ fontFamily: TITULO, color: c }}>{n}</b><span className="text-[0.78rem] opacity-60">{t}</span></p>)}
+            <button type="button" role="switch" aria-checked={abierto} onClick={() => setAbierto((v) => !v)} className="flex min-h-[2.75rem] items-center gap-3 rounded-full border-2 px-4 font-bold" style={{ borderColor: abierto ? OLIVA : TOMATE, color: abierto ? "#4b5a2a" : "#c4352a" }}><span className="h-3 w-3 rounded-full" style={{ background: abierto ? OLIVA : TOMATE }} /> {abierto ? "Aceptando pedidos" : "Pausa: no se aceptan pedidos"}</button>
           </div>
         </div>
       </header>
@@ -92,7 +92,7 @@ export default function PanelCocina() {
                       </article>
                     );
                   })}
-                  {lista.length === 0 && <p className="rounded-lg border-2 border-dashed p-4 text-center opacity-50" style={{ borderColor: "rgba(251,241,216,.3)" }}>Ninguno</p>}
+                  {lista.length === 0 && <p className="rounded-lg border-2 border-dashed p-4 text-center opacity-50" style={{ borderColor: "rgba(43,29,22,.3)" }}>Ninguno</p>}
                 </div>
               </section>
             );
@@ -105,16 +105,16 @@ export default function PanelCocina() {
             <p className="text-[0.82rem] opacity-60">Marque lo que se acabó y deja de ofrecerse en la página.</p>
             <ul className="mt-3 grid gap-1.5">
               {PLATILLOS.map((p) => { const ag = agotados.includes(p); return (
-                <li key={p}><button type="button" role="switch" aria-checked={ag} onClick={() => setAgotados((l) => (ag ? l.filter((x) => x !== p) : [...l, p]))} className="flex min-h-[2.75rem] w-full items-center gap-3 rounded-lg px-3 text-left" style={ag ? { background: "rgba(196,53,42,.25)", boxShadow: `inset 0 0 0 1.5px ${TOMATE}` } : { background: "rgba(251,241,216,.06)" }}>
-                  <span className="grid h-5 w-5 shrink-0 place-items-center rounded" style={{ background: ag ? TOMATE : "transparent", border: `2px solid ${ag ? TOMATE : "rgba(251,241,216,.5)"}` }}>{ag && <Check size={13} />}</span>
-                  <span className={`flex-1 text-[0.92rem] ${ag ? "line-through opacity-70" : ""}`}>{p}</span>{ag && <span className="text-[0.72rem] font-bold uppercase" style={{ color: "#ff8a7a" }}>agotado</span>}
+                <li key={p}><button type="button" role="switch" aria-checked={ag} onClick={() => setAgotados((l) => (ag ? l.filter((x) => x !== p) : [...l, p]))} className="flex min-h-[2.75rem] w-full items-center gap-3 rounded-lg px-3 text-left" style={ag ? { background: "rgba(196,53,42,.25)", boxShadow: `inset 0 0 0 1.5px ${TOMATE}` } : { background: "rgba(43,29,22,.06)" }}>
+                  <span className="grid h-5 w-5 shrink-0 place-items-center rounded" style={{ background: ag ? TOMATE : "transparent", border: `2px solid ${ag ? TOMATE : "rgba(43,29,22,.5)"}` }}>{ag && <Check size={13} />}</span>
+                  <span className={`flex-1 text-[0.92rem] ${ag ? "line-through opacity-70" : ""}`}>{p}</span>{ag && <span className="text-[0.72rem] font-bold uppercase" style={{ color: "#c4352a" }}>agotado</span>}
                 </button></li>
               ); })}
             </ul>
           </section>
           <section className="rounded-2xl p-4" style={{ background: CARBON2 }}>
             <h2 className="text-[1.3rem] italic" style={{ fontFamily: TITULO }}>Caja de hoy</h2>
-            <dl className="mt-2 grid grid-cols-2 gap-y-1.5 text-[0.95rem]">{(["Domicilio", "Recoger", "Mesa"] as Tipo[]).map((t) => <div key={t} className="contents"><dt className="opacity-70">{t}</dt><dd className="text-right font-bold tabular-nums">{qz(porTipo(t))}</dd></div>)}<dt className="border-t pt-1.5 font-bold" style={{ borderColor: "rgba(251,241,216,.2)" }}>Pedidos en pantalla</dt><dd className="border-t pt-1.5 text-right text-[1.2rem] font-bold" style={{ borderColor: "rgba(251,241,216,.2)", color: AMBAR }}>{qz(ordenes.reduce((s, o) => s + o.total, 0))}</dd></dl>
+            <dl className="mt-2 grid grid-cols-2 gap-y-1.5 text-[0.95rem]">{(["Domicilio", "Recoger", "Mesa"] as Tipo[]).map((t) => <div key={t} className="contents"><dt className="opacity-70">{t}</dt><dd className="text-right font-bold tabular-nums">{qz(porTipo(t))}</dd></div>)}<dt className="border-t pt-1.5 font-bold" style={{ borderColor: "rgba(43,29,22,.2)" }}>Pedidos en pantalla</dt><dd className="border-t pt-1.5 text-right text-[1.2rem] font-bold" style={{ borderColor: "rgba(43,29,22,.2)", color: AMBAR }}>{qz(ordenes.reduce((s, o) => s + o.total, 0))}</dd></dl>
           </section>
         </aside>
       </main>

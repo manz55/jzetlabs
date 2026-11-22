@@ -7,14 +7,14 @@ import { useState, type ReactNode } from "react";
 import { Check, Minus, Plus, Send } from "lucide-react";
 import { MensajeWhatsApp, qz } from "../comun";
 
-const MOCCA = "#3b241b";
-const AMBAR = "#d98a2b";
-const ROSA = "#f3d3cb";
-const CREMA = "#fff6ef";
+const MOCCA = "#1b1209";
+const AMBAR = "#c8781e";
+const ROSA = "#f1d4a6";
+const CREMA = "#fbecd3";
 const OK = "#3f7a4d";
 const ROJO = "#b23a3a";
-const TITULO = "'Playfair Display', Georgia, serif";
-const CUERPO = "'DM Sans', 'Instrument Sans', system-ui, sans-serif";
+const TITULO = "'Fraunces', Georgia, serif";
+const CUERPO = "'Instrument Sans', system-ui, sans-serif";
 
 const TONOS = [
   { id: "t1", n: "Porcelana", hex: "#f2d9c6", s: 8 }, { id: "t2", n: "Marfil", hex: "#ecc9a8", s: 6 }, { id: "t3", n: "Arena", hex: "#dcae84", s: 2 },
@@ -48,7 +48,7 @@ export default function PanelCosmeticos() {
   const agotados = tonos.filter((x) => x.s === 0).length;
 
   return (
-    <div className="min-h-[calc(100vh-8rem)]" style={{ background: CREMA, color: MOCCA, fontFamily: CUERPO }}>
+    <div className="panel-demo min-h-[calc(100vh-8rem)]" style={{ background: CREMA, color: MOCCA, fontFamily: CUERPO }}>
       <header style={{ background: MOCCA }} className="text-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-end gap-x-8 gap-y-3 px-5 py-5">
           <div><p className="text-[0.78rem] font-semibold uppercase tracking-[0.22em] opacity-60">Panel del dueño</p><h1 className="text-[2.6rem] italic leading-none" style={{ fontFamily: TITULO }}>Ámbar Cosmetics</h1></div>

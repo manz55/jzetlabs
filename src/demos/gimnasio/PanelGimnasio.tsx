@@ -8,10 +8,10 @@ import { Bell, CalendarDays, Check, CreditCard, IdCard, LayoutDashboard, Search,
 import { MensajeWhatsApp } from "../comun";
 import { AMARILLO, CLASES, DIAS, PLANES, ROJO, SEDES, VERDE, aforo, enDias, faltan, fechaCorta, horaAhora, porId, qz, type Gym, type Socio } from "./datos";
 
-const NEGRO = "#111315";
-const GRIS = "#f1f2f4";
-const BORDE = "#dfe2e6";
-const TINTA = "#1b1f23";
+const NEGRO = "#0d0e0f";
+const GRIS = "#16181a";
+const BORDE = "#2e3236";
+const TINTA = "#efeee9";
 const CUERPO = "'Instrument Sans', system-ui, sans-serif";
 const TITULO = "'Big Shoulders Display', 'Instrument Sans', sans-serif";
 const MONO = "'JetBrains Mono', ui-monospace, Menlo, monospace";
@@ -26,14 +26,14 @@ const SECCIONES = [
 type Sec = (typeof SECCIONES)[number]["id"];
 
 function Tarjeta({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <div className={`rounded-xl border bg-white p-4 ${className}`} style={{ borderColor: BORDE }}>{children}</div>;
+  return <div className={`rounded-xl border bg-[#202326] p-4 ${className}`} style={{ borderColor: BORDE }}>{children}</div>;
 }
 function Insignia({ ok, children }: { ok: "bien" | "aviso" | "mal"; children: ReactNode }) {
-  const c = ok === "bien" ? { b: "#e3f4ea", t: "#1f6b3f" } : ok === "aviso" ? { b: "#fdf1d3", t: "#8a5a00" } : { b: "#fbe3e5", t: "#a3202f" };
+  const c = ok === "bien" ? { b: "rgba(46,155,87,.22)", t: "#8be0a8" } : ok === "aviso" ? { b: "rgba(242,194,48,.2)", t: "#f2c230" } : { b: "rgba(215,38,61,.25)", t: "#ff9aa8" };
   return <span className="inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-[0.8rem] font-semibold" style={{ background: c.b, color: c.t }}>{children}</span>;
 }
 function Btn({ children, alTocar, tipo = "lleno" }: { children: ReactNode; alTocar: () => void; tipo?: "lleno" | "borde" | "rojo" }) {
-  const s = tipo === "lleno" ? { background: NEGRO, color: "#fff" } : tipo === "rojo" ? { background: ROJO, color: "#fff" } : { background: "#fff", color: TINTA, border: `1.5px solid ${TINTA}` };
+  const s = tipo === "lleno" ? { background: AMARILLO, color: NEGRO } : tipo === "rojo" ? { background: ROJO, color: "#fff" } : { background: "transparent", color: TINTA, border: `1.5px solid ${TINTA}` };
   return <button type="button" onClick={alTocar} className="inline-flex min-h-[2.75rem] items-center justify-center gap-2 rounded-lg px-4 py-2 text-[0.92rem] font-semibold transition hover:opacity-90 active:scale-[0.98]" style={s}>{children}</button>;
 }
 
@@ -68,7 +68,7 @@ export default function PanelGimnasio({ gym }: { gym: Gym }) {
   };
 
   return (
-    <div className="min-h-[calc(100vh-8rem)] md:grid md:grid-cols-[14rem_minmax(0,1fr)]" style={{ background: GRIS, color: TINTA, fontFamily: CUERPO }}>
+    <div className="panel-demo min-h-[calc(100vh-8rem)] md:grid md:grid-cols-[14rem_minmax(0,1fr)]" style={{ background: GRIS, color: TINTA, fontFamily: CUERPO }}>
       <aside className="md:sticky md:top-0 md:h-screen md:self-start" style={{ background: NEGRO, color: "#fff" }}>
         <div className="flex items-center gap-2.5 px-4 py-4">
           <span className="grid h-9 w-9 place-items-center rounded-lg text-[1.15rem] font-black" style={{ background: AMARILLO, color: NEGRO, fontFamily: TITULO }}>S</span>
@@ -91,7 +91,7 @@ export default function PanelGimnasio({ gym }: { gym: Gym }) {
             <p className="text-[0.95rem] opacity-65">Cómo va el gimnasio hoy.</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {[["Socios activos", String(activos), `de ${gym.socios.length} en total`], ["Entradas hoy", String(gym.entradas.length), "personas que pasaron"], ["Cobrado hoy", qz(cobradoHoy), `Este mes: ${qz(cobradoMes)}`], ["Por cobrar", qz(porCobrar), `${vencidas.length} membresías vencidas`]].map(([t, v, n], i) => (
-                <Tarjeta key={t}><p className="text-[0.85rem] opacity-65">{t}</p><p className="mt-1 text-[1.9rem] font-bold leading-none tabular-nums" style={{ color: i === 3 && vencidas.length ? "#a3202f" : TINTA }}>{v}</p><p className="mt-1.5 text-[0.8rem] opacity-60">{n}</p></Tarjeta>
+                <Tarjeta key={t}><p className="text-[0.85rem] opacity-65">{t}</p><p className="mt-1 text-[1.9rem] font-bold leading-none tabular-nums" style={{ color: i === 3 && vencidas.length ? "#ff9aa8" : TINTA }}>{v}</p><p className="mt-1.5 text-[0.8rem] opacity-60">{n}</p></Tarjeta>
               ))}
             </div>
             <div className="mt-4 grid gap-4 lg:grid-cols-[1.3fr_1fr]">
@@ -120,9 +120,9 @@ export default function PanelGimnasio({ gym }: { gym: Gym }) {
               <div className="flex items-center gap-3 rounded-lg border px-4" style={{ borderColor: BORDE }}><Search size={20} className="opacity-50" /><input aria-label="Número de carnet o nombre" value={carnet} onChange={(e) => { setCarnet(e.target.value); setAdentro(null); }} placeholder="Número o nombre (pruebe: 102)" className="w-full bg-transparent py-3.5 text-[1.2rem] outline-none" style={{ fontFamily: MONO }} /></div>
               <div className="mt-3 grid gap-3">
                 {buscados.map((s) => { const f = faltan(s.vence), ok = f >= 0, p = porId(PLANES, s.plan); return (
-                  <div key={s.num} className="flex flex-wrap items-center justify-between gap-4 rounded-xl border-l-8 p-4" style={{ borderColor: ok ? VERDE : ROJO, background: ok ? "#eef8f2" : "#fdf0f1" }}>
-                    <div><p className="text-[1.2rem] font-bold">{s.nombre} <span className="font-normal opacity-55" style={{ fontFamily: MONO }}>#{s.num}</span></p><p className="text-[0.92rem]">{ok ? `${p.nombre} al día hasta el ${fechaCorta(s.vence)} · quedan ${f} días` : `Venció hace ${-f} ${-f === 1 ? "día" : "días"} · debe ${qz(p.precio)}`}</p><p className="mt-1 font-bold" style={{ color: ok ? "#1f6b3f" : "#a3202f" }}>{ok ? "Puede pasar" : "Plan vencido"}</p></div>
-                    {adentro === s.num ? <span className="inline-flex items-center gap-2 font-bold" style={{ color: "#1f6b3f" }}><Check size={20} /> Ya entró</span> : ok ? <Btn alTocar={() => { gym.entrar(s.num); setAdentro(s.num); }}>Dejar entrar</Btn> : <Btn tipo="rojo" alTocar={() => { gym.cobrar(s.num); gym.entrar(s.num); setAdentro(s.num); }}>Cobrar {qz(p.precio)} y dejar entrar</Btn>}
+                  <div key={s.num} className="flex flex-wrap items-center justify-between gap-4 rounded-xl border-l-8 p-4" style={{ borderColor: ok ? VERDE : ROJO, background: ok ? "rgba(46,155,87,.16)" : "rgba(215,38,61,.18)" }}>
+                    <div><p className="text-[1.2rem] font-bold">{s.nombre} <span className="font-normal opacity-55" style={{ fontFamily: MONO }}>#{s.num}</span></p><p className="text-[0.92rem]">{ok ? `${p.nombre} al día hasta el ${fechaCorta(s.vence)} · quedan ${f} días` : `Venció hace ${-f} ${-f === 1 ? "día" : "días"} · debe ${qz(p.precio)}`}</p><p className="mt-1 font-bold" style={{ color: ok ? "#8be0a8" : "#ff9aa8" }}>{ok ? "Puede pasar" : "Plan vencido"}</p></div>
+                    {adentro === s.num ? <span className="inline-flex items-center gap-2 font-bold" style={{ color: "#8be0a8" }}><Check size={20} /> Ya entró</span> : ok ? <Btn alTocar={() => { gym.entrar(s.num); setAdentro(s.num); }}>Dejar entrar</Btn> : <Btn tipo="rojo" alTocar={() => { gym.cobrar(s.num); gym.entrar(s.num); setAdentro(s.num); }}>Cobrar {qz(p.precio)} y dejar entrar</Btn>}
                   </div>
                 ); })}
                 {carnet.trim() && buscados.length === 0 && <p className="opacity-65">No hay nadie con ese número o nombre.</p>}
@@ -139,8 +139,8 @@ export default function PanelGimnasio({ gym }: { gym: Gym }) {
           <>
             <h1 className="text-[1.9rem] font-bold">Socios</h1>
             <div className="mt-3 flex flex-wrap items-center gap-3">
-              <label className="relative min-w-[14rem] flex-1 md:max-w-sm"><span className="sr-only">Buscar socio</span><Search size={17} className="absolute left-3 top-1/2 -translate-y-1/2 opacity-50" /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Nombre, número o teléfono" className="w-full rounded-lg border bg-white py-3 pl-10 pr-3" style={{ borderColor: BORDE }} /></label>
-              <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrar">{([["todos", "Todos"], ["al-dia", "Al día"], ["por-vencer", "Por vencer"], ["vencidos", "Vencidos"]] as const).map(([id, t]) => <button key={id} type="button" aria-pressed={filtro === id} onClick={() => setFiltro(id)} className="min-h-[2.5rem] rounded-full border px-3.5 text-[0.88rem] font-semibold" style={filtro === id ? { background: NEGRO, color: "#fff", borderColor: NEGRO } : { background: "#fff", borderColor: BORDE }}>{t}</button>)}</div>
+              <label className="relative min-w-[14rem] flex-1 md:max-w-sm"><span className="sr-only">Buscar socio</span><Search size={17} className="absolute left-3 top-1/2 -translate-y-1/2 opacity-50" /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Nombre, número o teléfono" className="w-full rounded-lg border bg-[#202326] py-3 pl-10 pr-3 text-[#efeee9]" style={{ borderColor: BORDE }} /></label>
+              <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrar">{([["todos", "Todos"], ["al-dia", "Al día"], ["por-vencer", "Por vencer"], ["vencidos", "Vencidos"]] as const).map(([id, t]) => <button key={id} type="button" aria-pressed={filtro === id} onClick={() => setFiltro(id)} className="min-h-[2.5rem] rounded-full border px-3.5 text-[0.88rem] font-semibold" style={filtro === id ? { background: AMARILLO, color: NEGRO, borderColor: AMARILLO } : { background: "transparent", borderColor: BORDE }}>{t}</button>)}</div>
             </div>
             <Tarjeta className="mt-3 overflow-x-auto !p-0">
               <table className="w-full min-w-[38rem] text-[0.92rem]">
@@ -165,7 +165,7 @@ export default function PanelGimnasio({ gym }: { gym: Gym }) {
         {sec === "clases" && (
           <>
             <h1 className="text-[1.9rem] font-bold">Clases</h1>
-            <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Día">{[1, 2, 3, 4, 5].map((d) => <button key={d} type="button" aria-pressed={dia === d} onClick={() => setDia(d)} className="min-h-[2.5rem] rounded-full border px-4 text-[0.9rem] font-semibold" style={dia === d ? { background: NEGRO, color: "#fff", borderColor: NEGRO } : { background: "#fff", borderColor: BORDE }}>{DIAS[d]}</button>)}</div>
+            <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Día">{[1, 2, 3, 4, 5].map((d) => <button key={d} type="button" aria-pressed={dia === d} onClick={() => setDia(d)} className="min-h-[2.5rem] rounded-full border px-4 text-[0.9rem] font-semibold" style={dia === d ? { background: AMARILLO, color: NEGRO, borderColor: AMARILLO } : { background: "transparent", borderColor: BORDE }}>{DIAS[d]}</button>)}</div>
             <div className="mt-3 grid gap-3 md:grid-cols-2">
               {clasesDia.map((c) => { const van = c.van + (gym.reservas[c.id] ? 1 : 0), lleno = van >= c.cupo; return (
                 <Tarjeta key={c.id}><div className="flex items-start justify-between gap-3"><div><p className="text-[1.1rem] font-bold">{c.nombre}</p><p className="text-[0.88rem] opacity-65">{c.hora} · {c.coach}</p></div>{lleno ? <Insignia ok="mal">Lleno</Insignia> : <Insignia ok="bien">Quedan {c.cupo - van}</Insignia>}</div><span className="mt-3 block h-2.5 overflow-hidden rounded-full" style={{ background: BORDE }}><span className="block h-full rounded-full" style={{ width: `${Math.min(100, (van / c.cupo) * 100)}%`, background: lleno ? ROJO : AMARILLO }} /></span><p className="mt-1 text-[0.82rem] opacity-60">{van} de {c.cupo} lugares apartados</p></Tarjeta>
@@ -185,7 +185,7 @@ export default function PanelGimnasio({ gym }: { gym: Gym }) {
               <Tarjeta><h2 className="text-[1.1rem] font-bold">Ventas por plan</h2><ul className="mt-3 grid gap-3">{ventasPlan.map(({ p, t }) => <li key={p.id}><div className="flex justify-between text-[0.92rem]"><span>{p.nombre}</span><b className="tabular-nums">{qz(t)}</b></div><span className="mt-1 block h-2.5 overflow-hidden rounded-full" style={{ background: BORDE }}><span className="block h-full rounded-full" style={{ width: `${(t / maxVenta) * 100}%`, background: p.color }} /></span></li>)}</ul></Tarjeta>
               <Tarjeta><h2 className="text-[1.1rem] font-bold">Últimos pagos</h2><ul className="mt-2 max-h-[20rem] divide-y overflow-y-auto" style={{ borderColor: BORDE }}>{[...gym.pagos].reverse().slice(0, 12).map((x, i) => <li key={i} className="flex items-center justify-between gap-3 py-2.5"><span className="min-w-0"><b className="block truncate">{nombre(x.num)}</b><span className="text-[0.8rem] opacity-60">{x.que} · día {x.dia}</span></span><b className="tabular-nums">{qz(x.monto)}</b></li>)}</ul></Tarjeta>
             </div>
-            <Tarjeta className="mt-4"><h2 className="text-[1.1rem] font-bold">Vencidas: cobrar</h2><ul className="mt-2 divide-y" style={{ borderColor: BORDE }}>{vencidas.map((s) => { const p = porId(PLANES, s.plan); return <li key={s.num} className="flex flex-wrap items-center gap-3 py-2.5"><span className="min-w-[8rem] flex-1"><b>{s.nombre}</b><span className="block text-[0.82rem]" style={{ color: "#a3202f" }}>hace {-faltan(s.vence)} días · {qz(p.precio)}</span></span><Btn tipo="borde" alTocar={() => recordar(s)}><Bell size={15} /> Recordarle</Btn><Btn alTocar={() => gym.cobrar(s.num)}>Cobrar ahora</Btn></li>; })}{vencidas.length === 0 && <li className="py-3 opacity-60">Nadie debe.</li>}</ul></Tarjeta>
+            <Tarjeta className="mt-4"><h2 className="text-[1.1rem] font-bold">Vencidas: cobrar</h2><ul className="mt-2 divide-y" style={{ borderColor: BORDE }}>{vencidas.map((s) => { const p = porId(PLANES, s.plan); return <li key={s.num} className="flex flex-wrap items-center gap-3 py-2.5"><span className="min-w-[8rem] flex-1"><b>{s.nombre}</b><span className="block text-[0.82rem]" style={{ color: "#ff9aa8" }}>hace {-faltan(s.vence)} días · {qz(p.precio)}</span></span><Btn tipo="borde" alTocar={() => recordar(s)}><Bell size={15} /> Recordarle</Btn><Btn alTocar={() => gym.cobrar(s.num)}>Cobrar ahora</Btn></li>; })}{vencidas.length === 0 && <li className="py-3 opacity-60">Nadie debe.</li>}</ul></Tarjeta>
           </>
         )}
       </main>

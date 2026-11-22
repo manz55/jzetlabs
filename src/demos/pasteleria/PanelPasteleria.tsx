@@ -8,17 +8,17 @@ import { Check, Truck } from "lucide-react";
 import { Contador } from "../comun";
 import { CUPO_DIA, ENTREGAS, FRAMBUESA, MANTEQUILLA, PASTELES, POSTRES, SABORES, TAMANOS, fechaLarga, iso, masDias, ocupados, por, qz, type Pedido, type usePedidos, type useVitrina } from "./datos";
 
-const CACAO = "#2b1812";
-const CACAO2 = "#3a2219";
-const CREMA = "#fff4e6";
-const MENTA = "#6fa98a";
-const TITULO = "'DM Serif Display', Georgia, serif";
-const CUERPO = "'Nunito', 'Instrument Sans', system-ui, sans-serif";
+const CACAO = "#f8ddd6";
+const CACAO2 = "#fff7f0";
+const CREMA = "#3a1f17";
+const MENTA = "#4e8a6a";
+const TITULO = "'Fraunces', Georgia, serif";
+const CUERPO = "'Instrument Sans', system-ui, sans-serif";
 
 const sierra = { WebkitMask: "conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 14px 100%", mask: "conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 14px 100%" } as const;
 
 function Btn({ children, alTocar, tipo = "frambuesa", ancho = false }: { children: ReactNode; alTocar: () => void; tipo?: "frambuesa" | "mantequilla" | "borde"; ancho?: boolean }) {
-  const s = tipo === "frambuesa" ? { background: FRAMBUESA, color: "#fff" } : tipo === "mantequilla" ? { background: MANTEQUILLA, color: CACAO } : { background: "transparent", color: CACAO, border: `2px solid ${CACAO}` };
+  const s = tipo === "frambuesa" ? { background: FRAMBUESA, color: "#fff" } : tipo === "mantequilla" ? { background: MANTEQUILLA, color: "#3a1f17" } : { background: "transparent", color: CREMA, border: `2px solid ${CREMA}` };
   return <button type="button" onClick={alTocar} className={`inline-flex min-h-[2.75rem] items-center justify-center gap-2 rounded-full px-5 py-2 text-[0.95rem] font-extrabold transition hover:brightness-105 active:scale-[0.97] ${ancho ? "w-full" : ""}`} style={s}>{children}</button>;
 }
 
@@ -49,11 +49,11 @@ export default function PanelPasteleria({ store, vit }: { store: ReturnType<type
           <img src={pa.foto} alt={pa.nombre} className="h-16 w-16 shrink-0 rounded-xl object-cover" />
           <div className="min-w-0 leading-tight"><p className="text-[1.2rem]" style={{ fontFamily: TITULO }}>{pa.nombre}</p><p className="text-[0.88rem]">{t.porciones} porciones · {por(SABORES, x.sabor).nombre}</p><p className="text-[0.88rem] font-bold">{x.nombre} {x.nuevo && <span className="ml-1 rounded-full px-1.5 py-0.5 text-[0.68rem] text-white" style={{ background: FRAMBUESA }}>en línea</span>}</p></div>
         </div>
-        <div className="mx-4 mt-2 border-t-2 border-dashed pt-2 text-[0.88rem]" style={{ borderColor: "rgba(43,24,18,.3)" }}>
+        <div className="mx-4 mt-2 border-t-2 border-dashed pt-2 text-[0.88rem]" style={{ borderColor: "rgba(255,244,230,.35)" }}>
           {x.texto && <p><b>Dedicatoria:</b> «{x.texto}»{x.velas ? " · con velas" : ""}</p>}
           <p><b>{fechaLarga(x.fecha).replace(/^./, (c) => c.toUpperCase())}</b> · {x.horario}</p>
           <p>{por(ENTREGAS, x.entrega).nombre}{x.direccion ? `: ${x.direccion}` : ""}</p>
-          <p className="mt-1 font-extrabold" style={{ color: saldo > 0 ? FRAMBUESA : "#2f7a4d" }}>{saldo > 0 ? `Falta cobrar ${qz(saldo)} de ${qz(x.total)}` : `Pagado ${qz(x.total)}`}</p>
+          <p className="mt-1 font-extrabold" style={{ color: saldo > 0 ? FRAMBUESA : "#8be0a8" }}>{saldo > 0 ? `Falta cobrar ${qz(saldo)} de ${qz(x.total)}` : `Pagado ${qz(x.total)}`}</p>
         </div>
         <div className="mt-3 flex flex-wrap gap-2 px-4">{acciones}</div>
       </article>
@@ -61,14 +61,14 @@ export default function PanelPasteleria({ store, vit }: { store: ReturnType<type
   };
 
   return (
-    <div className="min-h-[calc(100vh-8rem)]" style={{ background: CACAO, color: CREMA, fontFamily: CUERPO }}>
-      <header className="border-b" style={{ borderColor: "rgba(255,244,230,.15)" }}>
+    <div className="panel-demo min-h-[calc(100vh-8rem)]" style={{ background: CACAO, color: CREMA, fontFamily: CUERPO }}>
+      <header className="border-b" style={{ borderColor: "rgba(58,31,23,.15)" }}>
         <div className="mx-auto flex max-w-7xl flex-wrap items-end gap-x-8 gap-y-3 px-5 py-5">
           <div><p className="text-[0.8rem] font-extrabold uppercase tracking-[0.2em] opacity-60">Panel de cocina · {fechaLarga(hoy)}</p><h1 className="text-[2.6rem] leading-none" style={{ fontFamily: TITULO }}>Dulce Abril</h1></div>
-          <div className="ml-auto flex gap-6 text-[0.9rem]">{[[String(porHacer.length), "por hornear"], [String(listos.length), "listos"], [qz(cobrado), "cobrado"], [qz(falta), "falta cobrar"]].map(([n, t]) => <p key={t}><b className="block text-[1.7rem] leading-none" style={{ fontFamily: TITULO, color: MANTEQUILLA }}>{n}</b><span className="opacity-65">{t}</span></p>)}</div>
+          <div className="ml-auto flex gap-6 text-[0.9rem]">{[[String(porHacer.length), "por hornear"], [String(listos.length), "listos"], [qz(cobrado), "cobrado"], [qz(falta), "falta cobrar"]].map(([n, t]) => <p key={t}><b className="block text-[1.7rem] leading-none" style={{ fontFamily: TITULO, color: FRAMBUESA }}>{n}</b><span className="opacity-65">{t}</span></p>)}</div>
         </div>
         <nav aria-label="Cocina" className="mx-auto flex max-w-7xl gap-1 px-4">
-          {([["cocina", "Tickets de cocina"], ["cobros", "Cobros y entregas"], ["vitrina", "Vitrina de hoy"]] as const).map(([id, t]) => <button key={id} type="button" onClick={() => setVista(id)} aria-current={vista === id ? "page" : undefined} className="rounded-t-xl px-5 py-3 text-[1.02rem] font-extrabold" style={vista === id ? { background: CREMA, color: CACAO } : { color: "rgba(255,244,230,.7)" }}>{t}</button>)}
+          {([["cocina", "Tickets de cocina"], ["cobros", "Cobros y entregas"], ["vitrina", "Vitrina de hoy"]] as const).map(([id, t]) => <button key={id} type="button" onClick={() => setVista(id)} aria-current={vista === id ? "page" : undefined} className="rounded-t-xl px-5 py-3 text-[1.02rem] font-extrabold" style={vista === id ? { background: CREMA, color: CACAO } : { color: "rgba(58,31,23,.7)" }}>{t}</button>)}
         </nav>
       </header>
 
@@ -79,9 +79,9 @@ export default function PanelPasteleria({ store, vit }: { store: ReturnType<type
               <h2 className="text-[1.3rem]" style={{ fontFamily: TITULO }}>Cupo de los próximos 7 días</h2>
               <ul className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-7">
                 {semana.map((f) => { const u = Math.min(ocupados(pedidos, f), CUPO_DIA), cerrado = new Date(f + "T00:00").getDay() === 1; return (
-                  <li key={f} className="rounded-xl p-2 text-center" style={{ background: "rgba(255,244,230,.07)" }}>
+                  <li key={f} className="rounded-xl p-2 text-center" style={{ background: "rgba(58,31,23,.07)" }}>
                     <p className="text-[0.8rem] font-extrabold">{f === hoy ? "Hoy" : fechaLarga(f).split(" ")[0].slice(0, 3)}</p>
-                    {cerrado ? <p className="mt-1 text-[0.8rem] opacity-60">Cerrado</p> : <><p className="mt-1 text-[1.4rem] leading-none" style={{ fontFamily: TITULO, color: u >= CUPO_DIA ? "#ff9aa8" : MANTEQUILLA }}>{u}/{CUPO_DIA}</p><span className="mx-auto mt-1.5 flex w-fit gap-0.5">{Array.from({ length: CUPO_DIA }, (_, i) => <span key={i} className="h-2 w-2 rounded-full" style={{ background: i < u ? FRAMBUESA : "rgba(255,244,230,.2)" }} />)}</span></>}
+                    {cerrado ? <p className="mt-1 text-[0.8rem] opacity-60">Cerrado</p> : <><p className="mt-1 text-[1.4rem] leading-none" style={{ fontFamily: TITULO, color: u >= CUPO_DIA ? FRAMBUESA : MANTEQUILLA }}>{u}/{CUPO_DIA}</p><span className="mx-auto mt-1.5 flex w-fit gap-0.5">{Array.from({ length: CUPO_DIA }, (_, i) => <span key={i} className="h-2 w-2 rounded-full" style={{ background: i < u ? FRAMBUESA : "rgba(58,31,23,.2)" }} />)}</span></>}
                   </li>
                 ); })}
               </ul>
@@ -100,7 +100,7 @@ export default function PanelPasteleria({ store, vit }: { store: ReturnType<type
               <aside className="rounded-2xl p-4 lg:self-start" style={{ background: CACAO2 }}>
                 <h2 className="text-[1.3rem]" style={{ fontFamily: TITULO }}>Hoja de producción</h2>
                 <p className="text-[0.85rem] opacity-65">Qué hornear para hoy y los próximos 2 días, por sabor.</p>
-                <ul className="mt-3 divide-y" style={{ borderColor: "rgba(255,244,230,.15)" }}>{producir.map(({ s, n, porciones }) => <li key={s.id} className="flex items-baseline justify-between gap-2 py-2.5"><b>{s.nombre}</b><span className="opacity-80">{n} · {porciones} porc.</span></li>)}{producir.length === 0 && <li className="py-3 opacity-60">Nada pendiente.</li>}</ul>
+                <ul className="mt-3 divide-y" style={{ borderColor: "rgba(58,31,23,.15)" }}>{producir.map(({ s, n, porciones }) => <li key={s.id} className="flex items-baseline justify-between gap-2 py-2.5"><b>{s.nombre}</b><span className="opacity-80">{n} · {porciones} porc.</span></li>)}{producir.length === 0 && <li className="py-3 opacity-60">Nada pendiente.</li>}</ul>
               </aside>
             </div>
           </>
@@ -119,8 +119,8 @@ export default function PanelPasteleria({ store, vit }: { store: ReturnType<type
             </section>
             <section className="rounded-2xl p-5" style={{ background: CACAO2 }}>
               <h2 className="text-[1.5rem]" style={{ fontFamily: TITULO }}>Entregas a domicilio de hoy</h2>
-              <ul className="mt-2 divide-y" style={{ borderColor: "rgba(255,244,230,.15)" }}>
-                {pedidos.filter((x) => x.fecha === hoy && x.entrega !== "recoger").sort(orden).map((x) => <li key={x.id} className="py-3"><b className="block" style={{ color: MANTEQUILLA }}>{x.horario}</b><span className="text-[0.92rem]">{x.nombre} · {x.direccion}</span></li>)}
+              <ul className="mt-2 divide-y" style={{ borderColor: "rgba(58,31,23,.15)" }}>
+                {pedidos.filter((x) => x.fecha === hoy && x.entrega !== "recoger").sort(orden).map((x) => <li key={x.id} className="py-3"><b className="block" style={{ color: FRAMBUESA }}>{x.horario}</b><span className="text-[0.92rem]">{x.nombre} · {x.direccion}</span></li>)}
                 {pedidos.every((x) => !(x.fecha === hoy && x.entrega !== "recoger")) && <li className="py-3 opacity-60">Hoy no hay entregas a domicilio.</li>}
               </ul>
             </section>
@@ -132,7 +132,7 @@ export default function PanelPasteleria({ store, vit }: { store: ReturnType<type
             <h2 className="text-[1.6rem]" style={{ fontFamily: TITULO }}>Vitrina de hoy</h2>
             <p className="opacity-70">Lo que cambie aquí se ve al instante en la tienda. Cuando llegue a cero, se marca «agotado».</p>
             <ul className="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-              {POSTRES.map((x) => <li key={x.id} className="flex items-center gap-3 rounded-2xl p-3" style={{ background: CACAO2 }}><img src={x.foto} alt="" className="h-16 w-16 shrink-0 rounded-xl object-cover" /><span className="min-w-0 flex-1 leading-tight"><b className="block">{x.nombre}</b><span className="text-[0.88rem] font-bold" style={{ color: vit.quedan[x.id] ? MANTEQUILLA : "#ff9aa8" }}>{vit.quedan[x.id] ? `quedan ${vit.quedan[x.id]}` : "agotado"}</span></span><Contador claro valor={vit.quedan[x.id] ?? 0} alCambiar={(n) => vit.poner(x.id, n)} /></li>)}
+              {POSTRES.map((x) => <li key={x.id} className="flex items-center gap-3 rounded-2xl p-3" style={{ background: CACAO2 }}><img src={x.foto} alt="" className="h-16 w-16 shrink-0 rounded-xl object-cover" /><span className="min-w-0 flex-1 leading-tight"><b className="block">{x.nombre}</b><span className="text-[0.88rem] font-bold" style={{ color: vit.quedan[x.id] ? MANTEQUILLA : FRAMBUESA }}>{vit.quedan[x.id] ? `quedan ${vit.quedan[x.id]}` : "agotado"}</span></span><Contador valor={vit.quedan[x.id] ?? 0} alCambiar={(n) => vit.poner(x.id, n)} /></li>)}
             </ul>
           </section>
         )}

@@ -10,14 +10,10 @@ import {
 } from "lucide-react";
 import { qz } from "../comun";
 import {
-  PRIMARIO, ESTADOS_PEDIDO, FONDO, LAVANDA, PASOS_REPARACION, SUCURSALES, TEXTO_REPARACION, TINTA,
+  PRIMARIO, ESTADOS_PEDIDO, FONDO, AMARILLO, LAVANDA, LETRA_SISTEMA, PASOS_REPARACION, SUCURSALES, TEXTO_REPARACION, TINTA,
   fechaCorta, sucursalPor,
   type EstadoPedido, type Pedido, type Producto, type Reparacion, type Tienda,
 } from "./datos";
-
-/* identidad propia del panel: violeta noche y lima, como el mostrador de una tienda de tecnología */
-const AMARILLO = "#b8f23a";
-const LETRA_PANEL = "'Space Grotesk', system-ui, sans-serif";
 
 type Pestana = "resumen" | "pedidos" | "pagos" | "inventario" | "reparaciones" | "tecnicos" | "devoluciones";
 const VENDIDO: EstadoPedido[] = ["pagado", "preparando", "en-camino", "entregado"];
@@ -45,7 +41,7 @@ export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () =>
   ];
 
   return (
-    <div className="min-h-screen" style={{ background: FONDO, color: TINTA, fontFamily: LETRA_PANEL }}>
+    <div className="min-h-screen" style={{ background: FONDO, color: TINTA, fontFamily: LETRA_SISTEMA }}>
             <main className="min-w-0 pb-16">
         {/* pestañas en celular */}
         <div className="sticky top-0 z-20 text-white" style={{ background: TINTA }}>
