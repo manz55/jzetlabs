@@ -7,12 +7,13 @@
  * Estructura de cada página: portada, presentación, ventas, reseñas, ubicación y legal.
  */
 import { useEffect, useState } from "react";
+import PanelTorque from "./PanelTorque";
 import { ArrowRight, Bell, Camera, Check, Clock, FileText, MapPin, Phone, ShieldCheck, Star, Wrench } from "lucide-react";
 import { BandaDemos, PartesDemo, CierreJzet, MensajeWhatsApp, qz } from "../comun";
 import {
-  ACERO, AMARILLO, AMBAR, ASFALTO, BLANCO, CARRO, DISTRIBUCION, MODELOS, ORDENES_INICIAL, PASOS, QUE_HACER, RECORDATORIOS, RESENAS, ROJO,
+  ACERO, AMARILLO, AMBAR, ASFALTO, BLANCO, CARRO, DISTRIBUCION, MODELOS, PASOS, QUE_HACER, RESENAS, ROJO,
   SERVICIOS, SINTOMAS, TITULO, VERDE, ZONAS,
-  type Nivel, type Orden, type ServicioId,
+  type Nivel, type ServicioId,
 } from "./datos";
 
 const TEL = "2430 5521";
@@ -62,7 +63,7 @@ export default function TallerDemo() {
   }, []);
   useEffect(() => {
     history.replaceState(null, "", vista === "pagina" ? location.pathname : `#${vista}`);
-    document.title = vista === "taller" ? "Órdenes del día · Taller Torque" : "Taller Torque · Demo de Jzet Labs";
+    document.title = vista === "taller" ? "Panel · Taller Torque" : "Taller Torque · Demo de Jzet Labs";
     window.scrollTo(0, 0);
   }, [vista]);
 
@@ -76,10 +77,10 @@ export default function TallerDemo() {
         alCambiar={setVista}
         partes={[
           { id: "pagina", nombre: "Página", quien: "Precios, auxilio a domicilio y seguimiento del carro" },
-          { id: "taller", nombre: "Taller", quien: "Órdenes del día y aviso al cliente" },
+          { id: "taller", nombre: "Panel del taller", quien: "Hoy, órdenes, clientes, mensajes, reseñas y reportes" },
         ] as const}
       />
-      {vista === "pagina" ? <Pagina /> : <Taller />}
+      {vista === "pagina" ? <Pagina /> : <PanelTorque />}
       <CierreJzet demo="taller mecánico" />
     </div>
   );
@@ -489,86 +490,5 @@ function Carro({ despues }: { despues: boolean }) {
       <circle cx="305" cy="142" r="13" fill="#9aa1aa" />
       <rect x="370" y="100" width="12" height="9" rx="2" fill="#f5d36a" />
     </svg>
-  );
-}
-
-/* ---------------- taller (lo que ve el negocio) ---------------- */
-
-function mensajeOrden(o: Orden) {
-  const nombre = o.cliente.split(" ")[0];
-  const t = [
-    `Hola, ${nombre}. Recibimos su ${o.modelo} (${o.placa}). En cuanto lo revisemos le avisamos.`,
-    `Hola, ${nombre}. Estamos revisando su ${o.modelo}. Le damos el precio antes de empezar.`,
-    `Hola, ${nombre}. Ya revisamos su ${o.modelo}. El trabajo (${o.trabajo.toLowerCase()}) cuesta ${qz(o.monto)}. ¿Nos autoriza? Responda SÍ y empezamos.`,
-    `Hola, ${nombre}. Su ${o.modelo} ya está en reparación. Calculamos que queda listo hoy a las 4:30 de la tarde.`,
-    `Hola, ${nombre}. Su ${o.modelo} está listo. Total: ${qz(o.monto)}. Le esperamos hasta las 6:00 de la tarde. ¡Gracias por su confianza!`,
-  ];
-  return t[o.paso];
-}
-
-function Taller() {
-  const [ordenes, setOrdenes] = useState<Orden[]>(ORDENES_INICIAL);
-  const [enviados, setEnviados] = useState<string[]>([]);
-  const [msg, setMsg] = useState<string | null>(null);
-
-  const listos = ordenes.filter((o) => o.paso === 4).length;
-  const porAprobar = ordenes.filter((o) => o.paso === 2).length;
-
-  return (
-    <div className="mx-auto max-w-6xl px-5 py-10">
-      <h1 className="torque-titulo text-[2.8rem]">Órdenes de hoy</h1>
-      <p className="mt-1 max-w-xl opacity-80">El taller ve cada carro en su paso. Un toque avisa al cliente por WhatsApp, con el precio y la hora de entrega ya escritos.</p>
-
-      <div className="mt-6 grid gap-3 sm:grid-cols-3">
-        <div className="rounded-md border-2 bg-white p-4" style={{ borderColor: ASFALTO }}><p className="text-[0.85rem] opacity-70">Carros en el taller</p><p className="torque-titulo text-[2.4rem]">{ordenes.length}</p></div>
-        <div className="rounded-md border-2 bg-white p-4" style={{ borderColor: ASFALTO }}><p className="text-[0.85rem] opacity-70">Esperando el visto bueno</p><p className="torque-titulo text-[2.4rem]" style={{ color: porAprobar ? AMBAR : VERDE }}>{porAprobar}</p></div>
-        <div className="rounded-md border-2 bg-white p-4" style={{ borderColor: ASFALTO }}><p className="text-[0.85rem] opacity-70">Listos para entregar</p><p className="torque-titulo text-[2.4rem]" style={{ color: VERDE }}>{listos}</p></div>
-      </div>
-
-      <div className="mt-6 grid gap-3">
-        {ordenes.map((o) => (
-          <div key={o.id} className="rounded-md border-2 bg-white p-4" style={{ borderColor: ASFALTO }}>
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <p className="torque-titulo text-[1.5rem]">{o.modelo} · {o.placa}</p>
-                <p className="text-[0.95rem] opacity-80">{o.cliente} · {o.trabajo} · <b>{qz(o.monto)}</b></p>
-              </div>
-              <span className="rounded px-3 py-1 text-[0.85rem] font-bold uppercase" style={{ background: o.paso === 4 ? VERDE : o.paso === 2 ? AMBAR : AMARILLO, color: o.paso === 2 || o.paso === 4 ? "#fff" : ASFALTO }}>{PASOS[o.paso]}</span>
-            </div>
-            <div className="mt-3 flex gap-1" aria-hidden>
-              {PASOS.map((p, i) => <span key={p} className="h-2 flex-1 rounded-full" style={{ background: i <= o.paso ? ASFALTO : "rgba(21,23,28,.15)" }} />)}
-            </div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {o.paso < 4 && (
-                <button type="button" onClick={() => setOrdenes((l) => l.map((x) => (x.id === o.id ? { ...x, paso: x.paso + 1 } : x)))} className="rounded-md border-2 px-4 py-2 text-[0.9rem] font-bold uppercase tracking-wide" style={{ borderColor: ASFALTO }}>Pasar a: {PASOS[o.paso + 1]}</button>
-              )}
-              <button type="button" onClick={() => setMsg(mensajeOrden(o))} className="inline-flex items-center gap-2 rounded-md px-4 py-2 text-[0.9rem] font-bold uppercase tracking-wide" style={{ background: AMARILLO, color: ASFALTO }}><Bell size={15} /> Avisar al cliente</button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <h2 className="torque-titulo mt-12 text-[2rem]">Clientes a quienes les toca volver</h2>
-      <p className="mt-1 opacity-75">Cambios de aceite vencidos y revisiones que vienen. Un recordatorio y el cliente regresa.</p>
-      <div className="mt-4 grid gap-3 md:grid-cols-3">
-        {RECORDATORIOS.map((r) => {
-          const hecho = enviados.includes(r.id);
-          return (
-            <div key={r.id} className="rounded-md border-2 bg-white p-4" style={{ borderColor: ASFALTO }}>
-              <p className="font-bold">{r.cliente}</p>
-              <p className="text-[0.9rem] opacity-70">{r.modelo}</p>
-              <p className="mt-2 text-[0.95rem]">{r.texto}</p>
-              {hecho ? (
-                <p className="mt-3 flex items-center gap-2 font-bold" style={{ color: VERDE }}><Check size={18} /> Recordatorio enviado</p>
-              ) : (
-                <button type="button" onClick={() => { setEnviados((l) => [...l, r.id]); setMsg(`Hola, ${r.cliente.split(" ")[0]}. Le escribe Taller Torque: ${r.texto} Si quiere, le apartamos su cita. Responda con el día que le queda bien.`); }} className="mt-3 rounded-md px-4 py-2 text-[0.9rem] font-bold uppercase tracking-wide text-white" style={{ background: ASFALTO }}>Enviar recordatorio</button>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      <MensajeWhatsApp mensaje={msg} alCerrar={() => setMsg(null)} demo="taller mecánico" que="el aviso" />
-    </div>
   );
 }

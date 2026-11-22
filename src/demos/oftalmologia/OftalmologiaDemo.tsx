@@ -7,12 +7,13 @@
  * Estructura de cada página: portada, presentación, ventas, reseñas, ubicación y sucursales, y legal.
  */
 import { useEffect, useState } from "react";
+import PanelLumen from "./PanelLumen";
 import { ArrowRight, Bell, CalendarCheck, Check, Clock, Eye, FileText, Glasses, Lock, MapPin, Phone, ShieldCheck, Star } from "lucide-react";
 import { BandaDemos, PartesDemo, CierreJzet, MensajeWhatsApp, qz } from "../comun";
 import {
-  ARO, AZUL, BLANCO, CORAL, DISTRIBUCION, DOCTORES, HIELO, HORAS, IRIS, NOCHE, OCUPADAS, OPTOTIPOS, PACIENTES_INICIAL, POR_RESPONDER,
+  ARO, AZUL, BLANCO, CORAL, DISTRIBUCION, DOCTORES, HIELO, HORAS, IRIS, NOCHE, OCUPADAS, OPTOTIPOS, 
   QUEJA, RESENAS, ROJO, SEDES, SEGUROS, SERVICIOS, TITULO, VERDE,
-  type Estado, type Forma, type Paciente, type SedeId, type ServicioId,
+  type Forma, type SedeId, type ServicioId,
 } from "./datos";
 
 const btn = "inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 font-bold transition active:scale-[0.98]";
@@ -85,7 +86,7 @@ export default function OftalmologiaDemo() {
   }, []);
   useEffect(() => {
     history.replaceState(null, "", vista === "pagina" ? location.pathname : `#${vista}`);
-    document.title = vista === "recepcion" ? "Recepción · Clínica Visual Lumen" : "Clínica Visual Lumen · Demo de Jzet Labs";
+    document.title = vista === "recepcion" ? "Panel · Clínica Visual Lumen" : "Clínica Visual Lumen · Demo de Jzet Labs";
     window.scrollTo(0, 0);
   }, [vista]);
 
@@ -99,10 +100,10 @@ export default function OftalmologiaDemo() {
         alCambiar={setVista}
         partes={[
           { id: "pagina", nombre: "Página", quien: "Turnos que se respetan, sucursales y reseñas" },
-          { id: "recepcion", nombre: "Recepción", quien: "Sala de espera y aviso de retrasos" },
+          { id: "recepcion", nombre: "Panel de la clínica", quien: "Hoy, agenda, pacientes, mensajes, reseñas y reportes" },
         ] as const}
       />
-      {vista === "pagina" ? <Pagina /> : <Recepcion />}
+      {vista === "pagina" ? <Pagina /> : <PanelLumen />}
       <CierreJzet demo="clínica oftalmológica" />
     </div>
   );
@@ -412,106 +413,6 @@ function Cartel() {
         <p className="mt-1 text-[0.9rem] opacity-75">Hay 1 persona antes que usted.</p>
         <p className="mt-2 rounded-lg px-2.5 py-1.5 text-[0.85rem] font-semibold" style={{ background: HIELO }}>Sin retraso. Le avisamos si cambia.</p>
       </div>
-    </div>
-  );
-}
-
-/* ---------------- recepción (lo que ve la clínica) ---------------- */
-
-const ETIQUETA: Record<Estado, { t: string; c: string }> = {
-  cita: { t: "Aún no llega", c: "#6b7a8f" },
-  espera: { t: "En sala de espera", c: "#d98e04" },
-  consulta: { t: "En consulta", c: "#1b9aaa" },
-  listo: { t: "Atendido", c: "#2e8b57" },
-};
-
-function sumar(h: string, min: number) {
-  const [a, b] = h.split(":").map(Number);
-  const t = a * 60 + b + min;
-  return `${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`;
-}
-
-function Recepcion() {
-  const [lista, setLista] = useState<Paciente[]>(PACIENTES_INICIAL);
-  const [retraso, setRetraso] = useState(0);
-  const [msg, setMsg] = useState<string | null>(null);
-  const [respondidas, setRespondidas] = useState<string[]>([]);
-
-  const enSala = lista.filter((p) => p.estado === "espera").length;
-  const atendidos = lista.filter((p) => p.estado === "listo").length;
-
-  function avanzar(id: string) {
-    setLista((l) => l.map((p) => (p.id === id ? { ...p, estado: p.estado === "cita" ? "espera" : p.estado === "espera" ? "consulta" : "listo" } : p)));
-  }
-  function avisarRetraso() {
-    const nuevo = retraso + 15;
-    setRetraso(nuevo);
-    const prox = lista.find((p) => p.estado === "espera" || p.estado === "cita");
-    if (prox) setMsg(`Hola, ${prox.nombre.split(" ")[0]}. Le avisamos de Clínica Visual Lumen: hoy llevamos ${nuevo} minutos de retraso. Su nueva hora aproximada es ${sumar(prox.hora, nuevo)}. No tiene que apurarse, le esperamos.`);
-  }
-
-  return (
-    <div className="mx-auto max-w-6xl px-5 py-10">
-      <h1 className="lumen-titulo text-[2.2rem]">Recepción de hoy</h1>
-      <p className="mt-1 max-w-xl opacity-80">La clínica ve quién llegó, quién está en consulta y cuánto retraso lleva el día. Si hay retraso, un toque avisa a los que siguen.</p>
-
-      <div className="mt-6 grid gap-3 sm:grid-cols-3">
-        <div className="rounded-2xl border border-black/10 bg-white p-4"><p className="text-[0.85rem] opacity-70">En sala de espera</p><p className="lumen-titulo text-[2rem]">{enSala}</p></div>
-        <div className="rounded-2xl border border-black/10 bg-white p-4"><p className="text-[0.85rem] opacity-70">Atendidos hoy</p><p className="lumen-titulo text-[2rem]">{atendidos}</p></div>
-        <div className="rounded-2xl border border-black/10 bg-white p-4"><p className="text-[0.85rem] opacity-70">Retraso del día</p><p className="lumen-titulo text-[2rem]" style={{ color: retraso ? ROJO : VERDE }}>{retraso ? `${retraso} min` : "Ninguno"}</p></div>
-      </div>
-
-      <div className="mt-6 flex flex-wrap items-center gap-3">
-        <button type="button" onClick={avisarRetraso} className={`${btn} text-white`} style={{ background: CORAL }}><Bell size={18} /> Hay retraso: avisar a los que siguen</button>
-        {retraso > 0 && <button type="button" onClick={() => setRetraso(0)} className="font-semibold underline">Ya nos pusimos al día</button>}
-      </div>
-
-      <div className="mt-6 grid gap-3">
-        {lista.map((p) => {
-          const e = ETIQUETA[p.estado];
-          return (
-            <div key={p.id} className="flex flex-wrap items-center gap-4 rounded-2xl border border-black/10 bg-white p-4">
-              <p className="lumen-titulo w-20 text-[1.4rem] tabular-nums">{p.hora}</p>
-              <div className="min-w-[12rem] flex-1">
-                <p className="font-bold">{p.nombre}</p>
-                <p className="text-[0.9rem] opacity-75">{p.servicio} · {p.doctor}</p>
-                {p.nota && <p className="mt-0.5 text-[0.85rem] font-semibold" style={{ color: AZUL }}>{p.nota}</p>}
-              </div>
-              <span className="rounded-full px-3 py-1 text-[0.85rem] font-bold text-white" style={{ background: e.c }}>{e.t}</span>
-              {p.estado !== "listo" && (
-                <button type="button" onClick={() => avanzar(p.id)} className="rounded-full border-2 px-4 py-2 text-[0.9rem] font-bold" style={{ borderColor: NOCHE }}>
-                  {p.estado === "cita" ? "Llegó" : p.estado === "espera" ? "Pasar a consulta" : "Terminó"}
-                </button>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      <h2 className="lumen-titulo mt-12 text-[1.6rem]">Reseñas por responder</h2>
-      <p className="mt-1 opacity-75">La queja no se queda sola en Google: la clínica responde desde aquí, con un texto listo que puede cambiar.</p>
-      <div className="mt-4 grid gap-3 md:grid-cols-2">
-        {POR_RESPONDER.map((r) => {
-          const hecha = respondidas.includes(r.id);
-          return (
-            <div key={r.id} className="rounded-2xl border border-black/10 bg-white p-4">
-              <Estrellas n={r.estrellas} />
-              <p className="mt-2">{r.texto}</p>
-              <p className="mt-1 text-[0.85rem] font-semibold opacity-70">{r.nombre}</p>
-              {hecha ? (
-                <p className="mt-3 flex items-center gap-2 font-bold" style={{ color: VERDE }}><Check size={18} /> Respondida</p>
-              ) : (
-                <>
-                  <p className="mt-3 rounded-xl p-3 text-[0.92rem]" style={{ background: HIELO }}>{r.respuesta}</p>
-                  <button type="button" onClick={() => setRespondidas((l) => [...l, r.id])} className={`${btn} mt-3 !py-2.5 text-white`} style={{ background: NOCHE }}>Publicar respuesta</button>
-                </>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      <MensajeWhatsApp mensaje={msg} alCerrar={() => setMsg(null)} demo="clínica oftalmológica" que="el aviso de retraso" />
     </div>
   );
 }
