@@ -26,7 +26,7 @@ const cuota = (precio: number, meses: number) => Math.ceil(precio / meses);
 const sigId = (pref: string, lista: { id: string }[], base: number) => `${pref}-${Math.max(base, ...lista.map((x) => Number(x.id.split("-")[1]) || 0)) + 1}`;
 
 type Filtro = "Celulares" | "iPhone" | "Samsung" | "Seminuevos" | "iPad y tablets" | "Mac y laptops" | "Accesorios";
-const FILTROS: Filtro[] = ["Celulares", "iPhone", "Samsung", "Seminuevos", "iPad y tablets", "Mac y laptops", "Accesorios"];
+const FILTROS: Filtro[] = ["Celulares", "Seminuevos", "iPad y tablets", "Mac y laptops", "Accesorios"];
 const pasa = (p: Producto, f: Filtro) =>
   f === "Accesorios"
     ? p.categoria === "Accesorios"
@@ -97,7 +97,7 @@ export function TiendaCliente({ t }: { t: Tienda }) {
       {/* barra de promociones */}
       <div className="text-white text-[0.8rem]" style={{ background: PRIMARIO }}>
         <div className="mx-auto max-w-[140rem] px-[clamp(1rem,4vw,5rem)] py-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-center">
-          <span><b>Black Week:</b> hasta 20% en seminuevos · Celulares, iPad, Mac y laptops con garantía</span>
+          <span>Equipos con factura y garantía</span>
           <span className="hidden sm:inline text-white/50">|</span>
           <span className="hidden sm:inline">Envíos a toda Guatemala · Paga al recibir</span>
           <span className="hidden md:inline text-white/50">|</span>
@@ -698,7 +698,7 @@ function Pago({ t, carro, subtotal, alTerminar, alRastrear, alCerrar }: { t: Tie
   const [entrega, setEntrega] = useState<"envio" | "tienda">("envio");
   const [direccion, setDireccion] = useState("");
   const [sucursal, setSucursal] = useState(SUCURSALES[0].id);
-  const [metodo, setMetodo] = useState<Metodo>("tarjeta");
+  const [metodo, setMetodo] = useState<Metodo>("contra-entrega");
   const [tarjeta, setTarjeta] = useState({ numero: "", nombre: "", vence: "", cvv: "" });
   const [cuotas, setCuotas] = useState(1);
   const [comprobante, setComprobante] = useState("");
@@ -807,7 +807,7 @@ function Pago({ t, carro, subtotal, alTerminar, alRastrear, alCerrar }: { t: Tie
               {pedido.estado === "pagado"
                 ? `Tu pedido ${pedido.id} ya está pagado${pedido.cuotas && pedido.cuotas > 1 ? ` en ${pedido.cuotas} cuotas` : ""}. Te avisamos por WhatsApp cuando salga.`
                 : pedido.metodo === "contra-entrega"
-                  ? `Pagas ${qz(pedido.total)} al recibir, en efectivo o con tarjeta. Revisa tu equipo antes de pagar.`
+                  ? `Pagas ${qz(pedido.total)} al recibir, en efectivo o con tarjeta. Revisa tu equipo antes de pagar. La tienda ya recibió tu pedido y te escribe por WhatsApp para coordinar la entrega.`
                   : `Verificamos tu transferencia en menos de 2 horas. Tu pedido es el ${pedido.id}.`}
             </p>
             <p className="mt-4 inline-block rounded-xl px-4 py-2 font-mono text-[1.2rem] font-bold" style={{ background: FONDO }}>
@@ -845,7 +845,8 @@ function Pago({ t, carro, subtotal, alTerminar, alRastrear, alCerrar }: { t: Tie
             if (tel.replace(/\D/g, "").length < 8) return setError("Escribe tu teléfono de 8 dígitos.");
             if (entrega === "envio" && !direccion.trim()) return setError("Escribe la dirección de entrega.");
             setError("");
-            setPaso("pago");
+            // lo más simple: se confirma el pedido y se paga al recibir; tarjeta o transferencia son un camino aparte
+            crear("preparando");
           }}
         >
           <div className="grid sm:grid-cols-2 gap-4">
@@ -891,9 +892,23 @@ function Pago({ t, carro, subtotal, alTerminar, alRastrear, alCerrar }: { t: Tie
             </label>
           )}
           {error && <p className="text-sm text-[#b42318]">{error}</p>}
-          <Resumen subtotal={subtotal} envio={envio} />
+          <Resumen subtotal={subEfectivo} envio={envio} />
           <button type="submit" className="w-full rounded-lg py-3.5 font-bold text-white" style={{ background: TINTA }}>
-            Continuar al pago
+            Confirmar pedido · pagas al recibir {qz(subEfectivo + envio)}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              if (!nombre.trim()) return setError("Escribe tu nombre.");
+              if (tel.replace(/\D/g, "").length < 8) return setError("Escribe tu teléfono de 8 dígitos.");
+              if (entrega === "envio" && !direccion.trim()) return setError("Escribe la dirección de entrega.");
+              setError("");
+              setMetodo("tarjeta");
+              setPaso("pago");
+            }}
+            className="w-full text-center text-sm font-semibold underline underline-offset-4 text-black/70"
+          >
+            Prefiero pagar con tarjeta o transferencia
           </button>
         </form>
       ) : (
@@ -1009,7 +1024,7 @@ function Pago({ t, carro, subtotal, alTerminar, alRastrear, alCerrar }: { t: Tie
           {error && <p className="text-sm text-[#b42318]">{error}</p>}
           <Resumen subtotal={subMetodo} envio={envio} />
           <div className="flex gap-2">
-            <button type="button" onClick={() => setPaso("datos")} className="rounded-lg px-5 py-3.5 font-bold border border-black/15">
+            <button type="button" onClick={() => { setMetodo("contra-entrega"); setPaso("datos"); }} className="rounded-lg px-5 py-3.5 font-bold border border-black/15">
               Atrás
             </button>
             <button type="button" onClick={pagar} className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg py-3.5 font-bold text-white" style={{ background: PRIMARIO }}>

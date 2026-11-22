@@ -5,7 +5,7 @@
 import { useEffect, useState } from "react";
 import { MessageCircle, Store, X } from "lucide-react";
 import { Asistente, resumenDe, simularCompra } from "./Asistente";
-import { REGLAS, getFocoPanel, personaActual, ponerAutorizado, ponerRegla, pedirResumen, publicarResumen, setDock, useAutorizados, useDock, useEnLinea, useNoLeidos, usePeticion, useRegistro, useReglas, type Area, type Origen } from "./bot";
+import { REGLAS, getFocoPanel, pedirComando, personaActual, ponerAutorizado, ponerRegla, pedirResumen, publicarResumen, setDock, useAutorizados, useDock, useEnLinea, useNoLeidos, usePeticion, useRegistro, useReglas, type Area, type Origen } from "./bot";
 import { BORDE, BTN, Cifras, MUTED, Panel, TD, TH, Titulo, borde, principal } from "./ui";
 import type { Tienda } from "./datos";
 
@@ -23,6 +23,28 @@ export function Interruptor({ activo, alCambiar, etiqueta }: { activo: boolean; 
 }
 const Origen = ({ o }: { o: Origen }) => <span className="inline-block whitespace-nowrap rounded-[3px] px-2 py-0.5 text-[0.76rem] font-bold" style={{ background: COLOR_ORIGEN[o][1], color: COLOR_ORIGEN[o][0] }}>{o}</span>;
 
+/* el dueño le pide cosas al bot desde el panel: se ejecutan igual que si las escribiera por WhatsApp */
+const SUGERENCIAS: Record<Area, string[]> = {
+  General: ["ventas", "pedidos", "devoluciones"],
+  Ventas: ["pedidos", "ventas", "pagos"],
+  Tienda: ["subir", "agregar 5 funda magsafe", "quitar 1 galaxy s26", "stock bajo"],
+  Taller: ["reparaciones", "rep RP-512 listo"],
+  Postventa: ["devoluciones"],
+};
+function PedirAlBot({ area }: { area: Area }) {
+  const [texto, setTexto] = useState("");
+  const enviar = (t: string) => { if (t.trim()) { pedirComando(t.trim()); setTexto(""); } };
+  return (
+    <div className="border-t px-4 py-2.5" style={{ borderColor: BORDE }}>
+      <form onSubmit={(e) => { e.preventDefault(); enviar(texto); }} className="flex flex-wrap items-center gap-2">
+        <label className="flex min-w-[14rem] flex-1 items-center gap-2"><span className="whitespace-nowrap text-[0.9rem] font-semibold">Pedir al bot:</span><input aria-label="Pedir al bot" value={texto} onChange={(e) => setTexto(e.target.value)} placeholder={area === "Tienda" ? "Ej: agregar 5 funda magsafe" : "Escriba lo que necesita"} className="min-h-[2.6rem] w-full rounded-[5px] border bg-white px-3 text-[0.92rem]" style={{ borderColor: BORDE }} /></label>
+        <button type="submit" disabled={!texto.trim()} className={`${BTN} disabled:opacity-40`} style={principal}>Enviar</button>
+        {SUGERENCIAS[area].map((s) => <button key={s} type="button" onClick={() => enviar(s)} className="rounded-full border px-3 py-1.5 text-[0.82rem] font-semibold transition hover:bg-[#f3f4f6]" style={{ borderColor: BORDE }}>{s}</button>)}
+      </form>
+    </div>
+  );
+}
+
 /* franja del bot que va arriba de cada sección: qué hizo hoy y qué reglas aplica ahí */
 export function FranjaBot({ area }: { area: Area }) {
   const registro = useRegistro().filter((r) => r.area === area && new Date(r.f).toDateString() === hoyIso());
@@ -38,6 +60,7 @@ export function FranjaBot({ area }: { area: Area }) {
         <p className="text-[0.9rem]" style={{ color: MUTED }}>Hoy: <b className="text-[#14101f]">{por("Bot automático")}</b> acciones del bot · <b className="text-[#14101f]">{por("Dueño por WhatsApp")}</b> pedidas por WhatsApp · <b className="text-[#14101f]">{por("Cliente en la tienda")}</b> eventos de clientes{area === "Tienda" && <> · <b className="text-[#14101f]">{enLinea}</b> en la tienda ahora</>}</p>
         <button type="button" onClick={pedirResumen} className={`${BTN} ml-auto`} style={principal}><MessageCircle size={15} /> Abrir chat</button>
       </div>
+      <PedirAlBot area={area} />
       <div className="grid gap-x-6 gap-y-2 border-t px-4 py-2.5 md:grid-cols-2" style={{ borderColor: BORDE }}>
         {lista.map((r) => (
           <div key={r.id} className="flex items-center justify-between gap-3">

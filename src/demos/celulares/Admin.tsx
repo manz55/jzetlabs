@@ -4,10 +4,10 @@
  * Lo que hace el cliente en la tienda (pedidos, pagos, reparaciones, devoluciones) aparece aquí.
  */
 import { Fragment, useEffect, useMemo, useState } from "react";
-import { BarChart3, Boxes, Camera, Check, CreditCard, Eye, EyeOff, LogOut, MessageCircle, Minus, Package, Plus, RotateCcw, Store, Undo2, Users, Wrench, X } from "lucide-react";
+import { BarChart3, Boxes, Camera, Check, Eye, EyeOff, LogOut, MessageCircle, Minus, Package, Plus, RotateCcw, Store, Undo2, Wrench, X } from "lucide-react";
 import { qz } from "../comun";
 import { iniciarChat } from "./Asistente";
-import { chatReiniciar, pedirResumen, registrar, setFocoPanel, useEnLinea, useRegistro, type Foco } from "./bot";
+import { chatAgregar, chatReiniciar, chatResolver, getReglas, msgBot, pedirResumen, registrar, setFocoPanel, useEnLinea, useRegistro, type Boton, type Foco } from "./bot";
 import { DockBot, FranjaBot, PaginaBot } from "./BotCentro";
 import { achicarFoto } from "./fotos";
 import { BORDE, BTN, Buscar, Cifras, Estado, EstadoPed, EstadoRep, FONDO, Filtros, MUTED, Panel, ROJO, TD, TH, Titulo, borde, principal, ACCION_REP, textoEstadoPanel } from "./ui";
@@ -17,10 +17,10 @@ import {
   type EstadoPedido, type Pedido, type Producto, type Reparacion, type Tienda,
 } from "./datos";
 
-type Pestana = "resumen" | "asistente" | "pedidos" | "pagos" | "inventario" | "reparaciones" | "tecnicos" | "devoluciones";
+type Pestana = "resumen" | "asistente" | "pedidos" | "inventario" | "reparaciones" | "devoluciones";
 const VENDIDO: EstadoPedido[] = ["pagado", "preparando", "en-camino", "entregado"];
 const diaIso = (iso: string) => new Date(iso).toDateString();
-const NOMBRE_PESTANA: Record<Pestana, string> = { resumen: "Resumen", asistente: "Bot de WhatsApp", pedidos: "Pedidos", pagos: "Pagos", inventario: "Productos", reparaciones: "Reparaciones", tecnicos: "Técnicos", devoluciones: "Devoluciones" };
+const NOMBRE_PESTANA: Record<Pestana, string> = { resumen: "Resumen", asistente: "Bot de WhatsApp", pedidos: "Pedidos", inventario: "Productos", reparaciones: "Reparaciones", devoluciones: "Devoluciones" };
 const ESTADOS_ELEGIBLES: EstadoPedido[] = ["pago-pendiente", "pagado", "preparando", "en-camino", "entregado", "rechazado", "devuelto"];
 const SIGUIENTE: Partial<Record<EstadoPedido, { a: EstadoPedido; texto: string }>> = {
   "pago-pendiente": { a: "pagado", texto: "Confirmar pago" },
@@ -28,9 +28,23 @@ const SIGUIENTE: Partial<Record<EstadoPedido, { a: EstadoPedido; texto: string }
   preparando: { a: "en-camino", texto: "Entregar al transporte" },
   "en-camino": { a: "entregado", texto: "Marcar entregado" },
 };
+/* un solo camino para cambiar un pedido desde el panel: actualiza el estado, descuenta el stock si se confirma un pago,
+   avisa al cliente (si la regla está activa) y deja el mismo aviso en el chat del bot, con el siguiente botón */
 function moverPedido(t: Tienda, p: Pedido, a: EstadoPedido) {
+  const guia = a === "en-camino" ? p.guia ?? `GT-${String(Date.now()).slice(-6)}` : p.guia;
   registrar("Ventas", "Panel", `${p.id} pasó a ${textoEstadoPanel(a).toLowerCase()}`);
-  t.setPedidos((ps) => ps.map((x) => (x.id === p.id ? { ...x, estado: a, guia: a === "en-camino" && !x.guia ? `GT-${String(Date.now()).slice(-6)}` : x.guia, nuevo: false } : x)));
+  if (getReglas().avisarClienteEstado && a !== "rechazado") registrar("Ventas", "Bot automático", `Aviso al cliente: ${p.id} ${textoEstadoPanel(a).toLowerCase()}`);
+  t.setPedidos((ps) => ps.map((x) => (x.id === p.id ? { ...x, estado: a, guia: a === "en-camino" ? guia : x.guia, motivoRechazo: a === "rechazado" ? "Comprobante no coincide con el depósito" : x.motivoRechazo, nuevo: false } : x)));
+  if (p.estado === "pago-pendiente" && a === "pagado")
+    t.setStock((s) => { const n = structuredClone(s); p.lineas.forEach((l) => { const suc = Object.keys(n[l.id] ?? {}).find((k) => n[l.id][k] > 0); if (suc) n[l.id][suc] = Math.max(0, n[l.id][suc] - l.cantidad); }); return n; });
+  chatResolver(p.id);
+  const sig = (id: EstadoPedido, texto: string): Boton[] => [{ id: `do:mover:${p.id}:${id}`, t: texto }];
+  const aviso = getReglas().avisarClienteEstado ? "\n📲 Cliente avisado." : "";
+  if (a === "pagado") chatAgregar(msgBot(`✅ Pago confirmado (panel)\n${p.id} → Pagado\n📦 Stock descontado${aviso}`, sig("preparando", "Pasar a preparación")));
+  else if (a === "preparando") chatAgregar(msgBot(`📦 ${p.id} en preparación (panel)${aviso}`, sig("en-camino", "Entregar al transporte")));
+  else if (a === "en-camino") chatAgregar(msgBot(`🚚 ${p.id} con el transporte (panel)\nGuía: ${guia}${aviso}`, sig("entregado", "Marcar entregado")));
+  else if (a === "entregado") chatAgregar(msgBot(`✅ ${p.id} entregado (panel)\nPedido cerrado.`));
+  else if (a === "rechazado") chatAgregar(msgBot(`⛔ Pago rechazado (panel)\n${p.id}. No se cobró nada.`));
 }
 const textoMetodo = (p: Pedido) => (p.metodo === "tarjeta" ? `Tarjeta ···${p.tarjeta}` : p.metodo === "transferencia" ? "Transferencia" : "Al recibir");
 
@@ -39,21 +53,20 @@ export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () =>
   useEffect(() => { document.title = "Panel del dueño · Órbita Celulares · Demo de Jzet Labs"; }, []);
   const [v, setV] = useState(0);
   useEffect(() => {
-    const foco: Record<Pestana, Foco> = { resumen: "general", asistente: "general", pedidos: "pedidos", pagos: "pagos", inventario: "tienda", reparaciones: "taller", tecnicos: "tecnicos", devoluciones: "devoluciones" };
+    const foco: Record<Pestana, Foco> = { resumen: "general", asistente: "general", pedidos: "pedidos", inventario: "tienda", reparaciones: "taller", devoluciones: "devoluciones" };
     setFocoPanel(foco[pestana]);
   }, [pestana]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { iniciarChat(t); }, [v]);
 
-  const porVerificar = t.pedidos.filter((p) => p.estado === "pago-pendiente");
   const devPend = t.devoluciones.filter((d) => d.estado === "pendiente");
   const bajos = t.productos.filter((p) => Object.values(t.stock[p.id] ?? {}).reduce((s, n) => s + n, 0) <= 3);
 
   const grupos: { g: string; items: [Pestana, string, typeof BarChart3, number?][] }[] = [
     { g: "General", items: [["resumen", "Resumen", BarChart3], ["asistente", "Bot de WhatsApp", MessageCircle]] },
-    { g: "Ventas", items: [["pedidos", "Pedidos", Package, t.pedidos.filter((p) => p.estado === "pagado").length], ["pagos", "Pagos", CreditCard, porVerificar.length]] },
+    { g: "Ventas", items: [["pedidos", "Pedidos", Package, t.pedidos.filter((p) => p.estado === "pago-pendiente" || p.estado === "pagado").length]] },
     { g: "Tienda", items: [["inventario", "Productos", Boxes, bajos.length]] },
-    { g: "Taller", items: [["reparaciones", "Reparaciones", Wrench, t.reparaciones.filter((r) => r.estado !== "entregado").length], ["tecnicos", "Técnicos", Users]] },
+    { g: "Taller", items: [["reparaciones", "Reparaciones", Wrench, t.reparaciones.filter((r) => r.estado !== "entregado").length]] },
     { g: "Postventa", items: [["devoluciones", "Devoluciones", Undo2, devPend.length]] },
   ];
   const hoy = new Date().toLocaleDateString("es-GT", { weekday: "long", day: "numeric", month: "long" });
@@ -94,10 +107,8 @@ export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () =>
           {pestana === "resumen" && <Resumen t={t} irA={setPestana} />}
           {pestana === "asistente" && <PaginaBot t={t} alTienda={alTienda} />}
           {pestana === "pedidos" && <Pedidos t={t} />}
-          {pestana === "pagos" && <Pagos t={t} />}
           {pestana === "inventario" && <Inventario t={t} />}
           {pestana === "reparaciones" && <Reparaciones t={t} />}
-          {pestana === "tecnicos" && <Tecnicos t={t} />}
           {pestana === "devoluciones" && <Devoluciones t={t} />}
           <div className="mt-2 flex flex-wrap items-center justify-between gap-2 md:hidden">
             <button type="button" onClick={alTienda} className={BTN} style={borde}><Store size={15} /> Ver la tienda</button>
@@ -117,6 +128,7 @@ export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () =>
 function Resumen({ t, irA }: { t: Tienda; irA: (p: Pestana) => void }) {
   const registro = useRegistro();
   const enLinea = useEnLinea();
+  const hechosBot = registro.filter((r) => r.origen === "Bot automático" && new Date(r.f).toDateString() === new Date().toDateString());
   const vendidos = t.pedidos.filter((p) => VENDIDO.includes(p.estado));
   const hoy = new Date().toDateString();
   const ventasHoy = vendidos.filter((p) => diaIso(p.fecha) === hoy);
@@ -130,10 +142,7 @@ function Resumen({ t, irA }: { t: Tienda; irA: (p: Pestana) => void }) {
   const vsPromedio = promedioDia ? Math.round(((totalHoy - promedioDia) / promedioDia) * 100) : 0;
 
   const mover = (p: Pedido, a: EstadoPedido) => moverPedido(t, p, a);
-  const confirmarPago = (p: Pedido) => {
-    mover(p, "pagado");
-    t.setStock((s) => { const n = structuredClone(s); p.lineas.forEach((l) => { const suc = Object.keys(n[l.id] ?? {}).find((k) => n[l.id][k] > 0); if (suc) n[l.id][suc] = Math.max(0, n[l.id][suc] - l.cantidad); }); return n; });
-  };
+  const confirmarPago = (p: Pedido) => moverPedido(t, p, "pagado");
 
   const dias = useMemo(() => {
     const out: { d: Date; q: number; n: number }[] = [];
@@ -141,9 +150,6 @@ function Resumen({ t, irA }: { t: Tienda; irA: (p: Pestana) => void }) {
     return out;
   }, [vendidos]);
   const max = Math.max(1, ...dias.map((x) => x.q));
-  const porSucursal = SUCURSALES.map((s) => { const l = vendidos.filter((p) => p.sucursal === s.id); return { s, n: l.length, q: l.reduce((a, p) => a + p.total, 0) }; });
-  const metodos = [["Tarjeta", "tarjeta"], ["Transferencia", "transferencia"]].map(([n, m]) => ({ n, q: vendidos.filter((p) => p.metodo === m).reduce((s, p) => s + p.total, 0) }));
-  const alRecibir = total7 - metodos.reduce((s, m) => s + m.q, 0);
   const top = t.productos.map((p) => { const l = vendidos.flatMap((x) => x.lineas.filter((y) => y.id === p.id)); return { p, n: l.reduce((a, y) => a + y.cantidad, 0), q: l.reduce((a, y) => a + y.cantidad * y.precio, 0) }; }).filter((x) => x.n).sort((a, b) => b.q - a.q).slice(0, 6);
   const bajos = t.productos.filter((p) => unidades(p.id) <= 3).sort((a, b) => unidades(a.id) - unidades(b.id));
 
@@ -156,15 +162,10 @@ function Resumen({ t, irA }: { t: Tienda; irA: (p: Pestana) => void }) {
     ...bajos.slice(0, 3).map((p) => ({ tipo: "Poco stock", ref: "—", detalle: `${p.nombre} · ${unidades(p.id) === 0 ? "agotado" : `quedan ${unidades(p.id)}`}`, boton: "Ver producto", hacer: () => irA("inventario") })),
   ];
 
-  const eventos = [
-    ...t.pedidos.map((p) => ({ f: p.fecha, tipo: "Pedido", txt: `${p.id} · ${p.cliente} · ${qz(p.total)}`, est: <EstadoPed e={p.estado} /> })),
-    ...t.reparaciones.map((r) => ({ f: r.fecha, tipo: "Reparación", txt: `${r.id} · ${r.cliente} · ${r.modelo}`, est: <EstadoRep e={r.estado} /> })),
-    ...t.devoluciones.map((d) => ({ f: d.fecha, tipo: "Devolución", txt: `${d.id} · pedido ${d.pedido} · ${d.motivo}`, est: <Estado texto={d.estado === "pendiente" ? "Por revisar" : d.estado === "aprobada" ? "Aprobada" : "No procede"} color={d.estado === "pendiente" ? "#8a4b00" : d.estado === "aprobada" ? "#1f7a3a" : ROJO} fondo={d.estado === "pendiente" ? "#fff1d6" : d.estado === "aprobada" ? "#e1f5e6" : "#fde4e1"} /> })),
-  ].sort((a, b) => +new Date(b.f) - +new Date(a.f)).slice(0, 8);
 
   return (
     <>
-      <Titulo sub="Estado de la tienda en los últimos 7 días.">Resumen</Titulo>
+      <Titulo sub="El bot atiende la tienda. Aquí se supervisa lo que hizo y se decide lo importante.">Resumen</Titulo>
       <FranjaBot area="General" />
       <Cifras items={[
         { t: "Ventas de hoy", v: qz(totalHoy), n: `${ventasHoy.length} ${ventasHoy.length === 1 ? "pedido" : "pedidos"} · ${vsPromedio >= 0 ? "+" : ""}${vsPromedio}% vs promedio diario` },
@@ -176,7 +177,7 @@ function Resumen({ t, irA }: { t: Tienda; irA: (p: Pestana) => void }) {
       ]} />
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_21rem]">
-        <Panel titulo="Requiere acción" nota={`${acciones.length} pendientes`} flush>
+        <Panel titulo="Necesita su decisión" nota={acciones.length ? `${acciones.length} pendientes` : "Todo al día"} flush>
           <table className="w-full min-w-[44rem] text-[0.92rem]">
             <thead><tr><th className={TH}>Tipo</th><th className={TH}>Ref.</th><th className={TH}>Detalle</th><th className={`${TH} text-right`}>Monto</th><th className={TH} /></tr></thead>
             <tbody>
@@ -193,13 +194,14 @@ function Resumen({ t, irA }: { t: Tienda; irA: (p: Pestana) => void }) {
             </tbody>
           </table>
         </Panel>
-        <Panel titulo="Bot de WhatsApp" nota="Conectado" derecha={<MessageCircle size={18} className="text-[#1f9d55]" />}>
-          <p className="text-[0.9rem]" style={{ color: MUTED }}>Lo último que hizo el bot, el dueño por WhatsApp y los clientes:</p>
-          <ul className="mt-2 divide-y text-[0.88rem]" style={{ borderColor: BORDE }}>
-            {registro.slice(0, 5).map((r) => <li key={r.id} className="py-2" style={{ borderColor: BORDE }}><span className="tabular-nums" style={{ color: MUTED }}>{new Date(r.f).toLocaleTimeString("es-GT", { hour: "2-digit", minute: "2-digit", hour12: false })}</span> · <b>{r.origen}</b><span className="block">{r.texto}</span></li>)}
-          </ul>
+        <Panel titulo="Lo que hizo el bot hoy" nota={`${hechosBot.length} acciones`} derecha={<MessageCircle size={18} className="text-[#1f9d55]" />}>
+          {hechosBot.length === 0 ? <p className="py-4 text-center text-[0.9rem]" style={{ color: MUTED }}>Todavía no hay acciones hoy.</p> : (
+            <ul className="divide-y text-[0.88rem]" style={{ borderColor: BORDE }}>
+              {hechosBot.slice(0, 6).map((r) => <li key={r.id} className="py-2" style={{ borderColor: BORDE }}><span className="tabular-nums" style={{ color: MUTED }}>{new Date(r.f).toLocaleTimeString("es-GT", { hour: "2-digit", minute: "2-digit", hour12: false })}</span> · <b>{r.area}</b><span className="block">{r.texto}</span></li>)}
+            </ul>
+          )}
           <div className="mt-3 grid grid-cols-2 gap-2">
-            <button type="button" onClick={() => irA("asistente")} className={BTN} style={borde}>Ver registro</button>
+            <button type="button" onClick={() => irA("asistente")} className={BTN} style={borde}>Ver todo</button>
             <button type="button" onClick={pedirResumen} className={BTN} style={principal}><MessageCircle size={15} /> Abrir chat</button>
           </div>
         </Panel>
@@ -217,37 +219,14 @@ function Resumen({ t, irA }: { t: Tienda; irA: (p: Pestana) => void }) {
           </div>
           <div className="mt-1.5 flex gap-3 pl-1">{dias.map(({ d }) => <span key={d.toDateString()} className="flex-1 text-center text-[0.8rem] capitalize" style={{ color: MUTED }}>{d.toLocaleDateString("es-GT", { weekday: "short" })}</span>)}</div>
         </Panel>
-        <Panel titulo="Ventas por sucursal y forma de pago" flush>
-          <table className="w-full text-[0.92rem]">
-            <thead><tr><th className={TH}>Sucursal</th><th className={`${TH} text-right`}>Pedidos</th><th className={`${TH} text-right`}>Ventas</th><th className={`${TH} text-right`}>%</th></tr></thead>
-            <tbody>
-              {porSucursal.map(({ s, n, q }) => <tr key={s.id} className="border-t" style={{ borderColor: BORDE }}><td className={`${TD} font-semibold`}>{s.nombre}</td><td className={`${TD} text-right tabular-nums`}>{n}</td><td className={`${TD} text-right tabular-nums`}>{qz(q)}</td><td className={`${TD} text-right tabular-nums`} style={{ color: MUTED }}>{total7 ? Math.round((q / total7) * 100) : 0}%</td></tr>)}
-              <tr className="border-t font-bold" style={{ borderColor: BORDE, background: "#f7f8fa" }}><td className={TD}>Total</td><td className={`${TD} text-right tabular-nums`}>{vendidos.length}</td><td className={`${TD} text-right tabular-nums`}>{qz(total7)}</td><td className={TD} /></tr>
-              <tr><td colSpan={4} className="px-3 pb-1 pt-4 text-[0.72rem] font-bold uppercase tracking-[0.06em]" style={{ color: MUTED }}>Forma de pago</td></tr>
-              {[...metodos, { n: "Al recibir", q: alRecibir }].filter((m) => m.q > 0 || m.n !== "Al recibir").map((m) => <tr key={m.n} className="border-t" style={{ borderColor: BORDE }}><td className={TD}>{m.n}</td><td className={TD} /><td className={`${TD} text-right tabular-nums`}>{qz(m.q)}</td><td className={`${TD} text-right tabular-nums`} style={{ color: MUTED }}>{total7 ? Math.round((m.q / total7) * 100) : 0}%</td></tr>)}
-            </tbody>
-          </table>
-        </Panel>
         <Panel titulo="Productos más vendidos" flush>
           <table className="w-full text-[0.92rem]">
             <thead><tr><th className={TH}>Producto</th><th className={`${TH} text-right`}>Uds.</th><th className={`${TH} text-right`}>Ingresos</th></tr></thead>
             <tbody>{top.map(({ p, n, q }) => <tr key={p.id} className="border-t" style={{ borderColor: BORDE }}><td className={TD}><span className="flex items-center gap-2.5"><img src={p.foto} alt="" className="h-8 w-8 rounded-[4px] object-cover" /><span className="font-semibold">{p.nombre}</span></span></td><td className={`${TD} text-right tabular-nums`}>{n}</td><td className={`${TD} text-right tabular-nums`}>{qz(q)}</td></tr>)}</tbody>
           </table>
         </Panel>
-        <Panel titulo="Existencias críticas" nota="3 unidades o menos" derecha={<button type="button" onClick={() => irA("inventario")} className="text-[0.86rem] font-semibold underline" style={{ color: PRIMARIO }}>Ver productos</button>} flush>
-          <table className="w-full text-[0.92rem]">
-            <thead><tr><th className={TH}>Producto</th>{SUCURSALES.map((s) => <th key={s.id} className={`${TH} text-right`}>{s.nombre.slice(0, 5)}.</th>)}<th className={`${TH} text-right`}>Total</th></tr></thead>
-            <tbody>{bajos.map((p) => <tr key={p.id} className="border-t" style={{ borderColor: BORDE }}><td className={`${TD} font-semibold`}>{p.nombre}</td>{SUCURSALES.map((s) => <td key={s.id} className={`${TD} text-right tabular-nums`}>{t.stock[p.id]?.[s.id] ?? 0}</td>)}<td className={`${TD} text-right font-bold tabular-nums`} style={{ color: unidades(p.id) === 0 ? ROJO : "#c2410c" }}>{unidades(p.id)}</td></tr>)}{!bajos.length && <tr><td colSpan={5} className="p-6 text-center" style={{ color: MUTED }}>Todo con existencias suficientes.</td></tr>}</tbody>
-          </table>
-        </Panel>
       </div>
 
-      <Panel titulo="Actividad reciente" nota="Pedidos, reparaciones y devoluciones" flush>
-        <table className="w-full min-w-[40rem] text-[0.92rem]">
-          <thead><tr><th className={TH}>Fecha</th><th className={TH}>Módulo</th><th className={TH}>Detalle</th><th className={TH}>Estado</th></tr></thead>
-          <tbody>{eventos.map((e, i) => <tr key={i} className="border-t" style={{ borderColor: BORDE }}><td className={`${TD} whitespace-nowrap tabular-nums`} style={{ color: MUTED }}>{fechaCorta(e.f)}</td><td className={`${TD} font-semibold`}>{e.tipo}</td><td className={TD}>{e.txt}</td><td className={TD}>{e.est}</td></tr>)}</tbody>
-        </table>
-      </Panel>
     </>
   );
 }
@@ -256,6 +235,9 @@ function Resumen({ t, irA }: { t: Tienda; irA: (p: Pestana) => void }) {
 
 type FPed = "activos" | "todos" | EstadoPedido;
 function Pedidos({ t }: { t: Tienda }) {
+  const registro = useRegistro();
+  /* lo que el bot ya hizo con cada pedido: avisó al dueño, avisó al cliente */
+  const botDe = (id: string) => { const l = registro.filter((r) => r.texto.includes(id) && r.origen === "Bot automático"); const d = l.some((r) => r.texto.startsWith("Aviso al dueño")), c = l.some((r) => r.texto.startsWith("Aviso al cliente")); return d || c ? `${d ? "Dueño avisado" : ""}${d && c ? " · " : ""}${c ? "Cliente avisado" : ""}` : "—"; };
   const [filtro, setFiltro] = useState<FPed>("activos");
   const [q, setQ] = useState("");
   const [abierto, setAbierto] = useState<string | null>(null);
@@ -271,8 +253,8 @@ function Pedidos({ t }: { t: Tienda }) {
       <FranjaBot area="Ventas" />
       <div className="flex flex-wrap items-center justify-between gap-3"><Filtros etiqueta="Filtrar pedidos" valor={filtro} alCambiar={setFiltro} opciones={opciones} /><Buscar valor={q} alCambiar={setQ} texto="Código, nombre o teléfono" /></div>
       <Panel flush>
-        <table className="w-full min-w-[60rem] text-[0.92rem]">
-          <thead><tr><th className={TH}>Código</th><th className={TH}>Fecha</th><th className={TH}>Cliente</th><th className={TH}>Entrega</th><th className={TH}>Pago</th><th className={`${TH} text-right`}>Total</th><th className={TH}>Estado</th><th className={TH} /></tr></thead>
+        <table className="w-full min-w-[66rem] text-[0.92rem]">
+          <thead><tr><th className={TH}>Código</th><th className={TH}>Fecha</th><th className={TH}>Cliente</th><th className={TH}>Entrega</th><th className={TH}>Pago</th><th className={`${TH} text-right`}>Total</th><th className={TH}>Estado</th><th className={TH}>Bot</th><th className={TH} /></tr></thead>
           <tbody>
             {lista.map((p) => {
               const sig = SIGUIENTE[p.estado];
@@ -286,11 +268,12 @@ function Pedidos({ t }: { t: Tienda }) {
                     <td className={TD}>{textoMetodo(p)}{p.cuotas && p.cuotas > 1 ? ` · ${p.cuotas} cuotas` : ""}</td>
                     <td className={`${TD} text-right font-semibold tabular-nums`}>{qz(p.total)}</td>
                     <td className={TD}><EstadoPed e={p.estado} /></td>
-                    <td className={`${TD} text-right`} onClick={(e) => e.stopPropagation()}>{sig ? <button type="button" onClick={() => mover(p, sig.a)} className={BTN} style={principal}>{sig.texto}</button> : <span className="text-[0.84rem]" style={{ color: MUTED }}>—</span>}</td>
+                    <td className={`${TD} whitespace-nowrap text-[0.84rem]`} style={{ color: MUTED }}>{botDe(p.id)}</td>
+                    <td className={`${TD} text-right`} onClick={(e) => e.stopPropagation()}>{p.estado === "pago-pendiente" && <button type="button" onClick={() => mover(p, "rechazado")} className={`${BTN} mr-2`} style={{ background: "#fde4e1", color: ROJO }}>Rechazar</button>}{sig ? <button type="button" onClick={() => mover(p, sig.a)} className={BTN} style={principal}>{sig.texto}</button> : <span className="text-[0.84rem]" style={{ color: MUTED }}>—</span>}</td>
                   </tr>
                   {abierto === p.id && (
                     <tr style={{ background: "#fafafb" }}>
-                      <td colSpan={8} className="border-t px-4 py-3 text-[0.9rem]" style={{ borderColor: BORDE }}>
+                      <td colSpan={9} className="border-t px-4 py-3 text-[0.9rem]" style={{ borderColor: BORDE }}>
                         <div className="grid gap-4 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
                           <ul className="space-y-1">{p.lineas.map((l) => <li key={l.id + l.detalle} className="flex justify-between gap-3"><span>{l.cantidad} × {l.nombre} <span style={{ color: MUTED }}>{l.detalle}</span></span><span className="tabular-nums">{qz(l.precio * l.cantidad)}</span></li>)}<li className="flex justify-between border-t pt-1 font-semibold" style={{ borderColor: BORDE }}><span>Envío</span><span className="tabular-nums">{p.envio ? qz(p.envio) : "Gratis"}</span></li></ul>
                           <div className="space-y-2">
@@ -307,52 +290,7 @@ function Pedidos({ t }: { t: Tienda }) {
                 </Fragment>
               );
             })}
-            {!lista.length && <tr><td colSpan={8} className="p-8 text-center" style={{ color: MUTED }}>No hay pedidos con este filtro.</td></tr>}
-          </tbody>
-        </table>
-      </Panel>
-    </>
-  );
-}
-
-/* ---------------- pagos ---------------- */
-
-function Pagos({ t }: { t: Tienda }) {
-  const pendientes = t.pedidos.filter((p) => p.estado === "pago-pendiente");
-  const rechazados = t.pedidos.filter((p) => p.estado === "rechazado");
-  const vendidos = t.pedidos.filter((p) => VENDIDO.includes(p.estado));
-  const suma = (f: (p: Pedido) => boolean) => vendidos.filter(f).reduce((s, p) => s + p.total, 0);
-  const decidir = (p: Pedido, ok: boolean) => {
-    registrar("Ventas", "Panel", `${ok ? "Confirmó" : "Rechazó"} el pago de ${p.id}`);
-    t.setPedidos((ps) => ps.map((x) => (x.id === p.id ? { ...x, estado: ok ? "pagado" : "rechazado", motivoRechazo: ok ? undefined : "Comprobante no coincide con el depósito", nuevo: false } : x)));
-    if (ok) t.setStock((s) => { const n = structuredClone(s); p.lineas.forEach((l) => { const suc = Object.keys(n[l.id] ?? {}).find((k) => n[l.id][k] > 0); if (suc) n[l.id][suc] = Math.max(0, n[l.id][suc] - l.cantidad); }); return n; });
-  };
-  return (
-    <>
-      <Titulo sub="Los pagos por transferencia se confirman contra el estado de cuenta. El cliente lo ve en el rastreo.">Pagos</Titulo>
-      <FranjaBot area="Ventas" />
-      <Cifras items={[
-        { t: "Por verificar", v: qz(pendientes.reduce((s, p) => s + p.total, 0)), n: `${pendientes.length} transferencias`, alerta: pendientes.length > 0 },
-        { t: "Cobrado con tarjeta", v: qz(suma((p) => p.metodo === "tarjeta")) },
-        { t: "Cobrado por transferencia", v: qz(suma((p) => p.metodo === "transferencia")) },
-        { t: "Pago al recibir", v: qz(suma((p) => p.metodo !== "tarjeta" && p.metodo !== "transferencia")) },
-        { t: "Rechazados", v: rechazados.length, n: "no se cobró nada" },
-      ]} />
-      <Panel titulo="Pagos por verificar" nota="Comparar el comprobante con el depósito" flush>
-        <table className="w-full min-w-[40rem] text-[0.92rem]">
-          <thead><tr><th className={TH}>Código</th><th className={TH}>Fecha</th><th className={TH}>Cliente</th><th className={`${TH} text-right`}>Monto</th><th className={TH}>Comprobante</th><th className={TH} /></tr></thead>
-          <tbody>
-            {pendientes.map((p) => <tr key={p.id} className="border-t" style={{ borderColor: BORDE }}><td className={`${TD} font-mono font-bold`}>{p.id}</td><td className={TD} style={{ color: MUTED }}>{fechaCorta(p.fecha)}</td><td className={`${TD} font-semibold`}>{p.cliente}</td><td className={`${TD} text-right font-semibold tabular-nums`}>{qz(p.total)}</td><td className={TD}>Adjunto</td><td className={`${TD} text-right`}><span className="inline-flex gap-2"><button type="button" onClick={() => decidir(p, true)} className={BTN} style={{ background: "#1f7a3a", color: "#fff" }}><Check size={15} /> Confirmar</button><button type="button" onClick={() => decidir(p, false)} className={BTN} style={{ background: "#fde4e1", color: ROJO }}><X size={15} /> Rechazar</button></span></td></tr>)}
-            {!pendientes.length && <tr><td colSpan={6} className="p-8 text-center" style={{ color: MUTED }}>No hay transferencias pendientes.</td></tr>}
-          </tbody>
-        </table>
-      </Panel>
-      <Panel titulo="Pagos rechazados" nota="Ninguno se cobró. Se puede escribir al cliente para que pague con otra tarjeta." flush>
-        <table className="w-full min-w-[40rem] text-[0.92rem]">
-          <thead><tr><th className={TH}>Código</th><th className={TH}>Fecha</th><th className={TH}>Cliente</th><th className={TH}>Pago</th><th className={`${TH} text-right`}>Monto</th><th className={TH}>Motivo</th></tr></thead>
-          <tbody>
-            {rechazados.map((p) => <tr key={p.id} className="border-t" style={{ borderColor: BORDE }}><td className={`${TD} font-mono font-bold`}>{p.id}</td><td className={TD} style={{ color: MUTED }}>{fechaCorta(p.fecha)}</td><td className={`${TD} font-semibold`}>{p.cliente}</td><td className={TD}>{textoMetodo(p)}</td><td className={`${TD} text-right tabular-nums`}>{qz(p.total)}</td><td className={TD}><Estado texto={p.motivoRechazo ?? "Rechazado"} color={ROJO} fondo="#fde4e1" /></td></tr>)}
-            {!rechazados.length && <tr><td colSpan={6} className="p-8 text-center" style={{ color: MUTED }}>Sin pagos rechazados.</td></tr>}
+            {!lista.length && <tr><td colSpan={9} className="p-8 text-center" style={{ color: MUTED }}>No hay pedidos con este filtro.</td></tr>}
           </tbody>
         </table>
       </Panel>
@@ -366,7 +304,11 @@ function Inventario({ t }: { t: Tienda }) {
   const [buscar, setBuscar] = useState("");
   const [nuevo, setNuevo] = useState(false);
   const total = (id: string) => Object.values(t.stock[id] ?? {}).reduce((a, n) => a + n, 0);
-  const cambiarStock = (id: string, suc: string, d: number) => t.setStock((s) => ({ ...s, [id]: { ...(s[id] ?? {}), [suc]: Math.max(0, (s[id]?.[suc] ?? 0) + d) } }));
+  /* sumar va a la sucursal principal; restar sale de la que tenga */
+  const cambiarTotal = (id: string, d: number) => {
+    registrar("Tienda", "Panel", `${d > 0 ? "Agregó" : "Quitó"} 1 unidad de ${t.productos.find((p) => p.id === id)?.nombre}`);
+    t.setStock((s) => { const n = structuredClone(s); n[id] = n[id] ?? {}; const suc = d > 0 ? SUCURSALES[0].id : (Object.keys(n[id]).find((k) => n[id][k] > 0) ?? SUCURSALES[0].id); n[id][suc] = Math.max(0, (n[id][suc] ?? 0) + d); return n; });
+  };
   const editar = (id: string, cambio: Partial<Producto>) => t.setProductos((ps) => ps.map((p) => (p.id === id ? { ...p, ...cambio } : p)));
   const lista = t.productos.filter((p) => `${p.marca} ${p.nombre}`.toLowerCase().includes(buscar.toLowerCase().trim()));
   const valor = t.productos.reduce((s, p) => s + total(p.id) * p.variantes[0].precio, 0);
@@ -384,8 +326,8 @@ function Inventario({ t }: { t: Tienda }) {
       {nuevo && <NuevoProducto t={t} alCerrar={() => setNuevo(false)} />}
       <div className="flex flex-wrap items-center justify-between gap-3"><Buscar valor={buscar} alCambiar={setBuscar} texto="Buscar producto" /><p className="text-[0.84rem]" style={{ color: MUTED }}>Tocar la foto la cambia. El ojo oculta o muestra el producto en la tienda.</p></div>
       <Panel flush>
-        <table className="w-full min-w-[62rem] text-[0.92rem]">
-          <thead><tr><th className={TH} /><th className={TH}>Producto</th><th className={TH}>Condición</th><th className={TH}>Precio (Q)</th>{SUCURSALES.map((s) => <th key={s.id} className={`${TH} text-center`}>{s.nombre}</th>)}<th className={`${TH} text-right`}>Total</th><th className={TH} /></tr></thead>
+        <table className="w-full min-w-[46rem] text-[0.92rem]">
+          <thead><tr><th className={TH} /><th className={TH}>Producto</th><th className={TH}>Condición</th><th className={TH}>Precio (Q)</th><th className={TH}>Existencias</th><th className={TH} /></tr></thead>
           <tbody>
             {lista.map((p) => {
               const n = total(p.id);
@@ -397,15 +339,19 @@ function Inventario({ t }: { t: Tienda }) {
                   <td className={TD}><b className="block leading-tight">{p.nombre}</b><span className="text-[0.8rem]" style={{ color: MUTED }}>{p.marca} · {p.categoria}</span></td>
                   <td className={TD}>{p.condicion}</td>
                   <td className={TD}><input type="number" aria-label={`Precio de ${p.nombre}`} value={p.variantes[0].precio} onChange={(e) => editar(p.id, { variantes: p.variantes.map((v, i) => (i === 0 ? { ...v, precio: Math.max(0, Number(e.target.value) || 0) } : v)) })} className="min-h-[2.3rem] w-28 rounded-[5px] border px-2 font-semibold tabular-nums" style={{ borderColor: BORDE }} /></td>
-                  {SUCURSALES.map((s) => { const k = t.stock[p.id]?.[s.id] ?? 0; return (
-                    <td key={s.id} className={TD}><span className="mx-auto flex w-fit items-center gap-1"><button type="button" aria-label={`Quitar uno en ${s.nombre}`} onClick={() => cambiarStock(p.id, s.id, -1)} className={paso} style={{ borderColor: BORDE }}><Minus size={13} /></button><span className="w-7 text-center font-bold tabular-nums" style={{ color: k === 0 ? ROJO : undefined }}>{k}</span><button type="button" aria-label={`Agregar uno en ${s.nombre}`} onClick={() => cambiarStock(p.id, s.id, 1)} className={paso} style={{ borderColor: BORDE }}><Plus size={13} /></button></span></td>
-                  ); })}
-                  <td className={`${TD} text-right font-bold tabular-nums`} style={{ color: n === 0 ? ROJO : n <= 3 ? "#c2410c" : undefined }}>{n}{n === 0 ? " · agotado" : ""}</td>
+                  <td className={TD}>
+                    <span className="flex items-center gap-1.5">
+                      <button type="button" aria-label={`Quitar uno de ${p.nombre}`} onClick={() => cambiarTotal(p.id, -1)} className={paso} style={{ borderColor: BORDE }}><Minus size={13} /></button>
+                      <b className="w-9 text-center text-[1.05rem] tabular-nums" style={{ color: n === 0 ? ROJO : n <= 3 ? "#c2410c" : undefined }}>{n}</b>
+                      <button type="button" aria-label={`Agregar uno de ${p.nombre}`} onClick={() => cambiarTotal(p.id, 1)} className={paso} style={{ borderColor: BORDE }}><Plus size={13} /></button>
+                    </span>
+                    <span className="mt-0.5 block text-[0.76rem]" style={{ color: MUTED }}>{n === 0 ? "Agotado · " : n <= 3 ? "Quedan pocas · " : ""}{SUCURSALES.map((s) => `${s.nombre.slice(0, 4)}. ${t.stock[p.id]?.[s.id] ?? 0}`).join(" · ")}</span>
+                  </td>
                   <td className={`${TD} text-right`}><button type="button" onClick={() => editar(p.id, { visible: p.visible === false })} title={p.visible === false ? "Mostrar en la tienda" : "Ocultar de la tienda"} aria-label={p.visible === false ? "Mostrar en la tienda" : "Ocultar de la tienda"} className="grid h-9 w-9 place-items-center rounded-[5px] border transition hover:bg-[#ece6ff]" style={{ borderColor: BORDE }}>{p.visible === false ? <EyeOff size={16} /> : <Eye size={16} />}</button></td>
                 </tr>
               );
             })}
-            {!lista.length && <tr><td colSpan={9} className="p-8 text-center" style={{ color: MUTED }}>Ningún producto coincide.</td></tr>}
+            {!lista.length && <tr><td colSpan={6} className="p-8 text-center" style={{ color: MUTED }}>Ningún producto coincide.</td></tr>}
           </tbody>
         </table>
       </Panel>
@@ -502,6 +448,7 @@ function Reparaciones({ t }: { t: Tienda }) {
           </tbody>
         </table>
       </Panel>
+      <Tecnicos t={t} />
     </>
   );
 }
@@ -514,8 +461,7 @@ function Tecnicos({ t }: { t: Tienda }) {
   const campo = "min-h-[2.4rem] w-full rounded-[5px] border bg-white px-3 text-[0.9rem]";
   return (
     <>
-      <Titulo sub="Quién repara qué, en qué sucursal y cuánto trabajo tiene.">Técnicos</Titulo>
-      <FranjaBot area="Taller" />
+      <h2 className="mt-2 text-[1.3rem] font-extrabold">Técnicos</h2>
       <Panel flush>
         <table className="w-full min-w-[46rem] text-[0.92rem]">
           <thead><tr><th className={TH}>Técnico</th><th className={TH}>Especialidad</th><th className={TH}>Sucursal</th><th className={TH}>Teléfono</th><th className={`${TH} text-right`}>En curso</th><th className={TH}>Disponibilidad</th></tr></thead>

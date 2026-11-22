@@ -24,7 +24,7 @@ export const horaAhora = () => new Date().toLocaleTimeString("es-GT", { hour: "2
 export const msgBot = (texto: string, botones?: Boton[]): Msg => ({ de: "bot", texto, botones: botones?.slice(0, 3), hora: horaAhora() });
 
 /* reglas que el dueño enciende o apaga; cada una tiene su sección */
-export type ReglaId = "avisarPedido" | "autoPreparar" | "avisarClienteEstado" | "recordarSinAtender" | "avisarCarrito" | "ocultarAgotados" | "avisarStockBajo" | "resumenNocturno" | "avisarReparacionNueva" | "avisarReparacionLista" | "avisarDevolucion";
+export type ReglaId = "avisarPedido" | "autoPreparar" | "avisarClienteEstado" | "recordarSinAtender" | "avisarCarrito" | "ocultarAgotados" | "avisarStockBajo" | "resumenNocturno" | "avisarReparacionNueva" | "avisarReparacionLista" | "avisarDevolucion" | "autoTecnico" | "autoDevolucion";
 export const REGLAS: { id: ReglaId; area: Area; t: string; d: string }[] = [
   { id: "avisarPedido", area: "Ventas", t: "Avisar de cada pedido y de cada transferencia", d: "Llega al WhatsApp del dueño con el cliente, el monto y los botones para actuar." },
   { id: "autoPreparar", area: "Ventas", t: "Pasar a preparación los pedidos ya pagados", d: "El bot los mueve solo; el dueño marca después la entrega al transporte." },
@@ -35,6 +35,8 @@ export const REGLAS: { id: ReglaId; area: Area; t: string; d: string }[] = [
   { id: "avisarStockBajo", area: "Tienda", t: "Avisar cuando un producto baja a 3 unidades", d: "Con el nombre y las existencias que quedan." },
   { id: "avisarReparacionNueva", area: "Taller", t: "Avisar de cada reparación nueva", d: "Con el cliente, el equipo, la falla y el precio." },
   { id: "avisarReparacionLista", area: "Taller", t: "Avisar al cliente cuando su equipo está listo", d: "Recibe el aviso de que puede recogerlo, con la sucursal y el horario." },
+  { id: "autoTecnico", area: "Taller", t: "Asignar técnico a cada reparación nueva", d: "Elige al técnico disponible con menos equipos en curso." },
+  { id: "autoDevolucion", area: "Postventa", t: "Aprobar solas las devoluciones por falla", d: "Las demás las decide el dueño con un botón. El producto vuelve al inventario." },
   { id: "avisarDevolucion", area: "Postventa", t: "Avisar de cada devolución nueva", d: "Con el motivo, para revisarla en el panel o responder por WhatsApp." },
   { id: "resumenNocturno", area: "General", t: "Enviar el resumen del día a las 8 pm", d: "Ventas, pedidos pendientes y existencias críticas." },
 ];
@@ -45,7 +47,12 @@ let reglas: Reglas = REGLAS_INICIO;
 try { const t = localStorage.getItem(CLAVE_REGLAS); if (t) reglas = { ...REGLAS_INICIO, ...JSON.parse(t) }; } catch { /* nada */ }
 
 /* ganchos que pone la demo para que el bot pueda cambiar la tienda desde cualquier pantalla */
-export const ganchos: { preparar?: (p: Pedido) => void; ocultar?: (nombre: string) => void } = {};
+export const ganchos: { preparar?: (p: Pedido) => void; ocultar?: (nombre: string) => void; asignar?: (idReparacion: string) => string | null; resolverDev?: (id: string, ok: boolean) => void } = {};
+
+/* una orden que se manda al bot desde el panel (la ejecuta el chat, como si el dueño la escribiera por WhatsApp) */
+let comando = { n: 0, texto: "" };
+export const useComando = () => useSyncExternalStore(suscribir, () => comando);
+export const pedirComando = (texto: string) => { comando = { n: comando.n + 1, texto }; dockAbierto = true; noLeidos = 0; avisar(); };
 
 /* quién puede escribirle al bot */
 const AUTORIZADOS_INICIO: Persona[] = [
@@ -133,6 +140,8 @@ export const chatAgregar = (...m: Msg[]) => {
   if (!visible) noLeidos += m.filter((x) => x.de === "bot").length;
   avisar();
 };
+/* cuando un pedido cambia (desde el panel o desde el chat), los botones viejos de ese pedido dejan de servir */
+export const chatResolver = (ref: string) => { mensajes = mensajes.map((m) => (m.botones?.some((x) => x.id.split(":")[2] === ref || x.id.endsWith(`:${ref}`)) ? { ...m, usada: true } : m)); avisar(); };
 export const chatMarcarUsada = (i: number) => { mensajes = mensajes.map((x, k) => (k === i ? { ...x, usada: true } : x)); avisar(); };
 export const registrar = (area: Area, origen: Origen, texto: string) => { registro = [{ id: numero++, f: new Date().toISOString(), area, origen, texto }, ...registro].slice(0, 80); avisar(); };
 export const chatReiniciar = () => { mensajes = []; borrador = null; noLeidos = 0; vistos.clear(); numero = 1; registro = semilla(); demanda = { ...DEMANDA_INICIO }; ultimoResumen = ""; lenResumen = -1; personaId = 1; avisar(); };
@@ -162,6 +171,12 @@ export function avisoPedido(p: Pedido, agotados: string[], bajos: { nombre: stri
     if (p.estado === "pago-pendiente") {
       chatAgregar(msgBot(`🧾 Pago por verificar\n${resumen}`, [{ id: `do:pago:${p.id}`, t: "Confirmar pago" }, { id: `do:rechazar:${p.id}`, t: "Rechazar" }]));
       registrar("Ventas", "Bot automático", `Aviso al dueño: pago por verificar en ${p.id}`);
+    } else if (p.estado === "rechazado") {
+      chatAgregar(msgBot(`⛔ Pago con tarjeta rechazado\n${resumen}\nNo se cobró nada.`));
+      registrar("Ventas", "Bot automático", `Aviso al dueño: pago rechazado en ${p.id}`);
+    } else if (p.estado === "preparando") {
+      chatAgregar(msgBot(`🛒 Pedido nuevo · paga al recibir\n${resumen}\n📦 Ya está en preparación.`, [{ id: `do:mover:${p.id}:en-camino`, t: "Entregar al transporte" }]));
+      registrar("Ventas", "Bot automático", `Aviso al dueño: ${p.id} (paga al recibir) en preparación`);
     } else if (reglas.autoPreparar && ganchos.preparar && p.estado === "pagado") {
       ganchos.preparar(p);
       chatAgregar(msgBot(`✅ Pedido pagado\n${resumen}\n📦 Pasó a preparación.`, [{ id: `do:mover:${p.id}:en-camino`, t: "Entregar al transporte" }]));
@@ -179,13 +194,21 @@ export function avisoPedido(p: Pedido, agotados: string[], bajos: { nombre: stri
 }
 export function avisoDevolucion(d: { id: string; pedido: string; motivo: string }) {
   registrar("Postventa", "Cliente en la tienda", `Devolución ${d.id} del pedido ${d.pedido}: ${d.motivo}`);
+  if (reglas.autoDevolucion && ganchos.resolverDev && d.motivo === "Llegó con falla") {
+    ganchos.resolverDev(d.id, true);
+    registrar("Postventa", "Bot automático", `Aprobó la devolución ${d.id} (llegó con falla); el producto volvió al inventario`);
+    chatAgregar(msgBot(`↩️ Devolución ${d.id} aprobada\nMotivo: llegó con falla (pedido ${d.pedido})\n📦 El producto volvió al inventario.\n📲 Cliente avisado.`));
+    return;
+  }
   if (!reglas.avisarDevolucion) return;
-  chatAgregar(msgBot(`↩️ Devolución nueva\n${d.id} · pedido ${d.pedido}\nMotivo: ${d.motivo}`, [{ id: `do:dev:${d.id}:ok`, t: "Aprobar" }, { id: `do:dev:${d.id}:no`, t: "No procede" }]));
+  chatAgregar(msgBot(`↩️ Devolución nueva\n${d.id} · pedido ${d.pedido}\nMotivo: ${d.motivo}\nRequiere su decisión.`, [{ id: `do:dev:${d.id}:ok`, t: "Aprobar" }, { id: `do:dev:${d.id}:no`, t: "No procede" }]));
   registrar("Postventa", "Bot automático", `Aviso al dueño: devolución ${d.id} por revisar`);
 }
 export function avisoReparacion(r: { id: string; cliente: string; modelo: string; falla: string; precio: number }) {
   registrar("Taller", "Cliente en la tienda", `Reparación ${r.id}: ${r.modelo}, ${r.falla}`);
+  const tecnico = reglas.autoTecnico && ganchos.asignar ? ganchos.asignar(r.id) : null;
+  if (tecnico) registrar("Taller", "Bot automático", `Asignó ${r.id} a ${tecnico}`);
   if (!reglas.avisarReparacionNueva) return;
-  chatAgregar(msgBot(`🔧 Reparación nueva\n${r.id} · ${r.cliente}\n${r.modelo} · ${r.falla} · ${qz(r.precio)}`, [{ id: `do:rep:${r.id}:diagnostico`, t: "Pasar a diagnóstico" }]));
+  chatAgregar(msgBot(`🔧 Reparación nueva\n${r.id} · ${r.cliente}\n${r.modelo} · ${r.falla} · ${qz(r.precio)}${tecnico ? `\n👷 Asignada a ${tecnico}` : ""}`, [{ id: `do:rep:${r.id}:diagnostico`, t: "Pasar a diagnóstico" }]));
   registrar("Taller", "Bot automático", `Aviso al dueño: reparación nueva ${r.id}`);
 }

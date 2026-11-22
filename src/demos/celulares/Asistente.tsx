@@ -11,10 +11,11 @@ import ipairFoto from "@/assets/demo-celulares/ipair.jpg";
 import ip17Foto from "@/assets/demo-celulares/ip17.jpg";
 import ip17proFoto from "@/assets/demo-celulares/ip17pro.jpg";
 import { ESTADOS_PEDIDO, efectivo, SUCURSALES, TEXTO_REPARACION, sucursalPor, type EstadoPedido, type Pedido, type Producto, type Reparacion, type Tienda } from "./datos";
-import { CLIENTE, avisoInteres, avisoPedido, chatAgregar, chatMarcarUsada, getBorrador, getDemanda, getEnLinea, getReglas, hayChat, horaAhora, msgBot, personaActual, registrar, setBorrador, setChatVisible, setPersona, useAutorizados, useChat, useEnLinea, usePersonaId, type Area, type Borrador, type Boton, type Foco, type Msg, type Origen } from "./bot";
+import { CLIENTE, avisoInteres, avisoPedido, chatAgregar, chatMarcarUsada, getBorrador, getDemanda, getEnLinea, getReglas, hayChat, horaAhora, msgBot, personaActual, registrar, setBorrador, setChatVisible, setPersona, useAutorizados, useChat, useComando, useEnLinea, usePersonaId, type Area, type Borrador, type Boton, type Foco, type Msg, type Origen } from "./bot";
 import { achicarFoto, urlAFoto } from "./fotos";
 
 const MUTED = "#5b6270";
+let ordenProcesada = 0;
 const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
 const codigo = (s: string, pre: string) => { const m = s.match(new RegExp(`${pre}-?(\\d+)`, "i")); return m ? `${pre.toUpperCase()}-${m[1]}` : null; };
 /* WhatsApp permite 3 botones por mensaje */
@@ -123,6 +124,7 @@ export function Asistente({ t, alto = "h-[min(36rem,68vh)]", raiz = "" }: { t: T
   const autorizados = useAutorizados();
   const personaId = usePersonaId();
   useEnLinea();
+  const orden = useComando();
   const persona = personaActual();
   const esEquipo = persona.rol === "DUENO" || persona.rol === "ENCARGADO";
   const unidades = (id: string) => Object.values(t.stock[id] ?? {}).reduce((s, n) => s + n, 0);
@@ -266,7 +268,7 @@ export function Asistente({ t, alto = "h-[min(36rem,68vh)]", raiz = "" }: { t: T
 
     if (/^(menu|hola|buenas|buen dia|buenos dias|buenas tardes|ayuda|inicio|opciones)/.test(n)) return persona.rol === "TECNICO" ? [msgBot("📋 Menú de taller\nreparaciones · rep [código] [estado]", [{ id: "c:reparaciones", t: "Reparaciones" }])] : [msgBot(MENU_TEXTO, MENU)];
     if (/^subir/.test(n)) { setBorrador({ fotos: [], condicion: "Nuevo", sucursal: "z10" }); return [msgBot("📸 Paso 1/3 · Envíe las fotos del producto (clip).\nPuede escribir el nombre y el precio junto con las fotos.")]; }
-    if (/^stockbajo/.test(n)) {
+    if (/^stock\s*bajo/.test(n)) {
       const bajos = t.productos.filter((p) => unidades(p.id) <= 3);
       return [msgBot(bajos.length ? `⚠️ Stock bajo\n${bajos.map((p) => `• ${p.nombre}: ${unidades(p.id)} uds`).join("\n")}` : "✅ Sin productos con stock bajo.", bajos[0] ? [{ id: `do:stockmas:${bajos[0].nombre}`, t: `Agregar 5 · ${corto(bajos[0].nombre)}` }] : undefined)];
     }
@@ -380,13 +382,21 @@ export function Asistente({ t, alto = "h-[min(36rem,68vh)]", raiz = "" }: { t: T
     try { recibirFotos(await Promise.all([ipairFoto, ip17proFoto, ip17Foto].map(urlAFoto)), texto.trim() || EJEMPLO_PRODUCTO); } finally { setOcupado(false); }
   };
   /* al cambiar quién escribe, el bot saluda con el menú de esa persona */
-  const primera = useRef(true);
+  const previa = useRef(personaId);
   useEffect(() => {
-    if (primera.current) { primera.current = false; return; }
+    if (previa.current === personaId) return;
+    previa.current = personaId;
     chatAgregar(...responder("menu"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [personaId]);
   const cambiarPersona = (id: number) => setPersona(id);
+  /* una orden que el dueño le pidió al bot desde el panel: se ejecuta como si la escribiera por WhatsApp */
+  useEffect(() => {
+    if (orden.n === ordenProcesada) return;
+    ordenProcesada = orden.n;
+    if (persona.rol === "DUENO") enviar(orden.texto);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orden.n]);
 
   const ejemplos = persona.rol === "CLIENTE" ? ["menú", "OR-1041", "garantía"] : persona.rol === "TECNICO" ? ["menú", "reparaciones", "rep RP-512 listo", "ventas"] : ["menú", "stock iphone", "agregar 2 iphone air", "devoluciones", "ventas"];
   return (

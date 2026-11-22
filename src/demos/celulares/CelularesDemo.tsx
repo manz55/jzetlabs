@@ -17,6 +17,23 @@ export default function CelularesDemo() {
   const t = useTienda();
   /* el bot puede preparar pedidos y ocultar productos desde cualquier pantalla */
   ganchos.preparar = (p) => t.setPedidos((ps) => ps.map((x) => (x.id === p.id ? { ...x, estado: "preparando", nuevo: false } : x)));
+  /* el bot elige técnico (el disponible con menos equipos) y resuelve devoluciones por falla */
+  ganchos.asignar = (id) => {
+    const enCurso = (tid: string) => t.reparaciones.filter((r) => r.tecnico === tid && r.estado !== "entregado").length;
+    const x = [...t.tecnicos].filter((y) => y.activo).sort((a, b) => enCurso(a.id) - enCurso(b.id))[0];
+    if (!x) return null;
+    t.setReparaciones((rs) => rs.map((r) => (r.id === id ? { ...r, tecnico: x.id } : r)));
+    return x.nombre;
+  };
+  ganchos.resolverDev = (id, ok) => {
+    const d = t.devoluciones.find((y) => y.id === id);
+    t.setDevoluciones((ds) => ds.map((y) => (y.id === id ? { ...y, estado: ok ? "aprobada" : "rechazada", nueva: false } : y)));
+    if (ok && d) {
+      const p = t.pedidos.find((y) => y.id === d.pedido);
+      t.setPedidos((ps) => ps.map((y) => (y.id === d.pedido ? { ...y, estado: "devuelto" } : y)));
+      if (p) t.setStock((s) => { const c = structuredClone(s); p.lineas.forEach((l) => { c[l.id] = c[l.id] ?? {}; c[l.id][p.sucursal] = (c[l.id][p.sucursal] ?? 0) + l.cantidad; }); return c; });
+    }
+  };
   ganchos.ocultar = (nombre) => t.setProductos((ps) => ps.map((x) => (x.nombre === nombre ? { ...x, visible: false } : x)));
   const [vista, setVista] = useState<Vista>(() => (location.hash === "#admin" ? "admin" : "tienda"));
 
