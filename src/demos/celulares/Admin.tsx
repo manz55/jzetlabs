@@ -4,7 +4,7 @@
  * Lo que hace el cliente en la tienda (pedidos, pagos, reparaciones, devoluciones) aparece aquí.
  */
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
-import { BarChart3, Boxes, Camera, Check, Eye, EyeOff, LogOut, MessageCircle, Minus, Package, Plus, RotateCcw, Store, Undo2, Wrench, X } from "lucide-react";
+import { BarChart3, Boxes, Menu, Camera, Check, Eye, EyeOff, LogOut, MessageCircle, Minus, Package, Plus, RotateCcw, Store, Undo2, Wrench, X } from "lucide-react";
 import { qz } from "../comun";
 import { iniciarChat } from "./Asistente";
 import { chatAgregar, chatReiniciar, chatResolver, getReglas, msgBot, pedirResumen, registrar, setFocoPanel, useEnLinea, useRegistro, type Boton, type Foco } from "./bot";
@@ -66,10 +66,18 @@ const ESTILO_MOVIL = `
 `;
 const textoMetodo = (p: Pedido) => (p.metodo === "tarjeta" ? `Tarjeta ···${p.tarjeta}` : p.metodo === "transferencia" ? "Transferencia" : "Al recibir");
 
+const Marca = () => (
+  <p className="flex items-center gap-2.5 text-[1.2rem] font-bold tracking-tight"><span className="grid h-8 w-8 place-items-center rounded-[5px] bg-white text-[1rem] font-extrabold" style={{ color: TINTA }}>Ó</span><span className="leading-tight">Órbita<span className="block text-[0.74rem] font-medium opacity-55">Panel del dueño</span></span></p>
+);
+
 export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () => void; alTienda: () => void }) {
   const [pestana, setPestana] = useState<Pestana>("resumen");
   useEffect(() => { document.title = "Panel del dueño · Órbita Celulares · Demo de Jzet Labs"; }, []);
   const [v, setV] = useState(0);
+  const [menu, setMenu] = useState(false);
+  useEffect(() => { if (!menu) return; const f = (e: KeyboardEvent) => e.key === "Escape" && setMenu(false); addEventListener("keydown", f); return () => removeEventListener("keydown", f); }, [menu]);
+  const pendientes = t.pedidos.filter((p) => p.estado === "pago-pendiente" || p.estado === "pagado").length + t.devoluciones.filter((d) => d.estado === "pendiente").length;
+  const elegir = (id: Pestana) => { setPestana(id); setMenu(false); window.scrollTo({ top: 0 }); };
   /* le pone a cada celda el nombre de su columna, para el diseño de tarjetas del celular */
   const raiz = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -101,27 +109,57 @@ export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () =>
     { g: "Taller", items: [["reparaciones", "Reparaciones", Wrench, t.reparaciones.filter((r) => r.estado !== "entregado").length]] },
     { g: "Postventa", items: [["devoluciones", "Devoluciones", Undo2, devPend.length]] },
   ];
+  /* los mismos grupos y botones sirven para el menú lateral y para el de hamburguesa */
+  const Navegacion = (grande: boolean) => (
+    <nav aria-label="Panel" className="flex flex-col px-0 pb-2 md:flex-1 md:overflow-y-auto">
+      {grupos.map(({ g, items }) => (
+        <div key={g} className="mt-3 block first:mt-1">
+          <p className="px-4 pb-1 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-white/35">{g}</p>
+          {items.map(([id, tx, I, n]) => (
+            <button key={id} type="button" onClick={() => elegir(id)} aria-current={pestana === id ? "page" : undefined} className={`flex w-full items-center gap-3 whitespace-nowrap px-4 text-left font-semibold transition-colors hover:bg-white/10 ${grande ? "min-h-[3.2rem] text-[1.05rem]" : "min-h-[2.7rem] text-[0.94rem]"}`} style={pestana === id ? { background: "rgba(255,255,255,.12)", color: "#fff", boxShadow: "inset 3px 0 0 #ffd23f" } : { color: "rgba(255,255,255,.72)" }}>
+              <I size={grande ? 21 : 18} /> {tx}
+              {!!n && <span className="ml-auto min-w-5 rounded-[3px] px-1.5 text-center text-[0.72rem] font-bold" style={{ background: "#ffd23f", color: TINTA }}>{n}</span>}
+            </button>
+          ))}
+        </div>
+      ))}
+    </nav>
+  );
   const hoy = new Date().toLocaleDateString("es-GT", { weekday: "long", day: "numeric", month: "long" });
 
   return (
     <div ref={raiz} className="crm min-h-[calc(100vh-8rem)] md:grid md:grid-cols-[14.5rem_minmax(0,1fr)]" style={{ background: FONDO, color: TINTA, fontFamily: LETRA_SISTEMA }}>
       <style>{ESTILO_MOVIL}</style>
-      <aside className="text-white md:sticky md:top-0 md:flex md:h-screen md:flex-col md:self-start" style={{ background: "#14101f" }}>
-        <p className="flex items-center gap-2.5 px-4 py-4 text-[1.2rem] font-bold tracking-tight"><span className="grid h-8 w-8 place-items-center rounded-[5px] bg-white text-[1rem] font-extrabold" style={{ color: TINTA }}>Ó</span><span className="leading-tight">Órbita<span className="block text-[0.74rem] font-medium opacity-55">Panel del dueño</span></span></p>
-        <nav aria-label="Panel" className="flex gap-1 overflow-x-auto px-2 pb-2 md:flex-1 md:flex-col md:gap-0 md:overflow-y-auto md:px-0">
-          {grupos.map(({ g, items }) => (
-            <div key={g} className="flex shrink-0 gap-1 md:mt-3 md:block">
-              <p className="hidden px-4 pb-1 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-white/35 md:block">{g}</p>
-              {items.map(([id, tx, I, n]) => (
-                <button key={id} type="button" onClick={() => setPestana(id)} aria-current={pestana === id ? "page" : undefined} className="flex min-h-[2.7rem] shrink-0 items-center gap-2.5 whitespace-nowrap px-4 text-left text-[0.94rem] font-semibold transition-colors hover:bg-white/10 md:w-full" style={pestana === id ? { background: "rgba(255,255,255,.12)", color: "#fff", boxShadow: "inset 3px 0 0 #ffd23f" } : { color: "rgba(255,255,255,.72)" }}>
-                  <I size={18} /> {tx}
-                  {!!n && <span className="ml-auto min-w-5 rounded-[3px] px-1.5 text-center text-[0.72rem] font-bold" style={{ background: "#ffd23f", color: TINTA }}>{n}</span>}
-                </button>
-              ))}
+      {/* celular: barra con el menú de hamburguesa */}
+      <header className="sticky top-0 z-30 flex items-center gap-3 px-3 py-2.5 text-white md:hidden" style={{ background: "#14101f" }}>
+        <button type="button" aria-label="Abrir el menú" aria-expanded={menu} onClick={() => setMenu(true)} className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-white/10 active:bg-white/20"><Menu size={24} /></button>
+        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-[5px] bg-white text-[1rem] font-extrabold" style={{ color: TINTA }}>Ó</span>
+        <span className="min-w-0 flex-1 leading-tight"><b className="block truncate text-[1.05rem]">{NOMBRE_PESTANA[pestana]}</b><span className="text-[0.74rem] text-white/60">Panel del dueño</span></span>
+        {pendientes > 0 && <span className="rounded-full px-2.5 py-1 text-[0.8rem] font-bold" style={{ background: "#ffd23f", color: TINTA }}>{pendientes}</span>}
+      </header>
+      {menu && (
+        <div className="fixed inset-0 z-50 md:hidden" onClick={() => setMenu(false)}>
+          <div className="absolute inset-0 bg-black/55 backdrop-blur-sm" />
+          <aside role="dialog" aria-modal="true" aria-label="Menú del panel" onClick={(e) => e.stopPropagation()} className="absolute inset-y-0 left-0 flex w-[min(82vw,20rem)] flex-col overflow-y-auto text-white shadow-2xl" style={{ background: "#14101f" }}>
+            <div className="flex items-center justify-between px-4 py-4"><Marca /><button type="button" aria-label="Cerrar el menú" onClick={() => setMenu(false)} className="grid h-11 w-11 place-items-center rounded-lg bg-white/10"><X size={22} /></button></div>
+            {Navegacion(true)}
+            <div className="mt-auto border-t border-white/10 px-4 py-4">
+              <p className="flex items-center gap-2 text-[0.88rem] text-white/75"><span className="h-2 w-2 rounded-full bg-[#34d399]" /> Bot de WhatsApp conectado</p>
+              <div className="mt-2 grid gap-0.5 text-[0.98rem]">
+                <button type="button" onClick={() => { setMenu(false); alTienda(); }} className="flex min-h-[3rem] items-center gap-2.5 text-left text-white/85"><Store size={18} /> Ver la tienda</button>
+                <button type="button" onClick={() => { setMenu(false); t.reiniciar(); chatReiniciar(); setV((x) => x + 1); }} className="flex min-h-[3rem] items-center gap-2.5 text-left text-white/85"><RotateCcw size={18} /> Reiniciar el ejemplo</button>
+                <button type="button" onClick={alSalir} className="flex min-h-[3rem] items-center gap-2.5 text-left text-white/85"><LogOut size={18} /> Salir</button>
+              </div>
             </div>
-          ))}
-        </nav>
-        <div className="hidden border-t border-white/10 px-4 py-3 md:block">
+          </aside>
+        </div>
+      )}
+
+      {/* computadora: menú lateral fijo */}
+      <aside className="hidden text-white md:sticky md:top-0 md:flex md:h-screen md:flex-col md:self-start" style={{ background: "#14101f" }}>
+        <div className="px-4 py-4"><Marca /></div>
+        {Navegacion(false)}
+        <div className="border-t border-white/10 px-4 py-3">
           <p className="flex items-center gap-2 text-[0.82rem] text-white/75"><span className="h-2 w-2 rounded-full bg-[#34d399]" /> Bot de WhatsApp conectado</p>
           <div className="mt-2 grid gap-0.5 text-[0.86rem]">
             <button type="button" onClick={alTienda} className="flex min-h-[2.4rem] items-center gap-2 text-left text-white/75 hover:text-white"><Store size={15} /> Ver la tienda</button>
@@ -132,7 +170,7 @@ export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () =>
       </aside>
 
       <main className="min-w-0">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b bg-white px-[clamp(1rem,3vw,2.5rem)] py-3" style={{ borderColor: BORDE }}>
+        <div className="hidden flex-wrap items-center justify-between gap-2 border-b bg-white px-[clamp(1rem,3vw,2.5rem)] py-3 md:flex" style={{ borderColor: BORDE }}>
           <p className="text-[0.92rem]" style={{ color: MUTED }}>Órbita <span className="mx-1">/</span> <b className="text-[#14101f]">{NOMBRE_PESTANA[pestana]}</b></p>
           <p className="text-[0.88rem]" style={{ color: MUTED }}>{hoy.charAt(0).toUpperCase() + hoy.slice(1)} · tres puntos de venta</p>
         </div>
@@ -143,10 +181,6 @@ export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () =>
           {pestana === "inventario" && <Inventario t={t} />}
           {pestana === "reparaciones" && <Reparaciones t={t} />}
           {pestana === "devoluciones" && <Devoluciones t={t} />}
-          <div className="mt-2 flex flex-wrap items-center justify-between gap-2 md:hidden">
-            <button type="button" onClick={alTienda} className={BTN} style={borde}><Store size={15} /> Ver la tienda</button>
-            <button type="button" onClick={() => { t.reiniciar(); chatReiniciar(); setV((x) => x + 1); }} className={BTN} style={borde}><RotateCcw size={15} /> Reiniciar</button>
-          </div>
           <p className="text-center text-xs" style={{ color: MUTED }}>Panel de demostración con datos de ejemplo. Lo que cambie aquí solo se guarda en este navegador.</p>
         </div>
       </main>
