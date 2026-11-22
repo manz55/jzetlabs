@@ -24,8 +24,8 @@ import fotoDental from "@/assets/demo-clinica/paciente.jpg";
 import fotoPediatria from "@/assets/demo-pediatria/examen.jpg";
 import fotoMedicina from "@/assets/demo-medicina/presion.jpg";
 import fotoVeterinaria from "@/assets/demo-veterinaria/hero.jpg";
-import fotoOftalmologia from "@/assets/demos/oftalmologia.svg";
-import fotoTaller from "@/assets/demos/taller.svg";
+import fotoOftalmologia from "@/assets/demos/oftalmologia-pagina.jpg";
+import fotoTaller from "@/assets/demos/taller-pagina.jpg";
 import { whatsappLink } from "@/data/site";
 import { Titulo } from "./Titulo";
 
@@ -40,6 +40,7 @@ type Variante = {
   hoy: string[];
   sistema: string[];
   visual: "foto" | "planes";
+  miniatura?: boolean;
   demo: { texto: string; tipo: string };
   panel?: { texto: string; href: string };
 };
@@ -50,51 +51,51 @@ const VARIANTES_BELLEZA: Variante[] = [
     id: "perfil",
     nombre: "Consultoras",
     foto: fotoPerfil,
-    problema: "La hoja de perfil de la clienta confunde, y al final nadie la vuelve a ver.",
-    hoy: ["La clienta llena una hoja de papel con casillas chiquitas.", "Cumpleaños, tonos y amigas recomendadas se quedan en un fólder."],
-    sistema: ["La clienta responde en su teléfono, una pregunta a la vez y con letra grande.", "Su perfil le llega ordenado por WhatsApp.", "Usted ve sus clientas, los cumpleaños del mes y a quién ofrecerle un facial."],
+    problema: "La hoja de la clienta nadie la vuelve a ver.",
+    hoy: ["Hoja de papel con casillas chiquitas.", "Cumpleaños y tonos en un fólder."],
+    sistema: ["La clienta responde desde su teléfono.", "Usted la ve ordenada por WhatsApp.", "Sabe quién cumple años este mes."],
     visual: "foto",
-    demo: { texto: "Ver el cuestionario de la clienta", tipo: "perfil" },
+    demo: { texto: "Ver la página", tipo: "perfil" },
   },
   {
     id: "ropa",
     nombre: "Ropa",
     foto: fotoRopa,
-    problema: "Le preguntan talla y precio por DM, prenda por prenda.",
-    hoy: ["Fotos en Instagram y el precio “por inbox”.", "Apartados y pagos anotados en el chat, y ahí se pierden."],
-    sistema: ["Catálogo con tallas, colores y precios a la vista.", "El cliente arma su pedido y le llega por WhatsApp.", "Ve qué prenda se vende más y qué talla se le acabó."],
+    problema: "Todo el día: ¿precio? ¿qué talla?",
+    hoy: ["Precio “por inbox”, prenda por prenda.", "Apartados anotados en el chat."],
+    sistema: ["Catálogo con tallas y precios.", "El pedido le llega armado.", "Sabe qué talla se le acabó."],
     visual: "foto",
-    demo: { texto: "Ver la tienda de ropa en línea", tipo: "ropa" },
+    demo: { texto: "Ver la página", tipo: "ropa" },
   },
   {
     id: "cosmeticos",
     nombre: "Cosméticos",
     foto: fotoCosmeticos,
-    problema: "Todo el día contestando “¿precio?” y “¿qué tono me queda?”.",
-    hoy: ["Vende por Instagram y cada pedido es una conversación larga.", "Cursos y citas se apartan por mensaje, uno por uno."],
-    sistema: ["Precio, tono y cómo usarlo, a la vista.", "La clienta encuentra su tono de base en dos preguntas.", "Cursos con fechas y cupos, y pedidos que le llegan armados a WhatsApp."],
+    problema: "Todo el día: ¿precio? ¿qué tono me queda?",
+    hoy: ["Cada pedido es una charla larga.", "Cursos apartados uno por uno."],
+    sistema: ["Precio y tono a la vista.", "La clienta encuentra su tono sola.", "Cursos con cupo y pedidos por WhatsApp."],
     visual: "foto",
-    demo: { texto: "Ver la tienda de cosméticos", tipo: "cosmeticos" },
+    demo: { texto: "Ver la página", tipo: "cosmeticos" },
   },
   {
     id: "salon",
     nombre: "Salones",
     foto: fotoSalon,
-    problema: "Cada sucursal agenda por su propio WhatsApp, y las citas se cruzan.",
-    hoy: ["La clienta escribe para preguntar si hay hora y espera a que le contesten.", "Las que no llegan dejan huecos, y nadie se acuerda de invitar a las que ya les toca retoque."],
-    sistema: ["La clienta elige sucursal, servicio, con quién y la hora libre, sola y a cualquier hora.", "Recordatorio por WhatsApp un día antes de cada cita.", "La agenda del día por estilista y la lista de quién ya necesita retoque."],
+    problema: "Cada sucursal agenda por su WhatsApp.",
+    hoy: ["Las citas se cruzan.", "Nadie recuerda el retoque."],
+    sistema: ["La clienta escoge su hora sola.", "Recordatorio un día antes.", "Agenda por estilista."],
     visual: "foto",
-    demo: { texto: "Ver la página donde agendan", tipo: "salon" },
+    demo: { texto: "Ver la página", tipo: "salon" },
   },
   {
     id: "boutique",
     nombre: "Boutique",
     foto: fotoBoutique,
-    problema: "Apartados, consignaciones y piezas únicas anotados en el chat.",
-    hoy: ["Cada pieza se ofrece por historia y se aparta por mensaje.", "Las consignaciones y los abonos se llevan en un cuaderno."],
-    sistema: ["Cada pieza con fotos, estado y su precio a la vista.", "Apartados con abonos y fecha límite, sin perder la cuenta.", "Consignaciones claras: qué se vendió y cuánto le toca a cada quien."],
+    problema: "Apartados y consignaciones en el chat.",
+    hoy: ["Cada pieza se aparta por mensaje.", "Los abonos, en un cuaderno."],
+    sistema: ["Cada pieza con foto y precio.", "Apartados con fecha límite.", "Cuentas claras con quien consigna."],
     visual: "foto",
-    demo: { texto: "Ver la boutique en línea", tipo: "boutique" },
+    demo: { texto: "Ver la página", tipo: "boutique" },
   },
 ];
 
@@ -103,31 +104,31 @@ const VARIANTES_TIENDA: Variante[] = [
     id: "celulares",
     nombre: "Celulares",
     foto: fotoCelulares,
-    problema: "“¿Precio? ¿Hay en azul? ¿Ya salió mi pedido?”, todo el día por mensaje.",
-    hoy: ["El catálogo es una historia que dura 24 horas.", "El stock se lleva en un cuaderno y se vende lo que ya no hay."],
-    sistema: ["Tienda con carrito, pago con tarjeta o transferencia y cuotas.", "El cliente rastrea su pedido o su reparación con un código.", "Usted ve ventas, stock por sucursal y devoluciones en su panel."],
+    problema: "¿Precio? ¿Hay en azul? ¿Ya salió?",
+    hoy: ["El catálogo dura 24 horas.", "El stock, en un cuaderno."],
+    sistema: ["Tienda con carrito y cuotas.", "El cliente sigue su pedido.", "Usted ve ventas y stock."],
     visual: "foto",
-    demo: { texto: "Ver la tienda de celulares", tipo: "celulares" },
+    demo: { texto: "Ver la página", tipo: "celulares" },
   },
   {
     id: "comida",
     nombre: "Comida",
     foto: fotoComida,
-    problema: "Pedidos por mensaje, y alguno siempre sale mal.",
-    hoy: ["El menú es una foto vieja y los precios ya cambiaron.", "Los pedidos se toman a mano entre mensajes y llamadas."],
-    sistema: ["Menú en línea con fotos y precios al día.", "El pedido le llega completo, con dirección y forma de pago.", "Sabe qué platillo se vende más cada semana."],
+    problema: "Pedidos por mensaje, y alguno sale mal.",
+    hoy: ["Menú viejo, precios que cambiaron.", "Pedidos anotados a mano."],
+    sistema: ["Menú en línea con precios al día.", "Pedido completo, con dirección.", "Cocina con reloj por pedido."],
     visual: "foto",
-    demo: { texto: "Ver el menú con pedidos", tipo: "restaurante" },
+    demo: { texto: "Ver la página", tipo: "restaurante" },
   },
   {
     id: "tiempos",
     nombre: "Tiempos compartidos",
     foto: fotoResort,
-    problema: "Explicar planes y fechas por chat se lleva horas.",
-    hoy: ["Los planes y precios se mandan en PDFs y audios.", "Las semanas apartadas viven en un Excel que nadie actualiza."],
-    sistema: ["Planes claros, con lo que incluye cada uno.", "Las semanas disponibles y apartadas, a la vista.", "Recordatorios de pago para cada socio."],
+    problema: "Explicar planes por chat toma horas.",
+    hoy: ["Planes en PDF y audios.", "Semanas apartadas en un Excel."],
+    sistema: ["Planes claros.", "Semanas libres a la vista.", "Recordatorio de pago."],
     visual: "planes",
-    demo: { texto: "Ver la página del club", tipo: "tiempo" },
+    demo: { texto: "Ver la página", tipo: "tiempo" },
   },
 ];
 
@@ -137,34 +138,35 @@ const VARIANTES_EMPRESAS: Variante[] = [
     id: "distribuidora",
     nombre: "Distribuidora",
     foto: fotoDistribuidora,
-    problema: "Pedidos por llamada, rutas en la cabeza del piloto y cobros que no cuadran.",
-    hoy: ["El tendero pide por audio y el pedido se apunta mal.", "En la noche nadie sabe cuánto cobró cada piloto ni quién debe."],
-    sistema: ["Las tiendas piden desde el teléfono con la lista de precios del día.", "El piloto marca lo entregado y lo cobrado en su ruta.", "La oficina ve lo que hay que cargar, los créditos vencidos y lo que se acaba en bodega."],
+    problema: "Pedidos por llamada y cobros que no cuadran.",
+    hoy: ["El pedido se apunta mal.", "Nadie sabe quién debe."],
+    sistema: ["La tienda pide desde su teléfono.", "El piloto marca lo entregado.", "La oficina ve créditos y bodega."],
     visual: "foto",
-    demo: { texto: "Ver el pedido de la tienda", tipo: "distribuidora" },
-    panel: { texto: "Ver el sistema de la oficina", href: "/demos/distribuidora/#oficina" },
+    demo: { texto: "Ver la página", tipo: "distribuidora" },
+    panel: { texto: "Ver el panel", href: "/demos/distribuidora/#oficina" },
   },
   {
     id: "personal",
     nombre: "Personal y planilla",
     foto: marcaje,
-    problema: "Armar la planilla a mano se lleva días, y siempre falta un dato.",
-    hoy: ["La asistencia anda entre papel, Excel y mensajes de WhatsApp.", "Se le van días enteros sumando horas extra, séptimo e IGSS."],
-    sistema: ["Usted ve dónde está cada quien, quién faltó y cuánto se debe de prestaciones.", "La planilla sale sola y las boletas ya quedan listas.", "Caja chica y viáticos, todo en el mismo lugar."],
+    problema: "La planilla a mano toma días.",
+    hoy: ["Asistencia en papel y WhatsApp.", "Horas extra sumadas a mano."],
+    sistema: ["Ve quién llegó y quién faltó.", "La planilla sale sola.", "Las boletas quedan listas."],
     visual: "foto",
-    demo: { texto: "Ver el panel de la oficina", tipo: "asistencia" },
-    panel: { texto: "Ver el portal del empleado", href: "/demos/planilla/#empleado" },
+    demo: { texto: "Ver la página", tipo: "asistencia" },
+    panel: { texto: "Ver el panel", href: "/demos/planilla/#empleado" },
   },
   {
     id: "taller",
     nombre: "Taller mecánico",
     foto: fotoTaller,
-    problema: "“¿Cuánto cuesta?” y “¿ya está mi carro?”, todo el día por mensaje.",
-    hoy: ["La cotización es “venga y vemos”, y el cliente se va a comparar.", "Para saber si su carro ya está listo, el cliente tiene que llamar."],
-    sistema: ["El cliente ve los precios en rango y pide su cotización por WhatsApp.", "Con su placa ve en qué paso va su carro y cuánto va a pagar.", "El taller avisa en cada paso y recuerda el cambio de aceite."],
+    problema: "¿Cuánto cuesta? ¿Ya está mi carro?",
+    hoy: ["Precio: “venga y vemos”.", "El cliente llama para preguntar."],
+    sistema: ["Precio por WhatsApp.", "Con su placa ve su carro.", "El taller avisa en cada paso."],
     visual: "foto",
-    demo: { texto: "Ver la página del taller", tipo: "taller" },
-    panel: { texto: "Ver el panel del taller", href: "/demos/taller/#taller" },
+    miniatura: true,
+    demo: { texto: "Ver la página", tipo: "taller" },
+    panel: { texto: "Ver el panel", href: "/demos/taller/#taller" },
   },
 ];
 
@@ -174,56 +176,57 @@ const VARIANTES_CLINICAS: Variante[] = [
     id: "dental",
     nombre: "Dental",
     foto: fotoDental,
-    problema: "Citas que se olvidan y horas que se quedan vacías.",
-    hoy: ["La agenda vive en un cuaderno o en el teléfono de recepción.", "El paciente no llega porque nadie le recordó."],
-    sistema: ["El paciente aparta su cita y ve el precio antes de venir.", "Cada doctor ve su agenda, el odontograma y quién tiene saldo.", "Recordatorio por WhatsApp un día antes."],
+    problema: "Citas que se olvidan.",
+    hoy: ["Agenda en un cuaderno.", "El paciente no llega."],
+    sistema: ["Aparta su cita desde el teléfono.", "Recordatorio por WhatsApp.", "Usted ve el día completo."],
     visual: "foto",
-    demo: { texto: "Ver la página de pacientes", tipo: "clinica" },
-    panel: { texto: "Ver el sistema de la clínica", href: "/demos/clinica/#panel" },
+    demo: { texto: "Ver la página", tipo: "clinica" },
+    panel: { texto: "Ver el panel", href: "/demos/clinica/#panel" },
   },
   {
     id: "pediatria",
     nombre: "Pediatría",
     foto: fotoPediatria,
-    problema: "“¿Qué vacuna le toca?” y “¿hay espacio hoy?”, todo el día por WhatsApp.",
-    hoy: ["El peso y la talla se apuntan en un carné que se pierde.", "Las vacunas atrasadas nadie las recuerda."],
-    sistema: ["La mamá ve qué vacuna le toca según la edad y aparta cita.", "La curva de peso de cada hijo, en su teléfono.", "Recepción ve la agenda del día y a quién recordarle su vacuna."],
+    problema: "¿Qué vacuna le toca?",
+    hoy: ["Carné de papel que se pierde.", "Vacunas atrasadas sin aviso."],
+    sistema: ["La mamá ve qué vacuna toca.", "Curva de peso en su teléfono.", "Usted ve a quién llamar."],
     visual: "foto",
-    demo: { texto: "Ver la página para las mamás", tipo: "pediatria" },
-    panel: { texto: "Ver el sistema del consultorio", href: "/demos/pediatria/#consultorio" },
+    demo: { texto: "Ver la página", tipo: "pediatria" },
+    panel: { texto: "Ver el panel", href: "/demos/pediatria/#consultorio" },
   },
   {
     id: "medicina",
     nombre: "Medicina general",
     foto: fotoMedicina,
-    problema: "Pacientes con presión o diabetes que solo vienen cuando ya están mal.",
-    hoy: ["Las lecturas viven en un cuaderno que nunca traen.", "Hay que sacar cita solo para renovar una receta."],
-    sistema: ["El paciente anota su presión y su azúcar desde el teléfono.", "Pide su receta y ve sus resultados de laboratorio.", "El doctor ve primero a los que salieron altos."],
+    problema: "Pacientes crónicos que vienen ya mal.",
+    hoy: ["Presión anotada en un cuaderno.", "Cita solo para la receta."],
+    sistema: ["Anotan su presión desde el teléfono.", "Piden su receta en línea.", "Usted ve primero a los altos."],
     visual: "foto",
-    demo: { texto: "Ver la página de pacientes", tipo: "medicina" },
-    panel: { texto: "Ver el sistema del consultorio", href: "/demos/medicina/#consultorio" },
+    demo: { texto: "Ver la página", tipo: "medicina" },
+    panel: { texto: "Ver el panel", href: "/demos/medicina/#consultorio" },
   },
   {
     id: "oftalmologia",
     nombre: "Oftalmología",
     foto: fotoOftalmologia,
-    problema: "Citas que no se respetan y colas de horas: el paciente espera y la queja queda en Google.",
-    hoy: ["Se da una hora y se atiende cuando se puede.", "Si el doctor se atrasa, nadie le avisa al paciente."],
-    sistema: ["El paciente pide su turno y sabe a qué hora le toca.", "Si hay retraso, recepción avisa por WhatsApp con un toque.", "Sucursales, reseñas con respuesta y reportes en un solo panel."],
+    problema: "Citas que no se respetan.",
+    hoy: ["Esperan horas sin saber.", "Nadie avisa el retraso."],
+    sistema: ["Ve su turno y su hora.", "Un toque avisa el retraso.", "Las reseñas tienen respuesta."],
     visual: "foto",
-    demo: { texto: "Ver la página de pacientes", tipo: "oftalmologia" },
-    panel: { texto: "Ver el panel de la clínica", href: "/demos/oftalmologia/#recepcion" },
+    miniatura: true,
+    demo: { texto: "Ver la página", tipo: "oftalmologia" },
+    panel: { texto: "Ver el panel", href: "/demos/oftalmologia/#recepcion" },
   },
   {
     id: "veterinaria",
     nombre: "Veterinaria",
     foto: fotoVeterinaria,
-    problema: "“¿Es urgencia o puede esperar?”, y el teléfono sonando todo el día.",
-    hoy: ["El dueño no sabe si traer a su mascota hoy o esperar.", "El carné de vacunas es de cartón y se pierde."],
-    sistema: ["El dueño marca los síntomas y ve qué hacer.", "Carné de vacunas en el teléfono, con aviso de la próxima.", "La clínica ve la agenda, las vacunas vencidas y a los internados."],
+    problema: "¿Es urgencia o puede esperar?",
+    hoy: ["El teléfono ocupado todo el día.", "Carné de cartón que se pierde."],
+    sistema: ["El dueño marca síntomas y ve qué hacer.", "Carné de vacunas en el teléfono.", "Usted ve internados y vacunas."],
     visual: "foto",
-    demo: { texto: "Ver la página para dueños", tipo: "veterinaria" },
-    panel: { texto: "Ver el sistema de la clínica", href: "/demos/veterinaria/#clinica" },
+    demo: { texto: "Ver la página", tipo: "veterinaria" },
+    panel: { texto: "Ver el panel", href: "/demos/veterinaria/#clinica" },
   },
 ];
 
@@ -263,7 +266,7 @@ function TarjetasFoco({ variantes, elegida, alElegir }: { variantes: Variante[];
   return (
     <div className="md:col-span-2">
       <p className="font-semibold text-tinta">
-        Escoja su tipo de negocio <span className="font-normal text-suave">· {variantes.length} opciones</span>
+        Escoja el suyo
       </p>
       <div className={`mt-3 grid gap-2.5 ${columnas}`} role="radiogroup" aria-label="Tipo de negocio">
         {variantes.map((v, i) => {
@@ -370,16 +373,12 @@ const RUBROS: Rubro[] = [
     id: "gimnasios",
     nombre: "Gimnasios",
     problema: "Membresías vencidas que nadie cobra.",
-    hoy: ["Los socios se llevan en una libreta o en Excel.", "No se sabe quién ya debe ni quién entró hoy."],
-    sistema: [
-      "Ve en vivo quién va entrando.",
-      "Le avisa qué membresías ya vencieron o están por vencer.",
-      "Cobros e ingresos del mes, de un vistazo.",
-    ],
+    hoy: ["Socios en una libreta.", "No se sabe quién debe."],
+    sistema: ["Ve quién va entrando.", "Le avisa qué vence.", "Cobros del mes de un vistazo."],
     img: gimnasio,
     alt: "Socia entrenando con la barra en el gimnasio",
-    demo: { texto: "Ver el sistema de recepción", href: "/demos/gimnasio/#recepcion" },
-    demo2: { texto: "Ver la página del gimnasio", href: "/demos/gimnasio/" },
+    demo: { texto: "Ver el panel", href: "/demos/gimnasio/#recepcion" },
+    demo2: { texto: "Ver la página", href: "/demos/gimnasio/" },
   },
   {
     id: "belleza",
@@ -407,18 +406,14 @@ const RUBROS: Rubro[] = [
   {
     id: "eventos",
     nombre: "Eventos",
-    problema: "“¿Tiene libre para el 14?” y una cotización que toma toda la tarde.",
-    hoy: ["El calendario es un cuaderno y a veces se alquila dos veces lo mismo.", "Sillas que no regresan y nadie sabe quién las debe."],
-    sistema: [
-      "El cliente ve si su fecha está libre y cuánto le sale según sus invitados.",
-      "Aparta con el anticipo y el saldo queda anotado.",
-      "La bodega ve la hoja de carga del fin de semana y lo que no regresó.",
-    ],
+    problema: "¿Tiene libre el 14? Y cotizar toma la tarde.",
+    hoy: ["Calendario en un cuaderno.", "Sillas que no regresan."],
+    sistema: ["El cliente ve si la fecha está libre.", "Aparta con anticipo.", "La bodega ve qué cargar."],
     img: fotoEventos,
     alt: "Toldo blanco montado para una recepción",
-    demo: { texto: "Ver la página para cotizar", href: "/demos/eventos/" },
-    demo2: { texto: "Ver el sistema de la bodega", href: "/demos/eventos/#bodega" },
-    nota: "Foto de ejemplo. La demo usa datos de prueba.",
+    demo: { texto: "Ver la página", href: "/demos/eventos/" },
+    demo2: { texto: "Ver el panel", href: "/demos/eventos/#bodega" },
+    nota: "Foto de ejemplo.",
   },
 ];
 
@@ -454,11 +449,11 @@ export function Rubros() {
       <div className="contenedor">
         <div className="max-w-3xl aparece">
           <Titulo id="rubros-titulo" antes="Véalo" acento="funcionando" />
-          <p className="mt-4 text-suave text-[1.05rem]">¿Qué problema tiene su negocio? Elija su rubro: el problema de hoy, cómo lo resuelve el sistema y una demo para probar.</p>
+          <p className="mt-4 text-suave text-[1.05rem]">Escoja su negocio y pruébelo.</p>
         </div>
 
         <p className="mt-8 text-[1.15rem] font-semibold text-tinta aparece">¿Qué tipo de negocio tiene?</p>
-        <p className="mt-1 text-suave aparece">Toque el suyo y vea la página que ve su cliente y el panel que ve usted, cada uno con su propia forma de verse.</p>
+        <p className="mt-1 text-suave aparece">Toque el suyo. Vea la página y el panel.</p>
         <div
           ref={lista}
           role="tablist"
@@ -539,11 +534,11 @@ export function Rubros() {
                 <p className="mt-7 inline-flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-linea bg-blanco px-4 py-2.5 text-[0.92rem]">
                   <span className="flex gap-1" aria-hidden>{info.c.map((c) => <span key={c} className="h-5 w-5 rounded-full border border-black/10" style={{ background: c }} />)}</span>
                   <span><b>Su panel:</b> {info.n}</span>
-                  <span className="text-suave">Letra: {info.f}</span>
+                  <span className="text-suave">Tipografía: {info.f}</span>
                 </p>
               );
             })()}
-            <p className="mt-4 text-[0.95rem] text-suave">Son ejemplos con datos inventados: puede tocar todo. Cada sistema se arma a la medida de su empresa, sea marcaje, inventario, citas o lo que necesite.</p>
+            <p className="mt-4 text-[0.95rem] text-suave">Todo es de ejemplo. Toque lo que quiera.</p>
             <div className="mt-3 flex flex-wrap gap-3">
               {v ? (
                 <>
@@ -588,7 +583,7 @@ export function Rubros() {
           ) : v ? (
             <figure className="justify-self-center">
               <img src={v.foto} alt={`Foto de ejemplo: ${v.nombre.toLowerCase()}`} className="w-[230px] sm:w-[270px] aspect-[4/5] object-cover rounded-[1.4rem] shadow-lg" loading="lazy" />
-              <figcaption className="mt-3 max-w-[270px] text-center text-xs text-suave">Foto de ejemplo. La demo usa datos de prueba.</figcaption>
+              <figcaption className="mt-3 max-w-[270px] text-center text-xs text-suave">{v.miniatura ? "Así se ve la página." : "Foto de ejemplo."}</figcaption>
             </figure>
           ) : (
           <figure className="justify-self-center">
@@ -600,7 +595,7 @@ export function Rubros() {
               className="w-[220px] sm:w-[250px] rounded-[1.6rem] border-[6px] border-marino shadow-lg"
               loading="lazy"
             />
-            <figcaption className="mt-3 max-w-[250px] text-center text-xs text-suave">{r.nota ?? "Demostración con datos de prueba."}</figcaption>
+            <figcaption className="mt-3 max-w-[250px] text-center text-xs text-suave">{r.nota ?? "Ejemplo."}</figcaption>
           </figure>
           )}
         </div>
