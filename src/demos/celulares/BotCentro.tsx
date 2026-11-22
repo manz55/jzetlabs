@@ -2,15 +2,15 @@
  * El bot dentro del panel: el centro de control (estado, reglas, números autorizados y registro de todo lo que hace),
  * la franja que aparece arriba de cada sección y el chat flotante que se abre desde cualquier pantalla.
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MessageCircle, Store, X } from "lucide-react";
-import { Asistente, simularCompra } from "./Asistente";
-import { REGLAS, ponerRegla, setDock, useDock, useNoLeidos, useRegistro, useReglas, type Area, type Origen } from "./bot";
+import { Asistente, resumenDe, simularCompra } from "./Asistente";
+import { REGLAS, getFocoPanel, personaActual, ponerAutorizado, ponerRegla, pedirResumen, publicarResumen, setDock, useAutorizados, useDock, useEnLinea, useNoLeidos, usePeticion, useRegistro, useReglas, type Area, type Origen } from "./bot";
 import { BORDE, BTN, Cifras, MUTED, Panel, TD, TH, Titulo, borde, principal } from "./ui";
 import type { Tienda } from "./datos";
 
 const VERDE = "#128c7e";
-const COLOR_ORIGEN: Record<Origen, [string, string]> = { "Bot automático": ["#0f6e6a", "#dcf3f1"], "Dueño por WhatsApp": ["#1f7a3a", "#e1f5e6"], Panel: ["#4b5563", "#eceef1"], "Cliente en la tienda": ["#5a3fc0", "#ece6ff"] };
+const COLOR_ORIGEN: Record<Origen, [string, string]> = { "Bot automático": ["#0f6e6a", "#dcf3f1"], "Dueño por WhatsApp": ["#1f7a3a", "#e1f5e6"], "Equipo por WhatsApp": ["#8a4b00", "#fff1d6"], "Cliente por WhatsApp": ["#5a3fc0", "#ece6ff"], Panel: ["#4b5563", "#eceef1"], "Cliente en la tienda": ["#5a3fc0", "#ece6ff"] };
 const hoyIso = () => new Date().toDateString();
 const hora = (iso: string) => new Date(iso).toLocaleTimeString("es-GT", { hour: "2-digit", minute: "2-digit", hour12: false });
 
@@ -30,12 +30,13 @@ export function FranjaBot({ area }: { area: Area }) {
   const lista = REGLAS.filter((r) => r.area === area);
   const por = (o: Origen) => registro.filter((r) => r.origen === o).length;
   const ultimo = registro[0];
+  const enLinea = useEnLinea();
   return (
     <section className="rounded-md border bg-white" style={{ borderColor: BORDE, borderLeft: `4px solid ${VERDE}` }}>
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
         <p className="flex items-center gap-2 font-bold"><span className="grid h-7 w-7 place-items-center rounded-full text-white" style={{ background: VERDE }}><MessageCircle size={15} /></span> Bot de WhatsApp · {area}</p>
-        <p className="text-[0.9rem]" style={{ color: MUTED }}>Hoy: <b className="text-[#14101f]">{por("Bot automático")}</b> acciones del bot · <b className="text-[#14101f]">{por("Dueño por WhatsApp")}</b> pedidas por WhatsApp · <b className="text-[#14101f]">{por("Cliente en la tienda")}</b> eventos de clientes</p>
-        <button type="button" onClick={() => setDock(true)} className={`${BTN} ml-auto`} style={principal}><MessageCircle size={15} /> Abrir chat</button>
+        <p className="text-[0.9rem]" style={{ color: MUTED }}>Hoy: <b className="text-[#14101f]">{por("Bot automático")}</b> acciones del bot · <b className="text-[#14101f]">{por("Dueño por WhatsApp")}</b> pedidas por WhatsApp · <b className="text-[#14101f]">{por("Cliente en la tienda")}</b> eventos de clientes{area === "Tienda" && <> · <b className="text-[#14101f]">{enLinea}</b> en la tienda ahora</>}</p>
+        <button type="button" onClick={pedirResumen} className={`${BTN} ml-auto`} style={principal}><MessageCircle size={15} /> Abrir chat</button>
       </div>
       <div className="grid gap-x-6 gap-y-2 border-t px-4 py-2.5 md:grid-cols-2" style={{ borderColor: BORDE }}>
         {lista.map((r) => (
@@ -54,10 +55,21 @@ export function FranjaBot({ area }: { area: Area }) {
 export function DockBot({ t }: { t: Tienda }) {
   const abierto = useDock();
   const noLeidos = useNoLeidos();
+  const peticion = usePeticion();
+  /* al abrir el chat desde una sección, el bot arranca hablando de esa sección */
+  useEffect(() => {
+    if (!peticion) return;
+    const p = personaActual();
+    if (p.rol !== "DUENO" && p.rol !== "ENCARGADO") return;
+    const foco = getFocoPanel();
+    const ms = resumenDe(t, foco);
+    publicarResumen(foco + ms.map((m) => m.texto).join("|"), ms);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [peticion]);
   return (
     <>
       {!abierto && (
-        <button type="button" onClick={() => setDock(true)} aria-label="Abrir el chat del bot" className="fixed bottom-5 right-5 z-40 grid h-14 w-14 place-items-center rounded-full text-white shadow-lg transition hover:scale-105 active:scale-95" style={{ background: VERDE }}>
+        <button type="button" onClick={pedirResumen} aria-label="Abrir el chat del bot" className="fixed bottom-5 right-5 z-40 grid h-14 w-14 place-items-center rounded-full text-white shadow-lg transition hover:scale-105 active:scale-95" style={{ background: VERDE }}>
           <MessageCircle size={26} />
           {noLeidos > 0 && <span className="absolute -right-1 -top-1 grid h-6 min-w-6 place-items-center rounded-full bg-[#d7263d] px-1 text-[0.78rem] font-bold">{noLeidos}</span>}
         </button>
@@ -75,17 +87,11 @@ export function DockBot({ t }: { t: Tienda }) {
   );
 }
 
-const AUTORIZADOS = [
-  { id: 1, nombre: "Marco Aguilar", rol: "Dueño", numero: "+502 5555 0100", permisos: "Todo: ventas, stock, precios, reparaciones, devoluciones", activo: true },
-  { id: 2, nombre: "Sandra López", rol: "Encargada de Zona 10", numero: "+502 5555 0111", permisos: "Pedidos y existencias de su sucursal", activo: true },
-  { id: 3, nombre: "Luis Pérez", rol: "Encargado de Mixco", numero: "+502 5555 0122", permisos: "Pedidos y existencias de su sucursal", activo: true },
-  { id: 4, nombre: "Byron Gómez", rol: "Técnico", numero: "+502 5555 0101", permisos: "Estado de las reparaciones asignadas", activo: false },
-];
 
 export function PaginaBot({ t, alTienda }: { t: Tienda; alTienda: () => void }) {
   const registro = useRegistro();
   const reglas = useReglas();
-  const [autorizados, setAutorizados] = useState(AUTORIZADOS);
+  const autorizados = useAutorizados();
   const [msg, setMsg] = useState("");
   const hoy = registro.filter((r) => new Date(r.f).toDateString() === hoyIso());
   const n = (o: Origen) => hoy.filter((r) => r.origen === o).length;
@@ -139,10 +145,10 @@ export function PaginaBot({ t, alTienda }: { t: Tienda; alTienda: () => void }) 
               <thead><tr><th className={TH}>Persona</th><th className={TH}>Número</th><th className={TH}>Puede pedir</th><th className={`${TH} text-right`}>Activo</th></tr></thead>
               <tbody>{autorizados.map((a) => (
                 <tr key={a.id} className="border-t" style={{ borderColor: BORDE, opacity: a.activo ? 1 : 0.55 }}>
-                  <td className={`${TD} font-semibold`}>{a.nombre}<span className="block text-[0.8rem] font-normal" style={{ color: MUTED }}>{a.rol}</span></td>
+                  <td className={`${TD} font-semibold`}>{a.nombre}<span className="block text-[0.8rem] font-normal" style={{ color: MUTED }}>{a.etiqueta}</span></td>
                   <td className={`${TD} tabular-nums`}>{a.numero}</td>
                   <td className={TD} style={{ color: MUTED }}>{a.permisos}</td>
-                  <td className={`${TD} text-right`}><Interruptor activo={a.activo} alCambiar={() => setAutorizados((l) => l.map((x) => (x.id === a.id ? { ...x, activo: !x.activo } : x)))} etiqueta={`Autorizar a ${a.nombre}`} /></td>
+                  <td className={`${TD} text-right`}><Interruptor activo={a.activo} alCambiar={() => ponerAutorizado(a.id, !a.activo)} etiqueta={`Autorizar a ${a.nombre}`} /></td>
                 </tr>
               ))}</tbody>
             </table>

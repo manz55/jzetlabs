@@ -334,7 +334,7 @@ const STOCK_INICIAL: Stock = {
   audifonos: { z10: 20, mix: 12, xela: 9 },
   cargador: { z10: 45, mix: 30, xela: 22 },
   cable: { z10: 80, mix: 50, xela: 35 },
-  fundas: { z10: 60, mix: 40, xela: 25 },
+  fundas: { z10: 2, mix: 1, xela: 0 },
   bateria: { z10: 25, mix: 15, xela: 10 },
   reloj: { z10: 12, mix: 6, xela: 4 },
 };
@@ -380,7 +380,7 @@ export function useTienda() {
   const [pedidos, setPedidos] = useGuardado("orbita-pedidos-v4", pedidosEjemplo);
   const [devoluciones, setDevoluciones] = useGuardado("orbita-devoluciones-v4", () => DEVOLUCIONES_EJEMPLO);
   const [reparaciones, setReparaciones] = useGuardado("orbita-reparaciones-v4", () => REPARACIONES_EJEMPLO);
-  const [stock, setStock] = useGuardado("orbita-stock-v4", () => STOCK_INICIAL);
+  const [stock, setStock] = useGuardado("orbita-stock-v5", () => STOCK_INICIAL);
   const [tecnicos, setTecnicos] = useGuardado("orbita-tecnicos-v4", () => TECNICOS_EJEMPLO);
   const [guardados, setProductos] = useGuardado("orbita-productos-v4", productosIniciales);
   // las fotos de ejemplo se toman siempre del sitio (su dirección cambia al publicar); las que sube el dueño se guardan tal cual

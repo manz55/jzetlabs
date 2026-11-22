@@ -18,7 +18,7 @@ import {
   type Linea, type Metodo, type Pedido, type Producto, type Tienda,
 } from "./datos";
 import { cobrarConTarjeta } from "./pasarela";
-import { avisoDevolucion, avisoInteres, avisoPedido, avisoReparacion } from "./bot";
+import { avisoDevolucion, avisoInteres, avisoPedido, avisoReparacion, sumarDemanda } from "./bot";
 
 const ENVIO = 35;
 const ENVIO_GRATIS = 1000;
@@ -47,6 +47,14 @@ export function TiendaCliente({ t }: { t: Tienda }) {
   const [pagando, setPagando] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
   const [codigo, setCodigo] = useState("");
+  /* lo que buscan los clientes cuenta como demanda para el bot */
+  useEffect(() => {
+    const q2 = buscar.trim().toLowerCase();
+    if (q2.length < 3) return;
+    const h = setTimeout(() => t.productos.filter((p) => `${p.marca} ${p.nombre}`.toLowerCase().includes(q2)).slice(0, 2).forEach((p) => sumarDemanda(p.id)), 900);
+    return () => clearTimeout(h);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [buscar]);
 
   useEffect(() => {
     document.title = "Órbita Celulares · Demo de Jzet Labs";
@@ -732,7 +740,8 @@ function Pago({ t, carro, subtotal, alTerminar, alRastrear, alCerrar }: { t: Tie
       });
     // el bot le avisa al dueño del pedido y de lo que se agotó
     const agotados = estado === "pagado" || estado === "preparando" ? carro.filter((l) => Object.values(t.stock[l.id] ?? {}).reduce((s, n) => s + n, 0) - l.cantidad <= 0).map((l) => l.nombre) : [];
-    avisoPedido(p, agotados);
+    const bajos = estado === "pagado" || estado === "preparando" ? carro.map((l) => ({ nombre: l.nombre, quedan: Object.values(t.stock[l.id] ?? {}).reduce((s, n) => s + n, 0) - l.cantidad })).filter((x) => x.quedan > 0 && x.quedan <= 3) : [];
+    avisoPedido(p, agotados, bajos);
     setPedido(p);
     alTerminar(p);
     setPaso("listo");

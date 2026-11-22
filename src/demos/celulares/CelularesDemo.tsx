@@ -9,7 +9,7 @@ import { BandaDemos, PartesDemo, CierreJzet } from "../comun";
 import { TiendaCliente } from "./Tienda";
 import { PanelDueno } from "./Admin";
 import { useTienda } from "./datos";
-import { ganchos } from "./bot";
+import { entroCliente, ganchos, salioCliente } from "./bot";
 
 type Vista = "tienda" | "admin";
 
@@ -25,6 +25,12 @@ export default function CelularesDemo() {
     addEventListener("hashchange", cambio);
     return () => removeEventListener("hashchange", cambio);
   }, []);
+  /* mientras la tienda está abierta, el bot cuenta un cliente más en línea */
+  useEffect(() => {
+    if (vista !== "tienda") return;
+    entroCliente();
+    return () => salioCliente();
+  }, [vista]);
   function irA(v: Vista) {
     history.replaceState(null, "", v === "admin" ? "#admin" : location.pathname);
     setVista(v);

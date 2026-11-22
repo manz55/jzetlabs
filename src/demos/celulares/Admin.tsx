@@ -7,7 +7,7 @@ import { Fragment, useEffect, useMemo, useState } from "react";
 import { BarChart3, Boxes, Camera, Check, CreditCard, Eye, EyeOff, LogOut, MessageCircle, Minus, Package, Plus, RotateCcw, Store, Undo2, Users, Wrench, X } from "lucide-react";
 import { qz } from "../comun";
 import { iniciarChat } from "./Asistente";
-import { chatReiniciar, registrar, setDock, useRegistro } from "./bot";
+import { chatReiniciar, pedirResumen, registrar, setFocoPanel, useEnLinea, useRegistro, type Foco } from "./bot";
 import { DockBot, FranjaBot, PaginaBot } from "./BotCentro";
 import { achicarFoto } from "./fotos";
 import { BORDE, BTN, Buscar, Cifras, Estado, EstadoPed, EstadoRep, FONDO, Filtros, MUTED, Panel, ROJO, TD, TH, Titulo, borde, principal, ACCION_REP, textoEstadoPanel } from "./ui";
@@ -38,6 +38,10 @@ export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () =>
   const [pestana, setPestana] = useState<Pestana>("resumen");
   useEffect(() => { document.title = "Panel del dueño · Órbita Celulares · Demo de Jzet Labs"; }, []);
   const [v, setV] = useState(0);
+  useEffect(() => {
+    const foco: Record<Pestana, Foco> = { resumen: "general", asistente: "general", pedidos: "pedidos", pagos: "pagos", inventario: "tienda", reparaciones: "taller", tecnicos: "tecnicos", devoluciones: "devoluciones" };
+    setFocoPanel(foco[pestana]);
+  }, [pestana]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { iniciarChat(t); }, [v]);
 
@@ -112,6 +116,7 @@ export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () =>
 
 function Resumen({ t, irA }: { t: Tienda; irA: (p: Pestana) => void }) {
   const registro = useRegistro();
+  const enLinea = useEnLinea();
   const vendidos = t.pedidos.filter((p) => VENDIDO.includes(p.estado));
   const hoy = new Date().toDateString();
   const ventasHoy = vendidos.filter((p) => diaIso(p.fecha) === hoy);
@@ -167,6 +172,7 @@ function Resumen({ t, irA }: { t: Tienda; irA: (p: Pestana) => void }) {
         { t: "Ticket promedio", v: qz(ticket), n: "por pedido pagado" },
         { t: "Por verificar", v: qz(pend.reduce((s, p) => s + p.total, 0)), n: `${pend.length} ${pend.length === 1 ? "transferencia" : "transferencias"}`, alerta: pend.length > 0 },
         { t: "Pagos rechazados", v: rechazados.length, n: "no se cobró nada" },
+        { t: "En la tienda ahora", v: enLinea, n: "clientes en línea" },
       ]} />
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_21rem]">
@@ -194,7 +200,7 @@ function Resumen({ t, irA }: { t: Tienda; irA: (p: Pestana) => void }) {
           </ul>
           <div className="mt-3 grid grid-cols-2 gap-2">
             <button type="button" onClick={() => irA("asistente")} className={BTN} style={borde}>Ver registro</button>
-            <button type="button" onClick={() => setDock(true)} className={BTN} style={principal}><MessageCircle size={15} /> Abrir chat</button>
+            <button type="button" onClick={pedirResumen} className={BTN} style={principal}><MessageCircle size={15} /> Abrir chat</button>
           </div>
         </Panel>
       </div>
