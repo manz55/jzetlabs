@@ -58,10 +58,10 @@ export function FranjaBot({ area }: { area: Area }) {
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
         <p className="flex items-center gap-2 font-bold"><span className="grid h-7 w-7 place-items-center rounded-full text-white" style={{ background: VERDE }}><MessageCircle size={15} /></span> Bot de WhatsApp · {area}</p>
         <p className="text-[0.9rem]" style={{ color: MUTED }}>Hoy: <b className="text-[#14101f]">{por("Bot automático")}</b> acciones del bot · <b className="text-[#14101f]">{por("Dueño por WhatsApp")}</b> pedidas por WhatsApp · <b className="text-[#14101f]">{por("Cliente en la tienda")}</b> eventos de clientes{area === "Tienda" && <> · <b className="text-[#14101f]">{enLinea}</b> en la tienda ahora</>}</p>
-        <button type="button" onClick={pedirResumen} className={`${BTN} ml-auto`} style={principal}><MessageCircle size={15} /> Abrir chat</button>
+        <button type="button" onClick={pedirResumen} className={`${BTN} ml-auto max-sm:hidden`} style={principal}><MessageCircle size={15} /> Abrir chat</button>
       </div>
       <PedirAlBot area={area} />
-      <div className="grid gap-x-6 gap-y-2 border-t px-4 py-2.5 md:grid-cols-2" style={{ borderColor: BORDE }}>
+      <div className="hidden gap-x-6 gap-y-2 border-t px-4 py-2.5 md:grid md:grid-cols-2" style={{ borderColor: BORDE }}>
         {lista.map((r) => (
           <div key={r.id} className="flex items-center justify-between gap-3">
             <span className="text-[0.9rem]">{r.t}</span>
@@ -99,8 +99,8 @@ export function DockBot({ t }: { t: Tienda }) {
       )}
       {abierto && (
         <aside role="dialog" aria-label="Chat del bot" className="fixed inset-y-0 right-0 z-50 flex w-[min(100%,28rem)] flex-col bg-white shadow-2xl">
-          <div className="flex items-center justify-between px-4 py-2.5 text-white" style={{ background: "#075e54" }}>
-            <p className="text-[0.92rem] font-semibold">Bot de WhatsApp · conversación con el dueño</p>
+          <div className="flex items-center justify-between px-4 py-1.5 text-white" style={{ background: "#054d44" }}>
+            <p className="text-[0.92rem] font-semibold">Chat con el bot</p>
             <button type="button" aria-label="Cerrar el chat" onClick={() => setDock(false)} className="grid h-9 w-9 place-items-center rounded-full hover:bg-white/15"><X size={20} /></button>
           </div>
           <div className="flex min-h-0 flex-1 flex-col"><Asistente t={t} raiz="min-h-0 flex-1" alto="min-h-0 flex-1" /></div>

@@ -3,7 +3,7 @@
  * El dueño también puede pedirle todo esto por WhatsApp al asistente; el panel es la vista de consulta y control.
  * Lo que hace el cliente en la tienda (pedidos, pagos, reparaciones, devoluciones) aparece aquí.
  */
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { BarChart3, Boxes, Camera, Check, Eye, EyeOff, LogOut, MessageCircle, Minus, Package, Plus, RotateCcw, Store, Undo2, Wrench, X } from "lucide-react";
 import { qz } from "../comun";
 import { iniciarChat } from "./Asistente";
@@ -46,12 +46,44 @@ function moverPedido(t: Tienda, p: Pedido, a: EstadoPedido) {
   else if (a === "entregado") chatAgregar(msgBot(`✅ ${p.id} entregado (panel)\nPedido cerrado.`));
   else if (a === "rechazado") chatAgregar(msgBot(`⛔ Pago rechazado (panel)\n${p.id}. No se cobró nada.`));
 }
+
+/* en el celular cada fila de una tabla se vuelve una tarjeta con su etiqueta, en vez de obligar a deslizar de lado */
+const ESTILO_MOVIL = `
+@media (max-width: 767px) {
+  .crm table { min-width: 0 !important; }
+  .crm table thead { display: none; }
+  .crm table, .crm tbody, .crm tr, .crm td { display: block; width: 100%; }
+  .crm tbody tr { border: 1px solid ${BORDE} !important; border-radius: 10px; margin: .6rem; width: auto; padding: .35rem 0; background: #fff; }
+  .crm tbody tr:hover { background: #fff; }
+  .crm td { display: block; position: relative; text-align: right; padding: .35rem .85rem .35rem 38% !important; min-height: 1.9rem; border: 0 !important; max-width: none !important; white-space: normal !important; }
+  .crm td::before { content: attr(data-label); position: absolute; left: .85rem; top: .5rem; width: 33%; text-align: left; font-size: .76rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: ${MUTED}; }
+  .crm td[data-label=""] { padding-left: .85rem !important; }
+  .crm td[data-label=""]::before { display: none; }
+  .crm td > span.inline-flex, .crm td .flex { justify-content: flex-end; }
+  .crm td[colspan] { display: block; text-align: left; }
+  .crm td[colspan]::before { display: none; }
+}
+`;
 const textoMetodo = (p: Pedido) => (p.metodo === "tarjeta" ? `Tarjeta ···${p.tarjeta}` : p.metodo === "transferencia" ? "Transferencia" : "Al recibir");
 
 export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () => void; alTienda: () => void }) {
   const [pestana, setPestana] = useState<Pestana>("resumen");
   useEffect(() => { document.title = "Panel del dueño · Órbita Celulares · Demo de Jzet Labs"; }, []);
   const [v, setV] = useState(0);
+  /* le pone a cada celda el nombre de su columna, para el diseño de tarjetas del celular */
+  const raiz = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = raiz.current;
+    if (!el) return;
+    const poner = () => el.querySelectorAll("table").forEach((tb) => {
+      const cols = [...tb.querySelectorAll("thead th")].map((x) => x.textContent?.trim() ?? "");
+      tb.querySelectorAll("tbody tr").forEach((tr) => [...tr.children].forEach((td, i) => { if (!(td as HTMLElement).hasAttribute("colspan")) td.setAttribute("data-label", cols[i] ?? ""); }));
+    });
+    poner();
+    const o = new MutationObserver(poner);
+    o.observe(el, { childList: true, subtree: true });
+    return () => o.disconnect();
+  }, []);
   useEffect(() => {
     const foco: Record<Pestana, Foco> = { resumen: "general", asistente: "general", pedidos: "pedidos", inventario: "tienda", reparaciones: "taller", devoluciones: "devoluciones" };
     setFocoPanel(foco[pestana]);
@@ -72,7 +104,8 @@ export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () =>
   const hoy = new Date().toLocaleDateString("es-GT", { weekday: "long", day: "numeric", month: "long" });
 
   return (
-    <div className="min-h-[calc(100vh-8rem)] md:grid md:grid-cols-[14.5rem_minmax(0,1fr)]" style={{ background: FONDO, color: TINTA, fontFamily: LETRA_SISTEMA }}>
+    <div ref={raiz} className="crm min-h-[calc(100vh-8rem)] md:grid md:grid-cols-[14.5rem_minmax(0,1fr)]" style={{ background: FONDO, color: TINTA, fontFamily: LETRA_SISTEMA }}>
+      <style>{ESTILO_MOVIL}</style>
       <aside className="text-white md:sticky md:top-0 md:flex md:h-screen md:flex-col md:self-start" style={{ background: "#14101f" }}>
         <p className="flex items-center gap-2.5 px-4 py-4 text-[1.2rem] font-bold tracking-tight"><span className="grid h-8 w-8 place-items-center rounded-[5px] bg-white text-[1rem] font-extrabold" style={{ color: TINTA }}>Ó</span><span className="leading-tight">Órbita<span className="block text-[0.74rem] font-medium opacity-55">Panel del dueño</span></span></p>
         <nav aria-label="Panel" className="flex gap-1 overflow-x-auto px-2 pb-2 md:flex-1 md:flex-col md:gap-0 md:overflow-y-auto md:px-0">

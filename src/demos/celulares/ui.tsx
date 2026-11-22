@@ -58,18 +58,17 @@ export const Buscar = ({ valor, alCambiar, texto }: { valor: string; alCambiar: 
 /* franja de cifras: una sola fila con líneas divisorias */
 export function Cifras({ items }: { items: { t: string; v: string | number; n?: string; alerta?: boolean }[] }) {
   return (
-    <div className="grid overflow-hidden rounded-md border bg-white" style={{ borderColor: BORDE, gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 11.5rem), 1fr))" }}>
-      {items.map((x, i) => (
-        <div key={x.t} className="px-4 py-3.5" style={{ borderLeft: i ? `1px solid ${BORDE}` : undefined, borderTop: `1px solid transparent` }}>
+    <div className="grid gap-px overflow-hidden rounded-md border" style={{ borderColor: BORDE, background: BORDE, gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr))" }}>
+      {items.map((x) => (
+        <div key={x.t} className="bg-white px-3 py-3 sm:px-4 sm:py-3.5">
           <p className="text-[0.8rem] font-semibold" style={{ color: MUTED }}>{x.t}</p>
-          <p className="mt-0.5 text-[1.65rem] font-extrabold leading-tight tabular-nums" style={{ color: x.alerta ? ROJO : TINTA }}>{x.v}</p>
-          {x.n && <p className="text-[0.8rem]" style={{ color: MUTED }}>{x.n}</p>}
+          <p className="mt-0.5 text-[1.4rem] font-extrabold leading-tight tabular-nums sm:text-[1.65rem]" style={{ color: x.alerta ? ROJO : TINTA }}>{x.v}</p>
+          {x.n && <p className="text-[0.78rem] leading-snug" style={{ color: MUTED }}>{x.n}</p>}
         </div>
       ))}
     </div>
   );
 }
-
 
 export function Titulo({ children, sub, derecha }: { children: string; sub?: string; derecha?: ReactNode }) {
   return (

@@ -401,11 +401,11 @@ export function Asistente({ t, alto = "h-[min(36rem,68vh)]", raiz = "" }: { t: T
   const ejemplos = persona.rol === "CLIENTE" ? ["menú", "OR-1041", "garantía"] : persona.rol === "TECNICO" ? ["menú", "reparaciones", "rep RP-512 listo", "ventas"] : ["menú", "stock iphone", "agregar 2 iphone air", "devoluciones", "ventas"];
   return (
     <div className={`flex w-full flex-col overflow-hidden rounded-md border bg-[#efeae2] ${raiz}`} style={{ borderColor: "#dde0e6" }}>
-      <header className="flex flex-wrap items-center gap-3 px-4 py-3 text-white" style={{ background: "#075e54" }}>
+      <header className="flex items-center gap-3 px-3 py-2.5 text-white sm:px-4 sm:py-3" style={{ background: "#075e54" }}>
         <span className="grid h-10 w-10 place-items-center rounded-full bg-white text-[1.05rem] font-extrabold text-[#14101f]">Ó</span>
-        <span className="min-w-0 flex-1 leading-tight"><b className="block">Bot de Órbita</b><span className="text-[0.78rem] opacity-80">cuenta de empresa · en línea</span></span>
-        <label className="flex items-center gap-1.5 text-[0.78rem]"><span className="opacity-80">Escribe:</span>
-          <select aria-label="Quién escribe" value={personaId} onChange={(e) => cambiarPersona(Number(e.target.value))} className="max-w-[10rem] rounded bg-white/15 px-1.5 py-1 text-[0.82rem] text-white outline-none [&>option]:text-black">
+        <span className="min-w-0 flex-1 leading-tight"><b className="block truncate">Bot de Órbita</b><span className="hidden text-[0.78rem] opacity-80 sm:block">cuenta de empresa · en línea</span></span>
+        <label className="flex items-center gap-1.5 text-[0.78rem]"><span className="hidden opacity-80 sm:inline">Escribe:</span>
+          <select aria-label="Quién escribe" value={personaId} onChange={(e) => cambiarPersona(Number(e.target.value))} className="max-w-[8.5rem] rounded bg-white/15 sm:max-w-[10rem] px-1.5 py-1 text-[0.82rem] text-white outline-none [&>option]:text-black">
             {autorizados.map((p) => <option key={p.id} value={p.id}>{p.nombre.split(" ")[0]} · {p.rol === "DUENO" ? "Dueño" : p.rol === "ENCARGADO" ? "Encargado" : "Técnico"}</option>)}
             <option value={CLIENTE.id}>Cliente (sin autorizar)</option>
           </select>
@@ -431,7 +431,7 @@ export function Asistente({ t, alto = "h-[min(36rem,68vh)]", raiz = "" }: { t: T
       </div>
       <div className="flex flex-wrap gap-1.5 bg-[#f0f2f5] px-3 pb-1 pt-2">
         {esEquipo && <button type="button" disabled={ocupado} onClick={fotosEjemplo} className="rounded-full px-3 py-1 text-[0.8rem] font-bold text-white transition hover:brightness-110 disabled:opacity-50" style={{ background: "#128c7e" }}>Adjuntar 3 fotos de ejemplo</button>}
-        {ejemplos.map((e) => <button key={e} type="button" onClick={() => enviar(e)} className="rounded-full bg-white px-2.5 py-1 text-[0.8rem] font-semibold shadow-sm transition hover:bg-[#f0f9ff]" style={{ color: MUTED }}>{e}</button>)}
+        {ejemplos.map((e, i) => <button key={e} type="button" onClick={() => enviar(e)} className={`${i >= 2 ? "max-sm:hidden" : ""} rounded-full bg-white px-2.5 py-1 text-[0.8rem] font-semibold shadow-sm transition hover:bg-[#f0f9ff]`} style={{ color: MUTED }}>{e}</button>)}
       </div>
       <form onSubmit={(e) => { e.preventDefault(); enviar(texto); }} className="flex items-center gap-2 bg-[#f0f2f5] px-3 pb-3 pt-1">
         <input ref={archivo} type="file" accept="image/*" multiple className="sr-only" onChange={alElegir} />
