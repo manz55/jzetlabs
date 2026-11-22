@@ -449,9 +449,9 @@ export function mensajePerfil(p: Perfil) {
 
 /* Inventario de la consultora: lo que tiene en mano (datos de ejemplo) */
 const STOCK_INICIAL: Record<string, number> = {
-  limpiador: 4, serum: 2, "crema-dia": 3, "crema-noche": 1, base: 3, polvo: 1, rubor: 2, paleta: 1, "labial-nude": 4, "labial-rojo": 3, brochas: 1, delineador: 5, bronceador: 2, iluminador: 3, espejo: 1,
+  limpiador: 8, serum: 3, "crema-dia": 6, "crema-noche": 2, base: 5, polvo: 2, rubor: 3, paleta: 2, "labial-nude": 8, "labial-rojo": 6, brochas: 2, delineador: 8, bronceador: 5, iluminador: 6, espejo: 2,
 };
-const CLAVE_STOCK = "perfil-belleza:stock-v1";
+const CLAVE_STOCK = "perfil-belleza:stock-v2";
 export function useInventario() {
   const [stock, setStock] = useState<Record<string, number>>(() => {
     try {
@@ -546,18 +546,20 @@ export const nuevoId = () => crypto.randomUUID?.() ?? String(Date.now() + Math.r
 /* Todo lo que llega desde la página de la clienta: mensajes del chat, pedidos, citas, avisos y gente que quiere vender.
  * Es una sola lista compartida: la página escribe y el panel de la consultora la lee. */
 export type TipoBandeja = "chat" | "pedido" | "facial" | "reunion" | "evento" | "aviso" | "equipo";
-export type Entrada = { id: string; tipo: TipoBandeja; nombre: string; texto: string; fecha: string; leido: boolean; hecho?: boolean; total?: number; cuando?: string; telefono?: string };
+export type Mensaje = { de: "ella" | "clienta"; t: string; fecha: string };
+export type Entrada = { id: string; tipo: TipoBandeja; nombre: string; texto: string; fecha: string; leido: boolean; hecho?: boolean; total?: number; costo?: number; cuando?: string; lugar?: string; confirmada?: boolean; telefono?: string; direccion?: string; hilo?: Mensaje[] };
 export const TIPOS_BANDEJA: Record<TipoBandeja, string> = { chat: "Chat", pedido: "Pedido", facial: "Facial gratis", reunion: "Reunión con amigas", evento: "Maquillaje de evento", aviso: "Promos", equipo: "Quiere vender" };
 const horas = (h: number) => new Date(Date.now() - h * 36e5).toISOString();
 const en = (dias: number, hora: number) => { const d = new Date(Date.now() + dias * 864e5); d.setHours(hora, 0, 0, 0); return d.toISOString(); };
+const hm = (h: number, de: "ella" | "clienta", t: string): Mensaje => ({ de, t, fecha: horas(h) });
 const EJ_BANDEJA: Entrada[] = [
-  { id: "b-1", tipo: "chat", nombre: "Valeria Ramos", texto: "Hola, ¿tienes el sérum de vitamina C? ¿Cuánto sale el envío a Mixco?", fecha: horas(0.4), leido: false, telefono: "55512211" },
-  { id: "b-2", tipo: "pedido", nombre: "Karen Ordóñez", texto: "1 × Rutina completa de piel. Envío a la capital. Pago al recibir.", fecha: horas(3), leido: false, total: 524, telefono: "44018833" },
-  { id: "b-3", tipo: "facial", nombre: "Mariela Soto", texto: "Quiere su facial gratis, de preferencia el sábado por la tarde.", fecha: horas(5), leido: false, cuando: en(3, 15), telefono: "30112299" },
-  { id: "b-4", tipo: "pedido", nombre: "Lucía Barrios", texto: "1 × Kit para regalar. Lo quiere envuelto, con tarjeta.", fecha: horas(9), leido: true, total: 445, telefono: "41775520" },
-  { id: "b-5", tipo: "reunion", nombre: "Ana Lucía Pérez", texto: "Reunión con 5 amigas en su casa, zona 10. Pregunta qué regalos le tocan.", fecha: horas(20), leido: true, cuando: en(6, 16), telefono: "58200134" },
-  { id: "b-6", tipo: "chat", nombre: "Rosa María Girón", texto: "¿Qué me recomienda para la piel muy seca? Tengo 52 años.", fecha: horas(27), leido: true, telefono: "50331122" },
-  { id: "b-7", tipo: "evento", nombre: "Daniela Cruz", texto: "Maquillaje para su graduación, el 5 de diciembre a las 7 de la mañana.", fecha: horas(31), leido: true, cuando: en(14, 7), telefono: "47715609" },
+  { id: "b-1", tipo: "chat", nombre: "Valeria Ramos", texto: "Hola, ¿tienes el sérum de vitamina C? ¿Cuánto sale el envío a Mixco?", fecha: horas(0.4), leido: false, telefono: "55512211", hilo: [hm(0.5, "clienta", "Hola, ¿tienes el sérum de vitamina C?"), hm(0.4, "clienta", "¿Cuánto sale el envío a Mixco?")] },
+  { id: "b-2", tipo: "pedido", nombre: "Karen Ordóñez", texto: "1 × Rutina completa de piel. Envío a la capital. Pago al recibir.", fecha: horas(3), leido: false, total: 524, costo: 295, telefono: "44018833", direccion: "6a avenida 12-30, zona 1, Guatemala" },
+  { id: "b-3", tipo: "facial", nombre: "Mariela Soto", texto: "Quiere su facial gratis, de preferencia el sábado por la tarde.", fecha: horas(5), leido: false, cuando: en(3, 15), lugar: "Su casa, Colonia Lourdes, Mixco", telefono: "30112299", hilo: [hm(5, "clienta", "Hola, quiero mi facial gratis, de preferencia el sábado por la tarde.")] },
+  { id: "b-4", tipo: "pedido", nombre: "Lucía Barrios", texto: "1 × Kit para regalar. Lo quiere envuelto, con tarjeta.", fecha: horas(9), leido: true, total: 445, costo: 255, telefono: "41775520", direccion: "Calzada Roosevelt 20-15, zona 11, Guatemala" },
+  { id: "b-5", tipo: "reunion", nombre: "Ana Lucía Pérez", texto: "Reunión con 5 amigas en su casa. Pregunta qué regalos le tocan.", fecha: horas(20), leido: true, cuando: en(6, 16), lugar: "Su casa, zona 10, Guatemala", confirmada: true, telefono: "58200134", hilo: [hm(21, "clienta", "Quiero hacer una reunión con 5 amigas. ¿Qué regalos me tocan?"), hm(20.5, "ella", "¡Qué bueno! Con 5 invitadas te llevas el set de brochas. ¿Qué día te queda bien?"), hm(20, "clienta", "El sábado de la otra semana, a las 4.")] },
+  { id: "b-6", tipo: "chat", nombre: "Rosa María Girón", texto: "¿Qué me recomienda para la piel muy seca? Tengo 52 años.", fecha: horas(27), leido: true, telefono: "50331122", hilo: [hm(27, "clienta", "¿Qué me recomienda para la piel muy seca? Tengo 52 años."), hm(26, "ella", "Con calma: limpiador en gel y la crema de día con FPS. Te mando el precio.")] },
+  { id: "b-7", tipo: "evento", nombre: "Daniela Cruz", texto: "Maquillaje para su graduación, a las 7 de la mañana.", fecha: horas(31), leido: true, cuando: en(14, 7), lugar: "Salón de la universidad, zona 12", telefono: "47715609", hilo: [hm(31, "clienta", "Necesito maquillaje para mi graduación el 5 de diciembre a las 7 de la mañana.")] },
   { id: "b-8", tipo: "aviso", nombre: "Sandra López", texto: "Se anotó para avisos de maquillaje y perfumes.", fecha: horas(72), leido: true, telefono: "53318890" },
   { id: "b-9", tipo: "equipo", nombre: "Paola Méndez", texto: "Quiere ganar dinero extra vendiendo.", fecha: horas(26), leido: false, telefono: "31207745" },
 ];
@@ -567,7 +569,7 @@ export const HISTORIAL_EJ: Record<string, { compras: number; total: number; ulti
   "ej-3": { compras: 2, total: 610, ultima: hace(58) },
 };
 
-const CLAVE_BANDEJA = "perfil-belleza:bandeja-v1";
+const CLAVE_BANDEJA = "perfil-belleza:bandeja-v2";
 let estadoBandeja: Entrada[] | null = null;
 const oyentes = new Set<() => void>();
 const leerBandeja = () => {
@@ -589,3 +591,32 @@ export function useBandeja() {
     cambiar: (id: string, c: Partial<Entrada>) => ponerBandeja((l) => l.map((x) => (x.id === id ? { ...x, ...c } : x))),
   };
 }
+
+
+/* Lo que la consultora ajusta a su gusto, y otras listas del panel */
+function crearAlmacen<T>(clave: string, inicial: T) {
+  let valor: T | null = null;
+  const oy = new Set<() => void>();
+  const leer = (): T => {
+    if (valor === null) { try { const t = localStorage.getItem(clave); valor = t ? ({ ...(typeof inicial === "object" && !Array.isArray(inicial) ? inicial : {}), ...JSON.parse(t) } as T) : inicial; if (Array.isArray(inicial) && t) valor = JSON.parse(t) as T; } catch { valor = inicial; } }
+    return valor as T;
+  };
+  const poner = (f: (v: T) => T) => { valor = f(leer()); try { localStorage.setItem(clave, JSON.stringify(valor)); } catch { /* nada */ } oy.forEach((o) => o()); };
+  const sus = (o: () => void) => { oy.add(o); return () => { oy.delete(o); }; };
+  return function useAlmacen() { const v = useSyncExternalStore(sus, leer); return [v, poner] as const; };
+}
+export const useAjustes = crearAlmacen("perfil-belleza:ajustes-v1", { meta: 3000, regaloCada: 3, minimo: 1, mensajero: true });
+export type Fase = "pendiente" | "proceso" | "enviado" | "entregado";
+export type Extra = { mensajero: boolean; fase: Fase };
+export const usePedidosExtra = crearAlmacen<Record<string, Extra>>("perfil-belleza:pedidos-v1", {});
+export type Consultora = { id: string; nombre: string; telefono: string; ventas: number; meta: number; desde: string };
+export const useEquipo = crearAlmacen<Consultora[]>("perfil-belleza:equipo-v1", [
+  { id: "eq-1", nombre: "Brenda Alvarado", telefono: "52004411", ventas: 1450, meta: 2000, desde: hace(220) },
+  { id: "eq-2", nombre: "Mayra Pineda", telefono: "47883021", ventas: 620, meta: 1500, desde: hace(80) },
+]);
+/* Cuánto se vende de cada producto al mes (de ejemplo): con esto se calcula cuánto dura lo que tienes */
+export const RITMO: Record<string, number> = { limpiador: 8, serum: 9, "crema-dia": 6, "crema-noche": 5, base: 6, polvo: 5, rubor: 4, paleta: 7, "labial-nude": 7, "labial-rojo": 6, brochas: 3, delineador: 4, bronceador: 2, iluminador: 4, espejo: 3 };
+export const HISTORIA = [
+  { mes: "jun", ingresos: 1900, gastos: 1250 }, { mes: "jul", ingresos: 2250, gastos: 1500 }, { mes: "ago", ingresos: 2100, gastos: 1100 },
+  { mes: "sep", ingresos: 2700, gastos: 1800 }, { mes: "oct", ingresos: 3150, gastos: 1950 },
+];

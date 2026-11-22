@@ -7,14 +7,18 @@
  * Estética de papel: crema, tinta y vino, Fraunces y líneas finas, como una ficha impresa.
  */
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { ArrowLeft, ArrowRight, Check, ChevronRight, Pencil, Plus, Printer, Search, Trash2, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Pencil, Plus, Printer, Trash2, X } from "lucide-react";
 import { BandaDemos, PartesDemo, CierreJzet, MensajeWhatsApp } from "../comun";
 import { PaginaSofia } from "./Pagina";
-import { Inicio, Mensajes } from "./Inicio";
+import { Inicio, Mensajes, type Pestana } from "./Inicio";
+import { PedidosTab, construirPedidos, type PedidoV } from "./Pedidos";
+import { InventarioTab, filasInventario } from "./Inventario";
+import { ClientasTab } from "./Clientas";
+import { Conversacion } from "./Conversacion";
 import {
   ACABADOS, CONSULTORA, COBERTURAS, EDADES, HORAS, LABIOS, LINEA, LOOKS, MEDIOS, MESES, NECESIDADES, OJOS, PAPEL, PARENTESCOS, PIELES,
   PREOCUPACIONES, PRODUCTOS, SABER_MAS, SUAVE, SUBTONOS, TINTA, TONOS, VACIO, VINO,
-  ESTADOS, abonado, fechaTexto, saldo, useInteresadas, mensajePerfil, producto, qz, rutinaPara, telTexto, totalDe, useBandeja, useInventario, usePerfiles,
+  ESTADOS, abonado, fechaTexto, saldo, useInteresadas, mensajePerfil, producto, qz, rutinaPara, telTexto, totalDe, useAjustes, useBandeja, useInventario, usePedidosExtra, usePerfiles, type Fase,
   type Fecha, type Opcion, type Perfil,
 } from "./datos";
 
@@ -803,12 +807,14 @@ const diasParaCumple = (p: Perfil) => {
 function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
   const { perfiles, cambiar, borrar } = store;
   const [abierto, setAbierto] = useState<string | null>(null);
-  const [buscar, setBuscar] = useState("");
   const [aviso, setAviso] = useState("");
-  const [pestana, setPestana] = useState<"inicio" | "mensajes" | "pedidos" | "inventario" | "clientas">("inicio");
+  const [pestana, setPestana] = useState<Pestana>("inicio");
   const inv = useInventario();
   const interesadas = useInteresadas().lista;
   const bandeja = useBandeja();
+  const [ajustes, ponerAjustes] = useAjustes();
+  const [extras, ponerExtras] = usePedidosExtra();
+  const [chatId, setChatId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!aviso) return;
@@ -820,7 +826,6 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
     window.scrollTo({ top: 0 });
   }, [abierto]);
 
-  const lista = perfiles.filter((p) => `${p.nombre} ${p.apellido} ${p.anfitriona}`.toLowerCase().includes(buscar.toLowerCase()));
   const cumples = perfiles.filter((p) => diasParaCumple(p) <= 30).sort((a, b) => diasParaCumple(a) - diasParaCumple(b));
   const referidas = perfiles.flatMap((p) => p.amigas.filter((a) => a.nombre.trim()).map((a) => ({ ...a, de: `${p.nombre} ${p.apellido}`.trim() })));
   const p = perfiles.find((x) => x.id === abierto);
@@ -830,7 +835,7 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
     return d.getMonth() === ahora.getMonth() && d.getFullYear() === ahora.getFullYear();
   });
   const vendido = delMes.reduce((s, x) => s + totalDe(x.llevo), 0);
-  const META = 3000;
+  const META = ajustes.meta;
   const dias = (x: Perfil) => Math.floor((Date.now() - new Date(x.creado).getTime()) / 864e5);
   const reofrecer = perfiles
     .map((x) => ({ x, piel: x.llevo.map(producto).filter((pr) => pr?.piel) }))
@@ -855,7 +860,6 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
   const ganancia = delMes.reduce((t, x) => t + totalDe(x.llevo) - costoDe(x.llevo), 0);
   const apartado = (id: string) => porEntregar.reduce((t, x) => t + x.llevo.filter((y) => y === id).length, 0);
   const disponible = (id: string) => (inv.stock[id] ?? 0) - apartado(id);
-  const faltan = PRODUCTOS.filter((pr) => disponible(pr.id) <= 1).map((pr) => ({ pr, pedir: Math.max(1, 3 - disponible(pr.id)) }));
   const vendidos = PRODUCTOS.map((pr) => ({ pr, n: conPedido.reduce((t, x) => t + x.llevo.filter((y) => y === pr.id).length, 0) }))
     .filter((v) => v.n)
     .sort((a, b) => b.n - a.n);
@@ -863,11 +867,22 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
     const falta = x.llevo.find((id) => (inv.stock[id] ?? 0) < x.llevo.filter((y) => y === id).length);
     if (falta) {
       setAviso(`Te falta ${producto(falta)?.nombre.toLowerCase()} en tu inventario. Agrégalo cuando te llegue.`);
-      return;
+      return false;
     }
     inv.descontar(x.llevo);
     cambiar(x.id, { estado: "entregado" });
+    return true;
   };
+  const pedidos = construirPedidos(perfiles, bandeja.lista, extras, ajustes.mensajero);
+  const cambiarFase = (pe: PedidoV, f: Fase) => {
+    if (f === "entregado") {
+      if (pe.perfil && !entregar(pe.perfil)) return;
+      if (pe.entrada) bandeja.cambiar(pe.entrada.id, { hecho: true, leido: true });
+    }
+    ponerExtras((e) => ({ ...e, [pe.id]: { mensajero: pe.mensajero, fase: f } }));
+  };
+  const ponerMensajero = (pe: PedidoV, v: boolean) => ponerExtras((e) => ({ ...e, [pe.id]: { mensajero: v, fase: v ? pe.fase : "pendiente" } }));
+  const filas = filasInventario(disponible, ajustes.minimo);
   const negocio = perfiles
     .map((x) => ({
       x,
@@ -904,6 +919,15 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
             </button>
           </div>
         </div>
+        <section className="mt-6 rounded-2xl bg-white p-5 print:hidden" style={{ border: `1.5px solid ${LINEA}` }}>
+          <h2 className="text-[1.4rem] font-medium" style={{ fontFamily: SERIF }}>Sus datos</h2>
+          <p className="text-[0.95rem] opacity-60">Cámbialos aquí cuando quieras: se guardan solos.</p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {([["nombre", "Nombre"], ["apellido", "Apellido"], ["telefono", "WhatsApp"], ["direccion", "Dirección"], ["municipio", "Zona o municipio"], ["correo", "Correo"]] as const).map(([k, et]) => (
+              <label key={k} className="grid gap-1 text-[0.92rem] font-semibold">{et}<input value={p[k]} onChange={(e) => cambiar(p.id, { [k]: k === "telefono" ? e.target.value.replace(/\D/g, "").slice(0, 8) : e.target.value })} className="min-h-[3rem] rounded-xl border-2 bg-white px-3 text-[1.05rem] font-normal outline-none focus:border-black/70" style={{ borderColor: "rgba(42,22,51,.25)" }} /></label>
+            ))}
+          </div>
+        </section>
         <div className="mt-8">
           <Ficha p={p} />
           <div className="mt-10 max-w-xl">
@@ -942,19 +966,11 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
   const nuevosWeb = bandeja.lista.filter((e) => !e.leido).length;
   const PESTANAS = [
     ["inicio", "Inicio"],
-    ["mensajes", `Mensajes${nuevosWeb ? ` (${nuevosWeb})` : ""}`],
+    ["mensajes", `Mensajería${nuevosWeb ? ` (${nuevosWeb})` : ""}`],
     ["pedidos", `Pedidos${porCobrar.length ? ` (${porCobrar.length})` : ""}`],
     ["inventario", "Inventario"],
     ["clientas", "Clientas"],
   ] as const;
-  const h2 = "text-[1.6rem] font-medium";
-  const bloque = (titulo: string, valor: string, nota: string) => (
-    <div className="px-2.5 py-4 sm:px-3">
-      <p className="text-[0.92rem] leading-tight opacity-65 sm:text-[0.98rem]">{titulo}</p>
-      <p className="mt-1 text-[1.5rem] leading-none sm:text-[2rem]" style={{ fontFamily: SERIF }}>{valor}</p>
-      <p className="mt-1.5 text-[0.92rem] leading-tight opacity-60">{nota}</p>
-    </div>
-  );
 
   return (
     <div className="pf-cont pb-16 pt-8">
@@ -979,162 +995,24 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
       </nav>
 
       {pestana === "inicio" && (
-        <Inicio perfiles={perfiles} stock={inv.stock} disponible={disponible} porEntregar={porEntregar} porCobrar={porCobrar} vendido={vendido} meta={META} ganancia={ganancia} vendidos={vendidos} faltan={faltan} cumples={cumples} diasCumple={diasParaCumple} seguimiento={seguimiento} irA={setPestana} abrir={setAbierto} avisar={setAviso} entregar={entregar} />
+        <Inicio perfiles={perfiles} pedidos={pedidos} filas={filas} meta={META} ponerMeta={(n) => ponerAjustes((a) => ({ ...a, meta: n }))} regaloCada={ajustes.regaloCada} ponerRegalo={(n) => ponerAjustes((a) => ({ ...a, regaloCada: n }))} vendido={vendido} ganancia={ganancia} vendidos={vendidos} cumples={cumples} diasCumple={diasParaCumple} seguimiento={seguimiento} irA={setPestana} abrir={setAbierto} avisar={setAviso} abrirChat={setChatId} cambiarFase={cambiarFase} porCobrar={porCobrar} />
       )}
 
-      {pestana === "mensajes" && <Mensajes avisar={setAviso} />}
+      {pestana === "mensajes" && <Mensajes abrirChat={setChatId} />}
 
-      {pestana === "pedidos" && (
-        <div className="mt-8">
-          <p className="text-[1.02rem] opacity-70">Al marcar un pedido como entregado, se descuenta de tu inventario.</p>
-          {(["por-entregar", "entregado", "pagado"] as const).map((est) => {
-            const grupo = conPedido.filter((x) => x.estado === est);
-            if (!grupo.length) return null;
-            return (
-              <section key={est} className="mt-8">
-                <h2 className={h2} style={{ fontFamily: SERIF }}>
-                  {ESTADOS[est]} <span className="opacity-50">({grupo.length})</span>
-                </h2>
-                <ul className="mt-3 border-t" style={{ borderColor: TINTA }}>
-                  {grupo.map((x) => (
-                    <li key={x.id} className={`grid gap-3 border-b py-4 sm:grid-cols-[1fr_auto] sm:items-center ${est === "pagado" ? "opacity-60" : ""}`} style={{ borderColor: LINEA }}>
-                      <div className="min-w-0">
-                        <div className="flex items-baseline justify-between gap-3 sm:justify-start">
-                          <button type="button" onClick={() => setAbierto(x.id)} className="truncate text-left text-[1.1rem] font-semibold">
-                            {x.nombre} {x.apellido}
-                          </button>
-                          <span className="shrink-0 text-[1.1rem]" style={{ fontFamily: SERIF }}>{qz(totalDe(x.llevo))}</span>
-                        </div>
-                        <p className="mt-0.5 text-[0.98rem] opacity-65">{x.llevo.map((id) => producto(id)?.nombre).join(", ")}</p>
-                        <p className="text-[0.9rem] opacity-50">
-                          {[x.direccion, x.municipio].filter(Boolean).join(", ") || "Sin dirección"} · {telTexto(x.telefono)}
-                        </p>
-                      </div>
-                      {est === "por-entregar" && (
-                        <button type="button" onClick={() => entregar(x)} className="rounded-full px-5 py-2.5 font-semibold text-white" style={{ background: TINTA }}>
-                          Marcar entregado
-                        </button>
-                      )}
-                      {est === "entregado" && (
-                        <Abonar
-                          x={x}
-                          alAbonar={(monto) => {
-                            const abonos = [...x.abonos, { monto, fecha: new Date().toISOString() }];
-                            const pagado = abonos.reduce((t, a) => t + a.monto, 0) >= totalDe(x.llevo);
-                            cambiar(x.id, { abonos, estado: pagado ? "pagado" : "entregado" });
-                          }}
-                        />
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            );
-          })}
-        </div>
-      )}
+      {pestana === "pedidos" && <PedidosTab pedidos={pedidos} cambiarFase={cambiarFase} ponerMensajero={ponerMensajero} avisar={setAviso} abrir={setAbierto} abono={(x) => (
+        <Abonar x={x} alAbonar={(monto) => {
+          const abonos = [...x.abonos, { monto, fecha: new Date().toISOString() }];
+          const pagado = abonos.reduce((t, a) => t + a.monto, 0) >= totalDe(x.llevo);
+          cambiar(x.id, { abonos, estado: pagado ? "pagado" : "entregado" });
+        }} />
+      )} />}
 
-      {pestana === "inventario" && (
-        <div className="mt-8 grid gap-12">
-          <section>
-            <div className="grid grid-cols-2 border-y [&>*]:border-l [&>*:first-child]:border-l-0" style={{ borderColor: TINTA }}>
-              {bloque("Lo que tienes en mano", qz(PRODUCTOS.reduce((t, pr) => t + (inv.stock[pr.id] ?? 0) * pr.costo, 0)), "a lo que te costó")}
-              {bloque("Si lo vendes todo", qz(PRODUCTOS.reduce((t, pr) => t + (inv.stock[pr.id] ?? 0) * pr.precio, 0)), "a precio de clienta")}
-            </div>
-          </section>
-
-          {faltan.length > 0 && (
-            <section>
-              <h2 className={h2} style={{ fontFamily: SERIF }}>Para pedir a la empresa</h2>
-              <p className="mt-1 text-[0.98rem] opacity-60">Lo que tienes en 1 o menos, contando lo que ya está apartado. Te sugiero tener 3 de cada uno.</p>
-              <ul className="mt-3 border-t" style={{ borderColor: TINTA }}>
-                {faltan.map(({ pr, pedir }) => (
-                  <li key={pr.id} className="flex items-baseline justify-between gap-3 border-b py-3" style={{ borderColor: LINEA }}>
-                    <span className="min-w-0 truncate">
-                      {pedir} × {pr.nombre}
-                    </span>
-                    <span className="shrink-0 tabular-nums opacity-75">{qz(pedir * pr.costo)}</span>
-                  </li>
-                ))}
-                <li className="flex items-baseline justify-between gap-3 py-3 text-[1.1rem] font-semibold">
-                  <span>Total del pedido</span>
-                  <span style={{ fontFamily: SERIF }}>{qz(faltan.reduce((t, f) => t + f.pedir * f.pr.costo, 0))}</span>
-                </li>
-              </ul>
-              <button type="button" onClick={() => setAviso("En su negocio, este botón copia la lista para pasarla a la empresa.")} className="rounded-full border-2 px-5 py-2.5 font-semibold" style={{ borderColor: "rgba(42,22,51,.3)" }}>
-                Copiar la lista
-              </button>
-            </section>
-          )}
-
-          <section>
-            <h2 className={h2} style={{ fontFamily: SERIF }}>Todos tus productos</h2>
-            <p className="mt-1 text-[0.98rem] opacity-60">Cuando te llegue mercadería, súmala con el +.</p>
-            <ul className="mt-3 border-t" style={{ borderColor: TINTA }}>
-              {PRODUCTOS.map((pr) => {
-                const d = disponible(pr.id);
-                return (
-                  <li key={pr.id} className="grid items-center gap-3 border-b py-3" style={{ borderColor: LINEA, gridTemplateColumns: "3rem 1fr auto" }}>
-                    <img src={pr.foto} alt="" className="h-12 w-12 object-cover" />
-                    <span className="min-w-0 leading-tight">
-                      <b className="block truncate">{pr.nombre}</b>
-                      <span className="block text-[0.9rem] opacity-60">
-                        {pr.marca} · {qz(pr.precio)}
-                        {apartado(pr.id) ? ` · ${apartado(pr.id)} apartado` : ""}
-                      </span>
-                      {d <= 1 && (
-                        <span className="block text-[0.9rem] font-semibold" style={{ color: VINO }}>
-                          {d <= 0 ? "No te queda disponible" : "Te queda 1 disponible"}
-                        </span>
-                      )}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <button type="button" aria-label={`Uno menos de ${pr.nombre}`} onClick={() => inv.sumar(pr.id, -1)} className="grid h-10 w-10 place-items-center rounded-full border-2 text-[1.2rem]" style={{ borderColor: "rgba(42,22,51,.25)" }}>
-                        −
-                      </button>
-                      <span className="w-8 text-center text-[1.15rem] tabular-nums">{inv.stock[pr.id] ?? 0}</span>
-                      <button type="button" aria-label={`Uno más de ${pr.nombre}`} onClick={() => inv.sumar(pr.id, 1)} className="grid h-10 w-10 place-items-center rounded-full border-2 text-[1.2rem]" style={{ borderColor: "rgba(42,22,51,.25)" }}>
-                        +
-                      </button>
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-        </div>
-      )}
+      {pestana === "inventario" && <InventarioTab stock={inv.stock} disponible={disponible} apartado={apartado} sumar={inv.sumar} minimo={ajustes.minimo} ponerMinimo={(n) => ponerAjustes((a) => ({ ...a, minimo: n }))} vendido={vendido} meta={META} avisar={setAviso} />}
 
       {pestana === "clientas" && (
-      <div className="mt-8 grid gap-10 perfil-panel">
-        <section className="min-w-0">
-          <div className="relative">
-            <Search size={19} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 opacity-45" />
-            <input aria-label="Buscar por nombre o anfitriona" value={buscar} onChange={(e) => setBuscar(e.target.value)} placeholder="Buscar por nombre o anfitriona" className={claseInput} style={{ paddingLeft: "2.75rem" }} />
-          </div>
-          <ul className="mt-3 border-t" style={{ borderColor: LINEA }}>
-            {lista.map((c) => (
-              <li key={c.id}>
-                <button type="button" onClick={() => setAbierto(c.id)} className="flex w-full items-center gap-4 border-b px-1 py-4 text-left transition hover:bg-white" style={{ borderColor: LINEA }}>
-                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full border-2 text-[1.15rem]" style={{ borderColor: TINTA, fontFamily: SERIF }}>
-                    {(c.nombre[0] ?? "") + (c.apellido[0] ?? "")}
-                  </span>
-                  <span className="min-w-0 flex-1 leading-snug">
-                    <span className="block truncate text-[1.15rem] font-semibold">
-                      {c.nombre} {c.apellido}
-                    </span>
-                    <span className="block truncate text-[0.98rem] opacity-60">
-                      {[c.piel && `Piel ${c.piel.toLowerCase()}`, c.edad && `${c.edad} años`, c.anfitriona && `invitó ${c.anfitriona}`].filter(Boolean).join(" · ")}
-                    </span>
-                  </span>
-                  {c.llevo.length > 0 && <span className="shrink-0 text-[1rem] tabular-nums opacity-70">{qz(totalDe(c.llevo))}</span>}
-                  <ChevronRight size={20} className="opacity-35" />
-                </button>
-              </li>
-            ))}
-            {lista.length === 0 && <li className="py-6 text-[1.05rem] opacity-55">No hay clientas con ese nombre.</li>}
-          </ul>
-        </section>
+      <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-10 perfil-panel">
+        <ClientasTab perfiles={perfiles} agregar={store.agregar} abrir={setAbierto} avisar={setAviso} />
 
         <aside className="grid min-w-0 content-start gap-10">
           {reofrecer.length > 0 && (
@@ -1201,6 +1079,7 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
         </aside>
       </div>
       )}
+      {chatId && <Conversacion id={chatId} alCerrar={() => setChatId(null)} avisar={setAviso} />}
       {aviso && <Toast texto={aviso} />}
     </div>
   );
@@ -1279,7 +1158,7 @@ export default function PerfilDemo() {
   return (
     <div className="min-h-screen text-[1.0625rem]" style={{ background: PAPEL, color: TINTA }}>
       <style>{`@keyframes aparece{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-        @media (min-width:768px){.perfil-panel{grid-template-columns:1.5fr 1fr}}
+        @media (min-width:768px){.perfil-panel{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}}
         .pf-cont{width:min(100% - 2*clamp(1rem,4vw,5rem),140rem);margin-inline:auto}
         .pf-sec{padding-block:clamp(3rem,6vw,7rem)}
         .pf-h2{font-family:"Fraunces",Georgia,serif;font-weight:500;font-size:clamp(1.9rem,1rem + 2.6vw,3.6rem);line-height:1.05;letter-spacing:-.01em}

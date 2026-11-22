@@ -13,6 +13,7 @@ import { CAMPANA, CONSULTORA, ENVIOS, LINEA, MARCAS, PRODUCTOS, PROMOS, ROSA, SU
 
 const SERIF = '"Fraunces", Georgia, serif';
 type Linea = { key: string; nombre: string; precio: number; n: number };
+const costoDe = (l: Linea) => (l.key.startsWith("promo-") ? PROMOS[Number(l.key.slice(6))].ids.reduce((t, id) => t + (producto(id)?.costo ?? 0), 0) : l.key.startsWith("base-") ? producto("base")!.costo : producto(l.key)?.costo ?? Math.round(l.precio * 0.6)) * l.n;
 
 function Disponible({ n }: { n: number }) {
   if (n <= 0) return <span className="opacity-70">Bajo pedido · 5 días</span>;
@@ -134,6 +135,7 @@ export function Tienda() {
   const [bolsa, setBolsa] = useState<Linea[]>([]);
   const [envio, setEnvio] = useState(ENVIOS[0].id);
   const [verPedido, setVerPedido] = useState(false);
+  const [datos, setDatos] = useState({ nombre: "", tel: "", dir: "" });
   const [mensaje, setMensaje] = useState<string | null>(null);
   const [tono, setTono] = useState("");
   const [sub, setSub] = useState("");
@@ -159,7 +161,7 @@ export function Tienda() {
   const pedir = () => {
     const l = bolsa.map((x) => `- ${x.n} × ${x.nombre}: ${qz(x.n * x.precio)}`);
     setVerPedido(false);
-    bandeja.agregar({ tipo: "pedido", nombre: "Clienta nueva (desde tu página)", texto: `${bolsa.map((x) => `${x.n} × ${x.nombre}`).join(", ")}. ${env.nombre}. Pago al recibir.`, total });
+    bandeja.agregar({ tipo: "pedido", nombre: datos.nombre.trim() || "Clienta nueva (desde tu página)", texto: `${bolsa.map((x) => `${x.n} × ${x.nombre}`).join(", ")}. ${env.nombre}. Pago al recibir.`, total, costo: bolsa.reduce((t, l) => t + costoDe(l), 0), telefono: datos.tel.replace(/\D/g, "") || undefined, direccion: datos.dir.trim() || undefined });
     setMensaje(`Hola, ${CONSULTORA.corto}. Quiero hacer este pedido:\n${l.join("\n")}\n${env.precio ? `Envío (${env.nombre}): ${qz(env.precio)}` : env.nombre}\nTotal: ${qz(total)}\nPago al recibir.`);
   };
 
@@ -278,6 +280,10 @@ export function Tienda() {
                 ))}
               </ul>
             )}
+            <p className="mt-5 font-semibold">Tus datos</p>
+            <div className="mt-2 grid gap-2">
+              {([["nombre", "Tu nombre", "name"], ["tel", "Tu WhatsApp", "tel"], ["dir", "Tu dirección", "street-address"]] as const).map(([k, ph, ac]) => <input key={k} aria-label={ph} placeholder={ph} autoComplete={ac} value={datos[k]} onChange={(e) => setDatos({ ...datos, [k]: e.target.value })} className="min-h-[3rem] border-2 bg-white px-4 text-[1.05rem] outline-none focus:border-black/70" style={{ borderColor: "rgba(42,22,51,.25)" }} />)}
+            </div>
             <p className="mt-5 font-semibold">¿A dónde te lo llevo?</p>
             <div className="mt-2 grid gap-2">
               {ENVIOS.map((e) => (

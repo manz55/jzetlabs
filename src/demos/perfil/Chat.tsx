@@ -22,21 +22,24 @@ export function ChatSofia({ alCerrar }: { alCerrar: () => void }) {
   const fin = useRef<HTMLDivElement>(null);
   const bandeja = useBandeja();
   const entrada = useRef<string | null>(null);
-  const dichos = useRef<string[]>([]);
+  const hilo = useRef<{ de: "ella" | "clienta"; t: string; fecha: string }[]>([]);
   useEffect(() => { fin.current?.scrollIntoView({ block: "end", behavior: "smooth" }); }, [msj, escribe]);
 
   const mandar = (t: string) => {
     const limpio = t.trim();
     if (!limpio || escribe) return;
     setMsj((m) => [...m, { de: "tu", t: limpio }]);
-    dichos.current = [...dichos.current, limpio];
+    hilo.current = [...hilo.current, { de: "clienta", t: limpio, fecha: new Date().toISOString() }];
     // la conversación le llega a la consultora, en su panel
-    if (!entrada.current) entrada.current = bandeja.agregar({ tipo: "chat", nombre: "Visitante del chat", texto: limpio });
-    else bandeja.cambiar(entrada.current, { texto: dichos.current.join(" · "), leido: false, fecha: new Date().toISOString() });
+    if (!entrada.current) entrada.current = bandeja.agregar({ tipo: "chat", nombre: "Visitante del chat", texto: limpio, hilo: hilo.current });
+    else bandeja.cambiar(entrada.current, { texto: limpio, hilo: hilo.current, leido: false, fecha: new Date().toISOString() });
     setTexto("");
     setEscribe(true);
     window.setTimeout(() => {
-      setMsj((m) => [...m, { de: "ella", t: RESPUESTAS[limpio] ?? "Gracias, ya te leí. Déjame tu número de WhatsApp y te respondo en unos minutos con todo el detalle." }]);
+      const r = RESPUESTAS[limpio] ?? "Gracias, ya te leí. Déjame tu número de WhatsApp y te respondo en unos minutos con todo el detalle.";
+      setMsj((m) => [...m, { de: "ella", t: r }]);
+      hilo.current = [...hilo.current, { de: "ella", t: r, fecha: new Date().toISOString() }];
+      if (entrada.current) bandeja.cambiar(entrada.current, { hilo: hilo.current });
       setEscribe(false);
     }, 1000);
   };
