@@ -47,7 +47,7 @@ function PedirAlBot({ area }: { area: Area }) {
 
 /* franja del bot que va arriba de cada sección: qué hizo hoy y qué reglas aplica ahí */
 export function FranjaBot({ area }: { area: Area }) {
-  const registro = useRegistro().filter((r) => r.area === area && new Date(r.f).toDateString() === hoyIso());
+  const registro = useRegistro().filter((r) => (area === "General" || r.area === area) && new Date(r.f).toDateString() === hoyIso());
   const reglas = useReglas();
   const lista = REGLAS.filter((r) => r.area === area);
   const por = (o: Origen) => registro.filter((r) => r.origen === o).length;

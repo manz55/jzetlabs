@@ -166,7 +166,6 @@ function Resumen({ t, irA }: { t: Tienda; irA: (p: Pestana) => void }) {
   return (
     <>
       <Titulo sub="El bot atiende la tienda. Aquí se supervisa lo que hizo y se decide lo importante.">Resumen</Titulo>
-      <FranjaBot area="General" />
       <Cifras items={[
         { t: "Ventas de hoy", v: qz(totalHoy), n: `${ventasHoy.length} ${ventasHoy.length === 1 ? "pedido" : "pedidos"} · ${vsPromedio >= 0 ? "+" : ""}${vsPromedio}% vs promedio diario` },
         { t: "Ventas de 7 días", v: qz(total7), n: `${vendidos.length} pedidos pagados` },
@@ -175,17 +174,18 @@ function Resumen({ t, irA }: { t: Tienda; irA: (p: Pestana) => void }) {
         { t: "Pagos rechazados", v: rechazados.length, n: "no se cobró nada" },
         { t: "En la tienda ahora", v: enLinea, n: "clientes en línea" },
       ]} />
+      <FranjaBot area="General" />
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_21rem]">
         <Panel titulo="Necesita su decisión" nota={acciones.length ? `${acciones.length} pendientes` : "Todo al día"} flush>
-          <table className="w-full min-w-[44rem] text-[0.92rem]">
+          <table className="w-full min-w-[40rem] text-[0.92rem]">
             <thead><tr><th className={TH}>Tipo</th><th className={TH}>Ref.</th><th className={TH}>Detalle</th><th className={`${TH} text-right`}>Monto</th><th className={TH} /></tr></thead>
             <tbody>
               {acciones.map((a) => (
                 <tr key={a.tipo + a.ref + a.detalle} className="border-t hover:bg-[#fafafb]" style={{ borderColor: BORDE }}>
-                  <td className={`${TD} font-semibold`} style={{ boxShadow: a.urgente ? `inset 3px 0 0 ${ROJO}` : undefined }}>{a.tipo}</td>
-                  <td className={`${TD} font-mono text-[0.86rem]`}>{a.ref}</td>
-                  <td className={`${TD} max-w-[22rem] truncate`} style={{ color: MUTED }}>{a.detalle}</td>
+                  <td className={`${TD} whitespace-nowrap font-semibold`} style={{ boxShadow: a.urgente ? `inset 3px 0 0 ${ROJO}` : undefined }}>{a.tipo}</td>
+                  <td className={`${TD} whitespace-nowrap font-mono text-[0.86rem]`}>{a.ref}</td>
+                  <td className={`${TD} max-w-[13rem] truncate`} title={a.detalle} style={{ color: MUTED }}>{a.detalle}</td>
                   <td className={`${TD} text-right font-semibold tabular-nums`}>{a.monto ?? ""}</td>
                   <td className={`${TD} text-right`}><button type="button" onClick={a.hacer} className={BTN} style={a.urgente ? principal : borde}>{a.boton}</button></td>
                 </tr>
