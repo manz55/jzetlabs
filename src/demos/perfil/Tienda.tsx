@@ -26,12 +26,12 @@ function Cuenta({ fin }: { fin: Date }) {
   const falta = Math.max(0, fin.getTime() - ahora);
   const partes = [[Math.floor(falta / 864e5), "días"], [Math.floor(falta / 36e5) % 24, "horas"], [Math.floor(falta / 6e4) % 60, "min"], [Math.floor(falta / 1e3) % 60, "seg"]] as const;
   return (
-    <div className="flex w-full flex-wrap items-center gap-x-5 gap-y-3 rounded-2xl p-4 text-white sm:inline-flex sm:w-auto" style={{ background: VINO }} role="timer" aria-label="Tiempo que queda de la campaña">
-      <p className="text-[1.15rem] font-bold leading-tight">La campaña termina en</p>
-      <div className="flex w-full gap-2 sm:w-auto sm:gap-2.5">
+    <div className="flex w-full flex-wrap items-center gap-x-4 gap-y-2 rounded-xl px-3 py-2 text-white sm:w-auto sm:flex-nowrap" style={{ background: VINO }} role="timer" aria-label="Tiempo que queda de la campaña">
+      <p className="text-[1rem] font-bold leading-tight">Termina en</p>
+      <div className="flex w-full gap-2 sm:w-auto sm:gap-2">
         {partes.map(([n, t]) => (
-          <div key={t} className="grid min-w-0 flex-1 place-items-center rounded-xl bg-white px-1 py-2 sm:min-w-[4.4rem] sm:flex-none sm:px-2" style={{ color: TINTA }}>
-            <span className="text-[1.9rem] font-semibold leading-none tabular-nums" style={{ fontFamily: SERIF }}>{String(n).padStart(2, "0")}</span>
+          <div key={t} className="grid min-w-0 flex-1 place-items-center rounded-xl bg-white px-1 py-1.5 sm:min-w-[3.6rem] sm:flex-none sm:px-2" style={{ color: TINTA }}>
+            <span className="text-[1.55rem] font-semibold leading-none tabular-nums" style={{ fontFamily: SERIF }}>{String(n).padStart(2, "0")}</span>
             <span className="mt-1 text-[0.8rem] font-semibold uppercase tracking-wide opacity-65">{t}</span>
           </div>
         ))}

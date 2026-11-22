@@ -9,8 +9,10 @@ export function Seccion({ id, etiqueta, titulo, sub, bajo, fondo, oscuro = false
   return (
     <section id={id} className="pf-sec scroll-mt-32" style={{ background: fondo, color: oscuro ? "#fff" : TINTA, borderTop: `6px solid ${oscuro ? "#d9a3c2" : VINO}` }}>
       <div className="pf-cont">
-        <p className="pf-eyebrow" style={{ color: oscuro ? "#e9bfd6" : VINO }}>{etiqueta}</p>
-        {bajo && <div className="mt-4">{bajo}</div>}
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+          <p className="pf-eyebrow min-w-[10rem] flex-1" style={{ color: oscuro ? "#e9bfd6" : VINO }}>{etiqueta}</p>
+          {bajo}
+        </div>
         <div className="mt-3 flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
           <div>
             <h2 className="pf-h2" style={{ color: "inherit" }}>{titulo}</h2>
