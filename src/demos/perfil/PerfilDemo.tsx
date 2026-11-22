@@ -866,7 +866,7 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
   const entregar = (x: Perfil) => {
     const falta = x.llevo.find((id) => (inv.stock[id] ?? 0) < x.llevo.filter((y) => y === id).length);
     if (falta) {
-      setAviso(`Te falta ${producto(falta)?.nombre.toLowerCase()} en tu inventario. Agrégalo cuando te llegue.`);
+      setAviso(`Inventario insuficiente: falta ${producto(falta)?.nombre.toLowerCase()}. Registre el ingreso de mercadería.`);
       return false;
     }
     inv.descontar(x.llevo);
@@ -894,7 +894,7 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
     return (
       <div className="mx-auto max-w-4xl px-5 pb-16 pt-6">
         <button type="button" onClick={() => setAbierto(null)} className="inline-flex items-center gap-1.5 text-[1.05rem] font-semibold opacity-70 hover:opacity-100 print:hidden">
-          <ArrowLeft size={19} /> Mis clientas
+          <ArrowLeft size={19} /> Clientas
         </button>
         <div className="mt-6 flex flex-wrap items-end justify-between gap-4 border-b pb-5" style={{ borderColor: LINEA }}>
           <div>
@@ -921,7 +921,7 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
         </div>
         <section className="mt-6 rounded-2xl bg-white p-5 print:hidden" style={{ border: `1.5px solid ${LINEA}` }}>
           <h2 className="text-[1.4rem] font-medium" style={{ fontFamily: SERIF }}>Sus datos</h2>
-          <p className="text-[0.95rem] opacity-60">Cámbialos aquí cuando quieras: se guardan solos.</p>
+          <p className="text-[0.95rem] opacity-60">Los cambios se guardan automáticamente.</p>
           <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {([["nombre", "Nombre"], ["apellido", "Apellido"], ["telefono", "WhatsApp"], ["direccion", "Dirección"], ["municipio", "Zona o municipio"], ["correo", "Correo"]] as const).map(([k, et]) => (
               <label key={k} className="grid gap-1 text-[0.92rem] font-semibold">{et}<input value={p[k]} onChange={(e) => cambiar(p.id, { [k]: k === "telefono" ? e.target.value.replace(/\D/g, "").slice(0, 8) : e.target.value })} className="min-h-[3rem] rounded-xl border-2 bg-white px-3 text-[1.05rem] font-normal outline-none focus:border-black/70" style={{ borderColor: "rgba(42,22,51,.25)" }} /></label>
@@ -935,7 +935,7 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
           </div>
         </div>
         <section className="mt-10 border-l-4 bg-white p-5 print:border" style={{ borderColor: VINO }}>
-          <h3 className="text-[1.1rem] font-semibold">Mis notas</h3>
+          <h3 className="text-[1.1rem] font-semibold">Notas</h3>
           <p className="text-[0.95rem] opacity-60">La clienta no las ve.</p>
           <textarea aria-label="Qué se llevó, cuándo entregar, qué le recomendé"
             value={p.notas}
@@ -944,7 +944,7 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
             placeholder="Qué se llevó, cuándo entregar, qué le recomendé…"
             className="mt-3 w-full resize-y bg-transparent text-[1.1rem] leading-snug outline-none placeholder:text-black/30"
           />
-          <p className="mt-1 text-[0.9rem] opacity-55 print:hidden">Se guarda sola.</p>
+          <p className="mt-1 text-[0.9rem] opacity-55 print:hidden">Se guarda automáticamente.</p>
         </section>
         <button
           type="button"
@@ -974,9 +974,9 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
 
   return (
     <div className="pf-cont pb-16 pt-8">
-      <p className="text-[1.05rem] opacity-65">Hola, (Tu nombre)</p>
+      <p className="text-[1.05rem] opacity-65">Panel de (Tu nombre)</p>
       <h1 className="mt-2 text-[2.8rem] font-medium leading-none" style={{ fontFamily: SERIF }}>
-        Mi negocio
+        Resumen del negocio
       </h1>
 
       <nav className="mt-6 flex gap-1 overflow-x-auto border-b [scrollbar-width:none]" style={{ borderColor: LINEA }} aria-label="Partes del panel">
@@ -1036,13 +1036,13 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
           {negocio.length + interesadas.length > 0 && (
             <section>
               <h2 className="text-[1.6rem] font-medium" style={{ fontFamily: SERIF }}>Les interesa el negocio</h2>
-              <p className="mt-1 text-[0.98rem] opacity-60">Marcaron que quieren saber más. Invítalas a tu próxima reunión.</p>
+              <p className="mt-1 text-[0.98rem] opacity-60">Solicitaron más información. Pendientes de invitar a la próxima reunión.</p>
               <ul className="mt-3 border-t" style={{ borderColor: LINEA }}>
                 {interesadas.map((x) => (
                   <li key={x.id} className="flex items-baseline justify-between gap-3 border-b py-3" style={{ borderColor: LINEA }}>
                     <span className="min-w-0">
                       <b className="block truncate">{x.nombre}</b>
-                      <span className="block text-[0.95rem] opacity-65">Desde tu página: {x.por.toLowerCase()}</span>
+                      <span className="block text-[0.95rem] opacity-65">Desde la página: {x.por.toLowerCase()}</span>
                     </span>
                     <span className="shrink-0 tabular-nums opacity-80">{telTexto(x.telefono)}</span>
                   </li>
@@ -1062,7 +1062,7 @@ function Panel({ store }: { store: ReturnType<typeof usePerfiles> }) {
           {referidas.length > 0 && (
             <section>
               <h2 className="text-[1.6rem] font-medium" style={{ fontFamily: SERIF }}>Amigas para facial</h2>
-              <p className="mt-1 text-[0.98rem] opacity-60">Las que te recomendaron tus clientas.</p>
+              <p className="mt-1 text-[0.98rem] opacity-60">Recomendadas por clientas.</p>
               <ul className="mt-3 border-t" style={{ borderColor: LINEA }}>
                 {referidas.map((r, i) => (
                   <li key={i} className="flex items-baseline justify-between gap-3 border-b py-3" style={{ borderColor: LINEA }}>
@@ -1151,7 +1151,7 @@ export default function PerfilDemo() {
 
   useEffect(() => {
     history.replaceState(null, "", vista === "panel" ? "#panel" : location.pathname);
-    document.title = vista === "panel" ? "Mis clientas · Sofía Morales" : "Tu perfil de belleza · Demo de Jzet Labs";
+    document.title = vista === "panel" ? "Panel · (Tu nombre)" : "Tu perfil de belleza · Demo de Jzet Labs";
     window.scrollTo({ top: 0 });
   }, [vista]);
 

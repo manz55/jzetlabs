@@ -73,7 +73,7 @@ export function PedidosTab({ pedidos, cambiarFase, ponerMensajero, avisar, abrir
                   <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full text-[1.2rem] font-bold text-white" style={{ background: VINO }}>{p.nombre.split(" ").slice(0, 2).map((w) => w[0]).join("")}</span>
                   <span className="min-w-0 flex-1 leading-tight">
                     {p.perfil ? <button type="button" onClick={() => abrir(p.perfil!.id)} className="block max-w-full truncate text-left text-[1.3rem] font-bold">{p.nombre}</button> : <b className="block truncate text-[1.3rem]">{p.nombre}</b>}
-                    <span className="mt-0.5 block text-[0.92rem] font-semibold" style={{ color: VINO }}>{p.origen === "pagina" ? "Llegó desde tu página" : "Clienta tuya"}</span>
+                    <span className="mt-0.5 block text-[0.92rem] font-semibold" style={{ color: VINO }}>{p.origen === "pagina" ? "Origen: página web" : "Clienta registrada"}</span>
                   </span>
                   <span className="shrink-0 text-right leading-tight"><span className="block text-[1.9rem] font-semibold leading-none" style={{ fontFamily: SERIF }}>{qz(p.total)}</span><span className="mt-1 block text-[0.95rem] font-bold" style={{ color: "#1f5a37" }}>Ganas {qz(p.ganancia)}</span></span>
                 </div>
@@ -108,7 +108,7 @@ export function PedidosTab({ pedidos, cambiarFase, ponerMensajero, avisar, abrir
                 <div className="mt-auto pt-4">
                   {p.fase !== "entregado" && (
                     <button type="button" aria-pressed={p.mensajero} onClick={() => ponerMensajero(p, !p.mensajero)} className="mb-3 flex w-full items-center justify-between gap-3 rounded-xl border-2 px-4 py-2.5 text-left text-[1rem] font-semibold" style={{ borderColor: "rgba(42,22,51,.2)" }}>
-                      <span className="flex items-center gap-2"><Truck size={19} style={{ color: VINO }} /> Lo lleva mi mensajero</span>
+                      <span className="flex items-center gap-2"><Truck size={19} style={{ color: VINO }} /> Entrega con mensajero</span>
                       <span className="relative h-7 w-12 rounded-full transition" style={{ background: p.mensajero ? VINO : "rgba(42,22,51,.25)" }}><span className="absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all" style={{ left: p.mensajero ? "1.4rem" : "0.15rem" }} /></span>
                     </button>
                   )}

@@ -90,7 +90,7 @@ export function Inicio({ perfiles, pedidos, filas, meta, ponerMeta, regaloCada, 
           <p className="text-[1.05rem] opacity-80">Vendido en {MESES[hoy.getMonth()]}</p>
           <p className="mt-1 text-[clamp(2.6rem,2rem+2vw,4rem)] font-medium leading-none" style={{ fontFamily: SERIF }}>{qz(vendido)}</p>
           <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-[1.1rem]">
-            <span className="opacity-85">Tu meta del mes:</span>
+            <span className="opacity-85">Meta del mes:</span>
             {editaMeta ? (
               <form onSubmit={(e) => { e.preventDefault(); guardarMeta(); }} className="flex items-center gap-2">
                 <span className="text-[1.2rem] font-bold">Q</span>
@@ -105,16 +105,16 @@ export function Inicio({ perfiles, pedidos, filas, meta, ponerMeta, regaloCada, 
             )}
           </div>
           <div className="mt-4 h-3 overflow-hidden rounded-full bg-white/25"><div className="h-full rounded-full bg-white" style={{ width: `${Math.min(100, (vendido / meta) * 100)}%` }} /></div>
-          <p className="mt-2 text-[1.05rem] opacity-90">{vendido >= meta ? "¡Meta cumplida!" : `Te faltan ${qz(meta - vendido)} · llevas el ${Math.round((vendido / meta) * 100)}%`}</p>
+          <p className="mt-2 text-[1.05rem] opacity-90">{vendido >= meta ? "¡Meta cumplida!" : `Faltan ${qz(meta - vendido)} · avance del ${Math.round((vendido / meta) * 100)}%`}</p>
         </div>
         <dl className="grid grid-cols-2 gap-3 self-center">
-          <div className="rounded-xl bg-white/15 p-4"><dt className="text-[0.98rem] opacity-85">Te queda de ganancia</dt><dd className="mt-1 text-[1.9rem] font-semibold leading-none" style={{ fontFamily: SERIF }}>{qz(ganancia)}</dd></div>
+          <div className="rounded-xl bg-white/15 p-4"><dt className="text-[0.98rem] opacity-85">Ganancia acumulada</dt><dd className="mt-1 text-[1.9rem] font-semibold leading-none" style={{ fontFamily: SERIF }}>{qz(ganancia)}</dd></div>
           <div className="rounded-xl bg-white/15 p-4"><dt className="text-[0.98rem] opacity-85">Total por ganar</dt><dd className="mt-1 text-[1.9rem] font-semibold leading-none" style={{ fontFamily: SERIF }}>{qz(porGanar)}</dd></div>
         </dl>
       </section>
 
       <div className="pf-auto" style={{ ["--min" as string]: "14.5rem" }}>
-        {kpi(MessageCircle, String(sinLeer.length), "Mensajes nuevos", "de tu página", sinLeer.length > 0, () => irA("mensajes"))}
+        {kpi(MessageCircle, String(sinLeer.length), "Mensajes nuevos", "de la página", sinLeer.length > 0, () => irA("mensajes"))}
         {kpi(Package, String(pendientes.length), "Pedidos por entregar", `ganas ${qz(porGanar)}`, pendientes.length > 0, () => irA("pedidos"))}
         {kpi(Wallet, qz(porCobrar.reduce((t, x) => t + saldo(x), 0)), "Por cobrar", `${porCobrar.length} ${porCobrar.length === 1 ? "pedido" : "pedidos"}`, porCobrar.length > 0, () => irA("pedidos"))}
         {kpi(CalendarDays, String(citas.length), "Clases y citas", "por atender", citas.length > 0, () => irA("mensajes"))}
@@ -122,17 +122,17 @@ export function Inicio({ perfiles, pedidos, filas, meta, ponerMeta, regaloCada, 
       </div>
 
       <div className="grid gap-5 lg:grid-cols-12">
-        <Tarjeta className="lg:col-span-7" titulo="Resumen de mensajería" nota="Lo más reciente que llegó de tu página." pie={verMas(lista.length > 4 ? `Ver más mensajes (${lista.length - 4} más)` : "Ir a mensajería", () => irA("mensajes"))}>
-          {lista.length === 0 ? vacio("No tienes mensajes.") : <ul className="grid gap-2.5">{lista.slice(0, 4).map((e) => <Fila key={e.id} e={e} abrirChat={abrirChat} />)}</ul>}
+        <Tarjeta className="lg:col-span-7" titulo="Resumen de mensajería" nota="Actividad más reciente de la página." pie={verMas(lista.length > 4 ? `Ver más mensajes (${lista.length - 4} más)` : "Ir a mensajería", () => irA("mensajes"))}>
+          {lista.length === 0 ? vacio("Sin mensajes registrados.") : <ul className="grid gap-2.5">{lista.slice(0, 4).map((e) => <Fila key={e.id} e={e} abrirChat={abrirChat} />)}</ul>}
         </Tarjeta>
 
         <Tarjeta className="lg:col-span-5" titulo="Pedidos por entregar" nota={`Total por ganar: ${qz(porGanar)}`} pie={verMas(`Ver todos los pedidos (${pedidos.length})`, () => irA("pedidos"))}>
-          {orden.length === 0 ? vacio("No tienes pedidos.") : (
+          {orden.length === 0 ? vacio("Sin pedidos registrados.") : (
             <ul className="grid gap-2.5">
               {orden.slice(0, 4).map((p) => (
                 <li key={p.id} className="rounded-xl p-3.5" style={{ background: "#fdf3ed" }}>
                   <div className="flex items-start justify-between gap-3">
-                    <span className="min-w-0 leading-tight"><b className="block truncate text-[1.1rem]">{p.nombre}</b><span className="text-[0.92rem] opacity-65">{p.origen === "pagina" ? "Llegó de tu página" : "Clienta tuya"} · {qz(p.total)}</span></span>
+                    <span className="min-w-0 leading-tight"><b className="block truncate text-[1.1rem]">{p.nombre}</b><span className="text-[0.92rem] opacity-65">{p.origen === "pagina" ? "Origen: página web" : "Clienta registrada"} · {qz(p.total)}</span></span>
                     <span className="shrink-0 text-right leading-tight"><span className="block text-[0.8rem] opacity-65">Ganas</span><b className="text-[1.3rem]" style={{ fontFamily: SERIF, color: "#1f5a37" }}>{qz(p.ganancia)}</b></span>
                   </div>
                   <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
@@ -146,8 +146,8 @@ export function Inicio({ perfiles, pedidos, filas, meta, ponerMeta, regaloCada, 
           )}
         </Tarjeta>
 
-        <Tarjeta className="lg:col-span-5" titulo="Resumen de citas y clases" nota="Lo que te pidieron desde tu página: cuándo y dónde." pie={verMas(`Ver todas (${citas.length})`, () => irA("mensajes"))}>
-          {citas.length === 0 ? vacio("No tienes clases pendientes.") : (
+        <Tarjeta className="lg:col-span-5" titulo="Resumen de citas y clases" nota="Solicitudes de la página: fecha, hora y lugar." pie={verMas(`Ver todas (${citas.length})`, () => irA("mensajes"))}>
+          {citas.length === 0 ? vacio("Sin clases ni citas pendientes.") : (
             <ul className="grid gap-2.5">
               {citas.slice(0, 4).map((e) => {
                 const d = e.cuando ? new Date(e.cuando) : null;
@@ -160,7 +160,7 @@ export function Inicio({ perfiles, pedidos, filas, meta, ponerMeta, regaloCada, 
                     <span className="min-w-0 flex-1 leading-tight">
                       <b className="block text-[1.1rem]">{TIPOS_BANDEJA[e.tipo]}</b>
                       <span className="block text-[1rem]">{e.nombre}</span>
-                      <span className="mt-1 flex items-start gap-1 text-[0.92rem] opacity-70"><MapPin size={14} className="mt-0.5 shrink-0" />{e.lugar || "Aún sin lugar: ponlo hablando con ella"}</span>
+                      <span className="mt-1 flex items-start gap-1 text-[0.92rem] opacity-70"><MapPin size={14} className="mt-0.5 shrink-0" />{e.lugar || "Lugar por definir"}</span>
                       <span className="mt-2 flex flex-wrap gap-2">
                         {e.confirmada ? <span className="inline-flex min-h-[2.75rem] items-center rounded-full px-3 text-[0.95rem] font-bold" style={{ background: "#dff1e5", color: "#1f5a37" }}>Confirmada</span> : <button type="button" onClick={() => abrirChat(e.id)} className={`${boton} border-2`} style={{ borderColor: VINO, color: VINO }}><MessageCircle size={16} /> Confirmar</button>}
                         <button type="button" onClick={() => abrirChat(e.id)} className={`${boton} border-2`} style={{ borderColor: "rgba(42,22,51,.25)" }}>Hablar</button>
@@ -174,9 +174,9 @@ export function Inicio({ perfiles, pedidos, filas, meta, ponerMeta, regaloCada, 
           )}
         </Tarjeta>
 
-        <Tarjeta className="lg:col-span-4" titulo="Clientas recurrentes" nota="Las que ya te compraron más de una vez." pie={verMas("Ver todas mis clientas", () => irA("clientas"))}
+        <Tarjeta className="lg:col-span-4" titulo="Clientas recurrentes" nota="Clientas con más de una compra." pie={verMas("Ver todas mis clientas", () => irA("clientas"))}
           derecha={<span className="flex flex-col items-end gap-1 text-[0.9rem]"><span className="opacity-70">Regalo cada</span><span className="flex items-center gap-1.5"><Paso valor={regaloCada} alCambiar={ponerRegalo} etiqueta="compras" /><span>compras</span></span></span>}>
-          {recurrentes.length === 0 ? vacio("Aún no tienes clientas que repitan.") : (
+          {recurrentes.length === 0 ? vacio("Aún no hay clientas recurrentes.") : (
             <ul className="grid gap-2.5">
               {recurrentes.slice(0, 4).map((x) => {
                 const h = HISTORIAL_EJ[x.id];
@@ -203,7 +203,7 @@ export function Inicio({ perfiles, pedidos, filas, meta, ponerMeta, regaloCada, 
         </Tarjeta>
 
         <Tarjeta className="lg:col-span-3" titulo="Control de inventario" nota="Productos con menor cobertura." pie={verMas("Ver inventario completo", () => irA("inventario"))}>
-          {alertas.length === 0 ? vacio("Todo bien con tu inventario.") : (
+          {alertas.length === 0 ? vacio("Inventario sin alertas.") : (
             <ul className="grid gap-3.5">
               {alertas.slice(0, 4).map((f) => (
                 <li key={f.pr.id}>
@@ -278,7 +278,7 @@ export function Mensajes({ abrirChat }: { abrirChat: (id: string) => void }) {
   const ver = lista.filter((e) => (tipo === "todo" ? true : tipo === "nuevos" ? !e.leido : e.tipo === tipo));
   return (
     <div className="mt-6">
-      <p className="text-[1.05rem] opacity-70">Todo lo que la gente hace en tu página llega aquí: no se te pierde nada. Toca "Ver chat" para hablar con ella.</p>
+      <p className="text-[1.05rem] opacity-70">Toda la actividad de la página queda registrada aquí. Use "Ver chat" para responder.</p>
       <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Filtrar">
         {filtros.map(([v, t]) => <button key={v} type="button" aria-pressed={tipo === v} onClick={() => setTipo(v)} className={`${boton} border-2`} style={tipo === v ? { background: TINTA, borderColor: TINTA, color: "#fff" } : { borderColor: "rgba(42,22,51,.25)", background: "#fff" }}>{t}</button>)}
       </div>

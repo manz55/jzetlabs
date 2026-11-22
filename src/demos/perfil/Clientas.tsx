@@ -41,7 +41,7 @@ export function ClientasTab({ perfiles, agregar, abrir, avisar }: { perfiles: Pe
     <div className="mt-6 min-w-0">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-wrap gap-2" role="group" aria-label="Qué ver">
-          {([["clientas", `Mis clientas (${perfiles.length})`], ["equipo", `Mi equipo (${equipo.length})`]] as const).map(([v, t]) => <button key={v} type="button" aria-pressed={vista === v} onClick={() => setVista(v)} className="min-h-[2.75rem] rounded-full border-2 px-5 text-[1.05rem] font-semibold" style={vista === v ? { background: TINTA, borderColor: TINTA, color: "#fff" } : { borderColor: "rgba(42,22,51,.25)", background: "#fff" }}>{t}</button>)}
+          {([["clientas", `Clientas (${perfiles.length})`], ["equipo", `Equipo (${equipo.length})`]] as const).map(([v, t]) => <button key={v} type="button" aria-pressed={vista === v} onClick={() => setVista(v)} className="min-h-[2.75rem] rounded-full border-2 px-5 text-[1.05rem] font-semibold" style={vista === v ? { background: TINTA, borderColor: TINTA, color: "#fff" } : { borderColor: "rgba(42,22,51,.25)", background: "#fff" }}>{t}</button>)}
         </div>
         <button type="button" onClick={() => setNueva(true)} className="pf-btn inline-flex min-h-[3rem] items-center gap-2 rounded-full px-6 text-[1.05rem] font-semibold text-white" style={{ background: VINO }}>{vista === "clientas" ? <UserPlus size={19} /> : <Plus size={19} />} {vista === "clientas" ? "Agregar clienta" : "Agregar consultora"}</button>
       </div>
@@ -75,23 +75,23 @@ export function ClientasTab({ perfiles, agregar, abrir, avisar }: { perfiles: Pe
               </tbody>
             </table>
           </div>
-          <p className="mt-3 text-[0.95rem] opacity-60">En la ficha puedes cambiar todos sus datos y escribir tus notas.</p>
+          <p className="mt-3 text-[0.95rem] opacity-60">En la ficha se pueden editar los datos y registrar notas.</p>
         </div>
       ) : (
         <div className="mt-5 grid gap-5">
           <div className="grid gap-4 rounded-2xl p-5 text-white sm:grid-cols-3" style={{ background: VINO }}>
-            <div><p className="opacity-85">Consultoras en tu equipo</p><p className="text-[2.4rem] font-semibold leading-none" style={{ fontFamily: SERIF }}>{equipo.length}</p></div>
+            <div><p className="opacity-85">Consultoras en el equipo</p><p className="text-[2.4rem] font-semibold leading-none" style={{ fontFamily: SERIF }}>{equipo.length}</p></div>
             <div><p className="opacity-85">Vendieron este mes</p><p className="text-[2.4rem] font-semibold leading-none" style={{ fontFamily: SERIF }}>{qz(totalEquipo)}</p></div>
             <div><p className="opacity-85">De la meta del equipo</p><p className="text-[2.4rem] font-semibold leading-none" style={{ fontFamily: SERIF }}>{Math.round((totalEquipo / metaEquipo) * 100)}%</p></div>
           </div>
-          {equipo.length === 0 ? <p className="rounded-xl bg-white px-4 py-8 text-center opacity-60">Aún no tienes consultoras en tu equipo.</p> : (
+          {equipo.length === 0 ? <p className="rounded-xl bg-white px-4 py-8 text-center opacity-60">Aún no hay consultoras en el equipo.</p> : (
             <ul className="pf-auto" style={{ ["--min" as string]: "24rem" }}>
               {equipo.map((c) => (
                 <li key={c.id} className="rounded-2xl bg-white p-5" style={{ border: `1.5px solid ${LINEA}` }}>
                   <div className="flex items-start gap-3.5">
                     <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full text-[1.2rem] font-bold text-white" style={{ background: TINTA }}>{c.nombre.split(" ").slice(0, 2).map((w) => w[0]).join("")}</span>
                     <span className="min-w-0 flex-1 leading-tight"><b className="block truncate text-[1.3rem]">{c.nombre}</b><span className="mt-0.5 flex items-center gap-1.5 text-[0.98rem] opacity-70"><Phone size={14} /> {telTexto(c.telefono)}</span></span>
-                    <button type="button" aria-label={`Quitar a ${c.nombre}`} onClick={() => { if (confirm(`¿Quitar a ${c.nombre} de tu equipo?`)) ponerEquipo((l) => l.filter((x) => x.id !== c.id)); }} className="grid h-11 w-11 shrink-0 place-items-center rounded-full opacity-50 hover:opacity-100"><Trash2 size={19} /></button>
+                    <button type="button" aria-label={`Quitar a ${c.nombre}`} onClick={() => { if (confirm(`¿Quitar a ${c.nombre} del equipo?`)) ponerEquipo((l) => l.filter((x) => x.id !== c.id)); }} className="grid h-11 w-11 shrink-0 place-items-center rounded-full opacity-50 hover:opacity-100"><Trash2 size={19} /></button>
                   </div>
                   <div className="mt-4 h-3 overflow-hidden rounded-full" style={{ background: LINEA }}><div className="h-full rounded-full" style={{ width: `${Math.min(100, (c.ventas / Math.max(1, c.meta)) * 100)}%`, background: VINO }} /></div>
                   <p className="mt-1.5 text-[1rem]"><b>{qz(c.ventas)}</b> de {qz(c.meta)} · {Math.round((c.ventas / Math.max(1, c.meta)) * 100)}%</p>
