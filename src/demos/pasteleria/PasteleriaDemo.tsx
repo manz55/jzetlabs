@@ -6,8 +6,9 @@
  * entregas, cobros y lo que queda en la vitrina.
  */
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, CalendarDays, Check, Clock, MapPin, Truck, X } from "lucide-react";
-import { BandaDemos, PartesDemo, Cajon, CierreJzet, Contador, MensajeWhatsApp } from "../comun";
+import { ArrowRight, Check, Clock, MapPin, Truck, X } from "lucide-react";
+import PanelPasteleria from "./PanelPasteleria";
+import { BandaDemos, PartesDemo, Cajon, CierreJzet, MensajeWhatsApp } from "../comun";
 import {
   CHOCO, CUPO_DIA, DIAS, ENTREGAS, FRAMBUESA, HORARIOS, LECHE, LINEA, MANTEQUILLA, NATA, OCASIONES, OPINIONES, PASTELES, POSTRES, PREGUNTAS, SABORES, SERIF, TAMANOS,
   anticipacion, desde, fechaLarga, iso, masDias, ocupados, por, precio, qz, usePedidos, useVitrina,
@@ -15,7 +16,6 @@ import {
 } from "./datos";
 import portada from "@/assets/demo-pasteleria/portada.jpg";
 import decorando from "@/assets/demo-pasteleria/decorando.jpg";
-import cocina from "@/assets/demo-pasteleria/cocina.jpg";
 
 const btn = "inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 font-semibold transition active:scale-[0.98]";
 
@@ -58,7 +58,7 @@ export default function PasteleriaDemo() {
       <style>{ESTILOS}</style>
       <BandaDemos />
       <PartesDemo fondo={"#241410"} actual={vista} alCambiar={setVista} partes={[{ id: "tienda", nombre: "La tienda", quien: "La clienta escoge su pastel y lo aparta" }, { id: "admin", nombre: "Administración", quien: "Usted ve qué hornear y qué entregar" }] as const} />
-      {vista === "tienda" ? <Tienda store={store} quedan={vit.quedan} /> : <Administracion store={store} vit={vit} />}
+      {vista === "tienda" ? <Tienda store={store} quedan={vit.quedan} /> : <PanelPasteleria store={store} vit={vit} />}
       <CierreJzet demo="pastelería por encargo" />
     </div>
   );
@@ -472,199 +472,3 @@ function Ficha({ pastel, alCerrar, store }: { pastel: Pastel | null; alCerrar: (
 }
 
 /* ---------------- administración: pedidos, cocina y cobros ---------------- */
-
-function Administracion({ store, vit }: { store: ReturnType<typeof usePedidos>; vit: ReturnType<typeof useVitrina> }) {
-  const { pedidos, cambiar } = store;
-  const hoy = iso(masDias(0));
-  const semana = Array.from({ length: 7 }, (_, i) => iso(masDias(i)));
-  const enSemana = pedidos.filter((x) => semana.includes(x.fecha));
-  const cobrado = pedidos.reduce((t, x) => t + x.pagado, 0);
-  const porCobrar = pedidos.reduce((t, x) => t + (x.total - x.pagado), 0);
-  const proximos = pedidos.filter((x) => x.fecha >= hoy && x.fecha <= iso(masDias(2)) && x.estado === "por-hacer");
-  const preparar = SABORES.map((s) => {
-    const de = proximos.filter((x) => x.sabor === s.id);
-    return { s, n: de.length, porciones: de.reduce((t, x) => t + por(TAMANOS, x.tamano).porciones, 0) };
-  }).filter((x) => x.n);
-  const ranking = PASTELES.map((p) => ({ p, n: pedidos.filter((x) => x.pastel === p.id).length }))
-    .filter((x) => x.n)
-    .sort((a, b) => b.n - a.n)
-    .slice(0, 4);
-  const h2 = "text-[1.7rem] font-semibold leading-tight";
-  const caja = { background: NATA };
-
-  return (
-    <div className="pb-16">
-      <div className="relative h-44 overflow-hidden sm:h-56">
-        <img src={cocina} alt="Pastelero decorando en la cocina" className="h-full w-full object-cover" />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(36,20,16,.88), rgba(36,20,16,.35))" }} />
-        <div className="absolute inset-0 mx-auto flex max-w-6xl flex-col justify-end px-5 pb-6 text-white">
-          <p className="text-white/75">{fechaLarga(hoy).replace(/^./, (x) => x.toUpperCase())}</p>
-          <h1 className="text-[2.6rem] font-semibold leading-none sm:text-[3rem]" style={{ fontFamily: SERIF }}>Administración</h1>
-          <p className="mt-1 text-white/80">Pedidos, cocina y cobros de Dulce Abril</p>
-        </div>
-      </div>
-
-      <div className="mx-auto max-w-6xl px-5">
-        <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-          {[
-            [String(enSemana.length), "pasteles esta semana", CalendarDays],
-            [String(pedidos.filter((x) => x.fecha === hoy).length), "salen hoy", Truck],
-            [qz(cobrado), "cobrado en anticipos y pagos", Check],
-            [qz(porCobrar), "falta cobrar al entregar", Clock],
-          ].map(([n, t, I]) => {
-            const Icono = I as typeof Clock;
-            return (
-              <div key={t as string} className="rounded-2xl p-4" style={caja}>
-                <Icono size={18} style={{ color: FRAMBUESA }} />
-                <p className="mt-2 text-[1.9rem] font-semibold leading-none" style={{ fontFamily: SERIF }}>{n as string}</p>
-                <p className="mt-1.5 text-[0.92rem] opacity-65">{t as string}</p>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="pastel-admin mt-10">
-          <section className="min-w-0">
-            <h2 className={h2} style={{ fontFamily: SERIF }}>Los próximos 7 días</h2>
-            <div className="mt-4 grid gap-6">
-              {semana.map((f) => {
-                const del = pedidos.filter((x) => x.fecha === f).sort((a, b) => a.horario.localeCompare(b.horario));
-                const usados = Math.min(ocupados(pedidos, f), CUPO_DIA);
-                const cerrado = new Date(f + "T00:00").getDay() === 1;
-                return (
-                  <div key={f} className="rounded-2xl p-4" style={caja}>
-                    <div className="flex items-center justify-between gap-3">
-                      <b className="text-[1.08rem]">{f === hoy ? "Hoy" : fechaLarga(f).replace(/^./, (x) => x.toUpperCase())}</b>
-                      {cerrado ? (
-                        <span className="text-[0.9rem] opacity-60">Cerrado</span>
-                      ) : (
-                        <span className="flex items-center gap-2 text-[0.88rem] opacity-75">
-                          <span className="flex gap-0.5">
-                            {Array.from({ length: CUPO_DIA }, (_, i) => (
-                              <span key={i} className="h-2.5 w-2.5 rounded-full" style={{ background: i < usados ? FRAMBUESA : "rgba(58,31,23,.15)" }} />
-                            ))}
-                          </span>
-                          {usados} de {CUPO_DIA}
-                        </span>
-                      )}
-                    </div>
-                    {del.length === 0 ? (
-                      <p className="pt-2 text-[0.92rem] opacity-55">{cerrado ? "Día de descanso." : "Sin pedidos en línea (los de teléfono cuentan en el cupo)."}</p>
-                    ) : (
-                      <ul className="mt-2">
-                        {del.map((x) => {
-                          const pa = por(PASTELES, x.pastel);
-                          const t = por(TAMANOS, x.tamano);
-                          const saldo = x.total - x.pagado;
-                          return (
-                            <li key={x.id} className="grid grid-cols-[4rem_1fr] gap-3 border-t py-3 sm:grid-cols-[4rem_1fr_auto] sm:items-center" style={{ borderColor: LINEA }}>
-                              <img src={pa.foto} alt={pa.nombre} className="h-16 w-16 rounded-xl object-cover" />
-                              <div className="min-w-0">
-                                <p className="font-semibold">
-                                  {x.nombre} {x.nuevo && <span className="ml-1 rounded-full px-2 py-0.5 text-[0.72rem] text-white" style={{ background: FRAMBUESA }}>pidió en línea</span>}
-                                </p>
-                                <p className="text-[0.93rem] opacity-80">
-                                  {pa.nombre} · {t.porciones} porciones · {por(SABORES, x.sabor).nombre}
-                                  {x.texto ? ` · “${x.texto}”` : ""}
-                                  {x.velas ? " · velas" : ""}
-                                </p>
-                                <p className="text-[0.88rem] opacity-60">
-                                  {x.horario} · {por(ENTREGAS, x.entrega).nombre}
-                                  {x.direccion ? `: ${x.direccion}` : ""} · {saldo > 0 ? `falta ${qz(saldo)}` : "pagado"}
-                                </p>
-                              </div>
-                              <div className="col-span-2 flex flex-wrap gap-2 sm:col-span-1">
-                                {x.estado === "por-hacer" && (
-                                  <button type="button" onClick={() => cambiar(x.id, { estado: "listo" })} className="rounded-full border-2 px-3.5 py-1.5 text-[0.92rem] font-semibold" style={{ borderColor: CHOCO }}>
-                                    Ya está listo
-                                  </button>
-                                )}
-                                {x.estado === "listo" && (
-                                  <button type="button" onClick={() => cambiar(x.id, { estado: "entregado", pagado: x.total })} className="rounded-full px-3.5 py-1.5 text-[0.92rem] font-semibold text-white" style={{ background: FRAMBUESA }}>
-                                    Entregado y pagado
-                                  </button>
-                                )}
-                                {x.estado === "entregado" && (
-                                  <span className="inline-flex items-center gap-1 text-[0.92rem] font-semibold" style={{ color: "#3f7a4b" }}>
-                                    <Check size={16} /> Entregado
-                                  </span>
-                                )}
-                              </div>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          <aside className="grid min-w-0 content-start gap-10">
-            <section>
-              <h2 className={h2} style={{ fontFamily: SERIF }}>Qué preparar (3 días)</h2>
-              <p className="mt-1 text-[0.95rem] opacity-60">Los pasteles por hacer de hoy a pasado mañana, por sabor.</p>
-              <ul className="mt-3 rounded-2xl px-4" style={caja}>
-                {preparar.map(({ s, n, porciones }, i) => (
-                  <li key={s.id} className={`flex items-baseline justify-between gap-3 py-3 ${i ? "border-t" : ""}`} style={{ borderColor: LINEA }}>
-                    <b>{s.nombre}</b>
-                    <span className="shrink-0 opacity-75">
-                      {n} · {porciones} porc.
-                    </span>
-                  </li>
-                ))}
-                {preparar.length === 0 && <li className="py-3 opacity-60">Nada pendiente.</li>}
-              </ul>
-            </section>
-            <section>
-              <h2 className={h2} style={{ fontFamily: SERIF }}>Vitrina de hoy</h2>
-              <p className="mt-1 text-[0.95rem] opacity-60">Lo que cambies aquí se ve al instante en la tienda.</p>
-              <ul className="mt-3 rounded-2xl px-4" style={caja}>
-                {POSTRES.map((x, i) => (
-                  <li key={x.id} className={`flex items-center gap-3 py-3 ${i ? "border-t" : ""}`} style={{ borderColor: LINEA }}>
-                    <img src={x.foto} alt="" className="h-11 w-11 shrink-0 rounded-lg object-cover" />
-                    <span className="min-w-0 flex-1 leading-tight">
-                      <b className="block text-[0.95rem]">{x.nombre}</b>
-                      <span className="text-[0.85rem]" style={{ color: vit.quedan[x.id] ? undefined : FRAMBUESA }}>{vit.quedan[x.id] ? `quedan ${vit.quedan[x.id]}` : "agotado"}</span>
-                    </span>
-                    <Contador valor={vit.quedan[x.id] ?? 0} alCambiar={(n) => vit.poner(x.id, n)} />
-                  </li>
-                ))}
-              </ul>
-            </section>
-            <section>
-              <h2 className={h2} style={{ fontFamily: SERIF }}>Lo que más piden</h2>
-              <ul className="mt-3 grid grid-cols-2 gap-3">
-                {ranking.map(({ p, n }) => (
-                  <li key={p.id} className="overflow-hidden rounded-2xl" style={caja}>
-                    <img src={p.foto} alt={p.nombre} className="h-24 w-full object-cover" />
-                    <p className="px-3 pb-3 pt-2 text-[0.92rem] leading-tight">
-                      <b className="block">{p.nombre}</b>
-                      <span className="opacity-65">{n} {n === 1 ? "pedido" : "pedidos"}</span>
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </section>
-            <section>
-              <h2 className={h2} style={{ fontFamily: SERIF }}>Entregas de hoy</h2>
-              <ul className="mt-3 rounded-2xl px-4" style={caja}>
-                {pedidos
-                  .filter((x) => x.fecha === hoy && x.entrega !== "recoger")
-                  .map((x, i) => (
-                    <li key={x.id} className={`py-3 ${i ? "border-t" : ""}`} style={{ borderColor: LINEA }}>
-                      <b className="block">{x.horario}</b>
-                      <span className="text-[0.93rem] opacity-75">
-                        {x.nombre} · {x.direccion}
-                      </span>
-                    </li>
-                  ))}
-              </ul>
-            </section>
-          </aside>
-        </div>
-      </div>
-    </div>
-  );
-}

@@ -9,12 +9,11 @@
  * - El doctor no sabe qué paciente crónico se está descompensando -> el consultorio ve primero las lecturas altas.
  */
 import { useEffect, useState } from "react";
-import { Activity, ArrowRight, CalendarCheck, Check, ClipboardList, FileText, FlaskConical, Pill } from "lucide-react";
+import { Activity, ArrowRight, CalendarCheck, Check, FileText, FlaskConical, Pill } from "lucide-react";
 import presion from "@/assets/demo-medicina/presion.jpg";
-import mayor from "@/assets/demo-medicina/mayor.jpg";
 import tension from "@/assets/demo-medicina/tension.jpg";
 import lab from "@/assets/demo-medicina/lab.jpg";
-import historia from "@/assets/demo-medicina/historia.jpg";
+import PanelConsultorio from "./PanelConsultorio";
 import { BandaDemos, PartesDemo, CierreJzet, MensajeWhatsApp } from "../comun";
 
 /* piedra fría de consultorio, verde pino y el ocre de los sobres de laboratorio */
@@ -100,12 +99,6 @@ const AGENDA: Cita[] = [
   { hora: "11:00", quien: "Carmen de León", edad: 72, motivo: "Resultados de laboratorio", tipo: "control" },
   { hora: "15:30", quien: "Edgar Alvarado", edad: 49, motivo: "Chequeo básico", tipo: "chequeo" },
 ];
-const CRONICOS = [
-  { quien: "Marta Lidia Ramírez", tiene: "Diabetes e hipertensión", ultima: "142/90 · glucosa 131", alto: true, dias: 0 },
-  { quien: "Rosa Elvira Tzul", tiene: "Hipertensión", ultima: "156/96", alto: true, dias: 1 },
-  { quien: "Héctor Cifuentes", tiene: "Diabetes", ultima: "sin lecturas", alto: false, dias: 15 },
-  { quien: "Carmen de León", tiene: "Hipertensión", ultima: "124/80", alto: false, dias: 0 },
-];
 const HORAS = ["9:45", "10:30", "11:30", "15:00", "16:00", "16:30", "17:00"];
 
 type Estado = { lecturas: Lectura[]; agenda: Cita[]; renovar: boolean; renovada: boolean };
@@ -165,7 +158,7 @@ export default function MedicinaDemo() {
       <PartesDemo fondo={PINO} actual={vista} alCambiar={setVista} partes={[{ id: "pagina", nombre: "Página", quien: "El paciente ve chequeos y hace su cita" }, { id: "control", nombre: "App del paciente", quien: "Anota su presión y ve su receta" }, { id: "consultorio", nombre: "Consultorio", quien: "El doctor ve la agenda y a sus pacientes" }] as const} />
       {vista === "pagina" && <Pagina m={m} alAgendar={() => setVista("consultorio")} />}
       {vista === "control" && <MiControl m={m} />}
-      {vista === "consultorio" && <Consultorio m={m} />}
+      {vista === "consultorio" && <PanelConsultorio m={m} />}
       <CierreJzet demo="consultorio médico" />
     </div>
   );
@@ -431,88 +424,3 @@ function MiControl({ m }: { m: Med }) {
 }
 
 /* ---------------- consultorio ---------------- */
-
-function Consultorio({ m }: { m: Med }) {
-  const [msg, setMsg] = useState<string | null>(null);
-  return (
-    <section className="mx-auto max-w-6xl px-5 py-10">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="font-semibold opacity-70">Consultorio · Dr. Ricardo Samayoa</p>
-          <h1 className="medi-titulo text-[2.3rem] sm:text-[3rem]">Hoy</h1>
-        </div>
-        <button type="button" onClick={m.reiniciar} className="text-[0.9rem] font-semibold underline opacity-70">Volver a los datos de ejemplo</button>
-      </div>
-      <div className="medi-consul mt-6">
-        <div className="grid content-start gap-4">
-          <div className="rounded-xl bg-white p-4 sm:p-5">
-            <h2 className="flex items-center gap-2 text-[1.2rem] font-bold"><ClipboardList size={20} /> Agenda</h2>
-            <ul className="mt-3 divide-y divide-black/5">
-              {m.agenda.map((c) => (
-                <li key={c.hora} className="flex flex-wrap items-center gap-x-3 gap-y-2 py-3">
-                  <b className="w-12">{c.hora}</b>
-                  <span className="min-w-[10rem] flex-1 leading-tight">
-                    <b className="block">
-                      {c.quien} <span className="font-normal opacity-60">· {c.edad} años</span>
-                      {c.nueva && <span className="ml-1.5 rounded px-1.5 py-0.5 text-[0.72rem] text-white" style={{ background: OCRE }}>desde la página</span>}
-                    </b>
-                    <span className="text-[0.88rem] opacity-70">{c.motivo}</span>
-                  </span>
-                  {c.listo ? (
-                    <span className="flex items-center gap-1 text-[0.88rem] font-semibold" style={{ color: PINO2 }}><Check size={16} /> Atendido</span>
-                  ) : (
-                    <button type="button" onClick={() => m.terminar(c.hora)} className="rounded-lg border-2 px-3 py-1 text-[0.85rem] font-semibold" style={{ borderColor: PINO }}>
-                      Terminar consulta
-                    </button>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <img src={historia} alt="El doctor escribe en la historia clínica" loading="lazy" className="h-48 w-full rounded-xl object-cover" />
-        </div>
-
-        <div className="grid content-start gap-4">
-          <div className="rounded-xl bg-white p-4 sm:p-5">
-            <h2 className="text-[1.2rem] font-bold">Pacientes crónicos</h2>
-            <p className="text-[0.88rem] opacity-70">Primero los que anotaron lecturas altas.</p>
-            <ul className="mt-3 grid gap-3">
-              {[...CRONICOS].sort((a, b) => Number(b.alto) - Number(a.alto)).map((p) => (
-                <li key={p.quien} className="flex items-center gap-3">
-                  <span className="h-10 w-1.5 shrink-0 rounded-full" style={{ background: p.alto ? ROJO : p.dias > 7 ? OCRE : PINO2 }} />
-                  <span className="min-w-0 flex-1 leading-tight">
-                    <b className="block">{p.quien}</b>
-                    <span className="text-[0.86rem] opacity-75">{p.tiene} · {p.ultima}{p.dias > 7 ? ` · no anota hace ${p.dias} días` : ""}</span>
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setMsg(p.alto ? `Buenas, ${p.quien.split(" ")[0]}. Le habla el doctor Samayoa. Vi su lectura de hoy (${p.ultima}). Tómese la medicina como siempre y vuelva a medirse en la tarde. Si sigue alta o siente dolor de cabeza fuerte, venga de una vez. Le aparto un espacio mañana a las 9:45.` : `Buenas, ${p.quien.split(" ")[0]}. Le saludamos del consultorio del doctor Samayoa. Hace ${p.dias} días que no anota su glucosa. ¿Cómo se ha sentido? Recuerde anotarla en la app para que el doctor la revise.`)}
-                    className="rounded-lg border-2 px-3 py-1.5 text-[0.85rem] font-semibold"
-                    style={{ borderColor: PINO }}
-                  >
-                    Escribirle
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="rounded-xl p-4 text-white sm:p-5" style={{ background: PINO }}>
-            <h2 className="flex items-center gap-2 text-[1.2rem] font-bold"><Pill size={20} /> Recetas por renovar</h2>
-            {m.renovar ? (
-              <div className="mt-3">
-                <p><b>Marta Lidia Ramírez</b> pide su receta de losartán, metformina y aspirina. Le quedan 4 días.</p>
-                <button type="button" onClick={m.firmarReceta} className="mt-3 rounded-lg bg-white px-4 py-2 font-semibold" style={{ color: PINO }}>
-                  Firmar y mandar
-                </button>
-              </div>
-            ) : (
-              <p className="mt-2 text-white/75">{m.renovada ? "Receta de Marta Lidia firmada y enviada." : "No hay pedidos. Pruebe pedir una desde «Mi control»."}</p>
-            )}
-          </div>
-          <img src={mayor} alt="El doctor platica con un paciente mayor" loading="lazy" className="h-44 w-full rounded-xl object-cover" />
-        </div>
-      </div>
-      <MensajeWhatsApp mensaje={msg} alCerrar={() => setMsg(null)} demo="consultorio médico" que="el mensaje para el paciente" />
-    </section>
-  );
-}

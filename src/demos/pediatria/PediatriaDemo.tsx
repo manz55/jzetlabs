@@ -6,10 +6,12 @@
 import { useEffect, useState } from "react";
 import { ArrowRight, Baby, CalendarCheck, Check, Phone, Syringe, Thermometer } from "lucide-react";
 import { BandaDemos, PartesDemo, CierreJzet, MensajeWhatsApp } from "../comun";
+import { Curva } from "./Curva";
+import PanelPediatria from "./PanelPediatria";
 import {
-  ATRASADOS, CIELO, CIELO2, CORAL, CURVA, FOTOS, HORAS, LIMA, MARINO, REDONDA, SOL, VACUNAS,
+  CIELO, CIELO2, CORAL, FOTOS, HORAS, LIMA, MARINO, REDONDA, SOL, VACUNAS,
   edadTexto, mesesDe, toMin, usePediatria,
-  type Cita, type Nino, type Pedi,
+  type Cita, type Pedi,
 } from "./datos";
 
 const btn = "inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 font-bold transition active:scale-[0.98]";
@@ -78,7 +80,7 @@ export default function PediatriaDemo() {
       <PartesDemo fondo={MARINO} actual={vista} alCambiar={setVista} partes={[{ id: "pagina", nombre: "Página", quien: "Las familias ven vacunas y apartan cita" }, { id: "hijos", nombre: "App de la mamá", quien: "Vacunas, peso y carné de cada hijo" }, { id: "consultorio", nombre: "Consultorio", quien: "La doctora ve la agenda y anota peso" }] as const} />
       {vista === "pagina" && <Pagina p={p} alAgendar={() => setVista("hijos")} />}
       {vista === "hijos" && <MisHijos p={p} />}
-      {vista === "consultorio" && <Consultorio p={p} />}
+      {vista === "consultorio" && <PanelPediatria p={p} />}
       <CierreJzet demo="clínica pediátrica" />
     </div>
   );
@@ -259,32 +261,6 @@ function Pagina({ p, alAgendar }: { p: Pedi; alAgendar: () => void }) {
 
 /* ---------------- curva de peso ---------------- */
 
-function Curva({ n }: { n: Nino }) {
-  const W = 320, H = 190, maxM = 12, maxKg = 13;
-  const x = (m: number) => 28 + (m / maxM) * (W - 40);
-  const y = (kg: number) => H - 24 - ((kg - 2) / (maxKg - 2)) * (H - 36);
-  const banda = (i: number) => CURVA.map((c, m) => `${m ? "L" : "M"}${x(m)},${y(c[i])}`).join(" ");
-  const arriba = CURVA.map((c, m) => `${x(m)},${y(c[2])}`).join(" ");
-  const abajo = [...CURVA].reverse().map((c, k) => `${x(12 - k)},${y(c[0])}`).join(" ");
-  const puntos = n.pesos.filter((p) => p.mes <= maxM);
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label={`Curva de peso de ${n.nombre}`}>
-      <polygon points={`${arriba} ${abajo}`} fill={CIELO} />
-      <path d={banda(1)} fill="none" stroke={CIELO2} strokeWidth="2" strokeDasharray="4 4" />
-      {[0, 3, 6, 9, 12].map((m) => (
-        <text key={m} x={x(m)} y={H - 6} fontSize="10" textAnchor="middle" fill={MARINO} opacity=".6">{m}m</text>
-      ))}
-      {[4, 7, 10, 13].map((k) => (
-        <text key={k} x={4} y={y(k) + 3} fontSize="10" fill={MARINO} opacity=".6">{k}kg</text>
-      ))}
-      <path d={puntos.map((p, i) => `${i ? "L" : "M"}${x(p.mes)},${y(p.kg)}`).join(" ")} fill="none" stroke={CORAL} strokeWidth="2.5" strokeLinecap="round" />
-      {puntos.map((p) => (
-        <circle key={p.mes} cx={x(p.mes)} cy={y(p.kg)} r="4.5" fill="#fff" stroke={CORAL} strokeWidth="2.5" />
-      ))}
-    </svg>
-  );
-}
-
 /* ---------------- mis hijos ---------------- */
 
 function MisHijos({ p }: { p: Pedi }) {
@@ -383,124 +359,3 @@ function MisHijos({ p }: { p: Pedi }) {
 }
 
 /* ---------------- consultorio ---------------- */
-
-function Consultorio({ p }: { p: Pedi }) {
-  const [msg, setMsg] = useState<string | null>(null);
-  const [kg, setKg] = useState("8.3");
-  const [cm, setCm] = useState("69");
-  const mateo = p.ninos[0];
-  const mesM = mesesDe(mateo.nace);
-  const estado = (c: Cita) =>
-    c.estado === "listo" ? { t: "Atendido", c: LIMA } : c.estado === "consulta" ? { t: "En consulta", c: CORAL } : c.estado === "espera" ? { t: "En sala", c: SOL } : { t: "Agendada", c: "#8aa0b4" };
-  const siguiente = (c: Cita) => (c.estado === "agendada" ? "Ya llegó" : c.estado === "espera" ? "Pasar" : c.estado === "consulta" ? "Terminar" : null);
-  const vacunasHoy = p.agenda.filter((c) => c.tipo === "vacuna" && c.estado !== "listo");
-
-  return (
-    <section className="mx-auto max-w-6xl px-5 py-10">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="font-bold opacity-70">Consultorio · Dra. Lucía Ordóñez</p>
-          <h1 className="pedi-titulo text-[2.5rem] sm:text-[3.2rem]">Pacientes de hoy</h1>
-        </div>
-        <button type="button" onClick={p.reiniciar} className="text-[0.9rem] font-semibold underline opacity-70">Volver a los datos de ejemplo</button>
-      </div>
-      <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {[
-          ["Citas hoy", p.agenda.length],
-          ["En sala de espera", p.agenda.filter((c) => c.estado === "espera").length],
-          ["Vacunas por poner", vacunasHoy.length],
-          ["Atendidos", p.agenda.filter((c) => c.estado === "listo").length],
-        ].map(([a, b]) => (
-          <div key={a} className="rounded-2xl bg-white p-4">
-            <p className="text-[0.85rem] font-bold opacity-65">{a}</p>
-            <p className="pedi-titulo mt-1 text-[2rem]">{b}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="pedi-consul mt-6">
-        <div className="rounded-2xl bg-white p-4 sm:p-5">
-          <h2 className="text-[1.25rem] font-bold">Agenda</h2>
-          <ul className="mt-3 divide-y divide-black/5">
-            {p.agenda.map((c) => {
-              const e = estado(c);
-              const s = siguiente(c);
-              return (
-                <li key={c.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 py-3">
-                  <b className="w-12">{c.hora}</b>
-                  <span className="min-w-[10rem] flex-1">
-                    <b className="block leading-tight">
-                      {c.nino} <span className="font-normal opacity-60">· {c.edad}</span>
-                      {c.nueva && <span className="ml-1.5 rounded-full px-2 py-0.5 text-[0.72rem] text-white" style={{ background: CORAL }}>desde la página</span>}
-                    </b>
-                    <span className="text-[0.88rem] opacity-70">{c.motivo} · mamá: {c.mama}</span>
-                  </span>
-                  <span className="rounded-full px-2.5 py-1 text-[0.8rem] font-bold text-white" style={{ background: e.c }}>{e.t}</span>
-                  {s ? (
-                    <button type="button" onClick={() => p.avanzar(c.id)} className="rounded-full border-2 px-3 py-1 text-[0.85rem] font-bold" style={{ borderColor: MARINO }}>
-                      {s}
-                    </button>
-                  ) : (
-                    <span className="w-[5.2rem]" />
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-
-        <div className="grid content-start gap-4">
-          <div className="rounded-2xl bg-white p-4 sm:p-5">
-            <h2 className="text-[1.2rem] font-bold">Anotar peso y talla</h2>
-            <p className="text-[0.9rem] opacity-75">Mateo Méndez · {edadTexto(mesM)}. Se le actualiza la curva a la mamá.</p>
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              <label className="text-[0.85rem] font-bold">Peso (kg)<input inputMode="decimal" value={kg} onChange={(e) => setKg(e.target.value)} className="mt-1 w-full rounded-lg border border-black/15 px-3 py-2" /></label>
-              <label className="text-[0.85rem] font-bold">Talla (cm)<input inputMode="decimal" value={cm} onChange={(e) => setCm(e.target.value)} className="mt-1 w-full rounded-lg border border-black/15 px-3 py-2" /></label>
-            </div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button type="button" onClick={() => p.pesar(mateo.id, { mes: mesM, kg: Number(kg) || 0, cm: Number(cm) || 0 })} className="rounded-full px-4 py-2 font-bold text-white" style={{ background: MARINO }}>
-                Guardar control
-              </button>
-              {VACUNAS.some((v) => v.mes <= mesM && !mateo.vacunas.includes(v.mes)) && (
-                <button type="button" onClick={() => p.vacunar(mateo.id, VACUNAS.find((v) => v.mes <= mesM && !mateo.vacunas.includes(v.mes))!.mes)} className="rounded-full border-2 px-4 py-2 font-bold" style={{ borderColor: MARINO }}>
-                  Marcar vacuna puesta
-                </button>
-              )}
-            </div>
-            <div className="mt-3"><Curva n={mateo} /></div>
-          </div>
-
-          <div className="rounded-2xl bg-white p-4 sm:p-5">
-            <h2 className="text-[1.2rem] font-bold">Vacunas y controles atrasados</h2>
-            <ul className="mt-2 grid gap-3">
-              {ATRASADOS.map((a) => {
-                const ya = p.recordados.includes(a.nino);
-                return (
-                  <li key={a.nino} className="flex items-center gap-3">
-                    <span className="min-w-0 flex-1 leading-tight">
-                      <b className="block">{a.nino}</b>
-                      <span className="text-[0.88rem]" style={{ color: CORAL }}>{a.falta} · hace {a.dias} días</span>
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        p.recordar(a.nino);
-                        setMsg(`Hola, ${a.mama.split(" ")[0]}. Le saludamos de Pediatría Semillita. A ${a.nino.split(" ")[0]} le toca: ${a.falta.toLowerCase()}. ¿Le apartamos una hora esta semana? Puede escoger la hora aquí mismo en la página.`);
-                      }}
-                      className="rounded-full border-2 px-3 py-1.5 text-[0.85rem] font-bold"
-                      style={{ borderColor: MARINO }}
-                    >
-                      {ya ? "Recordado" : "Recordar"}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-          <img src={FOTOS.peluche} alt="Peluche en el consultorio" loading="lazy" className="h-40 w-full rounded-2xl object-cover" />
-        </div>
-      </div>
-      <MensajeWhatsApp mensaje={msg} alCerrar={() => setMsg(null)} demo="clínica pediátrica" que="el recordatorio para la mamá" />
-    </section>
-  );
-}

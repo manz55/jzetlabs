@@ -4,7 +4,8 @@
  * la membresía del socio (carnet, días que le quedan, asistencias) y recepción (quién entró y a quién cobrarle).
  */
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, Car, Check, Clock, IdCard, MapPin, Search, Users, X } from "lucide-react";
+import { ArrowRight, Car, Check, Clock, MapPin, Users, X } from "lucide-react";
+import PanelGimnasio from "./PanelGimnasio";
 import { BandaDemos, PartesDemo, Cajon, CierreJzet, MensajeWhatsApp } from "../comun";
 import {
   ACERO, AFORO_BASE, AMARILLO, AVANCES, AZUL, CLASES, COACHES, DIAS, FOTOS, GOMA, GOMA2, HORARIO, INSCRIPCION, PIZARRA, PLANES, PREGUNTAS, ROJO, SEDES, TITULO, TIZA, VERDE,
@@ -93,7 +94,7 @@ export default function GimnasioDemo() {
       <PartesDemo fondo={"#0d0e0f"} actual={vista} alCambiar={setVista} partes={[{ id: "pagina", nombre: "Página", quien: "Cuánta gente hay, planes y clases" }, { id: "socio", nombre: "App del socio", quien: "Su carnet, sus días y su rutina" }, { id: "recepcion", nombre: "Recepción", quien: "Quién entró y a quién se le venció" }] as const} />
       {vista === "pagina" && <Pagina gym={gym} alInscribir={(n) => { setSocio(n); setVista("socio"); }} />}
       {vista === "socio" && <MiMembresia gym={gym} num={socio} setNum={setSocio} />}
-      {vista === "recepcion" && <Recepcion gym={gym} />}
+      {vista === "recepcion" && <PanelGimnasio gym={gym} />}
       <CierreJzet demo="gimnasio" />
     </div>
   );
@@ -653,183 +654,3 @@ function MiMembresia({ gym, num, setNum }: { gym: Gym; num: number; setNum: (n: 
 }
 
 /* ---------------- recepción ---------------- */
-
-function Recepcion({ gym }: { gym: Gym }) {
-  const [q, setQ] = useState("");
-  const [msg, setMsg] = useState<string | null>(null);
-  const [ultimo, setUltimo] = useState<number | null>(null);
-  const hoy = new Date().getDate();
-  const buscados = q.trim() ? gym.socios.filter((s) => String(s.num) === q.trim() || s.nombre.toLowerCase().includes(q.trim().toLowerCase())).slice(0, 4) : [];
-  const vencidas = gym.socios.filter((s) => faltan(s.vence) < 0).sort((a, b) => faltan(b.vence) - faltan(a.vence));
-  const porVencer = gym.socios.filter((s) => faltan(s.vence) >= 0 && faltan(s.vence) <= 7).sort((a, b) => faltan(a.vence) - faltan(b.vence));
-  const ingresos = gym.pagos.reduce((t, x) => t + x.monto, 0);
-  const deHoy = gym.pagos.filter((x) => x.dia === hoy).reduce((t, x) => t + x.monto, 0);
-  const porCobrar = vencidas.reduce((t, s) => t + porId(PLANES, s.plan).precio, 0);
-  const clasesHoy = CLASES.filter((c) => c.dia === new Date().getDay());
-  const nombre = (n: number) => gym.socios.find((s) => s.num === n)?.nombre ?? "Pase de día";
-  const recordar = (s: Socio) => {
-    const f = faltan(s.vence);
-    const p = porId(PLANES, s.plan);
-    setMsg(`Hola, ${s.nombre.split(" ")[0]}. Te saluda Spartan Force Gym. ${f < 0 ? `Tu plan ${p.nombre.toLowerCase()} venció el ${fechaCorta(s.vence)}` : f === 0 ? `Tu plan ${p.nombre.toLowerCase()} vence hoy` : `Tu plan ${p.nombre.toLowerCase()} vence el ${fechaCorta(s.vence)}`}. Lo puedes renovar en recepción o aquí: spartanforce.gt/renovar (${qz(p.precio)}). ¡Te esperamos!`);
-  };
-  const caja = { background: GOMA2 };
-
-  return (
-    <div className="pb-16">
-      <div className="relative h-40 overflow-hidden sm:h-52">
-        <img src={FOTOS.mancuernas} alt="" className="h-full w-full object-cover" />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(13,14,15,.92), rgba(13,14,15,.4))" }} />
-        <div className="absolute inset-0 mx-auto flex max-w-6xl flex-col justify-end px-5 pb-5">
-          <p className="text-white/70">{DIAS[new Date().getDay()]} {fechaCorta(enDias(0))} · Sede Mixco</p>
-          <h1 className="gym-titulo text-[3rem] sm:text-[4rem]">Recepción</h1>
-        </div>
-      </div>
-      <div className="moleteado" aria-hidden />
-      <div className="mx-auto max-w-6xl px-5">
-        <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-          {[
-            [String(gym.entradas.length), "entradas hoy", VERDE],
-            [qz(deHoy), "cobrado hoy", AZUL],
-            [qz(ingresos), "cobrado este mes", AMARILLO],
-            [qz(porCobrar), `por cobrar (${vencidas.length} vencidas)`, ROJO],
-          ].map(([n, t, c]) => (
-            <div key={t} className="rounded-xl p-4" style={{ ...caja, boxShadow: `inset 4px 0 0 ${c}` }}>
-              <p className="gym-titulo text-[2.3rem]">{n}</p>
-              <p className="text-[0.9rem] text-white/60">{t}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="gym-recep mt-8">
-          <div className="grid content-start gap-8">
-            {/* pasar carnet */}
-            <section className="rounded-xl p-5" style={caja}>
-              <h2 className="flex items-center gap-2 text-[1.3rem] font-bold"><IdCard size={22} style={{ color: AMARILLO }} /> Pasar carnet</h2>
-              <div className="mt-3 flex items-center gap-2 rounded-md bg-white px-3 text-black">
-                <Search size={18} className="opacity-50" />
-                <input aria-label="Número o nombre" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Número o nombre (prueba: 102)" className="w-full bg-transparent py-3 outline-none" />
-              </div>
-              <div className="mt-3 grid gap-2">
-                {buscados.map((s) => {
-                  const f = faltan(s.vence);
-                  const ok = f >= 0;
-                  const p = porId(PLANES, s.plan);
-                  const yaEntro = gym.entradas.some((e) => e.num === s.num) && ultimo === s.num;
-                  return (
-                    <div key={s.num} className="rounded-lg p-4" style={{ background: ok ? "rgba(46,155,87,.16)" : "rgba(215,38,61,.18)", boxShadow: `inset 0 0 0 2px ${ok ? VERDE : ROJO}` }}>
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                          <p className="text-[1.15rem] font-bold">{s.nombre} <span className="font-normal text-white/55">#{s.num}</span></p>
-                          <p className="text-[0.92rem]" style={{ color: ok ? "#8be0a8" : "#ff9aa8" }}>
-                            {ok ? `Al día · ${p.nombre.toLowerCase()} hasta el ${fechaCorta(s.vence)}` : `Venció hace ${-f} ${-f === 1 ? "día" : "días"} · debe ${qz(p.precio)}`}
-                          </p>
-                        </div>
-                        {yaEntro ? (
-                          <span className="inline-flex items-center gap-1 font-bold" style={{ color: "#8be0a8" }}><Check size={18} /> Entró</span>
-                        ) : ok ? (
-                          <button type="button" onClick={() => { gym.entrar(s.num); setUltimo(s.num); }} className="rounded-md px-4 py-2 font-bold text-white" style={{ background: VERDE }}>
-                            Dejar entrar
-                          </button>
-                        ) : (
-                          <button type="button" onClick={() => { gym.cobrar(s.num); gym.entrar(s.num); setUltimo(s.num); }} className="rounded-md px-4 py-2 font-bold text-white" style={{ background: ROJO }}>
-                            Cobrar {qz(p.precio)} y dejar entrar
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-                {q.trim() && buscados.length === 0 && <p className="text-white/55">No hay nadie con ese número o nombre.</p>}
-              </div>
-            </section>
-
-            {/* vencidas */}
-            <section>
-              <h2 className="text-[1.3rem] font-bold">Vencidas: cobrar</h2>
-              <p className="text-[0.92rem] text-white/55">Se les manda un recordatorio con el link para renovar.</p>
-              <ul className="mt-3 overflow-hidden rounded-xl" style={caja}>
-                {vencidas.map((s, i) => (
-                  <li key={s.num} className={`flex items-center gap-3 px-4 py-3 ${i ? "border-t border-white/10" : ""}`}>
-                    <span className="h-8 w-1.5 shrink-0 rounded-full" style={{ background: porId(PLANES, s.plan).color }} />
-                    <span className="min-w-0 flex-1">
-                      <b className="block truncate">{s.nombre}</b>
-                      <span className="text-[0.88rem]" style={{ color: "#ff9aa8" }}>hace {-faltan(s.vence)} {faltan(s.vence) === -1 ? "día" : "días"} · {qz(porId(PLANES, s.plan).precio)}</span>
-                    </span>
-                    <button type="button" onClick={() => recordar(s)} className="shrink-0 rounded-md border border-white/25 px-3 py-1.5 text-[0.88rem] font-semibold">
-                      Recordarle
-                    </button>
-                  </li>
-                ))}
-                {vencidas.length === 0 && <li className="px-4 py-3 text-white/55">Nadie debe. Bien.</li>}
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-[1.3rem] font-bold">Vencen esta semana</h2>
-              <ul className="mt-3 overflow-hidden rounded-xl" style={caja}>
-                {porVencer.map((s, i) => (
-                  <li key={s.num} className={`flex items-center gap-3 px-4 py-3 ${i ? "border-t border-white/10" : ""}`}>
-                    <span className="h-8 w-1.5 shrink-0 rounded-full" style={{ background: porId(PLANES, s.plan).color }} />
-                    <span className="min-w-0 flex-1">
-                      <b className="block truncate">{s.nombre}</b>
-                      <span className="text-[0.88rem] text-white/60">{faltan(s.vence) === 0 ? "hoy" : `en ${faltan(s.vence)} ${faltan(s.vence) === 1 ? "día" : "días"}`} · {porId(PLANES, s.plan).nombre.toLowerCase()}</span>
-                    </span>
-                    <button type="button" onClick={() => recordar(s)} className="shrink-0 rounded-md border border-white/25 px-3 py-1.5 text-[0.88rem] font-semibold">
-                      Avisarle
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          </div>
-
-          <aside className="grid content-start gap-8">
-            <section>
-              <h2 className="text-[1.3rem] font-bold">Entradas de hoy</h2>
-              <ul className="mt-3 max-h-[26rem] overflow-y-auto rounded-xl" style={caja}>
-                {gym.entradas.map((e, i) => (
-                  <li key={`${e.num}-${e.hora}-${i}`} className={`flex items-center justify-between gap-3 px-4 py-2.5 ${i ? "border-t border-white/10" : ""}`}>
-                    <span className="truncate">{nombre(e.num)}</span>
-                    <span className="shrink-0 font-mono text-[0.9rem] text-white/60">{e.hora}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-            <section>
-              <h2 className="text-[1.3rem] font-bold">Clases de hoy</h2>
-              <ul className="mt-3 grid gap-2">
-                {clasesHoy.map((c) => {
-                  const van = c.van + (gym.reservas[c.id] ? 1 : 0);
-                  return (
-                    <li key={c.id} className="flex items-center gap-3 rounded-xl p-3" style={caja}>
-                      <img src={c.foto} alt="" className="h-11 w-11 rounded-md object-cover" />
-                      <span className="flex-1">
-                        <b className="block">{c.hora} · {c.nombre}</b>
-                        <span className="text-[0.86rem] text-white/60">{c.coach}</span>
-                      </span>
-                      <span className="font-bold" style={{ color: van >= c.cupo ? "#ff9aa8" : TIZA }}>{van}/{c.cupo}</span>
-                    </li>
-                  );
-                })}
-                {clasesHoy.length === 0 && <li className="text-white/55">Hoy no hay clases.</li>}
-              </ul>
-            </section>
-            <section>
-              <h2 className="text-[1.3rem] font-bold">Nuevos por la página</h2>
-              <ul className="mt-3 overflow-hidden rounded-xl" style={caja}>
-                {gym.socios.filter((s) => s.nuevo).map((s, i) => (
-                  <li key={s.num} className={`px-4 py-3 ${i ? "border-t border-white/10" : ""}`}>
-                    <b>{s.nombre}</b> <span className="text-white/60">· {porId(PLANES, s.plan).nombre.toLowerCase()} · #{s.num}</span>
-                  </li>
-                ))}
-                {!gym.socios.some((s) => s.nuevo) && <li className="px-4 py-3 text-white/55">Cuando alguien se inscribe desde la página, aparece aquí.</li>}
-              </ul>
-              <button type="button" onClick={gym.reiniciar} className="mt-4 text-[0.9rem] text-white/50 underline">Reiniciar el ejemplo</button>
-            </section>
-          </aside>
-        </div>
-      </div>
-      <MensajeWhatsApp mensaje={msg} alCerrar={() => setMsg(null)} demo="gimnasio" que="cada recordatorio" />
-    </div>
-  );
-}

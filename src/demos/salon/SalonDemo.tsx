@@ -6,11 +6,12 @@
  * Fotos libres de Unsplash ya usadas en otras demos.
  */
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, CalendarCheck, Check, Clock, MapPin, MessageCircle, Phone } from "lucide-react";
+import { ArrowRight, CalendarCheck, Check, Clock, MapPin, Phone } from "lucide-react";
 import fotoEstudio from "@/assets/demo-cosmeticos/estudio.jpg";
 import fotoSpa from "@/assets/demo-fundadora/salon.jpg";
 import fotoMaquillaje from "@/assets/demo-cosmeticos/maquillista.jpg";
 import fotoPestanas from "@/assets/demo-cosmeticos/delineado.jpg";
+import PanelSalon from "./PanelSalon";
 import { BandaDemos, PartesDemo, CierreJzet, MensajeWhatsApp, qz } from "../comun";
 import {
   CATEGORIAS, CREMA, DIAS, ESTILISTAS, LINEA, OPINIONES, SALVIA, SALVIA_SUAVE, SERIF, SERVICIOS, SUCURSALES, TINTA,
@@ -40,7 +41,7 @@ export default function SalonDemo() {
     <div className="min-h-screen" style={{ background: CREMA, color: TINTA }}>
       <BandaDemos />
       <PartesDemo fondo={"#2b2622"} actual={vista} alCambiar={setVista} partes={[{ id: "salon", nombre: "Página del salón", quien: "La clienta agenda sola su cita" }, { id: "panel", nombre: "Agenda del salón", quien: "El salón ve las citas de cada estilista" }] as const} />
-      {vista === "salon" ? <Pagina store={store} /> : <Panel store={store} />}
+      {vista === "salon" ? <Pagina store={store} /> : <PanelSalon store={store} />}
       <CierreJzet demo="salón de belleza" />
     </div>
   );
@@ -433,204 +434,3 @@ function Agendar({ store, pre }: { store: ReturnType<typeof useCitas>; pre: { se
 }
 
 /* ---------------- la agenda que ve el salón ---------------- */
-
-function Panel({ store }: { store: ReturnType<typeof useCitas> }) {
-  const { citas, cambiar } = store;
-  const [suc, setSuc] = useState("todas");
-  const [aviso, setAviso] = useState("");
-  useEffect(() => {
-    if (!aviso) return;
-    const t = setTimeout(() => setAviso(""), 3200);
-    return () => clearTimeout(t);
-  }, [aviso]);
-
-  const hoy = hoyIso();
-  const manana = iso(masDias(1));
-  const enSuc = (c: Cita) => suc === "todas" || c.suc === suc;
-  const deHoy = citas.filter((c) => c.fecha === hoy && enSuc(c)).sort((a, b) => aMin(a.hora) - aMin(b.hora));
-  const deManana = citas.filter((c) => c.fecha === manana && enSuc(c)).sort((a, b) => aMin(a.hora) - aMin(b.hora));
-  const ingresos = deHoy.filter((c) => c.estado !== "no-vino").reduce((t, c) => t + servicio(c.servicio).precio, 0);
-  const estilistas = ESTILISTAS.filter((e) => suc === "todas" || e.suc === suc);
-  const horasTrabajo = estilistas.reduce((t, e) => t + (sucursal(e.suc).cierra - sucursal(e.suc).abre) * 60, 0);
-  const ocupado = deHoy.reduce((t, c) => t + servicio(c.servicio).dura, 0);
-
-  // a quién ya le toca volver: la última cita de cada clienta, según cada cuánto se hace ese servicio
-  const ultimas = new Map<string, Cita>();
-  citas.filter((c) => c.estado === "llego" && enSuc(c)).forEach((c) => {
-    const u = ultimas.get(c.tel);
-    if (!u || c.fecha > u.fecha) ultimas.set(c.tel, c);
-  });
-  const conCitaFutura = new Set(citas.filter((c) => c.fecha >= hoy && c.estado === "confirmada").map((c) => c.tel));
-  const retoque = [...ultimas.values()]
-    .map((c) => {
-      const s = servicio(c.servicio);
-      const dias = Math.round((Date.now() - new Date(c.fecha + "T12:00").getTime()) / 864e5);
-      return { c, s, dias };
-    })
-    .filter(({ c, s, dias }) => s.retoque && dias >= s.retoque - 3 && !conCitaFutura.has(c.tel))
-    .sort((a, b) => b.dias - a.dias);
-
-  const masPedidos = SERVICIOS.map((s) => ({ s, n: citas.filter((c) => c.servicio === s.id && enSuc(c)).length }))
-    .filter((x) => x.n)
-    .sort((a, b) => b.n - a.n)
-    .slice(0, 5);
-
-  const h2 = "text-[1.7rem] leading-tight";
-  const estadoBtn = (on: boolean, color: string) => (on ? { background: color, borderColor: color, color: "#fff" } : { borderColor: "rgba(22,38,27,.2)" });
-
-  return (
-    <div className="mx-auto max-w-6xl px-5 pb-16 pt-8">
-      <p className="opacity-65">{fechaLarga(hoy).replace(/^./, (x) => x.toUpperCase())}</p>
-      <h1 className="mt-1 text-[2.8rem] leading-none" style={{ fontFamily: SERIF }}>Agenda del salón</h1>
-      <div className="mt-6 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
-        {[{ id: "todas", nombre: "Todas las sucursales" }, ...SUCURSALES].map((x) => (
-          <button key={x.id} type="button" onClick={() => setSuc(x.id)} className="shrink-0 rounded-full border-2 px-4 py-2 font-medium" style={suc === x.id ? { background: TINTA, borderColor: TINTA, color: "#fff" } : { borderColor: "rgba(22,38,27,.2)" }}>
-            {x.nombre}
-          </button>
-        ))}
-      </div>
-
-      <div className="mt-8 grid grid-cols-2 border-y md:grid-cols-4 [&>*]:border-l [&>*:nth-child(odd)]:border-l-0 md:[&>*:nth-child(odd)]:border-l md:[&>*:first-child]:border-l-0" style={{ borderColor: TINTA }}>
-        {[
-          [String(deHoy.length), "citas hoy"],
-          [qz(ingresos), "esperado hoy"],
-          [`${Math.round((ocupado / horasTrabajo) * 100)}%`, "de la agenda ocupada"],
-          [String(retoque.length), "les toca retoque"],
-        ].map(([n, t]) => (
-          <div key={t} className="px-3 py-4" style={{ borderColor: LINEA }}>
-            <p className="text-[2rem] leading-none" style={{ fontFamily: SERIF }}>{n}</p>
-            <p className="mt-1.5 text-[0.95rem] opacity-65">{t}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-12 grid gap-12 lg:grid-cols-[1.5fr_1fr]">
-        <section className="min-w-0">
-          <h2 className={h2} style={{ fontFamily: SERIF }}>Hoy</h2>
-          {deHoy.length === 0 ? (
-            <p className="mt-3 opacity-60">No hay citas hoy en esta sucursal.</p>
-          ) : (
-            <ul className="mt-3 border-t" style={{ borderColor: TINTA }}>
-              {deHoy.map((c) => {
-                const s = servicio(c.servicio);
-                return (
-                  <li key={c.id} className={`grid gap-3 border-b py-4 sm:grid-cols-[5.5rem_1fr_auto] sm:items-center ${c.estado === "no-vino" ? "opacity-50" : ""}`} style={{ borderColor: LINEA }}>
-                    <p className="text-[1.2rem]" style={{ fontFamily: SERIF }}>{hora12(c.hora)}</p>
-                    <div className="min-w-0">
-                      <p className="font-semibold">
-                        {c.nombre} {c.nueva && <span className="ml-1 rounded-full px-2 py-0.5 text-[0.75rem] text-white" style={{ background: SALVIA }}>agendó en línea</span>}
-                      </p>
-                      <p className="text-[0.95rem] opacity-70">
-                        {s.nombre} · {s.dura} min · con {estilista(c.estilista).nombre}
-                        {suc === "todas" ? ` · ${sucursal(c.suc).nombre}` : ""}
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <button type="button" onClick={() => cambiar(c.id, { estado: c.estado === "llego" ? "confirmada" : "llego" })} className="rounded-full border-2 px-3.5 py-1.5 text-[0.95rem] font-semibold" style={estadoBtn(c.estado === "llego", SALVIA)}>
-                        Llegó
-                      </button>
-                      <button type="button" onClick={() => cambiar(c.id, { estado: c.estado === "no-vino" ? "confirmada" : "no-vino" })} className="rounded-full border-2 px-3.5 py-1.5 text-[0.95rem] font-semibold" style={estadoBtn(c.estado === "no-vino", "#9a3b2f")}>
-                        No vino
-                      </button>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-
-          <h2 className={`${h2} mt-12`} style={{ fontFamily: SERIF }}>Por estilista</h2>
-          <ul className="mt-3 grid gap-3 sm:grid-cols-2">
-            {estilistas.map((e) => {
-              const suyas = deHoy.filter((c) => c.estilista === e.id);
-              const min = suyas.reduce((t, c) => t + servicio(c.servicio).dura, 0);
-              const total = (sucursal(e.suc).cierra - sucursal(e.suc).abre) * 60;
-              return (
-                <li key={e.id} className="bg-white p-4">
-                  <div className="flex items-baseline justify-between">
-                    <b>{e.nombre}</b>
-                    <span className="text-[0.92rem] opacity-60">{suyas.length} {suyas.length === 1 ? "cita" : "citas"}</span>
-                  </div>
-                  <div className="mt-2" style={{ background: LINEA, height: 6 }}>
-                    <div className="h-full" style={{ width: `${Math.min(100, (min / total) * 100)}%`, background: SALVIA }} />
-                  </div>
-                  <p className="mt-1.5 text-[0.88rem] opacity-60">{Math.round((total - min) / 60)} h libres hoy</p>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-
-        <aside className="grid min-w-0 content-start gap-12">
-          <section>
-            <h2 className={h2} style={{ fontFamily: SERIF }}>Recordatorios de mañana</h2>
-            <p className="mt-1 text-[0.98rem] opacity-60">Se mandan solos por WhatsApp a las 6 de la tarde. Si alguien cancela, te avisamos.</p>
-            <ul className="mt-3 border-t" style={{ borderColor: LINEA }}>
-              {deManana.map((c) => (
-                <li key={c.id} className="flex items-baseline justify-between gap-3 border-b py-3" style={{ borderColor: LINEA }}>
-                  <span className="min-w-0">
-                    <b className="block truncate">{c.nombre}</b>
-                    <span className="text-[0.92rem] opacity-65">
-                      {hora12(c.hora)} · {servicio(c.servicio).nombre}
-                    </span>
-                  </span>
-                  <span className="inline-flex shrink-0 items-center gap-1 text-[0.92rem]" style={{ color: SALVIA }}>
-                    <Check size={15} /> programado
-                  </span>
-                </li>
-              ))}
-              {deManana.length === 0 && <li className="py-3 opacity-60">Mañana no hay citas en esta sucursal.</li>}
-            </ul>
-          </section>
-
-          {retoque.length > 0 && (
-            <section>
-              <h2 className={h2} style={{ fontFamily: SERIF }}>Ya les toca retoque</h2>
-              <p className="mt-1 text-[0.98rem] opacity-60">Vinieron hace tiempo y no tienen cita. Una invitación a tiempo llena huecos en la agenda.</p>
-              <ul className="mt-3 border-t" style={{ borderColor: LINEA }}>
-                {retoque.map(({ c, s, dias }) => (
-                  <li key={c.id} className="flex items-baseline justify-between gap-3 border-b py-3" style={{ borderColor: LINEA }}>
-                    <span className="min-w-0">
-                      <b className="block truncate">{c.nombre}</b>
-                      <span className="text-[0.92rem] opacity-65">
-                        {s.nombre}, hace {dias} días
-                      </span>
-                    </span>
-                    <button type="button" onClick={() => setAviso(`En su salón, este botón le escribe a ${c.nombre.split(" ")[0]} por WhatsApp con el link para agendar.`)} className="inline-flex shrink-0 items-center gap-1 text-[0.95rem] font-semibold" style={{ color: SALVIA }}>
-                      <MessageCircle size={16} /> Invitarla
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          <section>
-            <h2 className={h2} style={{ fontFamily: SERIF }}>Lo más pedido</h2>
-            <ul className="mt-3 grid gap-3">
-              {masPedidos.map(({ s, n }) => (
-                <li key={s.id}>
-                  <div className="flex justify-between text-[0.98rem]">
-                    <span>{s.nombre}</span>
-                    <span className="opacity-65">{n}</span>
-                  </div>
-                  <div className="mt-1" style={{ background: LINEA, height: 6 }}>
-                    <div className="h-full" style={{ width: `${(n / masPedidos[0].n) * 100}%`, background: TINTA }} />
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </section>
-        </aside>
-      </div>
-      {aviso && (
-        <div role="status" className="fixed inset-x-4 bottom-6 z-50 mx-auto max-w-md px-5 py-4 text-center text-white shadow-xl" style={{ background: TINTA }}>
-          {aviso}
-        </div>
-      )}
-      <p className="mt-12 flex items-center gap-2 text-[0.95rem] opacity-60">
-        <ArrowLeft size={15} /> Agenda una cita en la página del salón y aparece aquí con la marca «agendó en línea».
-      </p>
-    </div>
-  );
-}

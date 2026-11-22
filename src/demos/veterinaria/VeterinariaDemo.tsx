@@ -6,7 +6,8 @@
  *  - Clínica: agenda del día, recordatorios de vacunas vencidas y noticias a los dueños de internados.
  */
 import { useEffect, useState } from "react";
-import { ArrowRight, Bell, CalendarCheck, Check, ClipboardList, FlaskConical, HeartPulse, Phone, Syringe } from "lucide-react";
+import { ArrowRight, Bell, CalendarCheck, FlaskConical, HeartPulse, Phone, Syringe } from "lucide-react";
+import PanelVet from "./PanelVet";
 import { BandaDemos, PartesDemo, CierreJzet, MensajeWhatsApp } from "../comun";
 import fHero from "@/assets/demo-veterinaria/hero.jpg";
 import fConsulta from "@/assets/demo-veterinaria/consulta.jpg";
@@ -21,9 +22,9 @@ import fComiendo from "@/assets/demo-veterinaria/comiendo.jpg";
 import fToby from "@/assets/demo-veterinaria/toby.jpg";
 import { Plus, MapPin, ShoppingBag } from "lucide-react";
 import {
-  AGENDA_INICIAL, AMBAR, BOSQUE, CREMA, EXAMEN, HORAS, INTERNADOS_INICIAL, MENTA, MOSTAZA, PAPEL, PENDIENTES_INICIAL, QUE_HACER, ROJO,
+  AMBAR, BOSQUE, CREMA, EXAMEN, HORAS, INTERNADOS_INICIAL, MENTA, PAPEL, QUE_HACER, ROJO,
   SERVICIOS, SINTOMAS, TIENDA, TITULO, TOBY, VERDE, diasHasta, edad, fechaLarga, qz, sumarMeses,
-  type Cita, type Internado, type Nivel, type Nota, type Pendiente, type ServicioId,
+  type Internado, type Nivel, type Nota, type ServicioId,
 } from "./datos";
 
 const FOTO_SERV: Record<string, string> = { consulta: fConsulta, vacuna: fVacunas, desparasitacion: fGatos, grooming: fGrooming, esterilizacion: fCirugia, laboratorio: fConsulta };
@@ -102,7 +103,7 @@ export default function VeterinariaDemo() {
       />
       {vista === "pagina" && <Pagina />}
       {vista === "mascota" && <MiMascota internados={internados} />}
-      {vista === "clinica" && <Clinica internados={internados} setInternados={setInternados} />}
+      {vista === "clinica" && <PanelVet internados={internados} setInternados={setInternados} />}
       <CierreJzet demo="veterinaria" />
     </div>
   );
@@ -560,115 +561,3 @@ const estadoColor = (e: Nota["estado"]) => (e === "mejor" ? VERDE : e === "estab
 const estadoTexto = (e: Nota["estado"]) => (e === "mejor" ? "Mejorando" : e === "estable" ? "Estable" : "En observación");
 
 /* ---------------- la clínica ---------------- */
-
-function Clinica({ internados, setInternados }: { internados: Internado[]; setInternados: (f: (l: Internado[]) => Internado[]) => void }) {
-  const [agenda, setAgenda] = useState<Cita[]>(AGENDA_INICIAL);
-  const [pendientes, setPendientes] = useState<(Pendiente & { avisado?: boolean })[]>(PENDIENTES_INICIAL);
-  const [msg, setMsg] = useState<string | null>(null);
-  const [nota, setNota] = useState<Record<string, { texto: string; estado: Nota["estado"] }>>({});
-  const siguiente: Record<Cita["estado"], Cita["estado"]> = { espera: "llego", llego: "atendido", atendido: "atendido" };
-  const vencidas = pendientes.filter((p) => p.dias < 0 && !p.avisado).length;
-
-  function avisar(p: Pendiente) {
-    setPendientes((l) => l.map((x) => (x.id === p.id ? { ...x, avisado: true } : x)));
-    setMsg(
-      p.dias < 0
-        ? `Hola ${p.dueno.split(" ")[0]}, te saluda Veterinaria Huesitos. A ${p.mascota} se le venció la vacuna de ${p.vacuna} el ${p.vence}. ¿Te apartamos un horario esta semana? Solo responde con el día que te queda bien.`
-        : `Hola ${p.dueno.split(" ")[0]}, te saluda Veterinaria Huesitos. A ${p.mascota} le toca su vacuna de ${p.vacuna} el ${p.vence}. ¿Te apartamos un horario? Solo responde con el día que te queda bien.`,
-    );
-  }
-
-  function mandarNota(i: Internado) {
-    const n = nota[i.id];
-    if (!n?.texto.trim()) return;
-    const hora = new Date().toLocaleTimeString("es-GT", { hour: "2-digit", minute: "2-digit", hour12: false });
-    setInternados((l) => l.map((x) => (x.id === i.id ? { ...x, notas: [...x.notas, { hora: `Hoy ${hora}`, texto: n.texto.trim(), estado: n.estado }] } : x)));
-    setNota((m) => ({ ...m, [i.id]: { texto: "", estado: "estable" } }));
-    setMsg(`Hola ${i.dueno.split(" ")[0]}, te saluda Veterinaria Huesitos con noticias de ${i.nombre}: ${n.texto.trim()} (${estadoTexto(n.estado).toLowerCase()}). Puedes ver todo en tu enlace de cliente.`);
-  }
-
-  return (
-    <section className="mx-auto max-w-6xl px-5 py-10">
-      <h2 className="vet-titulo text-[2rem]">Buenos días, Dr. Pérez</h2>
-      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {[
-          ["Citas hoy", agenda.length],
-          ["En sala de espera", agenda.filter((c) => c.estado === "llego").length],
-          ["Internados", internados.length],
-          ["Vacunas vencidas sin avisar", vencidas],
-        ].map(([t, n]) => (
-          <div key={t as string} className="rounded-2xl border border-black/10 bg-white p-4">
-            <p className="text-[0.85rem] opacity-70">{t}</p>
-            <p className="vet-titulo text-[2rem] tabular-nums">{n}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="vet-dos mt-6">
-        <div className="rounded-3xl border border-black/10 bg-white p-5">
-          <h3 className="flex items-center gap-2 text-[1.2rem] font-bold"><ClipboardList size={19} /> Agenda de hoy</h3>
-          <ul className="mt-3 divide-y divide-black/10">
-            {agenda.map((c) => (
-              <li key={c.id} className="flex items-center justify-between gap-3 py-3">
-                <div>
-                  <p className="font-semibold"><span className="tabular-nums">{c.hora}</span> · {c.mascota} <span className="text-[0.85rem] font-normal opacity-60">({c.especie})</span></p>
-                  <p className="text-[0.9rem] opacity-70">{c.servicio} · {c.dueno}</p>
-                </div>
-                <button type="button" disabled={c.estado === "atendido"} onClick={() => setAgenda((l) => l.map((x) => (x.id === c.id ? { ...x, estado: siguiente[x.estado] } : x)))} className="shrink-0 rounded-full px-3 py-1.5 text-[0.85rem] font-bold disabled:cursor-default" style={c.estado === "atendido" ? { background: MENTA, color: VERDE } : c.estado === "llego" ? { background: MOSTAZA, color: "#fff" } : { background: "#f1f1f1" }}>
-                  {c.estado === "atendido" ? <><Check size={14} className="inline" /> Atendido</> : c.estado === "llego" ? "Atender" : "Marcar llegada"}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="rounded-3xl border border-black/10 bg-white p-5">
-          <h3 className="flex items-center gap-2 text-[1.2rem] font-bold"><Bell size={19} /> Vacunas por vencer o vencidas</h3>
-          <p className="mt-1 text-[0.9rem] opacity-70">Cada aviso es una cita que no se pierde.</p>
-          <ul className="mt-3 divide-y divide-black/10">
-            {pendientes.map((p) => (
-              <li key={p.id} className="flex items-center justify-between gap-3 py-3">
-                <div>
-                  <p className="font-semibold">{p.mascota} · {p.vacuna}</p>
-                  <p className="text-[0.9rem]" style={{ color: p.dias < 0 ? ROJO : AMBAR }}>{p.dias < 0 ? `Vencida hace ${-p.dias} días` : p.dias <= 1 ? "Vence mañana" : `Vence en ${p.dias} días`} · {p.dueno}</p>
-                </div>
-                <button type="button" disabled={p.avisado} onClick={() => avisar(p)} className="shrink-0 rounded-full px-3 py-1.5 text-[0.85rem] font-bold text-white disabled:opacity-100" style={{ background: p.avisado ? VERDE : BOSQUE }}>
-                  {p.avisado ? "Avisado" : "Avisar por WhatsApp"}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-
-      <div className="mt-6 rounded-3xl border border-black/10 bg-white p-5">
-        <h3 className="flex items-center gap-2 text-[1.2rem] font-bold"><HeartPulse size={19} /> Internados</h3>
-        <p className="mt-1 text-[0.9rem] opacity-70">El dueño ve cada noticia en su teléfono y deja de llamar para preguntar.</p>
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          {internados.map((i) => {
-            const n = nota[i.id] ?? { texto: "", estado: "estable" as Nota["estado"] };
-            const ult = i.notas[i.notas.length - 1];
-            return (
-              <div key={i.id} className="rounded-2xl border border-black/10 p-4">
-                <p className="font-bold">{i.nombre} <span className="font-normal opacity-60">({i.especie}) · {i.dueno}</span></p>
-                <p className="text-[0.9rem] opacity-75">{i.motivo}</p>
-                <p className="mt-2 text-[0.9rem]"><span className="font-semibold">Última noticia:</span> {ult.texto}</p>
-                <label className="mt-3 block text-[0.9rem] font-semibold">Noticia nueva para el dueño
-                  <input value={n.texto} onChange={(e) => setNota((m) => ({ ...m, [i.id]: { ...n, texto: e.target.value } }))} placeholder="Ej. Ya comió y movió la cola" className="mt-1 w-full rounded-xl border border-black/15 px-3 py-2.5 font-normal" />
-                </label>
-                <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label={`Estado de ${i.nombre}`}>
-                  {(["mejor", "estable", "atento"] as const).map((e) => (
-                    <button key={e} type="button" aria-pressed={n.estado === e} onClick={() => setNota((m) => ({ ...m, [i.id]: { ...n, estado: e } }))} className="rounded-full border px-3 py-1.5 text-[0.85rem] font-bold" style={n.estado === e ? { background: estadoColor(e), color: "#fff", borderColor: estadoColor(e) } : { borderColor: "rgba(0,0,0,.15)" }}>{estadoTexto(e)}</button>
-                  ))}
-                </div>
-                <button type="button" onClick={() => mandarNota(i)} className={`${btn} mt-3 w-full !py-2.5 text-white`} style={{ background: BOSQUE }}>Mandar noticia</button>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      <MensajeWhatsApp mensaje={msg} alCerrar={() => setMsg(null)} demo="veterinaria" que="el aviso al dueño" />
-    </section>
-  );
-}
