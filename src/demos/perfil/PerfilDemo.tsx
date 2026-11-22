@@ -9,7 +9,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { ArrowLeft, ArrowRight, Check, ChevronRight, MessageCircle, Pencil, Plus, Printer, Search, Trash2, X } from "lucide-react";
 import { BandaDemos, PartesDemo, CierreJzet, MensajeWhatsApp } from "../comun";
-import maquillista from "@/assets/demo-cosmeticos/maquillista.jpg";
 import { PaginaSofia } from "./Pagina";
 import {
   ACABADOS, CONSULTORA, COBERTURAS, EDADES, HORAS, LABIOS, LINEA, LOOKS, MEDIOS, MESES, NECESIDADES, OJOS, PAPEL, PARENTESCOS, PIELES,
@@ -669,66 +668,7 @@ function Formulario({ alGuardar }: { alGuardar: (p: Perfil) => void }) {
   };
 
   /* portada */
-  if (paso === -1) {
-    const muestra = [producto("limpiador")!, producto("serum")!, producto("crema-dia")!];
-    return (
-      <>
-      <div className="mx-auto grid max-w-5xl gap-10 px-5 pb-16 pt-8 perfil-portada md:items-center md:gap-14 md:pt-14">
-        <div>
-          <div className="flex items-center gap-3">
-            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-[1.05rem] font-semibold text-white" style={{ background: VINO }}>
-              SM
-            </span>
-            <p className="leading-tight">
-              <span className="block text-[1.1rem] font-semibold">Hola, soy {CONSULTORA.corto}</span>
-              <span className="block text-[0.98rem] opacity-65">Tu consultora de belleza</span>
-            </p>
-          </div>
-          <h1 className="mt-6 text-[2.5rem] font-medium leading-[1.05] tracking-[-0.01em] sm:text-[3.3rem]" style={{ fontFamily: SERIF }}>
-            Tu rutina de piel, hecha para ti en 3 minutos.
-          </h1>
-          <p className="mt-5 max-w-md text-[1.2rem] leading-relaxed opacity-80">
-            Contestas unas preguntas sencillas en tu teléfono y al final te sale qué usar en la mañana y en la noche, con lo que probaste hoy. Si no sabes algo, sigues adelante.
-          </p>
-          <button type="button" onClick={() => setPaso(0)} className="mt-8 flex w-full items-center justify-center gap-2 rounded-full px-6 py-5 text-[1.25rem] font-semibold text-white transition active:scale-[0.99] sm:w-auto sm:px-10" style={{ background: TINTA }}>
-            Empezar <ArrowRight size={22} />
-          </button>
-          <p className="mt-4 text-[0.98rem] opacity-60">17 preguntas, unos 3 minutos. Tus datos solo los veo yo.</p>
-          <a href="#catalogo" className="mt-3 inline-flex items-center gap-1 text-[1.05rem] font-semibold underline decoration-1 underline-offset-4">
-            O mira mi catálogo y las promos <ArrowRight size={17} />
-          </a>
-          <div className="mt-8 border-t pt-4" style={{ borderColor: LINEA }}>
-            <p className="text-[1rem] font-semibold">Al terminar te llevas</p>
-            <ul className="mt-2 grid gap-1.5 text-[1.02rem] opacity-80">
-              <li>Tu rutina en 3 pasos, según tu piel</li>
-              <li>Una muestra gratis para probar en casa</li>
-              <li>Un detalle de mi parte el día de tu cumpleaños</li>
-            </ul>
-          </div>
-        </div>
-        <figure className="relative">
-          <img src={maquillista} alt="Consultora maquillando a una clienta en una reunión" className="aspect-[16/11] w-full object-cover md:aspect-[4/5]" />
-          {/* adelanto de lo que le va a salir */}
-          <div className="mt-3 bg-white p-4">
-            <p className="text-[1rem] font-semibold">Así se ve tu rutina al terminar</p>
-            <ol className="mt-3 grid gap-2.5">
-              {muestra.map((pr, i) => (
-                <li key={pr.id} className="flex items-center gap-3">
-                  <img src={pr.foto} alt="" className="h-11 w-11 shrink-0 object-cover" />
-                  <span className="leading-tight">
-                    <span className="block text-[0.85rem] opacity-60">Paso {i + 1}</span>
-                    <span className="block text-[0.98rem] font-medium">{pr.nombre}</span>
-                  </span>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </figure>
-      </div>
-      <PaginaSofia alEmpezar={() => setPaso(0)} />
-      </>
-    );
-  }
+  if (paso === -1) return <PaginaSofia alEmpezar={() => setPaso(0)} />;
 
   /* enviado */
   if (paso === ENVIADO) {
@@ -1475,14 +1415,23 @@ export default function PerfilDemo() {
   return (
     <div className="min-h-screen text-[1.0625rem]" style={{ background: PAPEL, color: TINTA }}>
       <style>{`@keyframes aparece{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-        @media (min-width:768px){.perfil-panel{grid-template-columns:1.5fr 1fr}.perfil-portada{grid-template-columns:1fr 1.05fr}}
+        @media (min-width:768px){.perfil-panel{grid-template-columns:1.5fr 1fr}}
+        .pf-cont{width:min(100% - 2*clamp(1rem,4vw,5rem),140rem);margin-inline:auto}
+        .pf-sec{padding-block:clamp(3rem,6vw,7rem)}
+        .pf-h2{font-family:"Fraunces",Georgia,serif;font-weight:500;font-size:clamp(1.9rem,1rem + 2.6vw,3.6rem);line-height:1.05;letter-spacing:-.01em}
+        .pf-eyebrow{display:flex;align-items:center;gap:.75rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:.85rem}
+        .pf-eyebrow::after{content:"";height:2px;flex:1;background:currentColor;opacity:.25}
+        .pf-auto{display:grid;gap:clamp(.75rem,1.6vw,1.75rem);grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--min,16rem)),1fr))}
+        .pf-fill{display:grid;gap:clamp(.75rem,1.6vw,1.75rem);grid-template-columns:repeat(auto-fill,minmax(min(100%,var(--min,11rem)),1fr))}
+        .pf-hero{display:grid;grid-template-columns:minmax(0,1fr)}
+        @media (min-width:900px){.pf-hero{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);min-height:min(52rem,calc(100svh - 9rem))}}
         @media print{body{background:#fff}}`}</style>
       <div className="print:hidden">
         <BandaDemos />
       </div>
       <PartesDemo fondo={"#2b2622"} actual={vista} alCambiar={setVista} partes={[{ id: "clienta", nombre: "Perfil de la clienta", quien: "Contesta en su teléfono y recibe su rutina" }, { id: "panel", nombre: "Panel de la consultora", quien: "Usted ve a cada clienta y qué le toca" }] as const} />
       <header className="sticky top-0 z-20 border-b print:hidden" style={{ borderColor: LINEA, background: PAPEL }}>
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-3">
+        <div className="pf-cont flex items-center justify-between gap-4 py-3">
           <button type="button" onClick={() => setVista("clienta")} className="text-left leading-tight">
             <span className="block text-[1.4rem] font-semibold" style={{ fontFamily: SERIF }}>
               Sofía Morales
