@@ -2,7 +2,7 @@
  * Piezas que se repiten en la página, la inscripción y la app del socio: el logo, el carnet con su código y los logos de las tarjetas.
  */
 import { useMemo } from "react";
-import { AMARILLO, GOMA, GOMA2, ROJO, TIZA, VERDE, faltan, fechaCorta, porId, PLANES, SEDES, type Socio } from "./datos";
+import { AMARILLO, GOMA, GOMA2, ROJO, TIZA, VERDE, faltan, fechaCorta, matriculaDe, porId, PLANES, SEDES, type Socio } from "./datos";
 
 export const btn = "inline-flex items-center justify-center gap-2 rounded-md px-6 py-3.5 font-bold transition active:scale-[0.98]";
 
@@ -101,7 +101,7 @@ export function Carnet({ socio }: { socio: Socio }) {
       <span className="relative block"><Marca /></span>
       <div className="relative mt-4 flex items-end justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-[0.85rem] text-white/60">Socio {socio.num}</p>
+          <p className="text-[0.85rem] text-white/60">Matrícula {matriculaDe(socio.num)}</p>
           <p className="truncate text-[1.35rem] font-bold leading-tight">{socio.nombre}</p>
           <p className="mt-1 text-[0.92rem] text-white/75">
             {p.nombre} · {porId(SEDES, socio.sede).nombre}

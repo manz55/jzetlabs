@@ -3,7 +3,7 @@
  * Lo que preguntan en los gimnasios de barrio: precio, horario, dónde quedan, si hay parqueo y si está lleno.
  * Lo que le cuesta al dueño: membresías vencidas que nadie cobra y no saber quién entró.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import portada from "@/assets/demo-gimnasio/portada.jpg";
 import sentadilla from "@/assets/demo-gimnasio/sentadilla.jpg";
 import spinning from "@/assets/demo-gimnasio/spinning.jpg";
@@ -111,8 +111,9 @@ export const PREGUNTAS = [
 ];
 
 /* socios y recepción */
-export type Socio = { num: number; nombre: string; plan: string; vence: string; tel: string; sede: string; visitas: number[]; nuevo?: boolean };
-export type Entrada = { num: number; hora: string };
+export type Socio = { num: number; nombre: string; plan: string; vence: string; tel: string; sede: string; visitas: number[]; nuevo?: boolean; correo?: string; desde?: string };
+export type Entrada = { num: number; hora: string; via?: string; ok?: boolean };
+export type Aviso = { num: number; tipo: "vence" | "vencida" | "riesgo"; texto: string; canales: string[]; hora: string; dia: number };
 export type Pago = { num: number; monto: number; que: string; dia: number; metodo?: string; pendiente?: boolean };
 
 export const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -130,10 +131,61 @@ export const fechaCorta = (f: string) => {
 };
 export const DIAS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
+export const VERSION = "2.4.0";
+export const matriculaDe = (n: number) => `SF-${String(n).padStart(4, "0")}`;
+export const dpiDe = (n: number) => `${String(1000 + ((n * 7919) % 9000))} ${String(10000 + ((n * 104729) % 90000))} ${String(100 + n).padStart(4, "0")}`;
+const correoDe = (nombre: string) => `${nombre.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z ]/g, "").trim().split(" ").join(".")}@correo.com`;
+
+/* qué es cada clase y para qué sirve, para el socio que nunca ha ido */
+export const CLASE_INFO: Record<string, { para: string; dura: string; nivel: string; kcal: string; llevar: string; trabaja: string }> = {
+  Spinning: { para: "Mejora la resistencia del corazón y quema calorías sin golpear las rodillas.", dura: "45 min", nivel: "Todos los niveles", kcal: "400 a 600", llevar: "Toalla, agua y zapatos cerrados", trabaja: "Piernas y cardio" },
+  Funcional: { para: "Circuito de ejercicios con tu propio peso para ganar fuerza, equilibrio y coordinación.", dura: "50 min", nivel: "Principiante a intermedio", kcal: "350 a 500", llevar: "Toalla, agua y ropa cómoda", trabaja: "Cuerpo completo" },
+  "Glúteo y pierna": { para: "Trabajo con barra, mancuernas y banda para fortalecer y dar forma a glúteo y pierna.", dura: "55 min", nivel: "Todos los niveles", kcal: "300 a 450", llevar: "Toalla, agua y bandas si tienes", trabaja: "Glúteo, cuádriceps y femoral" },
+  "Tren superior": { para: "Pecho, espalda, hombro y brazo con pesas guiadas por el coach para aprender buena técnica.", dura: "55 min", nivel: "Principiante a intermedio", kcal: "250 a 400", llevar: "Toalla y agua", trabaja: "Pecho, espalda, hombro y brazo" },
+  Zumba: { para: "Baile con ritmos latinos: cardio divertido que sube el ánimo y suelta el estrés.", dura: "50 min", nivel: "Todos los niveles", kcal: "400 a 550", llevar: "Ropa ligera, agua y toalla", trabaja: "Cardio y coordinación" },
+  "Funcional en parejas": { para: "Rutina de retos para hacer con un amigo o familiar: se motivan y se corrigen entre ustedes.", dura: "60 min", nivel: "Todos los niveles", kcal: "400 a 550", llevar: "Toalla, agua y un acompañante", trabaja: "Cuerpo completo y cardio" },
+  "Movilidad y estiramiento": { para: "Estiramiento guiado para soltar la espalda, la cadera y los hombros, y recuperarte de la semana.", dura: "45 min", nivel: "Todos los niveles", kcal: "100 a 150", llevar: "Ropa cómoda y una toalla", trabaja: "Movilidad y recuperación" },
+};
+
+/* clases: la ocupación de un día concreto. En la semana que viene es la real; en otras fechas varía un poco */
+export const vanEn = (c: Clase, fecha: Date, reservado: boolean) => {
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  const d = new Date(fecha); d.setHours(0, 0, 0, 0);
+  const dif = Math.round((d.getTime() - hoy.getTime()) / 86400000);
+  if (dif >= 0 && dif < 7) return Math.min(c.cupo, c.van + (reservado ? 1 : 0));
+  const v = ((d.getDate() * 7 + c.hora.length * 3 + c.nombre.length) % 7) - 3;
+  return Math.max(2, Math.min(c.cupo, c.van + v));
+};
+
+/* lo que el dueño puede cambiar: precios de los planes, reglas y avisos. Se guarda y lo ven la página, la app y el panel */
+type Ajustes = { meta: number; avisoDias: number; riesgoDias: number; reglas: string[]; canales: { whatsapp: boolean; correo: boolean; app: boolean }; auto: boolean };
+export const REGLAS_INICIO = ["Calzado deportivo y toalla en todas las máquinas.", "Regresar las pesas y barras a su lugar al terminar.", "Respetar el turno: máximo 10 minutos en cada máquina con fila.", "Candado propio en los lockers; el gimnasio no se hace responsable por objetos olvidados.", "No grabar ni fotografiar a otros socios sin su permiso.", "Menores de 16 años entran con un adulto responsable."];
+const AJ0: Ajustes = { meta: 12000, avisoDias: 7, riesgoDias: 3, reglas: REGLAS_INICIO, canales: { whatsapp: true, correo: true, app: true }, auto: true };
+let ajustes: Ajustes = AJ0;
+try { const t = localStorage.getItem("gimnasio:ajustes-v3"); if (t) ajustes = { ...AJ0, ...JSON.parse(t) }; } catch { /* nada */ }
+const oyentes = new Set<() => void>();
+const avisarCambio = () => oyentes.forEach((f) => f());
+const suscribir = (f: () => void) => { oyentes.add(f); return () => { oyentes.delete(f); }; };
+export function useAjustes() {
+  const a = useSyncExternalStore(suscribir, () => ajustes);
+  const poner = (c: Partial<Ajustes>) => { ajustes = { ...ajustes, ...c }; try { localStorage.setItem("gimnasio:ajustes-v3", JSON.stringify(ajustes)); } catch { /* nada */ } avisarCambio(); };
+  return [a, poner] as const;
+}
+const CLAVE_PRECIOS = "gimnasio:precios-v1";
+try { const t = JSON.parse(localStorage.getItem(CLAVE_PRECIOS) || "{}"); PLANES.forEach((p) => { if (typeof t[p.id] === "number") p.precio = t[p.id]; }); } catch { /* nada */ }
+export function ponerPrecio(id: string, n: number) {
+  porId(PLANES, id).precio = n;
+  try { localStorage.setItem(CLAVE_PRECIOS, JSON.stringify(Object.fromEntries(PLANES.map((p) => [p.id, p.precio])))); } catch { /* nada */ }
+  versionPrecios++; avisarCambio();
+}
+let versionPrecios = 0;
+export const usePrecios = () => useSyncExternalStore(suscribir, () => versionPrecios);
+
 function socios(): Socio[] {
   const hoy = new Date().getDate();
-  const vis = (cada: number, desde = 0) => Array.from({ length: hoy }, (_, i) => i + 1).filter((d) => (d + desde) % cada === 0 || (d + desde) % cada === 1);
-  const s = (num: number, nombre: string, plan: string, vence: number, tel: string, sede: string, cada: number) => ({ num, nombre, plan, vence: enDias(vence), tel, sede, visitas: vis(cada, num) });
+  const vis = (cada: number, desde = 0) => Array.from({ length: hoy }, (_, i) => i + 1).filter((d) => (cada === 2 ? (d + desde) % 4 !== 0 : (d + desde) % cada === 0 || (d + desde) % cada === 1));
+  const s = (num: number, nombre: string, plan: string, vence: number, tel: string, sede: string, cada: number) => ({ num, nombre, plan, vence: enDias(vence), tel, sede, visitas: vis(cada, num), desde: enDias(-(40 + ((num * 53) % 320))), correo: correoDe(nombre) });
+  const sinIr = (x: Socio, dias: number) => ({ ...x, visitas: x.visitas.filter((d) => d <= hoy - dias) });
   return [
     s(101, "Marvin Estrada", "mensual", 12, "41230987", "mixco", 2),
     s(102, "Lucía Pérez", "mensual", -3, "55013472", "mixco", 3),
@@ -142,9 +194,9 @@ function socios(): Socio[] {
     s(105, "Diego Marroquín", "mensual", -8, "59920114", "villa", 4),
     s(106, "Sofía Aguilar", "trimestral", 5, "42207731", "villa", 2),
     s(107, "Brayan Tzoc", "mensual", 0, "50317782", "mixco", 2),
-    s(108, "Karla Monzón", "mensual", 19, "46612390", "villa", 3),
+    sinIr(s(108, "Karla Monzón", "mensual", 19, "46612390", "villa", 3), 5),
     s(109, "Josué Barrios", "anual", 210, "31194402", "mixco", 2),
-    s(110, "Paola Girón", "mensual", 6, "57718820", "mixco", 2),
+    sinIr(s(110, "Paola Girón", "mensual", 6, "57718820", "mixco", 2), 3),
     s(111, "Wilmer Chávez", "trimestral", -1, "44102938", "villa", 3),
     s(112, "Daniela Ruiz", "mensual", 23, "52201847", "mixco", 2),
     s(113, "Esteban López", "mensual", -15, "48870021", "mixco", 6),
@@ -157,7 +209,11 @@ function entradas(lista: Socio[]): Entrada[] {
   const h = horaAhora();
   const horas = ["5:12", "5:20", "5:34", "6:02", "6:15", "6:41", "7:05", "12:10", "12:25", "17:48", "18:03", "18:20", "18:42"];
   const hasta = horas.filter((x) => Number(x.split(":")[0]) <= Math.max(h, 6));
-  return lista.filter((x) => faltan(x.vence) >= 0).slice(0, hasta.length).map((x, i) => ({ num: x.num, hora: hasta[i] }));
+  const vias = ["Huella", "QR", "Huella", "Tarjeta", "QR", "Huella"];
+  const buenas: Entrada[] = lista.filter((x) => faltan(x.vence) >= 0).slice(0, hasta.length).map((x, i) => ({ num: x.num, hora: hasta[i], via: vias[i % vias.length], ok: true }));
+  const bloq = lista.filter((x) => faltan(x.vence) < 0).slice(0, 2).map((x, i) => ({ num: x.num, hora: i ? "6:50" : "5:48", via: "QR", ok: false }));
+  const min = (e: Entrada) => Number(e.hora.split(":")[0]) * 60 + Number(e.hora.split(":")[1]);
+  return [...buenas, ...bloq].sort((a, b) => min(b) - min(a));
 }
 function pagos(): Pago[] {
   const hoy = new Date().getDate();
@@ -169,8 +225,8 @@ function pagos(): Pago[] {
   });
 }
 
-const CLAVE = "gimnasio:v3";
-type Estado = { socios: Socio[]; entradas: Entrada[]; pagos: Pago[]; reservas: Record<string, number> };
+const CLAVE = "gimnasio:v4";
+type Estado = { socios: Socio[]; entradas: Entrada[]; pagos: Pago[]; reservas: Record<string, number>; avisos: Aviso[] };
 export function useGimnasio() {
   const [e, setE] = useState<Estado>(() => {
     try {
@@ -180,7 +236,7 @@ export function useGimnasio() {
       /* nada */
     }
     const s = socios();
-    return { socios: s, entradas: entradas(s), pagos: pagos(), reservas: {} };
+    return { socios: s, entradas: entradas(s), pagos: pagos(), reservas: {}, avisos: [] };
   });
   useEffect(() => {
     try {
@@ -197,11 +253,15 @@ export function useGimnasio() {
     ...e,
     inscribir: (x: Omit<Socio, "num" | "visitas">, monto: number, metodo = "tarjeta") => {
       const num = Math.max(...e.socios.map((s) => s.num)) + 1;
-      setE((v) => ({ ...v, socios: [...v.socios, { ...x, num, visitas: [], nuevo: true }], pagos: [...v.pagos, { num, monto, que: `Inscripción ${porId(PLANES, x.plan).nombre.toLowerCase()}`, dia: new Date().getDate(), metodo, pendiente: metodo === "transferencia" }] }));
+      setE((v) => ({ ...v, socios: [...v.socios, { ...x, num, visitas: [], nuevo: true, desde: enDias(0) }], pagos: [...v.pagos, { num, monto, que: `Inscripción ${porId(PLANES, x.plan).nombre.toLowerCase()}`, dia: new Date().getDate(), metodo, pendiente: metodo === "transferencia" }] }));
       return num;
     },
-    entrar: (num: number) =>
-      setE((v) => ({ ...v, entradas: [{ num, hora: hora() }, ...v.entradas], socios: v.socios.map((s) => (s.num === num && !s.visitas.includes(new Date().getDate()) ? { ...s, visitas: [...s.visitas, new Date().getDate()] } : s)) })),
+    entrar: (num: number, via = "Manual", ok = true) =>
+      setE((v) => ({ ...v, entradas: [{ num, hora: hora(), via, ok }, ...v.entradas], socios: ok ? v.socios.map((s) => (s.num === num && !s.visitas.includes(new Date().getDate()) ? { ...s, visitas: [...s.visitas, new Date().getDate()] } : s)) : v.socios })),
+    editar: (num: number, c: Partial<Socio>) => setE((v) => ({ ...v, socios: v.socios.map((x) => (x.num === num ? { ...x, ...c } : x)) })),
+    baja: (num: number) => setE((v) => ({ ...v, socios: v.socios.filter((x) => x.num !== num) })),
+    avisar: (nums: number[], tipo: Aviso["tipo"], canales: string[], texto: (s: Socio) => string) =>
+      setE((v) => ({ ...v, avisos: [...v.avisos, ...nums.map((n) => ({ num: n, tipo, canales, texto: texto(v.socios.find((s) => s.num === n)!), hora: hora(), dia: new Date().getDate() }))] })),
     cobrar: (num: number, metodo = "recepción") =>
       setE((v) => {
         const s = v.socios.find((x) => x.num === num)!;
@@ -216,7 +276,7 @@ export function useGimnasio() {
     reservar: (id: string) => setE((v) => ({ ...v, reservas: { ...v.reservas, [id]: v.reservas[id] ? 0 : 1 } })),
     reiniciar: () => {
       const s = socios();
-      setE({ socios: s, entradas: entradas(s), pagos: pagos(), reservas: {} });
+      setE({ socios: s, entradas: entradas(s), pagos: pagos(), reservas: {}, avisos: [] });
     },
   };
 }
