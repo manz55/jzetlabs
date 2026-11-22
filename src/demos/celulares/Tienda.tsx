@@ -845,8 +845,7 @@ function Pago({ t, carro, subtotal, alTerminar, alRastrear, alCerrar }: { t: Tie
             if (tel.replace(/\D/g, "").length < 8) return setError("Escribe tu teléfono de 8 dígitos.");
             if (entrega === "envio" && !direccion.trim()) return setError("Escribe la dirección de entrega.");
             setError("");
-            // lo más simple: se confirma el pedido y se paga al recibir; tarjeta o transferencia son un camino aparte
-            crear("preparando");
+            setPaso("pago");
           }}
         >
           <div className="grid sm:grid-cols-2 gap-4">
@@ -892,40 +891,29 @@ function Pago({ t, carro, subtotal, alTerminar, alRastrear, alCerrar }: { t: Tie
             </label>
           )}
           {error && <p className="text-sm text-[#b42318]">{error}</p>}
-          <Resumen subtotal={subEfectivo} envio={envio} />
-          <button type="submit" className="w-full rounded-lg py-3.5 font-bold text-white" style={{ background: TINTA }}>
-            Confirmar pedido · pagas al recibir {qz(subEfectivo + envio)}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              if (!nombre.trim()) return setError("Escribe tu nombre.");
-              if (tel.replace(/\D/g, "").length < 8) return setError("Escribe tu teléfono de 8 dígitos.");
-              if (entrega === "envio" && !direccion.trim()) return setError("Escribe la dirección de entrega.");
-              setError("");
-              setMetodo("tarjeta");
-              setPaso("pago");
-            }}
-            className="w-full text-center text-sm font-semibold underline underline-offset-4 text-black/70"
-          >
-            Prefiero pagar con tarjeta o transferencia
+          <Resumen subtotal={subtotal} envio={envio} />
+          <button type="submit" className="w-full rounded-lg py-3.5 text-[1.05rem] font-bold text-white" style={{ background: TINTA }}>
+            Continuar al pago
           </button>
         </form>
       ) : (
         <div className="mt-5 space-y-4">
-          <div className="grid sm:grid-cols-3 gap-2">
+          <p className="text-[1.05rem] font-bold">¿Cómo quieres pagar?</p>
+          <div className="grid gap-3" role="radiogroup" aria-label="Forma de pago">
             {(
               [
-                ["tarjeta", CreditCard, "Tarjeta", `${qz(subtotal + envio)} · hasta 12 cuotas`],
-                ["transferencia", Banknote, "Transferencia", `${qz(subEfectivo + envio)} precio efectivo`],
-                ["contra-entrega", Truck, "Paga al recibir", `${qz(subEfectivo + envio)} · revisa antes`],
-              ] as [Metodo, typeof Truck, string, string][]
-            ).map(([id, Icono, ti, d]) => (
-              <button key={id} type="button" onClick={() => { setMetodo(id); setError(""); }} aria-pressed={metodo === id} className={`flex flex-col items-start gap-1 rounded-2xl border-2 p-3 text-left transition ${metodo === id ? "" : "border-black/10"}`} style={metodo === id ? { borderColor: PRIMARIO, background: LAVANDA } : undefined}>
-                <span className="inline-flex items-center gap-2 font-semibold">
-                  <Icono size={18} /> {ti}
+                ["tarjeta", CreditCard, "Tarjeta de crédito o débito", "Pagas ahora, seguro. Hasta 12 cuotas.", qz(subtotal + envio), null],
+                ["transferencia", Banknote, "Transferencia bancaria", "Precio de efectivo. Subes la foto de tu comprobante.", qz(subEfectivo + envio), "Precio de efectivo"],
+                ["contra-entrega", Truck, "Pagar al recibir", "Revisas tu equipo antes de pagar. Efectivo o tarjeta.", qz(subEfectivo + envio), "Más fácil"],
+              ] as [Metodo, typeof Truck, string, string, string, string | null][]
+            ).map(([id, Icono, ti, d, monto, etiqueta]) => (
+              <button key={id} type="button" role="radio" aria-checked={metodo === id} onClick={() => { setMetodo(id); setError(""); }} className={`flex items-center gap-4 rounded-2xl border-2 p-4 text-left transition hover:shadow-md ${metodo === id ? "" : "border-black/10 bg-white hover:border-black/30"}`} style={metodo === id ? { borderColor: PRIMARIO, background: LAVANDA } : undefined}>
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl" style={{ background: metodo === id ? PRIMARIO : "#f1f1f4", color: metodo === id ? "#fff" : TINTA }}><Icono size={24} /></span>
+                <span className="min-w-0 flex-1 leading-tight">
+                  <span className="flex flex-wrap items-center gap-2 text-[1.1rem] font-bold">{ti}{etiqueta && <span className="rounded px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-wide" style={{ background: AMARILLO, color: TINTA }}>{etiqueta}</span>}</span>
+                  <span className="mt-0.5 block text-[0.9rem] text-black/60">{d}</span>
                 </span>
-                <span className="text-[0.75rem] text-black/55">{d}</span>
+                <span className="shrink-0 text-right"><b className="block text-[1.15rem]">{monto}</b><span className={`ml-auto mt-1 grid h-6 w-6 place-items-center rounded-full border-2 ${metodo === id ? "text-white" : "border-black/20"}`} style={metodo === id ? { background: PRIMARIO, borderColor: PRIMARIO } : undefined}>{metodo === id && <Check size={14} strokeWidth={3} />}</span></span>
               </button>
             ))}
           </div>
