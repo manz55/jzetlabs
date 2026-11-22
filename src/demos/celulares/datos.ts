@@ -53,6 +53,7 @@ export type Producto = {
   categoria: Categoria;
   condicion: Condicion;
   foto: string;
+  fotos?: string[];
   colores: { nombre: string; hex: string }[];
   variantes: Variante[];
   antes?: number;

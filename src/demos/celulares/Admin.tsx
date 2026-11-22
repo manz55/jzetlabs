@@ -6,7 +6,9 @@
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
 import { BarChart3, Boxes, Camera, Check, CreditCard, Eye, EyeOff, LogOut, MessageCircle, Minus, Package, Plus, RotateCcw, Search, Store, Undo2, Users, Wrench, X } from "lucide-react";
 import { qz } from "../comun";
-import { Asistente } from "./Asistente";
+import { Asistente, simularCompra } from "./Asistente";
+import { chatReiniciar } from "./bot";
+import { achicarFoto } from "./fotos";
 import {
   PRIMARIO, ESTADOS_PEDIDO, LETRA_SISTEMA, PASOS_REPARACION, SUCURSALES, TEXTO_REPARACION, TINTA,
   fechaCorta, sucursalPor,
@@ -20,7 +22,7 @@ const BORDE = "#dde0e6";
 const FONDO = "#f3f4f6";
 const MUTED = "#5b6270";
 const ROJO = "#b42318";
-const NOMBRE_PESTANA: Record<Pestana, string> = { resumen: "Resumen", asistente: "Asistente de WhatsApp", pedidos: "Pedidos", pagos: "Pagos", inventario: "Productos", reparaciones: "Reparaciones", tecnicos: "Técnicos", devoluciones: "Devoluciones" };
+const NOMBRE_PESTANA: Record<Pestana, string> = { resumen: "Resumen", asistente: "Bot de WhatsApp", pedidos: "Pedidos", pagos: "Pagos", inventario: "Productos", reparaciones: "Reparaciones", tecnicos: "Técnicos", devoluciones: "Devoluciones" };
 
 /* piezas sobrias: nada de cajitas redondeadas, líneas finas y tablas */
 const TH = "bg-[#f7f8fa] px-3 py-2 text-left text-[0.72rem] font-bold uppercase tracking-[0.06em] text-[#5b6270]";
@@ -97,7 +99,7 @@ export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () =>
   const bajos = t.productos.filter((p) => Object.values(t.stock[p.id] ?? {}).reduce((s, n) => s + n, 0) <= 3);
 
   const grupos: { g: string; items: [Pestana, string, typeof BarChart3, number?][] }[] = [
-    { g: "General", items: [["resumen", "Resumen", BarChart3], ["asistente", "Asistente de WhatsApp", MessageCircle]] },
+    { g: "General", items: [["resumen", "Resumen", BarChart3], ["asistente", "Bot de WhatsApp", MessageCircle]] },
     { g: "Ventas", items: [["pedidos", "Pedidos", Package, t.pedidos.filter((p) => p.estado === "pagado").length], ["pagos", "Pagos", CreditCard, porVerificar.length]] },
     { g: "Tienda", items: [["inventario", "Productos", Boxes, bajos.length]] },
     { g: "Taller", items: [["reparaciones", "Reparaciones", Wrench, t.reparaciones.filter((r) => r.estado !== "entregado").length], ["tecnicos", "Técnicos", Users]] },
@@ -123,10 +125,10 @@ export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () =>
           ))}
         </nav>
         <div className="hidden border-t border-white/10 px-4 py-3 md:block">
-          <p className="flex items-center gap-2 text-[0.82rem] text-white/75"><span className="h-2 w-2 rounded-full bg-[#34d399]" /> Asistente de WhatsApp conectado</p>
+          <p className="flex items-center gap-2 text-[0.82rem] text-white/75"><span className="h-2 w-2 rounded-full bg-[#34d399]" /> Bot de WhatsApp conectado</p>
           <div className="mt-2 grid gap-0.5 text-[0.86rem]">
             <button type="button" onClick={alTienda} className="flex min-h-[2.4rem] items-center gap-2 text-left text-white/75 hover:text-white"><Store size={15} /> Ver la tienda</button>
-            <button type="button" onClick={t.reiniciar} className="flex min-h-[2.4rem] items-center gap-2 text-left text-white/75 hover:text-white"><RotateCcw size={15} /> Reiniciar el ejemplo</button>
+            <button type="button" onClick={() => { t.reiniciar(); chatReiniciar(); }} className="flex min-h-[2.4rem] items-center gap-2 text-left text-white/75 hover:text-white"><RotateCcw size={15} /> Reiniciar el ejemplo</button>
             <button type="button" onClick={alSalir} className="flex min-h-[2.4rem] items-center gap-2 text-left text-white/75 hover:text-white"><LogOut size={15} /> Salir</button>
           </div>
         </div>
@@ -139,7 +141,7 @@ export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () =>
         </div>
         <div className="grid grid-cols-[minmax(0,1fr)] gap-4 px-[clamp(1rem,3vw,2.5rem)] py-5 pb-14">
           {pestana === "resumen" && <Resumen t={t} irA={setPestana} />}
-          {pestana === "asistente" && <PaginaAsistente t={t} />}
+          {pestana === "asistente" && <PaginaAsistente t={t} alTienda={alTienda} />}
           {pestana === "pedidos" && <Pedidos t={t} />}
           {pestana === "pagos" && <Pagos t={t} />}
           {pestana === "inventario" && <Inventario t={t} />}
@@ -148,7 +150,7 @@ export function PanelDueno({ t, alSalir, alTienda }: { t: Tienda; alSalir: () =>
           {pestana === "devoluciones" && <Devoluciones t={t} />}
           <div className="mt-2 flex flex-wrap items-center justify-between gap-2 md:hidden">
             <button type="button" onClick={alTienda} className={BTN} style={borde}><Store size={15} /> Ver la tienda</button>
-            <button type="button" onClick={t.reiniciar} className={BTN} style={borde}><RotateCcw size={15} /> Reiniciar</button>
+            <button type="button" onClick={() => { t.reiniciar(); chatReiniciar(); }} className={BTN} style={borde}><RotateCcw size={15} /> Reiniciar</button>
           </div>
           <p className="text-center text-xs" style={{ color: MUTED }}>Panel de demostración con datos de ejemplo. Lo que cambie aquí solo se guarda en este navegador.</p>
         </div>
@@ -244,13 +246,12 @@ function Resumen({ t, irA }: { t: Tienda; irA: (p: Pestana) => void }) {
             </tbody>
           </table>
         </Panel>
-        <Panel titulo="Asistente de WhatsApp" nota="Conectado" derecha={<MessageCircle size={18} className="text-[#1f9d55]" />}>
-          <p className="text-[0.9rem]" style={{ color: MUTED }}>Avisa solo cuando pasa algo y el dueño responde con un toque. También acepta comandos cortos. Funciona con reglas programadas, sin costo por mensaje.</p>
-          <p className="mt-3 text-[0.72rem] font-bold uppercase tracking-[0.06em]" style={{ color: MUTED }}>Avisos automáticos</p>
-          <ul className="mt-1 divide-y text-[0.9rem]" style={{ borderColor: BORDE }}>
-            {["Pedido nuevo y transferencia con comprobante", "Reparación lista para entregar", "Producto con poco stock", "Resumen de ventas a las 8 pm"].map((x) => <li key={x} className="py-2" style={{ borderColor: BORDE }}>{x}</li>)}
+        <Panel titulo="Bot de WhatsApp" nota="Conectado" derecha={<MessageCircle size={18} className="text-[#1f9d55]" />}>
+          <p className="text-[0.9rem]" style={{ color: MUTED }}>El dueño delega y el bot trabaja: sube productos con fotos, avisa de cada venta y acompaña el pedido hasta la entrega.</p>
+          <ul className="mt-3 divide-y text-[0.9rem]" style={{ borderColor: BORDE }}>
+            {["Sube productos desde las fotos", "Avisa cuando alguien compra", "El dueño marca cada paso con un toque", "Controla el stock por mensaje"].map((x) => <li key={x} className="py-2" style={{ borderColor: BORDE }}>{x}</li>)}
           </ul>
-          <button type="button" onClick={() => irA("asistente")} className={`${BTN} mt-4 w-full`} style={principal}><MessageCircle size={16} /> Probar el asistente</button>
+          <button type="button" onClick={() => irA("asistente")} className={`${BTN} mt-4 w-full`} style={principal}><MessageCircle size={16} /> Probar el bot</button>
         </Panel>
       </div>
 
@@ -301,48 +302,55 @@ function Resumen({ t, irA }: { t: Tienda; irA: (p: Pestana) => void }) {
   );
 }
 
-/* ---------------- asistente de WhatsApp ---------------- */
+/* ---------------- bot de WhatsApp ---------------- */
 
-function PaginaAsistente({ t }: { t: Tienda }) {
-  const avisos: [string, string][] = [
-    ["Pedido nuevo", "Llega el aviso con cliente, monto y forma de pago."],
-    ["Transferencia con comprobante", "Botones Confirmar pago y Rechazar. Al confirmar se descuenta el stock."],
-    ["Reparación lista", "Botón para marcar entregada y avisar al cliente."],
-    ["Poco stock", "Aviso cuando un producto baja a 3 unidades."],
-    ["Devolución nueva", "Aviso con el motivo para revisarla en el panel."],
-    ["Resumen del día", "Ventas, pedidos y pendientes a las 8 pm."],
+function PaginaAsistente({ t, alTienda }: { t: Tienda; alTienda: () => void }) {
+  const [msg, setMsg] = useState("");
+  const pasos: [string, string][] = [
+    ["1. El dueño manda las fotos", "Adjunta las fotos del equipo y escribe el nombre, el precio y las unidades. Si falta un dato, el bot lo pregunta."],
+    ["2. El bot lo publica", "Arma la ficha con todas las fotos, los dos precios (tarjeta y efectivo) y el stock. Ya aparece en la tienda."],
+    ["3. El bot avisa de lo que pasa", "Cuando un cliente lo agrega al carrito, cuando hace el pedido y cuando paga."],
+    ["4. El dueño marca el avance", "Con un toque: en preparación, entregado al transporte, entregado. El cliente lo ve en su rastreo."],
+    ["5. El bot cuida el stock", "Descuenta lo vendido, avisa cuando se agota y puede ocultar el producto."],
   ];
   const comandos: [string, string][] = [
-    ["menú", "Muestra las opciones con botones"],
-    ["ventas", "Ventas de hoy, de 7 días y ticket promedio"],
-    ["pedidos", "Pedidos por atender y su estado"],
-    ["pagos", "Transferencias por verificar, con botones"],
-    ["stock s26", "Existencias por sucursal"],
-    ["pago OR-1041", "Confirma una transferencia (pide confirmación)"],
-    ["preparar OR-1040", "Avanza el pedido: preparar, enviar, entregado"],
-    ["rep RP-512 listo", "Cambia el estado de una reparación"],
+    ["Adjuntar fotos + texto", "Publica un producto nuevo en la tienda"],
+    ["agregar 2 iphone air", "Suma unidades al stock (también quitar)"],
+    ["stock iphone air", "Existencias por sucursal"],
     ["precio s26 7500", "Cambia el precio en la tienda"],
+    ["ventas · pedidos · pagos", "Consultas rápidas con botones"],
+    ["rep RP-512 listo", "Cambia el estado de una reparación"],
   ];
   return (
     <>
-      <Titulo sub="Reglas programadas, sin inteligencia artificial: responde siempre igual y no tiene costo por mensaje.">Asistente de WhatsApp</Titulo>
-      <div className="grid items-start gap-5 lg:grid-cols-[26rem_minmax(0,1fr)]">
-        <div>
+      <Titulo sub="Sistema a medida: el dueño delega y el bot hace el trabajo diario.">Bot de WhatsApp</Titulo>
+      <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+        <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3">
           <Asistente t={t} />
-          <p className="mx-auto mt-3 max-w-[26rem] text-center text-[0.84rem]" style={{ color: MUTED }}>Simulación. Se puede tocar los botones o escribir. Lo que hace cambia los mismos datos del panel.</p>
+          <Panel titulo="Probar el recorrido completo" nota="Para la demostración">
+            <ol className="list-decimal space-y-1 pl-5 text-[0.92rem]" style={{ color: MUTED }}>
+              <li>Toque <b className="text-[#14101f]">Adjuntar 3 fotos de ejemplo</b> en el chat y luego <b className="text-[#14101f]">Publicar en la tienda</b>.</li>
+              <li>Toque <b className="text-[#14101f]">Simular compra de un cliente</b>: el bot avisa y el dueño marca el avance.</li>
+              <li>También se puede abrir la tienda y comprar de verdad: el bot avisa igual.</li>
+            </ol>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button type="button" onClick={() => setMsg(`Compra simulada de ${simularCompra(t)}. Revise el chat.`)} className={BTN} style={principal}>Simular compra de un cliente</button>
+              <button type="button" onClick={alTienda} className={BTN} style={borde}><Store size={15} /> Abrir la tienda</button>
+            </div>
+            {msg && <p className="mt-2 text-[0.88rem] font-semibold text-[#1f7a3a]">{msg}</p>}
+          </Panel>
         </div>
         <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4">
-          <Panel titulo="Avisos automáticos" nota="El bot escribe primero" flush>
-            <table className="w-full text-[0.92rem]"><thead><tr><th className={TH}>Evento</th><th className={TH}>Qué recibe el dueño</th></tr></thead>
-              <tbody>{avisos.map(([a, b]) => <tr key={a} className="border-t" style={{ borderColor: BORDE }}><td className={`${TD} font-semibold`}>{a}</td><td className={TD} style={{ color: MUTED }}>{b}</td></tr>)}</tbody></table>
+          <Panel titulo="Cómo trabaja">
+            <ul className="divide-y" style={{ borderColor: BORDE }}>{pasos.map(([a, b]) => <li key={a} className="py-2.5" style={{ borderColor: BORDE }}><p className="font-bold">{a}</p><p className="text-[0.9rem]" style={{ color: MUTED }}>{b}</p></li>)}</ul>
           </Panel>
-          <Panel titulo="Comandos" nota="También funciona con el menú de botones" flush>
+          <Panel titulo="Qué se le puede pedir" nota="También funciona con el menú de botones" flush>
             <table className="w-full text-[0.92rem]"><thead><tr><th className={TH}>Escribir</th><th className={TH}>Resultado</th></tr></thead>
-              <tbody>{comandos.map(([a, b]) => <tr key={a} className="border-t" style={{ borderColor: BORDE }}><td className={`${TD} font-mono text-[0.88rem] font-semibold`}>{a}</td><td className={TD} style={{ color: MUTED }}>{b}</td></tr>)}</tbody></table>
+              <tbody>{comandos.map(([a, b]) => <tr key={a} className="border-t" style={{ borderColor: BORDE }}><td className={`${TD} font-mono text-[0.86rem] font-semibold`}>{a}</td><td className={TD} style={{ color: MUTED }}>{b}</td></tr>)}</tbody></table>
           </Panel>
           <Panel titulo="Seguridad y control">
             <ul className="space-y-1.5 text-[0.92rem]">
-              {["Solo responde a los números autorizados por el dueño.", "Pide confirmación antes de mover dinero, stock o precios.", "Todo queda en la actividad del panel, con fecha y hora.", "Si no entiende un mensaje, lo dice y ofrece el menú."].map((x) => <li key={x} className="flex gap-2"><Check size={17} className="mt-0.5 shrink-0 text-[#1f7a3a]" /> {x}</li>)}
+              {["Solo responde a los números autorizados por el dueño.", "Pide confirmación antes de mover dinero, stock o precios.", "Todo queda en el panel, con fecha y hora.", "Si no entiende un mensaje, lo dice y ofrece el menú."].map((x) => <li key={x} className="flex gap-2"><Check size={17} className="mt-0.5 shrink-0 text-[#1f7a3a]" /> {x}</li>)}
             </ul>
           </Panel>
         </div>
@@ -457,29 +465,6 @@ function Pagos({ t }: { t: Tienda }) {
 }
 
 /* ---------------- productos: fotos, precios, existencias y visibilidad ---------------- */
-
-/* la foto que sube el dueño se achica en el navegador antes de guardarla */
-function achicarFoto(archivo: File): Promise<string> {
-  return new Promise((ok, mal) => {
-    const lector = new FileReader();
-    lector.onerror = mal;
-    lector.onload = () => {
-      const img = new Image();
-      img.onerror = mal;
-      img.onload = () => {
-        const max = 700;
-        const k = Math.min(1, max / Math.max(img.width, img.height));
-        const c = document.createElement("canvas");
-        c.width = Math.round(img.width * k);
-        c.height = Math.round(img.height * k);
-        c.getContext("2d")!.drawImage(img, 0, 0, c.width, c.height);
-        ok(c.toDataURL("image/jpeg", 0.8));
-      };
-      img.src = String(lector.result);
-    };
-    lector.readAsDataURL(archivo);
-  });
-}
 
 function Inventario({ t }: { t: Tienda }) {
   const [buscar, setBuscar] = useState("");

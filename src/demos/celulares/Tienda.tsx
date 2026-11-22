@@ -18,6 +18,7 @@ import {
   type Linea, type Metodo, type Pedido, type Producto, type Tienda,
 } from "./datos";
 import { cobrarConTarjeta } from "./pasarela";
+import { avisoInteres, avisoPedido } from "./bot";
 
 const ENVIO = 35;
 const ENVIO_GRATIS = 1000;
@@ -71,6 +72,7 @@ export function TiendaCliente({ t }: { t: Tienda }) {
       return [...c, l];
     });
     setAviso(`${l.nombre} está en tu carrito`);
+    avisoInteres(l.id, l.nombre);
   }
   const verFiltro = (f: Filtro) => {
     setFiltro(f);
@@ -584,12 +586,19 @@ function Ficha({ p, t, alAgregar }: { p: Producto; t: Tienda; alAgregar: (l: Lin
   const [color, setColor] = useState(p.colores[0]);
   const [v, setV] = useState(p.variantes[0]);
   const [n, setN] = useState(1);
+  const [fi, setFi] = useState(0);
+  const fotos = p.fotos?.length ? p.fotos : [p.foto];
   const disp = disponibilidad(t.stock, p.id);
   const enSucursal = SUCURSALES.filter((s) => (t.stock[p.id]?.[s.id] ?? 0) > 0);
   return (
     <div className="grid sm:grid-cols-[1fr_1.1fr]">
       <div className="relative min-h-[260px] sm:min-h-full" style={{ background: FONDO }}>
-        <img src={p.foto} alt={p.nombre} className="absolute inset-0 w-full h-full object-cover" />
+        <img src={fotos[fi] ?? p.foto} alt={p.nombre} className="absolute inset-0 w-full h-full object-cover" />
+        {fotos.length > 1 && (
+          <div className="absolute inset-x-0 bottom-3 flex justify-center gap-2">
+            {fotos.map((f, k) => <button key={k} type="button" aria-label={`Foto ${k + 1}`} aria-pressed={fi === k} onClick={() => setFi(k)} className="h-12 w-12 overflow-hidden rounded-lg border-2 shadow transition hover:scale-105" style={{ borderColor: fi === k ? PRIMARIO : "#fff" }}><img src={f} alt="" className="h-full w-full object-cover" /></button>)}
+          </div>
+        )}
       </div>
       <div className="p-6 sm:p-8">
         <p className="text-sm font-semibold text-black/50">
@@ -721,6 +730,9 @@ function Pago({ t, carro, subtotal, alTerminar, alRastrear, alCerrar }: { t: Tie
         });
         return n;
       });
+    // el bot le avisa al dueño del pedido y de lo que se agotó
+    const agotados = estado === "pagado" || estado === "preparando" ? carro.filter((l) => Object.values(t.stock[l.id] ?? {}).reduce((s, n) => s + n, 0) - l.cantidad <= 0).map((l) => l.nombre) : [];
+    avisoPedido(p, agotados);
     setPedido(p);
     alTerminar(p);
     setPaso("listo");
