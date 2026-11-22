@@ -118,7 +118,7 @@ export function Inicio({ perfiles, pedidos, filas, meta, ponerMeta, regaloCada, 
         {kpi(Package, String(pendientes.length), "Pedidos por entregar", `ganas ${qz(porGanar)}`, pendientes.length > 0, () => irA("pedidos"))}
         {kpi(Wallet, qz(porCobrar.reduce((t, x) => t + saldo(x), 0)), "Por cobrar", `${porCobrar.length} ${porCobrar.length === 1 ? "pedido" : "pedidos"}`, porCobrar.length > 0, () => irA("pedidos"))}
         {kpi(CalendarDays, String(citas.length), "Clases y citas", "por atender", citas.length > 0, () => irA("mensajes"))}
-        {kpi(ShoppingBag, String(alertas.length), "Para pedir", alertas.length === 1 ? "producto" : "productos", alertas.length > 0, () => irA("inventario"))}
+        {kpi(ShoppingBag, String(alertas.length), "Por reponer", alertas.length === 1 ? "producto" : "productos", alertas.length > 0, () => irA("inventario"))}
       </div>
 
       <div className="grid gap-5 lg:grid-cols-12">
@@ -202,14 +202,14 @@ export function Inicio({ perfiles, pedidos, filas, meta, ponerMeta, regaloCada, 
           )}
         </Tarjeta>
 
-        <Tarjeta className="lg:col-span-3" titulo="Control de inventario" nota="Lo que más urge pedir." pie={verMas("Ir al inventario", () => irA("inventario"))}>
+        <Tarjeta className="lg:col-span-3" titulo="Control de inventario" nota="Productos con menor cobertura." pie={verMas("Ver inventario completo", () => irA("inventario"))}>
           {alertas.length === 0 ? vacio("Todo bien con tu inventario.") : (
             <ul className="grid gap-3.5">
               {alertas.slice(0, 4).map((f) => (
                 <li key={f.pr.id}>
-                  <div className="flex items-center justify-between gap-2 text-[1.02rem]"><span className="min-w-0 truncate font-semibold">{f.pr.nombre}</span><span className="shrink-0 font-bold" style={{ color: VINO }}>{f.disp <= 0 ? "Ya no tienes" : `Te queda ${f.disp}`}</span></div>
+                  <div className="flex items-center justify-between gap-2 text-[1.02rem]"><span className="min-w-0 truncate font-semibold">{f.pr.nombre}</span><span className="shrink-0 font-bold" style={{ color: VINO }}>{f.disp <= 0 ? "Sin existencias" : `${f.disp} disponibles`}</span></div>
                   <div className="mt-1.5 h-2.5 overflow-hidden rounded-full" style={{ background: LINEA }}><div className="h-full rounded-full" style={{ width: `${Math.max(6, Math.min(100, (f.dias / 45) * 100))}%`, background: f.nivel === "ya" ? "#a4262c" : "#c98a00" }} /></div>
-                  <p className="mt-0.5 text-[0.88rem] opacity-65">{f.dias <= 0 ? "Pídelo hoy" : `Te alcanza unos ${f.dias} días`}</p>
+                  <p className="mt-0.5 text-[0.88rem] opacity-65">{f.dias <= 0 ? "Reponer hoy" : `Cobertura: ${f.dias} días`}</p>
                 </li>
               ))}
             </ul>
