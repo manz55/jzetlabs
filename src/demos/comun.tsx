@@ -8,7 +8,8 @@ import { Modal } from "@/components/Modal";
 import { whatsappLink } from "@/data/site";
 import { irADemo, precargar } from "./navegar";
 
-export type DemoItem = { nombre: string; href: string; para: string };
+/* avisoSiempre: en celular la banda también dice "Demo de" (para las que parecen un medio real) */
+export type DemoItem = { nombre: string; href: string; para: string; avisoSiempre?: boolean };
 
 /* Todas las demos, en tres tipos de producto: página, tienda o sistema a medida. "para" es una línea: para qué negocio es */
 export const GRUPOS_DEMOS: { grupo: string; demos: DemoItem[] }[] = [
@@ -20,6 +21,7 @@ export const GRUPOS_DEMOS: { grupo: string; demos: DemoItem[] }[] = [
       { nombre: "Restaurante", href: "/demos/restaurante/", para: "Menú en línea y pedidos" },
       { nombre: "Hotel boutique", href: "/demos/hotel/", para: "Disponibilidad, habitaciones y reserva con chat" },
       { nombre: "Taller mecánico", href: "/demos/taller/", para: "¿Puedo manejar?, auxilio a domicilio y seguimiento por placa" },
+      { nombre: "Diario digital", href: "/demos/medio-comunicacion/", para: "Portada, última hora, secciones y boletín", avisoSiempre: true },
     ],
   },
   {
@@ -99,11 +101,11 @@ export function BandaDemos() {
     <div ref={caja} className="banda-demos relative z-40 bg-[#1c1714] text-white/85 text-[0.82rem]">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2">
         <a href="/" className="min-w-0 shrink truncate hover:text-white">
-          ← <span className="hidden sm:inline">Demo de </span><b className="text-white">Jzet Labs</b>
+          ← <span className={actual?.avisoSiempre ? undefined : "hidden sm:inline"}>Demo de </span><b className="text-white">Jzet Labs</b>
           <span className="hidden sm:inline"> · datos de ejemplo</span>
         </a>
         <div className="flex shrink-0 items-center gap-2">
-          {actual && <span className="pastilla-demo-activa inline-block max-w-[7.5rem] truncate rounded-full bg-white/10 px-3 py-1 font-semibold text-white sm:max-w-none">{actual.nombre}</span>}
+          {actual && <span className={`pastilla-demo-activa ${actual.avisoSiempre ? "hidden sm:inline-block" : "inline-block"} max-w-[7.5rem] truncate rounded-full bg-white/10 px-3 py-1 font-semibold text-white sm:max-w-none`}>{actual.nombre}</span>}
           <button
             ref={boton}
             type="button"

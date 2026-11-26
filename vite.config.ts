@@ -54,6 +54,7 @@ export default defineConfig({
         demoTaller: resolve(__dirname, 'demos/taller/index.html'),
         demoFerreteria: resolve(__dirname, 'demos/ferreteria/index.html'),
         demoHotel: resolve(__dirname, 'demos/hotel/index.html'),
+        demoMedio: resolve(__dirname, 'demos/medio-comunicacion/index.html'),
       },
     },
   },

@@ -207,6 +207,14 @@
     {
       "source": "/demos/hotel/",
       "destination": "/demos/hotel/index.html"
+    },
+    {
+      "source": "/demos/medio-comunicacion",
+      "destination": "/demos/medio-comunicacion/index.html"
+    },
+    {
+      "source": "/demos/medio-comunicacion/",
+      "destination": "/demos/medio-comunicacion/index.html"
     }
   ],
   "redirects": [
