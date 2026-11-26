@@ -99,7 +99,7 @@ export default function PanelDespacho({ d }: { d: Dist }) {
                 <tbody>
                   {creditos.map((t) => { const v = t.vence ?? 0, ya = d.recordados.includes(t.id); return (
                     <tr key={t.id} className="border-t" style={{ borderColor: KRAFT }}>
-                      <td className="p-3 font-bold">{t.nombre}</td><td>{t.dueno}</td><td className="text-right tabular-nums" style={{ fontFamily: MONO }}>{qz(t.credito)}</td><td className="text-right font-bold tabular-nums" style={{ fontFamily: MONO }}>{qz(t.saldo)}</td>
+                      <td className="p-3 font-bold">{t.nombre}</td><td>{t.dueno}</td><td className="text-right tabular-nums" style={{ fontFamily: MONO }}>{qz(t.credito * 1000)}</td><td className="text-right font-bold tabular-nums" style={{ fontFamily: MONO }}>{qz(t.saldo)}</td>
                       <td><span className="rounded px-2 py-0.5 text-[0.78rem] font-bold uppercase text-white" style={{ background: v < 0 ? SELLO : v < 3 ? AMBAR : VERDE }}>{v < 0 ? `hace ${-v} días` : `en ${v} días`}</span></td>
                       <td className="p-3 text-right"><Btn tipo={v < 0 ? "rojo" : "borde"} alTocar={() => { d.recordar(t.id); setMsg(`Buen día, ${t.dueno.split(" ")[0]}. Le saludamos de Distribuidora El Volcán. Su saldo de ${qz(t.saldo)} ${v < 0 ? `venció hace ${-v} días` : `vence en ${v} días`}. Puede pasar a pagar o se lo recogemos con el piloto en la próxima visita.`); }}><Banknote size={15} /> {ya ? "Recordado" : "Recordarle"}</Btn></td>
                     </tr>

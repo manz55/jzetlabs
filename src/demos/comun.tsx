@@ -10,49 +10,41 @@ import { irADemo, precargar } from "./navegar";
 
 export type DemoItem = { nombre: string; href: string; para: string };
 
-/* Todas las demos, ordenadas por rubro. "para" es una línea: para qué negocio es */
+/* Todas las demos, en tres tipos de producto: página, tienda o sistema a medida. "para" es una línea: para qué negocio es */
 export const GRUPOS_DEMOS: { grupo: string; demos: DemoItem[] }[] = [
   {
-    grupo: "Belleza y moda",
+    grupo: "Landing pages",
     demos: [
-      { nombre: "Perfil de belleza", href: "/demos/perfil-belleza/", para: "Consultoras de catálogo: perfil de la clienta y pedidos" },
-      { nombre: "Salón", href: "/demos/salon/", para: "Salón con sucursales: citas por estilista" },
+      { nombre: "Fundadora", href: "/demos/fundadora/", para: "Marca personal de una emprendedora" },
       { nombre: "Cosméticos", href: "/demos/cosmeticos/", para: "Marca de maquillaje con cursos" },
+      { nombre: "Restaurante", href: "/demos/restaurante/", para: "Menú en línea y pedidos" },
+      { nombre: "Taller mecánico", href: "/demos/taller/", para: "¿Puedo manejar?, auxilio a domicilio y seguimiento por placa" },
+    ],
+  },
+  {
+    grupo: "Tiendas en línea",
+    demos: [
+      { nombre: "Celulares", href: "/demos/celulares/", para: "Equipos al contado y en cuotas, reparaciones" },
       { nombre: "Tienda de ropa", href: "/demos/ropa/", para: "Catálogo con tallas y pedido por WhatsApp" },
       { nombre: "Boutique", href: "/demos/boutique/", para: "Piezas únicas, apartados y consignación" },
-      { nombre: "Fundadora", href: "/demos/fundadora/", para: "Marca personal de una emprendedora" },
-    ],
-  },
-  {
-    grupo: "Salud",
-    demos: [
-      { nombre: "Clínica dental", href: "/demos/clinica/", para: "Citas, odontograma y saldos" },
-      { nombre: "Pediatría", href: "/demos/pediatria/", para: "Vacunas por edad, crecimiento y citas" },
-      { nombre: "Medicina general", href: "/demos/medicina/", para: "Control de presión y azúcar, recetas y chequeos" },
-      { nombre: "Veterinaria", href: "/demos/veterinaria/", para: "¿Es urgencia?, carné de vacunas e internados" },
-      { nombre: "Oftalmología", href: "/demos/oftalmologia/", para: "Turnos que se respetan, sucursales y sala de espera" },
-    ],
-  },
-  {
-    grupo: "Comida",
-    demos: [
-      { nombre: "Restaurante", href: "/demos/restaurante/", para: "Menú en línea y pedidos" },
+      { nombre: "Perfil de belleza", href: "/demos/perfil-belleza/", para: "Consultoras de catálogo: perfil de la clienta y pedidos" },
       { nombre: "Pastelería", href: "/demos/pasteleria/", para: "Pasteles por encargo con anticipo" },
     ],
   },
   {
-    grupo: "Tiendas",
-    demos: [{ nombre: "Celulares", href: "/demos/celulares/", para: "Equipos al contado y en cuotas, reparaciones" }],
-  },
-  {
-    grupo: "Servicios y empresas",
+    grupo: "Sistemas a medida",
     demos: [
-      { nombre: "Gimnasio", href: "/demos/gimnasio/", para: "Planes, clases con cupo y membresías vencidas" },
       { nombre: "Distribuidora", href: "/demos/distribuidora/", para: "Pedidos de tiendas, rutas y cobros" },
       { nombre: "Planilla y personal", href: "/demos/planilla/", para: "Constructora: panel de oficina y portal del empleado" },
-      { nombre: "Eventos", href: "/demos/eventos/", para: "Alquiler de mobiliario: fechas, paquetes y anticipos" },
+      { nombre: "Gimnasio", href: "/demos/gimnasio/", para: "Planes, clases con cupo y membresías vencidas" },
       { nombre: "Tiempo compartido", href: "/demos/tiempo-compartido/", para: "Planes y semanas apartadas" },
-      { nombre: "Taller mecánico", href: "/demos/taller/", para: "¿Puedo manejar?, auxilio a domicilio y seguimiento por placa" },
+      { nombre: "Clínica dental", href: "/demos/clinica/", para: "Citas, odontograma y saldos" },
+      { nombre: "Pediatría", href: "/demos/pediatria/", para: "Vacunas por edad, crecimiento y citas" },
+      { nombre: "Medicina general", href: "/demos/medicina/", para: "Control de presión y azúcar, recetas y chequeos" },
+      { nombre: "Oftalmología", href: "/demos/oftalmologia/", para: "Turnos que se respetan, sucursales y sala de espera" },
+      { nombre: "Veterinaria", href: "/demos/veterinaria/", para: "¿Es urgencia?, carné de vacunas e internados" },
+      { nombre: "Salón", href: "/demos/salon/", para: "Salón con sucursales: citas por estilista" },
+      { nombre: "Eventos", href: "/demos/eventos/", para: "Alquiler de mobiliario: fechas, paquetes y anticipos" },
     ],
   },
 ];
