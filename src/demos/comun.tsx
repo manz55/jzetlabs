@@ -29,6 +29,7 @@ export const GRUPOS_DEMOS: { grupo: string; demos: DemoItem[] }[] = [
       { nombre: "Boutique", href: "/demos/boutique/", para: "Piezas únicas, apartados y consignación" },
       { nombre: "Perfil de belleza", href: "/demos/perfil-belleza/", para: "Consultoras de catálogo: perfil de la clienta y pedidos" },
       { nombre: "Pastelería", href: "/demos/pasteleria/", para: "Pasteles por encargo con anticipo" },
+      { nombre: "Ferretería", href: "/demos/ferreteria/", para: "Catálogo técnico, calculadora de obra y flete por zona" },
     ],
   },
   {

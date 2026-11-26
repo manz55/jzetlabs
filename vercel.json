@@ -191,6 +191,14 @@
     {
       "source": "/demos/taller/",
       "destination": "/demos/taller/index.html"
+    },
+    {
+      "source": "/demos/ferreteria",
+      "destination": "/demos/ferreteria/index.html"
+    },
+    {
+      "source": "/demos/ferreteria/",
+      "destination": "/demos/ferreteria/index.html"
     }
   ],
   "redirects": [
