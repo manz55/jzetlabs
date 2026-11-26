@@ -1,30 +1,32 @@
 /*
  * Demo: "Posada Casa del Volcán", hotel boutique en Antigua Guatemala (negocio inventado; lo
  * dice la banda de arriba). Pensada para abrirse en el celular desde WhatsApp: fechas en la
- * portada, habitaciones con tarifa a la vista y una cápsula abajo que lleva la cuenta.
+ * portada, encabezado que acompaña, una reserva guiada por pasos y una cápsula abajo que lleva la cuenta.
  * De las piezas compartidas solo usa la banda de demos. Sin dibujos en SVG: fotos e iconos Lucide.
  */
 import { useEffect, useState } from "react";
-import { CalendarCheck, Check, Coffee, MapPin, MessageCircle, Plus, SquareParking, Wifi } from "lucide-react";
+import { CalendarCheck, Check, Coffee, MapPin, MessageCircle, SquareParking, Wifi } from "lucide-react";
 import { BandaDemos } from "../comun";
 import { irA } from "./animar";
+import { BotonChat, Chat } from "./Chat";
 import Disponibilidad from "./Disponibilidad";
 import Habitaciones, { type Filtro } from "./Habitaciones";
-import { Capsula, Panel } from "./Reserva";
+import { useRecepcion } from "./recepcion";
+import { Capsula, Ventana, type Apertura } from "./Reserva";
 import {
   CANCELACION, CHECK_IN, CHECK_OUT, DATOS_VACIOS, EXTRAS, FOTOS, HOTEL, MAPA, MAX_HUESPEDES, MAX_NOCHES,
-  esFecha, estanciaInicial, habitacion, hoy, noches, tarifa, textoHuespedes, ultimaLlegada, whatsapp,
+  esFecha, estanciaInicial, habitacion, hoy, noches, tarifa, textoHuespedes, ultimaLlegada,
   type Datos, type Estancia, type ExtraId,
 } from "./datos";
 import { ESTILOS, LETRAS } from "./estilos";
 
 const GUARDADO = "jz-hotel-v1";
 
-type Reserva = { estancia: Estancia; elegida: string | null; extras: ExtraId[]; datos: Datos; iniciada: boolean };
+type Reserva = { estancia: Estancia; elegida: string | null; extras: ExtraId[]; datos: Datos; iniciada: boolean; fechasListas: boolean };
 
-/* la reserva sobrevive si cierran la página para ir a WhatsApp; las fechas que ya pasaron no */
+/* la reserva sobrevive si cierran la página; las fechas que ya pasaron no */
 function leerGuardado(): Reserva {
-  const vacia: Reserva = { estancia: estanciaInicial(), elegida: null, extras: [], datos: DATOS_VACIOS, iniciada: false };
+  const vacia: Reserva = { estancia: estanciaInicial(), elegida: null, extras: [], datos: DATOS_VACIOS, iniciada: false, fechasListas: false };
   try {
     const g = JSON.parse(localStorage.getItem(GUARDADO) ?? "null") as Partial<Reserva> | null;
     if (!g) return vacia;
@@ -40,6 +42,7 @@ function leerGuardado(): Reserva {
       extras: EXTRAS.map((x) => x.id).filter((id) => g.extras?.includes(id)),
       datos: { ...DATOS_VACIOS, ...g.datos },
       iniciada: Boolean(g.iniciada),
+      fechasListas: Boolean(vigente && g.fechasListas),
     };
   } catch {
     return vacia;
@@ -79,15 +82,16 @@ const GALERIA = [
   { foto: FOTOS.volcan, titulo: "El Volcán de Agua", alt: "El Volcán de Agua detrás de un edificio colonial de Antigua" },
 ];
 
-const WHATSAPP_PREGUNTA = whatsapp(`Hola, quisiera preguntar por una habitación en ${HOTEL}.`);
 
 export default function HotelDemo() {
   const [reserva, setReserva] = useState<Reserva>(leerGuardado);
   const [filtro, setFiltro] = useState<Filtro>("todas");
   const [consulta, setConsulta] = useState(0);
-  const [revisando, setRevisando] = useState(false);
+  const [ventana, setVentana] = useState<Apertura | null>(null);
   const [aviso, setAviso] = useState("");
-  const { estancia, elegida, extras, datos, iniciada } = reserva;
+  const [chat, setChat] = useState(false);
+  const recepcion = useRecepcion();
+  const { estancia, elegida, extras, datos, iniciada, fechasListas } = reserva;
   const actual = habitacion(elegida);
 
   /* las letras de esta demo, también cuando se llega desde otra sin recargar */
@@ -113,24 +117,41 @@ export default function HotelDemo() {
     setAviso(sobra ? `La ${actual.nombre} recibe hasta ${actual.personas} personas. Elija otra para ${textoHuespedes(e.huespedes)}.` : "");
     setReserva((r) => ({ ...r, estancia: e, elegida: sobra ? null : r.elegida, iniciada: true }));
   };
+  const fijarFechas = () => setReserva((r) => ({ ...r, fechasListas: true, iniciada: true }));
   const consultar = () => {
-    setReserva((r) => ({ ...r, iniciada: true }));
+    fijarFechas();
     setConsulta((n) => n + 1);
     irA("habitaciones");
   };
   const elegir = (id: string) => {
     setAviso("");
-    setReserva((r) => ({ ...r, elegida: r.elegida === id ? null : id, iniciada: true }));
+    setReserva((r) => ({ ...r, elegida: id, iniciada: true }));
   };
   const cambiarExtra = (id: ExtraId) =>
     setReserva((r) => ({ ...r, extras: r.extras.includes(id) ? r.extras.filter((x) => x !== id) : [...r.extras, id], iniciada: true }));
+
+  /* la ventana de reserva: sin habitación no se puede pasar del segundo paso */
+  const reservar = (paso: number, conHabitacion = actual !== null) => setVentana({ modo: "reserva", paso: conHabitacion ? paso : Math.min(paso, 1) });
+  const reservarHabitacion = (id: string) => {
+    const yaEstaba = elegida === id;
+    elegir(id);
+    reservar(fechasListas ? (yaEstaba ? 3 : 2) : 0, true);
+  };
+
+  /* la solicitud pasa de la ventana de reserva al chat con recepción */
+  const enviarSolicitud = (mensaje: string, respuesta: string) => {
+    recepcion.enviar(mensaje, respuesta);
+    setReserva((r) => ({ ...r, iniciada: false }));
+    setVentana(null);
+    setChat(true);
+  };
 
   return (
     <div className="posada" data-capsula={iniciada}>
       <style>{ESTILOS}</style>
       <BandaDemos />
 
-      <header className="border-b border-[#e5e0d8]">
+      <header className="pv-cabeza">
         <div className="pv-ancho flex items-center justify-between gap-4 py-3.5">
           <a href="#inicio" aria-label={`${HOTEL}, inicio`}>
             <Logo />
@@ -142,9 +163,9 @@ export default function HotelDemo() {
               </a>
             ))}
           </nav>
-          <a href="#disponibilidad" className="pv-btn pv-linea">
+          <button type="button" className="pv-btn pv-accion" aria-haspopup="dialog" onClick={() => reservar(0)}>
             Reservar
-          </a>
+          </button>
         </div>
       </header>
 
@@ -158,7 +179,12 @@ export default function HotelDemo() {
           </div>
         </section>
         <div className="pv-ancho">
-          <Disponibilidad estancia={estancia} alCambiar={cambiarEstancia} alConsultar={consultar} />
+          <Disponibilidad
+            estancia={estancia}
+            alHuespedes={(huespedes) => cambiarEstancia({ ...estancia, huespedes })}
+            alFechas={(cual) => setVentana({ modo: "fechas", paso: 0, cual })}
+            alConsultar={consultar}
+          />
           <p role="status" className={aviso ? "mt-3 rounded-lg border border-[#b45309] bg-white px-4 py-3 text-[0.92rem] font-semibold" : ""}>
             {aviso}
           </p>
@@ -190,29 +216,31 @@ export default function HotelDemo() {
           </div>
         </section>
 
-        <Habitaciones estancia={estancia} elegida={elegida} filtro={filtro} consulta={consulta} alFiltrar={setFiltro} alElegir={elegir} />
+        <Habitaciones estancia={estancia} elegida={elegida} filtro={filtro} consulta={consulta} alFiltrar={setFiltro} alElegir={reservarHabitacion} />
 
         <section id="extras" className="pv-seccion">
           <div className="pv-ancho">
             <h2 className="pv-h2">Complete su estadía</h2>
-            <p className="pv-suave mt-2">Agréguelos a su solicitud. Se suman al total de abajo.</p>
+            <p className="pv-suave mt-2 max-w-[34rem]">Son opcionales. Se eligen en un paso de su reserva y el total se calcula solo.</p>
             <ul className="mt-7 grid gap-4 md:grid-cols-3">
-              {EXTRAS.map((x) => {
-                const puesto = extras.includes(x.id);
-                return (
-                  <li key={x.id} className="flex flex-col rounded-2xl border border-[#e5e0d8] bg-white p-5">
-                    <h3 className="text-[1.25rem]">{x.nombre}</h3>
-                    <p className="pv-suave mt-2 text-[0.92rem]">{x.detalle}</p>
-                    <div className="mt-auto flex items-center justify-between gap-3 pt-5">
-                      <span className="pv-num text-[1.35rem] font-bold">{tarifa(x.precio)}</span>
-                      <button type="button" className={`pv-btn ${puesto ? "pv-elegido" : "pv-linea"}`} aria-pressed={puesto} aria-label={`${puesto ? "Quitar" : "Agregar"} ${x.nombre}`} onClick={() => cambiarExtra(x.id)}>
-                        {puesto ? <Check size={17} aria-hidden /> : <Plus size={17} aria-hidden />} {puesto ? "Agregado" : "Agregar"}
-                      </button>
-                    </div>
-                  </li>
-                );
-              })}
+              {EXTRAS.map((x) => (
+                <li key={x.id} className="flex flex-col rounded-2xl border border-[#e5e0d8] bg-white p-5">
+                  <h3 className="text-[1.25rem]">{x.nombre}</h3>
+                  <p className="pv-suave mt-2 text-[0.92rem]">{x.detalle}</p>
+                  <div className="mt-auto flex items-center justify-between gap-3 pt-5">
+                    <span className="pv-num text-[1.35rem] font-bold">{tarifa(x.precio)}</span>
+                    {extras.includes(x.id) && (
+                      <span className="inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-[#b45309]">
+                        <Check size={17} aria-hidden /> En su reserva
+                      </span>
+                    )}
+                  </div>
+                </li>
+              ))}
             </ul>
+            <button type="button" className="pv-btn pv-accion mt-7 w-full sm:w-auto" aria-haspopup="dialog" onClick={() => reservar(actual && fechasListas ? 2 : 0)}>
+              Armar mi reserva
+            </button>
           </div>
         </section>
 
@@ -255,9 +283,9 @@ export default function HotelDemo() {
                 <a href={MAPA} target="_blank" rel="noopener noreferrer" className="pv-btn pv-linea">
                   <MapPin size={18} aria-hidden /> Ver el Parque Central en el mapa
                 </a>
-                <a href={WHATSAPP_PREGUNTA} target="_blank" rel="noopener noreferrer" className="pv-btn pv-linea">
-                  <MessageCircle size={18} aria-hidden /> Escribir por WhatsApp
-                </a>
+                <button type="button" className="pv-btn pv-linea" aria-haspopup="dialog" onClick={() => setChat(true)}>
+                  <MessageCircle size={18} aria-hidden /> Escribir a recepción
+                </button>
               </div>
             </div>
           </div>
@@ -313,17 +341,26 @@ export default function HotelDemo() {
         </div>
       </footer>
 
-      <Capsula estancia={estancia} habitacion={actual} extras={extras} visible={iniciada && !revisando} alRevisar={() => setRevisando(true)} alVerHabitaciones={() => irA("habitaciones")} />
-      <Panel
-        abierto={revisando && actual !== null}
-        estancia={estancia}
-        habitacion={actual}
-        extras={extras}
-        datos={datos}
-        alCerrar={() => setRevisando(false)}
-        alExtra={cambiarExtra}
-        alEscribir={(d) => setReserva((r) => ({ ...r, datos: d }))}
-      />
+      <Capsula estancia={estancia} habitacion={actual} extras={extras} visible={iniciada && !ventana} alContinuar={() => reservar(actual ? 3 : 1)} />
+      {ventana && (
+        <Ventana
+          apertura={ventana}
+          estancia={estancia}
+          habitacion={actual}
+          extras={extras}
+          datos={datos}
+          aviso={aviso}
+          alCerrar={() => setVentana(null)}
+          alEstancia={cambiarEstancia}
+          alElegir={elegir}
+          alExtra={cambiarExtra}
+          alEscribir={(d) => setReserva((r) => ({ ...r, datos: d }))}
+          alFijarFechas={fijarFechas}
+          alEnviar={enviarSolicitud}
+        />
+      )}
+      <BotonChat visible={!iniciada && !ventana && !chat} alAbrir={() => setChat(true)} />
+      {chat && <Chat mensajes={recepcion.mensajes} escribiendo={recepcion.escribiendo} alEnviar={(texto) => recepcion.enviar(texto)} alCerrar={() => setChat(false)} />}
     </div>
   );
 }

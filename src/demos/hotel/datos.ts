@@ -167,11 +167,22 @@ export function estanciaInicial(): Estancia {
   return { llegada, salida: sumarDias(llegada, 2), huespedes: 2 };
 }
 
-/* al mover la llegada, la salida queda siempre después y dentro del máximo */
-export function conLlegada(e: Estancia, llegada: string): Estancia {
-  const salida = e.salida > llegada && e.salida <= sumarDias(llegada, MAX_NOCHES) ? e.salida : sumarDias(llegada, 1);
-  return { ...e, llegada, salida };
+/* ───────── meses del calendario ("aaaa-mm") ───────── */
+
+export const mesDe = (iso: string) => iso.slice(0, 7);
+export const sumarMeses = (mes: string, n: number) => {
+  const [a, m] = mes.split("-").map(Number);
+  return mesDe(aTexto(Date.UTC(a, m - 1 + n, 1)));
+};
+/* huecos antes del día 1 (la semana empieza en domingo) y todas las fechas del mes */
+export function diasDelMes(mes: string) {
+  const [a, m] = mes.split("-").map(Number);
+  const huecos = new Date(Date.UTC(a, m - 1, 1)).getUTCDay();
+  const total = new Date(Date.UTC(a, m, 0)).getUTCDate();
+  return { huecos, dias: Array.from({ length: total }, (_, i) => `${mes}-${String(i + 1).padStart(2, "0")}`) };
 }
+const MES = new Intl.DateTimeFormat("es-GT", { month: "long", year: "numeric", timeZone: "UTC" });
+export const nombreMes = (mes: string) => MES.format(aTiempo(`${mes}-01`));
 
 const CORTA = new Intl.DateTimeFormat("es-GT", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
 const LARGA = new Intl.DateTimeFormat("es-GT", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
@@ -221,7 +232,7 @@ export function revisar(d: Datos) {
 export function mensajeSolicitud(e: Estancia, h: Habitacion, elegidos: ExtraId[], d: Datos) {
   const c = cuenta(e, h, elegidos);
   return [
-    `*Solicitud de reserva · ${HOTEL}*`,
+    `Solicitud de reserva · ${HOTEL}`,
     "",
     `Nombre: ${d.nombre.trim()}`,
     `Teléfono: ${d.telefono.trim()}`,
@@ -237,11 +248,14 @@ export function mensajeSolicitud(e: Estancia, h: Habitacion, elegidos: ExtraId[]
     `Subtotal: ${dinero(c.subtotal)}`,
     `INGUAT 10%: ${dinero(c.inguat)}`,
     `IVA 12%: ${dinero(c.iva)}`,
-    `*Total: ${dinero(c.total)}*`,
+    `Total: ${dinero(c.total)}`,
     "",
     "¿Me confirman disponibilidad? Gracias.",
   ].join("\n");
 }
 
-/* sin número fijo: WhatsApp se abre con el mensaje listo y la persona elige el chat */
-export const whatsapp = (texto: string) => `https://wa.me/?text=${encodeURIComponent(texto)}`;
+/* lo que contesta recepción apenas llega la solicitud */
+export function respuestaSolicitud(e: Estancia, h: Habitacion, elegidos: ExtraId[], d: Datos) {
+  const c = cuenta(e, h, elegidos);
+  return `Gracias, ${d.nombre.trim().split(/\s+/)[0]}. Recibimos su solicitud: ${h.nombre}, del ${fechaCorta(e.llegada)} al ${fechaCorta(e.salida)}, total ${dinero(c.total)}. Le confirmamos la disponibilidad al ${d.telefono.trim()}.`;
+}

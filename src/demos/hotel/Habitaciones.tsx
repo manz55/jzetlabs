@@ -1,6 +1,6 @@
 /* Las seis habitaciones, con filtro por tipo, esqueleto de consulta y entrada escalonada. */
 import { useRef } from "react";
-import { BedDouble, Check, Ruler, Users, X } from "lucide-react";
+import { ArrowRight, BedDouble, Check, Ruler, Users } from "lucide-react";
 import { useDemora, useEscalonado } from "./animar";
 import { HABITACIONES, dinero, fechaCorta, noches, tarifa, textoHuespedes, textoNoches, type Categoria, type Estancia, type Habitacion } from "./datos";
 
@@ -67,12 +67,12 @@ function Ficha({ h, estancia, elegida, alElegir }: { h: Habitacion; estancia: Es
           <p className="pv-suave pv-num text-[0.85rem]">
             {textoNoches(n)}: {dinero(h.tarifa * n * 100)}
           </p>
-          <button type="button" className={`pv-btn mt-3 w-full ${elegida ? "pv-elegido" : "pv-accion"}`} disabled={!cabe} aria-pressed={elegida} onClick={alElegir}>
+          <button type="button" className={`pv-btn mt-3 w-full ${elegida ? "pv-elegido" : "pv-accion"}`} disabled={!cabe} aria-haspopup="dialog" onClick={alElegir}>
             {!cabe ? (
               `Recibe hasta ${h.personas} personas`
             ) : elegida ? (
               <>
-                <Check size={18} aria-hidden /> Elegida · Quitar <X size={16} aria-hidden />
+                <Check size={18} aria-hidden /> Elegida · Continuar <ArrowRight size={17} aria-hidden />
               </>
             ) : (
               "Seleccionar habitación"
