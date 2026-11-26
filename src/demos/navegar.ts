@@ -28,6 +28,7 @@ export const RUTAS: Record<string, Demo> = {
   "/demos/medicina/": { titulo: "Consultorio Dr. Samayoa · Demo de Jzet Labs", carga: () => import("./medicina/MedicinaDemo") },
   "/demos/oftalmologia/": { titulo: "Clínica Visual Lumen · Demo de Jzet Labs", carga: () => import("./oftalmologia/OftalmologiaDemo") },
   "/demos/taller/": { titulo: "Taller Torque · Demo de Jzet Labs", carga: () => import("./taller/TallerDemo") },
+  "/demos/hotel/": { titulo: "Posada Casa del Volcán · Demo de Jzet Labs", carga: () => import("./hotel/HotelDemo") },
   "/demos/ferreteria/": { titulo: "Grupo Ferretero Industek · Demo de Jzet Labs", carga: () => import("./ferreteria/FerreteriaDemo") },
 };
 

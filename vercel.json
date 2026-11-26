@@ -199,6 +199,14 @@
     {
       "source": "/demos/ferreteria/",
       "destination": "/demos/ferreteria/index.html"
+    },
+    {
+      "source": "/demos/hotel",
+      "destination": "/demos/hotel/index.html"
+    },
+    {
+      "source": "/demos/hotel/",
+      "destination": "/demos/hotel/index.html"
     }
   ],
   "redirects": [

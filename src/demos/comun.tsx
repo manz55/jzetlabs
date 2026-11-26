@@ -18,6 +18,7 @@ export const GRUPOS_DEMOS: { grupo: string; demos: DemoItem[] }[] = [
       { nombre: "Fundadora", href: "/demos/fundadora/", para: "Marca personal de una emprendedora" },
       { nombre: "Cosméticos", href: "/demos/cosmeticos/", para: "Marca de maquillaje con cursos" },
       { nombre: "Restaurante", href: "/demos/restaurante/", para: "Menú en línea y pedidos" },
+      { nombre: "Hotel boutique", href: "/demos/hotel/", para: "Disponibilidad, habitaciones y reserva por WhatsApp" },
       { nombre: "Taller mecánico", href: "/demos/taller/", para: "¿Puedo manejar?, auxilio a domicilio y seguimiento por placa" },
     ],
   },
