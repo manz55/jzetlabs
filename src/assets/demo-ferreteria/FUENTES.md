@@ -14,7 +14,7 @@ Origen de cada una: https://images.unsplash.com/ + el identificador.
 - cinta: photo-1602503497726-dc6cfaab7e17
 - tubo: photo-1649706286480-1c6f3f3c1fb1
 - llave: photo-1687184464107-3804b88644c9
-- portada: photo-1543510425-1eccdf3ae819
+- portada: photo-1543510425-1eccdf3ae819 (recortada a 990 × 742 para quitar el rótulo de otra empresa)
 - tienda: photo-1774273177331-4c19e9912071
 - entrega: photo-1783142511213-3d4b8946ad53
 - lamina: photo-1602064828974-fcac67d33f4e

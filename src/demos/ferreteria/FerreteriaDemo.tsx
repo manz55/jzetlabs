@@ -204,7 +204,7 @@ function Portada({ buscar }: { buscar: (t: string) => void }) {
             </div>
           </div>
           <figure className="relative">
-            <img src={AMBIENTE.portada} alt="Camión de plataforma cargando acero frente a una bodega" width={1200} height={900} fetchPriority="high" className="block aspect-[4/3] w-full rounded-xl border border-slate-200 object-cover" />
+            <img src={AMBIENTE.portada} alt="Camión de plataforma cargando acero frente a una bodega" width={990} height={742} fetchPriority="high" className="block aspect-[4/3] w-full rounded-xl border border-slate-200 object-cover" />
             <figcaption className="ik-oscuro absolute inset-x-3 bottom-3 flex items-center justify-between gap-3 rounded-lg bg-[#0F172A] px-4 py-3 text-white">
               <span className="text-[0.86rem] font-semibold">Flete propio hasta su obra</span>
               <span className="ik-num whitespace-nowrap text-[0.86rem] font-bold">desde {qz(Math.min(...ZONAS.map((z) => z.flete)))}</span>
