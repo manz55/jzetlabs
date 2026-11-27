@@ -27,7 +27,7 @@ export const GRUPOS_DEMOS: { grupo: string; demos: DemoItem[] }[] = [
   {
     grupo: "Tiendas en línea",
     demos: [
-      { nombre: "Celulares", href: "/demos/celulares/", para: "Equipos al contado y en cuotas, reparaciones" },
+      { nombre: "Celulares", href: "/demos/celulares/", para: "Visacuotas, orden por WhatsApp y taller con rastreo" },
       { nombre: "Tienda de ropa", href: "/demos/ropa/", para: "Catálogo con tallas y pedido por WhatsApp" },
       { nombre: "Boutique", href: "/demos/boutique/", para: "Piezas únicas, apartados y consignación" },
       { nombre: "Perfil de belleza", href: "/demos/perfil-belleza/", para: "Consultoras de catálogo: perfil de la clienta y pedidos" },

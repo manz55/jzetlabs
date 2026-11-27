@@ -1,72 +1,217 @@
 /*
- * Demo: "Órbita Celulares" (tienda inventada, datos de ejemplo).
- * Dos partes: la tienda que ve el cliente y el panel que solo ve el dueño
- * (#admin). Lo que hace el cliente (comprar, pagar, pedir reparación o
- * devolución) le aparece al dueño.
+ * Demo: Nexus Mobile GT (tienda de celulares inventada). Tres vistas en la misma dirección
+ * que comparten datos en vivo: Tienda, Reparaciones (#reparaciones) y Panel Admin (#admin).
  */
-import { useEffect, useState } from "react";
-import { BandaDemos, PartesDemo, CierreJzet } from "../comun";
-import { TiendaCliente } from "./Tienda";
-import { PanelDueno } from "./Admin";
-import { useTienda } from "./datos";
-import { entroCliente, ganchos, salioCliente } from "./bot";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { LayoutDashboard, ShoppingBag, Store, Wrench } from "lucide-react";
+import { BandaDemos } from "../comun";
+import { irA, useEntradaVista } from "./animar";
+import { BandejaComparar, Comparador } from "./Comparador";
+import { FichaEquipo, type Abierta } from "./FichaEquipo";
+import { Logo, Pie } from "./Marca";
+import { MiOrden } from "./Orden";
+import { Panel, type Seccion } from "./Panel";
+import { Reparaciones } from "./Reparaciones";
+import { Tienda } from "./Tienda";
+import { abonoDe, nombreDe, qz, totalDe, useNexus } from "./datos";
+import { ESTILOS, LETRAS } from "./estilos";
 
-type Vista = "tienda" | "admin";
+type Vista = "tienda" | "reparaciones" | "admin";
+function leer(): Vista {
+  const h = location.hash;
+  if (h === "#admin" || h === "#panel") return "admin";
+  if (h.startsWith("#reparaciones") || h === "#taller") return "reparaciones";
+  return "tienda";
+}
+/* enlace que se manda por WhatsApp: #reparaciones/ORD-408 */
+const ordenDelEnlace = () => location.hash.match(/^#reparaciones\/(ORD-\d+)$/i)?.[1].toUpperCase();
+
+const VISTAS = [
+  { id: "tienda", nombre: "Tienda", icono: Store },
+  { id: "reparaciones", nombre: "Reparaciones", icono: Wrench },
+  { id: "admin", nombre: "Panel Admin", icono: LayoutDashboard },
+] as const;
+
+const TITULOS: Record<Vista, string> = {
+  tienda: "Nexus Mobile GT · Demo de Jzet Labs",
+  reparaciones: "Taller técnico · Nexus Mobile GT",
+  admin: "Panel Admin · Nexus Mobile GT",
+};
 
 export default function CelularesDemo() {
-  const t = useTienda();
-  /* el bot puede preparar pedidos y ocultar productos desde cualquier pantalla */
-  ganchos.preparar = (p) => t.setPedidos((ps) => ps.map((x) => (x.id === p.id ? { ...x, estado: "preparando", nuevo: false } : x)));
-  /* el bot elige técnico (el disponible con menos equipos) y resuelve devoluciones por falla */
-  ganchos.asignar = (id) => {
-    const enCurso = (tid: string) => t.reparaciones.filter((r) => r.tecnico === tid && r.estado !== "entregado").length;
-    const x = [...t.tecnicos].filter((y) => y.activo).sort((a, b) => enCurso(a.id) - enCurso(b.id))[0];
-    if (!x) return null;
-    t.setReparaciones((rs) => rs.map((r) => (r.id === id ? { ...r, tecnico: x.id } : r)));
-    return x.nombre;
-  };
-  ganchos.resolverDev = (id, ok) => {
-    const d = t.devoluciones.find((y) => y.id === id);
-    t.setDevoluciones((ds) => ds.map((y) => (y.id === id ? { ...y, estado: ok ? "aprobada" : "rechazada", nueva: false } : y)));
-    if (ok && d) {
-      const p = t.pedidos.find((y) => y.id === d.pedido);
-      t.setPedidos((ps) => ps.map((y) => (y.id === d.pedido ? { ...y, estado: "devuelto" } : y)));
-      if (p) t.setStock((s) => { const c = structuredClone(s); p.lineas.forEach((l) => { c[l.id] = c[l.id] ?? {}; c[l.id][p.sucursal] = (c[l.id][p.sucursal] ?? 0) + l.cantidad; }); return c; });
-    }
-  };
-  ganchos.ocultar = (nombre) => t.setProductos((ps) => ps.map((x) => (x.nombre === nombre ? { ...x, visible: false } : x)));
-  const [vista, setVista] = useState<Vista>(() => (location.hash === "#admin" ? "admin" : "tienda"));
+  const n = useNexus();
+  const [vista, setVista] = useState<Vista>(leer);
+  const [ordenAbierta, setOrdenAbierta] = useState(false);
+  /* el rastreador abre con una orden en curso a la vista */
+  const [codigo, setCodigo] = useState(() => ordenDelEnlace() ?? "ORD-408");
+  const [ficha, setFicha] = useState<Abierta | null>(null);
+  const [comparados, setComparados] = useState<string[]>([]);
+  const [comparando, setComparando] = useState(false);
+  const [seccion, setSeccion] = useState<Seccion>("ordenes");
+  const [aviso, setAviso] = useState("");
+  /* sección a la que hay que bajar cuando la vista nueva ya esté pintada */
+  const destino = useRef(ordenDelEnlace() ? "nx-rastreo" : "");
+  const principal = useRef<HTMLElement>(null);
+  useEntradaVista(principal, vista);
+
+  useLayoutEffect(() => {
+    if (document.querySelector(`link[href="${LETRAS}"]`)) return;
+    const l = document.createElement("link");
+    l.rel = "stylesheet";
+    l.href = LETRAS;
+    document.head.appendChild(l);
+  }, []);
+
+  /* cada vista empieza arriba: sin esto, al volver atrás o recargar el título queda bajo el menú */
+  useLayoutEffect(() => {
+    const antes = history.scrollRestoration;
+    history.scrollRestoration = "manual";
+    return () => {
+      history.scrollRestoration = antes;
+    };
+  }, []);
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [vista]);
+
+  /* atrás y adelante del navegador */
+  useEffect(() => {
+    const cambio = () => {
+      setOrdenAbierta(false);
+      setFicha(null);
+      setComparando(false);
+      setVista(leer());
+      const orden = ordenDelEnlace();
+      if (orden) setCodigo(orden);
+    };
+    addEventListener("hashchange", cambio);
+    addEventListener("popstate", cambio);
+    return () => {
+      removeEventListener("hashchange", cambio);
+      removeEventListener("popstate", cambio);
+    };
+  }, []);
 
   useEffect(() => {
-    const cambio = () => setVista(location.hash === "#admin" ? "admin" : "tienda");
-    addEventListener("hashchange", cambio);
-    return () => removeEventListener("hashchange", cambio);
-  }, []);
-  /* mientras la tienda está abierta, el bot cuenta un cliente más en línea */
-  useEffect(() => {
-    if (vista !== "tienda") return;
-    entroCliente();
-    return () => salioCliente();
+    document.title = TITULOS[vista];
+    if (!destino.current) return;
+    const id = destino.current;
+    const t = window.setTimeout(() => {
+      destino.current = "";
+      irA(id);
+    }, 60);
+    return () => window.clearTimeout(t);
   }, [vista]);
-  function irA(v: Vista) {
-    history.replaceState(null, "", v === "admin" ? "#admin" : location.pathname);
+
+  /* lo que se anuncia al agregar un equipo se quita solo */
+  useEffect(() => {
+    if (!aviso) return;
+    const t = window.setTimeout(() => setAviso(""), 2600);
+    return () => window.clearTimeout(t);
+  }, [aviso]);
+
+  function ir(v: Vista, seccionDestino = "") {
+    setOrdenAbierta(false);
+    setFicha(null);
+    setComparando(false);
+    if (v === vista) {
+      if (seccionDestino) irA(seccionDestino);
+      else window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    destino.current = seccionDestino;
+    history.pushState(null, "", v === "tienda" ? location.pathname : `#${v}`);
     setVista(v);
-    window.scrollTo({ top: 0 });
   }
 
+  function agregar(clave: string) {
+    n.ponerCantidad(clave, (n.lineas.find((l) => l.clave === clave)?.cantidad ?? 0) + 1);
+    setAviso(`Agregado: ${nombreDe(clave)}`);
+  }
+
+  const comparar = (id: string) => setComparados((c) => (c.includes(id) ? c.filter((x) => x !== id) : c.length < 2 ? [...c, id] : c));
+  const verOrden = () => {
+    setFicha(null);
+    setComparando(false);
+    setOrdenAbierta(true);
+  };
+  const verFicha = (id: string, cap: Abierta["cap"], color?: string) => {
+    setComparando(false);
+    setFicha({ id, cap, color });
+  };
+
+  const conBarra = vista === "tienda" && n.articulos > 0;
+  const conBandeja = vista === "tienda" && comparados.length > 0;
+
   return (
-    <div>
+    <>
+      <style>{ESTILOS}</style>
       <BandaDemos />
-      <PartesDemo fondo={"#2a1b45"} actual={vista} alCambiar={irA} partes={[{ id: "tienda", nombre: "La tienda", quien: "Lo que ve su cliente: equipos, precios y pedido" }, { id: "admin", nombre: "Panel del dueño", quien: "Lo que ve usted: pedidos, ventas e inventario" }] as const} />
+      <div className="nx">
+        <header className="nx-nav">
+          <div className="nx-ancho nx-nav-fila">
+            <button type="button" className="nx-nav-logo" onClick={() => ir("tienda")} aria-label="Nexus Mobile GT, ir a la tienda">
+              <Logo />
+            </button>
+            <nav className="nx-vistas" aria-label="Secciones">
+              {VISTAS.map(({ id, nombre, icono: Icono }) => (
+                <button key={id} type="button" aria-current={vista === id ? "page" : undefined} onClick={() => ir(id)}>
+                  <Icono size={17} aria-hidden />
+                  {nombre}
+                </button>
+              ))}
+            </nav>
+            <button type="button" className="nx-miorden" onClick={() => setOrdenAbierta(true)} aria-label={`Mi Orden, ${n.articulos} artículos`}>
+              <ShoppingBag size={18} aria-hidden />
+              Mi Orden
+              <i>{n.articulos}</i>
+            </button>
+          </div>
+        </header>
 
-      {vista === "tienda" ? (
-        <TiendaCliente t={t} />
-      ) : (
-        // por ahora se entra sin contraseña; en la tienda real cada quien tendrá su usuario
-        <PanelDueno t={t} alSalir={() => irA("tienda")} alTienda={() => irA("tienda")} />
-      )}
+        <main ref={principal}>
+          {vista === "tienda" && <Tienda n={n} alAgregar={agregar} alFicha={verFicha} alComparar={comparar} comparados={comparados} alVerOrden={verOrden} alTaller={() => ir("reparaciones")} />}
+          {vista === "reparaciones" && <Reparaciones n={n} codigo={codigo} alCodigo={setCodigo} />}
+          {vista === "admin" && (
+            <Panel
+              n={n}
+              seccion={seccion}
+              alSeccion={setSeccion}
+              alVerOrden={(id) => {
+                setCodigo(id);
+                ir("reparaciones", "nx-rastreo");
+              }}
+            />
+          )}
+        </main>
 
-      {vista === "tienda" && <CierreJzet demo="tienda de celulares" />}
-    </div>
+        <Pie conBarra={conBarra} conBandeja={conBandeja} />
+
+        <p className="nx-oculto" role="status">
+          {aviso}
+        </p>
+        {/* abajo, a la mano: la comparación en curso y, en el celular, la orden */}
+        {(conBarra || conBandeja) && (
+          <div className="nx-flotante">
+            {conBandeja && <BandejaComparar ids={comparados} alQuitar={comparar} alAbrir={() => setComparando(true)} />}
+            {conBarra && (
+              <div className="nx-barra nx-oscuro">
+                <div>
+                  <small>{aviso || `${n.articulos} ${n.articulos === 1 ? "artículo" : "artículos"}`}</small>
+                  <b>{qz(totalDe({ lineas: n.lineas, entrega: "tienda", retoma: { abono: abonoDe(n.lineas, n.retoma) } }))}</b>
+                </div>
+                <button type="button" className="nx-btn nx-azul" onClick={verOrden}>
+                  Ver mi orden
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        <FichaEquipo n={n} abierta={ficha} comparados={comparados} alCerrar={() => setFicha(null)} alAgregar={agregar} alComparar={comparar} alVerOrden={verOrden} />
+        <Comparador abierto={comparando} n={n} ids={comparados} alCerrar={() => setComparando(false)} alAgregar={agregar} alFicha={verFicha} />
+        <MiOrden abierta={ordenAbierta} n={n} alCerrar={() => setOrdenAbierta(false)} alCatalogo={() => ir("tienda", "nx-catalogo")} />
+      </div>
+    </>
   );
 }
