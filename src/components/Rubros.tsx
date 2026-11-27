@@ -11,7 +11,6 @@ import tienda from "@/assets/demos/tienda-dueno.jpg";
 import marcaje from "@/assets/sistema/obra-cuadrilla.jpg";
 // fotos libres de Unsplash (licencia Unsplash): photo-1624353656309, photo-1621996346565, photo-1623718649591
 import fotoRopa from "@/assets/demos/ropa.jpg";
-import fotoComida from "@/assets/demos/comida.jpg";
 import fotoResort from "@/assets/demos/resort.jpg";
 import fotoCosmeticos from "@/assets/demo-cosmeticos/kit.jpg";
 import fotoCelulares from "@/assets/demo-celulares/ip17promax.jpg";
@@ -30,6 +29,9 @@ import { whatsappLink } from "@/data/site";
 import { Titulo } from "./Titulo";
 
 const DEMOS = "https://latienda-jzetlabs.vercel.app/";
+
+/* la misma foto de portada de la demo de restaurante (Unsplash), recortada vertical */
+const fotoComida = "https://images.unsplash.com/photo-1558030089-02acba3c214e?auto=format&fit=crop&w=720&h=900&q=75";
 
 /* Belleza y Tiendas tienen tipos de negocio: cada uno cambia el antes y después y lo que se ve a la derecha */
 type Variante = {
@@ -249,7 +251,7 @@ const PANEL_INFO: Record<string, { n: string; c: string[]; f: string }> = {
   salon: { n: "Panel de Lirio Salón", c: ["#46593f", "#cbd8c0", "#16261b"], f: "DM Serif Display" },
   boutique: { n: "Panel de Maison Solène", c: ["#0f2a21", "#9a7440", "#d3ddd0"], f: "Bodoni Moda" },
   celulares: { n: "Panel de Nexus Mobile", c: ["#09090b", "#2563eb", "#f4f4f5"], f: "Plus Jakarta Sans" },
-  restaurante: { n: "Panel de Trattoria Sole", c: ["#2b1d16", "#c4352a", "#fbe7a8"], f: "Fraunces" },
+  restaurante: { n: "Panel de Brasa & Maíz", c: ["#18181B", "#C2410C", "#F2EDE4"], f: "Playfair Display" },
   tiempo: { n: "Panel de Costa Serena", c: ["#0e3b3a", "#d9693f", "#d9eee8"], f: "DM Serif Display" },
   distribuidora: { n: "Panel de El Volcán", c: ["#1f2d45", "#b3261e", "#d6bf98"], f: "Saira Stencil One" },
   asistencia: { n: "Panel de Los Cedros", c: ["#173a5e", "#f2b400", "#f4f5f7"], f: "Instrument Sans" },
