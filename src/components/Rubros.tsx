@@ -244,7 +244,7 @@ const PANEL_INFO: Record<string, { n: string; c: string[]; f: string }> = {
   oftalmologia: { n: "Panel de Lumen", c: ["#0b2545", "#0f7f8c", "#d9503f"], f: "Fraunces" },
   veterinaria: { n: "Panel de Huesitos", c: ["#1d4d3f", "#e8a33d", "#f7f3ea"], f: "Young Serif" },
   perfil: { n: "Panel de la consultora", c: ["#7a2e5c", "#f7cfbd", "#2a1633"], f: "DM Serif Display" },
-  ropa: { n: "Panel de Nómada Studio", c: ["#141210", "#e8470f", "#dcd9d2"], f: "Bricolage Grotesque" },
+  ropa: { n: "Panel de Vértice Studio", c: ["#111111", "#3F4E3C", "#F4F4F5"], f: "Plus Jakarta Sans" },
   cosmeticos: { n: "Panel de Ámbar", c: ["#1b1209", "#c8781e", "#f1d4a6"], f: "Fraunces" },
   salon: { n: "Panel de Lirio Salón", c: ["#46593f", "#cbd8c0", "#16261b"], f: "DM Serif Display" },
   boutique: { n: "Panel de Maison Solène", c: ["#0f2a21", "#9a7440", "#d3ddd0"], f: "Bodoni Moda" },
