@@ -178,7 +178,7 @@ const VARIANTES_CLINICAS: Variante[] = [
     foto: fotoDental,
     problema: "Citas que se olvidan.",
     hoy: ["Agenda en un cuaderno.", "El paciente no llega."],
-    sistema: ["Aparta su cita desde el teléfono.", "Recordatorio por WhatsApp.", "Usted ve el día completo."],
+    sistema: ["Aparta su cita desde el teléfono.", "Recordatorio por WhatsApp en un toque.", "Usted ve el día completo."],
     visual: "foto",
     demo: { texto: "Ver la página", tipo: "clinica" },
     panel: { texto: "Ver el panel", href: "/demos/clinica/#panel" },
@@ -238,7 +238,7 @@ const ICONO_RUBRO: Record<string, typeof Store> = { empresas: Building2, clinica
 
 /* Cómo se ve el panel de cada demo: su nombre, sus colores y su letra (cada negocio tiene el suyo) */
 const PANEL_INFO: Record<string, { n: string; c: string[]; f: string }> = {
-  clinica: { n: "Panel de Clínica Aurora", c: ["#123b40", "#14555d", "#e07a2f"], f: "DM Serif Display" },
+  clinica: { n: "Panel de Clínica Valleverde", c: ["#0F4C5C", "#0D9488", "#E2E8F0"], f: "Plus Jakarta Sans" },
   pediatria: { n: "Panel de Pediatría Semillita", c: ["#17365d", "#f26b4f", "#dcf0fa"], f: "Baloo 2" },
   medicina: { n: "Panel del Dr. Samayoa", c: ["#1d4a42", "#c47f26", "#e4eae7"], f: "Libre Franklin" },
   oftalmologia: { n: "Panel de Lumen", c: ["#0b2545", "#0f7f8c", "#d9503f"], f: "Fraunces" },
@@ -360,12 +360,12 @@ const RUBROS: Rubro[] = [
     problema: "Citas que se olvidan y horas que se quedan vacías.",
     hoy: ["La agenda vive en un cuaderno o en el teléfono de recepción.", "El paciente no llega porque nadie le recordó."],
     sistema: [
-      "Cada doctor ve su agenda y las citas que faltan por confirmar.",
+      "Recepción ve las citas del día y quién está en sala.",
       "El paciente aparta su cita él mismo y le aparece a recepción.",
-      "El expediente de cada paciente, hecho a la medida de su clínica.",
+      "Precios y saldos de cada paciente, en un solo lugar.",
     ],
     img: clinicaPanel,
-    alt: "Panel de una clínica dental de prueba con las citas del día por doctor",
+    alt: "Panel de una clínica dental de prueba con las citas del día",
     demo: { texto: "Ver el sistema de la clínica", href: "/demos/clinica/#panel" },
     demo2: { texto: "Ver la página de pacientes", href: "/demos/clinica/" },
   },
