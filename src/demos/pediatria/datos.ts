@@ -1,121 +1,246 @@
 /*
- * Demo de pediatría: "Pediatría Semillita" con la Dra. Lucía Ordóñez (negocio inventado, datos de ejemplo, fotos de Unsplash).
- *
- * Problema de una clínica de niños -> cómo lo resuelve la demo
- * - Las mamás preguntan por WhatsApp "¿qué vacuna le toca?" -> con la fecha de nacimiento ven qué vacunas lleva, cuáles faltan y cuándo toca la siguiente.
- * - "Mi bebé tiene fiebre, ¿hay espacio hoy?" -> citas separadas: consulta por enfermedad del día y control de niño sano.
- * - Nadie se acuerda del peso y la talla del último control -> curva de crecimiento de cada niño en el teléfono de la mamá.
- * - Una mamá agenda para dos o tres hijos -> un solo perfil familiar con todos sus hijos.
- * - Vacunas atrasadas que nadie recuerda -> la recepción ve la lista y manda el recordatorio.
- * - En la consulta se apunta el peso en papel -> la doctora lo anota y la curva se actualiza sola.
+ * Centro Pediátrico Los Álamos (negocio inventado). Aquí viven los precios, el esquema de
+ * vacunas, las citas, el carné de cada paciente y los horarios que el panel abre o cierra.
+ * Inicio, Portal Padres y Panel Pediatra leen y escriben lo mismo.
+ * Fotos de Unsplash, servidas desde su servidor.
  */
 import { useEffect, useState } from "react";
-import examen from "@/assets/demo-pediatria/examen.jpg";
-import bebe from "@/assets/demo-pediatria/bebe.jpg";
-import mama from "@/assets/demo-pediatria/mama.jpg";
-import consulta from "@/assets/demo-pediatria/consulta.jpg";
-import cinco from "@/assets/demo-pediatria/cinco.jpg";
-import peluche from "@/assets/demo-pediatria/peluche.jpg";
 
-export const FOTOS = { examen, bebe, mama, consulta, cinco, peluche };
+const foto = (id: string, w: number) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=72`;
 
-/* cielo de cuarto de niños, coral y los colores de crayón */
-export const CIELO = "#dcf0fa";
-export const CIELO2 = "#bfe3f4";
-export const MARINO = "#17365d";
-export const CORAL = "#f26b4f";
-export const LIMA = "#7cbf3a";
-export const SOL = "#f6b73c";
-export const REDONDA = '"Baloo 2", "Plus Jakarta Sans", sans-serif';
-
-export const qz = (n: number) => `Q${n.toLocaleString("en-US")}`;
-
-/* esquema de ejemplo, basado en el esquema público de Guatemala (la doctora lo confirma en consulta) */
-export const VACUNAS = [
-  { mes: 0, edad: "Al nacer", lista: ["BCG (tuberculosis)", "Hepatitis B"] },
-  { mes: 2, edad: "2 meses", lista: ["Pentavalente 1", "Polio 1", "Rotavirus 1", "Neumococo 1"] },
-  { mes: 4, edad: "4 meses", lista: ["Pentavalente 2", "Polio 2", "Rotavirus 2", "Neumococo 2"] },
-  { mes: 6, edad: "6 meses", lista: ["Pentavalente 3", "Polio 3", "Influenza 1"] },
-  { mes: 12, edad: "1 año", lista: ["SPR 1 (sarampión, paperas y rubéola)", "Neumococo refuerzo"] },
-  { mes: 18, edad: "1 año y medio", lista: ["DPT refuerzo 1", "Polio refuerzo 1", "SPR 2"] },
-  { mes: 48, edad: "4 años", lista: ["DPT refuerzo 2", "Polio refuerzo 2"] },
-];
-
-/* peso de referencia (kg) por mes, percentiles 3, 50 y 97, simplificado para la demo */
-export const CURVA = [
-  [2.5, 3.3, 4.4], [3.4, 4.5, 5.8], [4.4, 5.6, 7.1], [5.1, 6.4, 8.0], [5.6, 7.0, 8.7], [6.1, 7.5, 9.3], [6.4, 7.9, 9.8],
-  [6.7, 8.3, 10.3], [6.9, 8.6, 10.7], [7.1, 8.9, 11.0], [7.4, 9.2, 11.4], [7.6, 9.4, 11.7], [7.7, 9.6, 12.0],
-];
-
-export type Peso = { mes: number; kg: number; cm: number };
-export type Nino = { id: string; nombre: string; nace: string; sexo: "niño" | "niña"; mama: string; tel: string; vacunas: number[]; pesos: Peso[] };
-
-const haceMeses = (m: number, dias = 0) => {
-  const d = new Date();
-  d.setMonth(d.getMonth() - m);
-  d.setDate(d.getDate() - dias);
-  return d.toISOString().slice(0, 10);
+export const FOTOS = {
+  portada: foto("1632052999485-d748103abf98", 1400),
+  revision: foto("1576766125535-b04e15fd0273", 1000),
+  bebe: foto("1632053003385-245d2569568a", 1000),
+  sala: foto("1759987383760-327efaf5522a", 1400),
+  juegos: foto("1761208663763-c4d30657c910", 1000),
 };
-export function mesesDe(nace: string) {
-  const n = new Date(nace + "T12:00:00");
+
+/* ---------------- formatos y fechas ---------------- */
+
+export const formatoQ = (n: number) => `Q${n.toLocaleString("en-US")}`;
+export const mayus = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
+
+const dos = (n: number) => String(n).padStart(2, "0");
+export const isoDe = (d: Date) => `${d.getFullYear()}-${dos(d.getMonth() + 1)}-${dos(d.getDate())}`;
+export const hoyIso = () => isoDe(new Date());
+const aFecha = (iso: string) => new Date(`${iso}T12:00:00`);
+export const fechaLarga = (iso: string) => aFecha(iso).toLocaleDateString("es-GT", { weekday: "long", day: "numeric", month: "long" });
+export const fechaCorta = (iso: string) => aFecha(iso).toLocaleDateString("es-GT", { day: "numeric", month: "short", year: "numeric" });
+export const diaCorto = (iso: string) => aFecha(iso).toLocaleDateString("es-GT", { weekday: "short" }).replace(".", "");
+export const mesCorto = (iso: string) => aFecha(iso).toLocaleDateString("es-GT", { month: "short" }).replace(".", "");
+export const numeroDia = (iso: string) => aFecha(iso).getDate();
+
+export const minutos = (hora: string) => {
+  const [h, m] = hora.split(":").map(Number);
+  return h * 60 + m;
+};
+export const hora12 = (hora: string) => {
+  const [h, m] = hora.split(":").map(Number);
+  return `${h % 12 || 12}:${dos(m)} ${h < 12 ? "a. m." : "p. m."}`;
+};
+
+const MANANA = ["08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00"];
+const TARDE = ["14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"];
+export const JORNADAS = [
+  { nombre: "Mañana", horas: MANANA },
+  { nombre: "Tarde", horas: TARDE },
+];
+/* domingo cerrado, sábado solo en la mañana */
+export const horasDelDia = (iso: string) => {
+  const d = aFecha(iso).getDay();
+  return d === 0 ? [] : d === 6 ? MANANA : [...MANANA, ...TARDE];
+};
+export const yaPaso = (iso: string, hora: string) => {
+  if (iso !== hoyIso()) return iso < hoyIso();
+  const a = new Date();
+  return minutos(hora) <= a.getHours() * 60 + a.getMinutes() + 30;
+};
+/* los próximos días en que la clínica abre, empezando por hoy */
+export function proximosDias(n = 12) {
+  const dias: string[] = [];
+  const d = new Date();
+  while (dias.length < n) {
+    if (d.getDay() !== 0) dias.push(isoDe(d));
+    d.setDate(d.getDate() + 1);
+  }
+  return dias;
+}
+
+/* ---------------- edades ---------------- */
+
+export function mesesDe(nacimiento: string) {
+  const n = aFecha(nacimiento);
   const h = new Date();
   let m = (h.getFullYear() - n.getFullYear()) * 12 + (h.getMonth() - n.getMonth());
   if (h.getDate() < n.getDate()) m--;
   return Math.max(0, m);
 }
-export function edadTexto(m: number) {
-  if (m < 1) return "recién nacido";
-  if (m < 24) return `${m} ${m === 1 ? "mes" : "meses"}`;
-  const a = Math.floor(m / 12);
-  const r = m % 12;
+export function edadTexto(meses: number) {
+  if (meses < 1) return "recién nacido";
+  if (meses < 24) return `${meses} ${meses === 1 ? "mes" : "meses"}`;
+  const a = Math.floor(meses / 12);
+  const r = meses % 12;
   return `${a} años${r ? ` y ${r} ${r === 1 ? "mes" : "meses"}` : ""}`;
 }
+const nacidoHace = (meses: number, dias = 5) => {
+  const d = new Date();
+  d.setDate(1);
+  d.setMonth(d.getMonth() - meses);
+  d.setDate(Math.max(1, new Date().getDate() - dias));
+  return isoDe(d);
+};
 
-function familia(): Nino[] {
-  return [
-    {
-      id: "mateo", nombre: "Mateo", nace: haceMeses(7, 4), sexo: "niño", mama: "Karla Méndez", tel: "5555 2301",
-      vacunas: [0, 2, 4, 6],
-      pesos: [{ mes: 0, kg: 3.2, cm: 50 }, { mes: 1, kg: 4.3, cm: 54 }, { mes: 2, kg: 5.4, cm: 57.5 }, { mes: 4, kg: 6.9, cm: 63 }, { mes: 6, kg: 7.8, cm: 67 }],
-    },
-    {
-      id: "sofia", nombre: "Sofía", nace: haceMeses(47, 10), sexo: "niña", mama: "Karla Méndez", tel: "5555 2301",
-      vacunas: [0, 2, 4, 6, 12, 18],
-      pesos: [{ mes: 0, kg: 3.0, cm: 49 }, { mes: 6, kg: 7.3, cm: 65 }, { mes: 12, kg: 9.1, cm: 74 }],
-    },
-  ];
+/* ---------------- vacunas ---------------- */
+
+export type EtapaId = "rn" | "2-6" | "12-18" | "4-6";
+export const ETAPAS: { id: EtapaId; nombre: string; nota: string }[] = [
+  { id: "rn", nombre: "Recién nacido", nota: "Las primeras vacunas se ponen en las primeras horas y días de vida." },
+  { id: "2-6", nombre: "2-6 meses", nota: "Es la etapa con más dosis. Conviene dejar apartadas las tres visitas: 2, 4 y 6 meses." },
+  { id: "12-18", nombre: "12-18 meses", nota: "Se completan refuerzos y empiezan las vacunas contra sarampión, varicela y hepatitis A." },
+  { id: "4-6", nombre: "4-6 años", nota: "Refuerzos antes de entrar al colegio. Traiga el carné para revisar lo pendiente." },
+];
+
+/* meses: a qué edad toca cada dosis. precio: por dosis */
+export type Vacuna = { id: string; etapa: EtapaId; nombre: string; protege: string; meses: number[]; cuando: string; precio: number };
+export const VACUNAS: Vacuna[] = [
+  { id: "bcg", etapa: "rn", nombre: "BCG", protege: "Formas graves de tuberculosis", meses: [0], cuando: "Al nacer", precio: 175 },
+  { id: "hepb", etapa: "rn", nombre: "Hepatitis B", protege: "Infección del hígado por hepatitis B", meses: [0], cuando: "En las primeras 24 horas", precio: 160 },
+
+  { id: "hexa", etapa: "2-6", nombre: "Hexavalente", protege: "Difteria, tétanos, tos ferina, polio, Hib y hepatitis B", meses: [2, 4, 6], cuando: "2, 4 y 6 meses", precio: 625 },
+  { id: "neumo", etapa: "2-6", nombre: "Neumococo conjugada", protege: "Neumonía, meningitis y otitis por neumococo", meses: [2, 4, 6], cuando: "2, 4 y 6 meses", precio: 850 },
+  { id: "rota", etapa: "2-6", nombre: "Rotavirus (oral)", protege: "Diarrea grave por rotavirus", meses: [2, 4], cuando: "2 y 4 meses", precio: 450 },
+  { id: "flu", etapa: "2-6", nombre: "Influenza", protege: "Gripe estacional y sus complicaciones", meses: [6, 7], cuando: "Desde los 6 meses, con 4 semanas entre dosis", precio: 225 },
+
+  { id: "spr", etapa: "12-18", nombre: "SPR (triple viral)", protege: "Sarampión, paperas y rubéola", meses: [12, 18], cuando: "12 y 18 meses", precio: 350 },
+  { id: "neumo-r", etapa: "12-18", nombre: "Neumococo, refuerzo", protege: "Mantiene la protección contra neumococo", meses: [12], cuando: "12 meses", precio: 850 },
+  { id: "vari", etapa: "12-18", nombre: "Varicela", protege: "Varicela y sus complicaciones", meses: [15], cuando: "Entre 12 y 15 meses", precio: 575 },
+  { id: "hepa", etapa: "12-18", nombre: "Hepatitis A", protege: "Infección del hígado por hepatitis A", meses: [12, 18], cuando: "12 y 18 meses", precio: 395 },
+  { id: "hexa-r", etapa: "12-18", nombre: "Hexavalente, refuerzo", protege: "Refuerzo de las vacunas de los primeros meses", meses: [18], cuando: "18 meses", precio: 625 },
+
+  { id: "tetra", etapa: "4-6", nombre: "DPT y polio, refuerzo", protege: "Difteria, tétanos, tos ferina y polio", meses: [48], cuando: "4 años", precio: 495 },
+  { id: "vari-r", etapa: "4-6", nombre: "Varicela, refuerzo", protege: "Segunda dosis contra varicela", meses: [48], cuando: "Entre 4 y 6 años", precio: 575 },
+  { id: "flu-a", etapa: "4-6", nombre: "Influenza anual", protege: "Gripe estacional y sus complicaciones", meses: [60], cuando: "Una dosis cada año", precio: 225 },
+  { id: "menin", etapa: "4-6", nombre: "Meningococo", protege: "Meningitis por meningococo (según indicación del pediatra)", meses: [60], cuando: "Según indicación", precio: 950 },
+];
+export const vacunaPor = (id: string) => VACUNAS.find((v) => v.id === id)!;
+
+/* cada dosis por separado, para el carné */
+export type Dosis = { clave: string; vacuna: Vacuna; mes: number; numero: number; de: number };
+export const DOSIS: Dosis[] = VACUNAS.flatMap((v) => v.meses.map((mes, i) => ({ clave: `${v.id}-${i + 1}`, vacuna: v, mes, numero: i + 1, de: v.meses.length })));
+export const nombreDosis = (d: Dosis) => (d.de > 1 ? `${d.vacuna.nombre} · dosis ${d.numero} de ${d.de}` : d.vacuna.nombre);
+
+/* ---------------- pediatras y motivos ---------------- */
+
+export const PEDIATRAS = [
+  { id: "morales", nombre: "Dra. Sofía Morales", area: "Pediatría general y recién nacidos", atiende: "Control del bebé, lactancia y primeros alimentos", foto: foto("1758691462651-611d730c5272", 900) },
+  { id: "paiz", nombre: "Dr. Rodrigo Paiz", area: "Alergias y vías respiratorias", atiende: "Tos que no se quita, asma y alergias", foto: foto("1758691463582-11aea602cd4a", 700) },
+  { id: "barrios", nombre: "Dra. Ana Lucía Barrios", area: "Crecimiento y desarrollo", atiende: "Peso, talla, sueño y desarrollo escolar", foto: foto("1623854767648-e7bb8009f0db", 700) },
+];
+export const pediatraPor = (id: string) => PEDIATRAS.find((p) => p.id === id) ?? PEDIATRAS[0];
+
+export type MotivoId = "control" | "vacunacion" | "sintomas" | "recien";
+export const MOTIVOS: { id: MotivoId; nombre: string; detalle: string; precio: number }[] = [
+  { id: "control", nombre: "Control niño sano", detalle: "Peso, talla, desarrollo y alimentación · 30 min", precio: 350 },
+  { id: "vacunacion", nombre: "Vacunación", detalle: "Revisión previa y aplicación · 30 min. La vacuna se suma aparte", precio: 100 },
+  { id: "sintomas", nombre: "Consulta por síntomas", detalle: "Fiebre, tos, diarrea, dolor de oído · 30 min", precio: 400 },
+  { id: "recien", nombre: "Recién nacido y lactancia", detalle: "Primeras semanas, peso y apoyo para amamantar · 30 min", precio: 425 },
+];
+export const motivoPor = (id: MotivoId) => MOTIVOS.find((m) => m.id === id)!;
+export const totalCita = (motivo: MotivoId, vacunas: string[]) => motivoPor(motivo).precio + vacunas.reduce((s, id) => s + vacunaPor(id).precio, 0);
+
+/* ---------------- citas, carné y horarios ---------------- */
+
+/* desde dónde se apartó la cita en el sitio */
+export type Origen = "inicio" | "portal";
+export const ESTADOS = ["Confirmada", "En sala", "En consulta", "Atendida"] as const;
+export type EstadoCita = (typeof ESTADOS)[number];
+export type Cita = {
+  id: string; fecha: string; hora: string; pediatraId: string; motivo: MotivoId; pacienteId: string;
+  vacunas: string[]; nota: string; estado: EstadoCita; origen?: Origen;
+};
+export type Aplicada = { clave: string; fecha: string; lote: string; pediatraId: string };
+/* familia: los niños cuyo carné se ve en el Portal Padres de este teléfono */
+export type Paciente = { id: string; nombre: string; nacimiento: string; tutor: string; telefono: string; aplicadas: Aplicada[]; familia?: boolean };
+
+type Estado = { creado: string; citas: Cita[]; pacientes: Paciente[]; cerrados: Record<string, string[]> };
+
+export const claveDia = (pediatraId: string, fecha: string) => `${pediatraId}|${fecha}`;
+
+/* el carné de ejemplo: todas las dosis de su edad, menos las que se dejan pendientes */
+function carne(nacimiento: string, faltan: string[] = []): Aplicada[] {
+  const meses = mesesDe(nacimiento);
+  return DOSIS.filter((d) => d.mes <= meses && !faltan.includes(d.clave) && d.vacuna.id !== "menin" && d.vacuna.id !== "flu-a").map((d, i) => {
+    const f = aFecha(nacimiento);
+    f.setMonth(f.getMonth() + d.mes);
+    const fecha = isoDe(f) > hoyIso() ? hoyIso() : isoDe(f);
+    return { clave: d.clave, fecha, lote: `LA-${2400 + i * 37}`, pediatraId: PEDIATRAS[i % PEDIATRAS.length].id };
+  });
 }
 
-export type Cita = { id: number; hora: string; nino: string; edad: string; mama: string; tipo: "enfermedad" | "control" | "vacuna"; motivo: string; estado: "espera" | "consulta" | "listo" | "agendada"; tel: string; nueva?: boolean };
-const AGENDA: Cita[] = [
-  { id: 1, hora: "8:00", nino: "Diego Cux", edad: "2 años", mama: "Ana Cux", tipo: "control", motivo: "Control de niño sano", estado: "listo", tel: "5555 1101" },
-  { id: 2, hora: "8:30", nino: "Valentina Rivas", edad: "4 meses", mama: "Paola Rivas", tipo: "vacuna", motivo: "Vacunas de 4 meses", estado: "listo", tel: "5555 1102" },
-  { id: 3, hora: "9:00", nino: "Emiliano Paz", edad: "3 años", mama: "Gaby Paz", tipo: "enfermedad", motivo: "Fiebre y tos desde ayer", estado: "consulta", tel: "5555 1103" },
-  { id: 4, hora: "9:30", nino: "Camila Juárez", edad: "6 meses", mama: "Lucía Juárez", tipo: "vacuna", motivo: "Vacunas de 6 meses", estado: "espera", tel: "5555 1104" },
-  { id: 5, hora: "10:00", nino: "Santiago López", edad: "9 meses", mama: "Mónica López", tipo: "control", motivo: "Control y alimentación", estado: "espera", tel: "5555 1105" },
-  { id: 6, hora: "11:00", nino: "Isabella Morales", edad: "5 años", mama: "Diana Morales", tipo: "enfermedad", motivo: "Dolor de oído", estado: "agendada", tel: "5555 1106" },
-  { id: 7, hora: "15:00", nino: "Lucas Herrera", edad: "1 año", mama: "Jennifer Herrera", tipo: "vacuna", motivo: "Vacunas de 1 año", estado: "agendada", tel: "5555 1107" },
-];
-export const ATRASADOS = [
-  { nino: "Nicolás Barrios", mama: "Andrea Barrios", tel: "5555 1201", falta: "Vacunas de 6 meses", dias: 24 },
-  { nino: "Mía Gálvez", mama: "Rocío Gálvez", tel: "5555 1202", falta: "SPR 1 (1 año)", dias: 11 },
-  { nino: "Adrián Chávez", mama: "Silvia Chávez", tel: "5555 1203", falta: "Control de 2 años", dias: 37 },
-];
+function inicial(): Estado {
+  const paciente = (id: string, nombre: string, meses: number, tutor: string, telefono: string, faltan: string[] = []): Paciente => {
+    const nacimiento = nacidoHace(meses);
+    return { id, nombre, nacimiento, tutor, telefono, aplicadas: carne(nacimiento, faltan) };
+  };
+  const pacientes = [
+    paciente("p1", "Emma Castellanos", 4, "Paola Castellanos", "5512 8840", ["hexa-2", "neumo-2", "rota-2"]),
+    paciente("p2", "Mateo Quiñónez", 12, "Luis Quiñónez", "4187 2256", ["spr-1", "neumo-r-1", "hepa-1"]),
+    paciente("p3", "Valeria Castellanos", 49, "Paola Castellanos", "5512 8840", ["tetra-1", "vari-r-1"]),
+    paciente("p4", "Santiago Arriola", 7, "Gabriela Arriola", "3344 9018", ["flu-1", "flu-2"]),
+    paciente("p5", "Isabella Montenegro", 19, "Carlos Montenegro", "5077 6631", ["hexa-r-1"]),
+    paciente("p6", "Diego Lemus", 0, "Mónica Lemus", "4620 3385"),
+    paciente("p7", "Camila Orellana", 30, "Diana Orellana", "5841 0927"),
+  ];
+  for (const p of pacientes) if (p.tutor === "Paola Castellanos") p.familia = true;
+  const [d0, d1, d2] = proximosDias(3);
+  const c = (id: string, fecha: string, hora: string, pediatraId: string, motivo: MotivoId, pacienteId: string, vacunas: string[] = [], nota = "", estado: EstadoCita = "Confirmada"): Cita =>
+    ({ id, fecha, hora, pediatraId, motivo, pacienteId, vacunas, nota, estado });
+  const citas = [
+    c("A-1041", d0, "08:00", "morales", "control", "p6", [], "Primer control, dudas de lactancia", "Atendida"),
+    c("A-1042", d0, "08:30", "paiz", "sintomas", "p7", [], "Tos de 4 días, peor de noche", "En consulta"),
+    c("A-1043", d0, "09:30", "morales", "vacunacion", "p1", ["hexa", "neumo", "rota"], "", "En sala"),
+    c("A-1044", d0, "10:30", "barrios", "vacunacion", "p2", ["spr", "neumo-r"]),
+    c("A-1045", d0, "14:30", "barrios", "control", "p5"),
+    c("A-1046", d0, "16:00", "paiz", "vacunacion", "p4", ["flu"]),
+    c("A-1047", d1, "09:00", "barrios", "vacunacion", "p3", ["tetra", "vari-r"]),
+    c("A-1048", d1, "11:00", "morales", "control", "p1"),
+    c("A-1049", d2, "08:30", "paiz", "sintomas", "p4", [], "Revisión de oído"),
+  ];
+  const cerrados: Record<string, string[]> = {
+    [claveDia("morales", d0)]: ["11:30", "12:00"],
+    [claveDia("paiz", d1)]: ["14:00", "14:30", "15:00"],
+    [claveDia("barrios", d2)]: ["08:00", "08:30"],
+  };
+  return { creado: hoyIso(), citas, pacientes, cerrados };
+}
 
-export const HORAS = ["8:00", "8:30", "9:00", "9:30", "10:00", "10:30", "11:00", "11:30", "15:00", "15:30", "16:00", "16:30", "17:00"];
+const CLAVE = "jz-alamos-v2";
 
-type Estado = { ninos: Nino[]; agenda: Cita[]; recordados: string[] };
-const CLAVE = "jz-pediatria-v1";
+export type NuevaCita = {
+  fecha: string; hora: string; pediatraId: string; motivo: MotivoId; vacunas: string[]; nota: string;
+  nino: string; meses: number; tutor: string; telefono: string; origen: Origen;
+};
 
-export function usePediatria() {
+/* las citas son del día: si lo guardado es de otro día, se empieza de nuevo */
+function leerGuardado(texto: string | null) {
+  try {
+    const g = texto ? (JSON.parse(texto) as Estado) : null;
+    return g?.creado === hoyIso() ? g : null;
+  } catch {
+    return null;
+  }
+}
+
+export function useClinicaPediatrica() {
   const [e, setE] = useState<Estado>(() => {
     try {
-      const t = localStorage.getItem(CLAVE);
-      if (t) return JSON.parse(t) as Estado;
+      const g = leerGuardado(localStorage.getItem(CLAVE));
+      if (g) return g;
     } catch {
-      /* nada */
+      /* sin almacenamiento, se trabaja en memoria */
     }
-    return { ninos: familia(), agenda: AGENDA, recordados: [] };
+    return inicial();
   });
   useEffect(() => {
     try {
@@ -124,18 +249,97 @@ export function usePediatria() {
       /* nada */
     }
   }, [e]);
+  /* si el sitio está abierto en otra pestaña, los cambios llegan solos */
+  useEffect(() => {
+    const llega = (ev: StorageEvent) => {
+      if (ev.key !== CLAVE) return;
+      const g = leerGuardado(ev.newValue);
+      if (g) setE(g);
+    };
+    addEventListener("storage", llega);
+    return () => removeEventListener("storage", llega);
+  }, []);
+
+  /* crea la cita (y la ficha del niño si es nuevo) y devuelve su número */
+  function agendar(n: NuevaCita) {
+    const limpio = (t: string) => t.trim().toLocaleLowerCase("es");
+    const digitos = (t: string) => t.replace(/\D/g, "");
+    const conocido = e.pacientes.find((p) => limpio(p.nombre) === limpio(n.nino) && digitos(p.telefono) === digitos(n.telefono));
+    const pacienteId = conocido?.id ?? `p${e.pacientes.length + 1}`;
+    const id = `A-${Math.max(1040, ...e.citas.map((c) => Number(c.id.slice(2)))) + 1}`;
+    setE((v) => ({
+      ...v,
+      pacientes: conocido
+        ? v.pacientes.map((p) => (p.id === pacienteId ? { ...p, familia: true } : p))
+        : [...v.pacientes, { id: pacienteId, nombre: n.nino.trim(), nacimiento: nacidoHace(n.meses, 0), tutor: n.tutor.trim(), telefono: n.telefono.trim(), aplicadas: [], familia: true }],
+      citas: [...v.citas, { id, fecha: n.fecha, hora: n.hora, pediatraId: n.pediatraId, motivo: n.motivo, pacienteId, vacunas: n.vacunas, nota: n.nota.trim(), estado: "Confirmada", origen: n.origen }],
+    }));
+    return id;
+  }
+
   return {
     ...e,
-    agendar: (c: Omit<Cita, "id" | "estado">) => setE((v) => ({ ...v, agenda: [...v.agenda, { ...c, id: Math.max(...v.agenda.map((x) => x.id)) + 1, estado: "agendada" as const, nueva: true }].sort((a, b) => toMin(a.hora) - toMin(b.hora)) })),
-    avanzar: (id: number) => setE((v) => ({ ...v, agenda: v.agenda.map((c) => (c.id === id ? { ...c, estado: c.estado === "agendada" ? "espera" : c.estado === "espera" ? "consulta" : "listo" } : c)) })),
-    pesar: (nino: string, p: Peso) => setE((v) => ({ ...v, ninos: v.ninos.map((n) => (n.id === nino ? { ...n, pesos: [...n.pesos.filter((x) => x.mes !== p.mes), p].sort((a, b) => a.mes - b.mes) } : n)) })),
-    vacunar: (nino: string, mes: number) => setE((v) => ({ ...v, ninos: v.ninos.map((n) => (n.id === nino && !n.vacunas.includes(mes) ? { ...n, vacunas: [...n.vacunas, mes] } : n)) })),
-    recordar: (quien: string) => setE((v) => ({ ...v, recordados: [...v.recordados, quien] })),
-    reiniciar: () => setE({ ninos: familia(), agenda: AGENDA, recordados: [] }),
+    agendar,
+    cambiarEstado: (id: string, estado: EstadoCita) => setE((v) => ({ ...v, citas: v.citas.map((c) => (c.id === id ? { ...c, estado } : c)) })),
+    aplicar: (pacienteId: string, a: Aplicada) =>
+      setE((v) => ({ ...v, pacientes: v.pacientes.map((p) => (p.id === pacienteId ? { ...p, aplicadas: [...p.aplicadas.filter((x) => x.clave !== a.clave), a] } : p)) })),
+    anular: (pacienteId: string, clave: string) =>
+      setE((v) => ({ ...v, pacientes: v.pacientes.map((p) => (p.id === pacienteId ? { ...p, aplicadas: p.aplicadas.filter((x) => x.clave !== clave) } : p)) })),
+    ponerCerrados: (pediatraId: string, fecha: string, horas: string[]) => setE((v) => ({ ...v, cerrados: { ...v.cerrados, [claveDia(pediatraId, fecha)]: horas } })),
   };
 }
-export type Pedi = ReturnType<typeof usePediatria>;
-export const toMin = (h: string) => {
-  const [a, b] = h.split(":").map(Number);
-  return a * 60 + b;
-};
+export type Clinica = ReturnType<typeof useClinicaPediatrica>;
+
+export const citaEn = (clinica: Clinica, pediatraId: string, fecha: string, hora: string) =>
+  clinica.citas.find((c) => c.pediatraId === pediatraId && c.fecha === fecha && c.hora === hora);
+export const estaLibre = (clinica: Clinica, pediatraId: string, fecha: string, hora: string) =>
+  !yaPaso(fecha, hora) && !citaEn(clinica, pediatraId, fecha, hora) && !clinica.cerrados[claveDia(pediatraId, fecha)]?.includes(hora);
+
+/* meningococo e influenza anual dependen de indicación: no cuentan como atraso */
+export const aCriterio = (d: Dosis) => d.vacuna.id === "menin" || d.vacuna.id === "flu-a";
+export function resumenCarne(p: Paciente) {
+  const meses = mesesDe(p.nacimiento);
+  const deSuEdad = DOSIS.filter((d) => d.mes <= meses && !aCriterio(d));
+  const faltan = deSuEdad.filter((d) => !p.aplicadas.some((a) => a.clave === d.clave));
+  return { meses, total: deSuEdad.length, puestas: deSuEdad.length - faltan.length, faltan, pendientes: faltan.length };
+}
+
+/* ---------------- formulario de cita ---------------- */
+
+export type CampoCita = "hora" | "nino" | "edad" | "tutor" | "telefono";
+export type Unidad = "meses" | "años";
+/* null si la edad no sirve (vacía, con decimales o de más de 18 años) */
+export function mesesDeEdad(edad: string, unidad: Unidad) {
+  const n = Number(edad);
+  const meses = unidad === "años" ? n * 12 : n;
+  return edad.trim() !== "" && Number.isInteger(n) && n >= 0 && meses <= 216 ? meses : null;
+}
+/* lo primero que falta para confirmar */
+export function faltaEnCita(d: { fecha: string; hora: string; nino: string; edad: string; unidad: Unidad; tutor: string; telefono: string }): [CampoCita, string] | null {
+  if (!d.fecha || !d.hora) return ["hora", "Elija una hora disponible."];
+  if (d.nino.trim().length < 3) return ["nino", "Escriba el nombre del niño o la niña."];
+  if (mesesDeEdad(d.edad, d.unidad) === null) return ["edad", "Escriba la edad en números enteros."];
+  if (d.tutor.trim().length < 3) return ["tutor", "Escriba el nombre de mamá, papá o encargado."];
+  if (d.telefono.replace(/\D/g, "").length < 8) return ["telefono", "Escriba un teléfono de 8 dígitos."];
+  return null;
+}
+export function mensajeDeCita(c: Cita, paciente: Paciente | undefined) {
+  const lista = c.vacunas.map((id) => vacunaPor(id).nombre).join(", ");
+  return [
+    `Hola, Centro Pediátrico Los Álamos. Confirmo la cita ${c.id}:`,
+    `- Paciente: ${paciente?.nombre}`,
+    `- Motivo: ${motivoPor(c.motivo).nombre}`,
+    `- Pediatra: ${pediatraPor(c.pediatraId).nombre}`,
+    `- Fecha: ${fechaLarga(c.fecha)}, ${hora12(c.hora)}`,
+    lista && `- Vacunas: ${lista}`,
+    `- Total estimado: ${formatoQ(totalCita(c.motivo, c.vacunas))}`,
+    `- Encargado: ${paciente?.tutor}, tel. ${paciente?.telefono}`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+export const enlaceWhatsApp = (texto: string) => `https://wa.me/?text=${encodeURIComponent(texto)}`;
+
+/* número de la línea de emergencias de la clínica (inventado: se cambia por el real) */
+export const TEL_EMERGENCIAS = "2200 0000";

@@ -189,10 +189,10 @@ const VARIANTES_CLINICAS: Variante[] = [
     foto: fotoPediatria,
     problema: "¿Qué vacuna le toca?",
     hoy: ["Carné de papel que se pierde.", "Vacunas atrasadas sin aviso."],
-    sistema: ["La mamá ve qué vacuna toca.", "Curva de peso en su teléfono.", "Usted ve a quién llamar."],
+    sistema: ["Los padres ven la vacuna y su precio.", "Percentil de peso y estatura al instante.", "Usted registra el carné y sus horarios."],
     visual: "foto",
     demo: { texto: "Ver la página", tipo: "pediatria" },
-    panel: { texto: "Ver el panel", href: "/demos/pediatria/#consultorio" },
+    panel: { texto: "Ver el panel", href: "/demos/pediatria/#panel" },
   },
   {
     id: "medicina",
@@ -239,7 +239,7 @@ const ICONO_RUBRO: Record<string, typeof Store> = { empresas: Building2, clinica
 /* Cómo se ve el panel de cada demo: su nombre, sus colores y su letra (cada negocio tiene el suyo) */
 const PANEL_INFO: Record<string, { n: string; c: string[]; f: string }> = {
   clinica: { n: "Panel de Clínica Valleverde", c: ["#0F4C5C", "#0D9488", "#E2E8F0"], f: "Plus Jakarta Sans" },
-  pediatria: { n: "Panel de Pediatría Semillita", c: ["#17365d", "#f26b4f", "#dcf0fa"], f: "Baloo 2" },
+  pediatria: { n: "Panel de Los Álamos", c: ["#1E4D3B", "#C26D4A", "#DCE5E0"], f: "Plus Jakarta Sans" },
   medicina: { n: "Panel del Dr. Samayoa", c: ["#1d4a42", "#c47f26", "#e4eae7"], f: "Libre Franklin" },
   oftalmologia: { n: "Panel de Lumen", c: ["#0b2545", "#0f7f8c", "#d9503f"], f: "Fraunces" },
   veterinaria: { n: "Panel de Huesitos", c: ["#1d4d3f", "#e8a33d", "#f7f3ea"], f: "Young Serif" },
