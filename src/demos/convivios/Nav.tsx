@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { ChartColumn, MapPin, Menu, ReceiptText, Store, X } from "lucide-react";
+import { CalendarDays, ChartColumn, Menu, ReceiptText, Store, X } from "lucide-react";
 import { CONVIVIO, SECCIONES } from "./datos";
 
-export type Vista = "menu" | "caja" | "cierre";
+export type Vista = "menu" | "caja" | "admin";
 
 const VISTAS = [
   { id: "menu", nombre: "Menú y Stands", icono: Store },
   { id: "caja", nombre: "Caja y Despacho", icono: ReceiptText },
-  { id: "cierre", nombre: "Cierre del Evento", icono: ChartColumn },
+  { id: "admin", nombre: "Admin y Cierre", icono: ChartColumn },
 ] as const;
 
 export function Logo() {
@@ -110,10 +110,8 @@ export function Nav({ vista, pendientes, alVista, alSeccion }: { vista: Vista; p
             </>
           ) : (
             <p className="flex min-w-0 items-center justify-end gap-1.5 text-right text-[0.66rem] font-semibold sm:text-[0.72rem] leading-snug text-[#6B6560]">
-              <MapPin size={13} aria-hidden className="hidden shrink-0 text-[#B91C1C] sm:block" />
-              <span>
-                {CONVIVIO.nombre} · {CONVIVIO.lugar}
-              </span>
+              <CalendarDays size={13} aria-hidden className="hidden shrink-0 text-[#B91C1C] sm:block" />
+              <span>{CONVIVIO.nombre}</span>
             </p>
           )}
         </div>

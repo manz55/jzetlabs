@@ -2,21 +2,22 @@ import { CupSoda, Flame, UtensilsCrossed, type LucideIcon } from "lucide-react";
 import { useSyncExternalStore } from "react";
 
 export type StandId = "parrilla" | "antojitos" | "bebidas";
-export type ProductoId = "carne" | "choripan" | "chuchitos" | "elote" | "ponche" | "gaseosa";
+export type ProductoId = string;
 export type Filtro = StandId | "todos";
 export type Banco = "BI" | "BAC";
 export type Cesta = Partial<Record<ProductoId, number>>;
 export type Pago = { tipo: "efectivo"; recibido: number } | { tipo: "transferencia"; banco: Banco; boleta: string };
 
-export type Carga = { id: number; producto: ProductoId; cantidad: number; fecha: number; apertura: boolean };
+export type Producto = { nombre: string; detalle: string; precio: number; stand: StandId; foto: string; alt: string; cargadas: number; agotado: boolean; baja: boolean };
+export type PlatilloNuevo = Pick<Producto, "nombre" | "detalle" | "precio" | "stand" | "foto" | "alt" | "cargadas">;
 export type Ticket = { numero: number; vecino: string; items: Cesta; pago: Pago; fecha: number; entregas: Partial<Record<StandId, number>> };
-type Estado = { dia: string; cargas: Carga[]; tickets: Ticket[] };
+type Estado = { dia: string; productos: Record<ProductoId, Producto>; tickets: Ticket[] };
 
 export type Cuenta = { vecino: string; items: Cesta; metodo: Pago["tipo"]; recibido: string; banco: Banco; boleta: string };
 
 export const cuentaVacia = (): Cuenta => ({ vecino: "", items: {}, metodo: "efectivo", recibido: "", banco: "BI", boleta: "" });
 
-export const CONVIVIO = { nombre: "Convivio Navideño", lugar: "Residenciales Villa Real", zona: "Zona 16, Ciudad de Guatemala", obra: "parque infantil", meta: 8000 };
+export const CONVIVIO = { nombre: "Convivio Navideño", lugar: "Residenciales Villa Real", zona: "Zona 16, Ciudad de Guatemala", horario: "10:00 a.m. – 6:00 p.m." };
 
 export const STANDS: Record<StandId, { nombre: string; corto: string; icono: LucideIcon }> = {
   parrilla: { nombre: "Stand Parrilla", corto: "Parrilla", icono: Flame },
@@ -24,22 +25,29 @@ export const STANDS: Record<StandId, { nombre: string; corto: string; icono: Luc
   bebidas: { nombre: "Stand Bebidas", corto: "Bebidas", icono: CupSoda },
 };
 export const IDS_STAND = Object.keys(STANDS) as StandId[];
+export const MAXIMO_PORCIONES = 999;
 
-export const PRODUCTOS: Record<ProductoId, { nombre: string; detalle: string; precio: number; stand: StandId; foto: string; alt: string }> = {
-  carne: { nombre: "Carne Asada", detalle: "Con tortillas, chirmol y cebollines", precio: 45, stand: "parrilla", foto: "1558030006-450675393462", alt: "Carne asada rebanada sobre una tabla" },
-  choripan: { nombre: "Choripán", detalle: "Chorizo a la brasa en pan francés", precio: 25, stand: "parrilla", foto: "1705512557389-841efbde54db", alt: "Pan con chorizo sobre una tabla de madera" },
-  chuchitos: { nombre: "2 Chuchitos", detalle: "Con salsa de tomate y queso seco", precio: 15, stand: "antojitos", foto: "1732118070605-8c5faa62d284", alt: "Chuchitos envueltos en tusa sobre un plato" },
-  elote: { nombre: "Elote Loco", detalle: "Mayonesa, queso seco y salsas", precio: 15, stand: "antojitos", foto: "1570716774271-ab30ad4924a8", alt: "Elotes en palillo con queso y chile" },
-  ponche: { nombre: "Ponche Navideño", detalle: "De frutas de temporada", precio: 12, stand: "bebidas", foto: "1773809407789-fa0b42b6131c", alt: "Ponche de frutas con rodajas de naranja y limón" },
-  gaseosa: { nombre: "Gaseosa", detalle: "Vaso con hielo", precio: 10, stand: "bebidas", foto: "1629654613528-5d0a2e4166de", alt: "Vaso de gaseosa con hielo" },
-};
-export const IDS_PRODUCTO = Object.keys(PRODUCTOS) as ProductoId[];
-export const productosDe = (stand: StandId) => IDS_PRODUCTO.filter((id) => PRODUCTOS[id].stand === stand);
+const platillo = (datos: PlatilloNuevo): Producto => ({ ...datos, agotado: false, baja: false });
+
+const cartaInicial = (): Record<ProductoId, Producto> => ({
+  carne: platillo({ nombre: "Carne Asada", detalle: "Con tortillas, chirmol y cebollines", precio: 45, stand: "parrilla", cargadas: 120, foto: "1558030006-450675393462", alt: "Carne asada rebanada sobre una tabla" }),
+  choripan: platillo({ nombre: "Choripán", detalle: "Chorizo a la brasa en pan francés", precio: 25, stand: "parrilla", cargadas: 80, foto: "1705512557389-841efbde54db", alt: "Pan con chorizo sobre una tabla de madera" }),
+  chuchitos: platillo({ nombre: "2 Chuchitos", detalle: "Con salsa de tomate y queso seco", precio: 15, stand: "antojitos", cargadas: 70, foto: "1732118070605-8c5faa62d284", alt: "Chuchitos envueltos en tusa sobre un plato" }),
+  elote: platillo({ nombre: "Elote Loco", detalle: "Mayonesa, queso seco y salsas", precio: 15, stand: "antojitos", cargadas: 40, foto: "1570716774271-ab30ad4924a8", alt: "Elotes en palillo con queso y chile" }),
+  ponche: platillo({ nombre: "Ponche Navideño", detalle: "De frutas de temporada", precio: 12, stand: "bebidas", cargadas: 150, foto: "1773809407789-fa0b42b6131c", alt: "Ponche de frutas con rodajas de naranja y limón" }),
+  gaseosa: platillo({ nombre: "Gaseosa", detalle: "Vaso con hielo", precio: 10, stand: "bebidas", cargadas: 144, foto: "1629654613528-5d0a2e4166de", alt: "Vaso de gaseosa con hielo" }),
+});
+
+export const FOTOS_PLATILLO = [
+  ...Object.values(cartaInicial()).map(({ nombre, foto, alt }) => ({ nombre, foto, alt })),
+  { nombre: "Hot dog", foto: "1599599810694-b5b37304c041", alt: "Hot dog con salsas" },
+  { nombre: "Churros", foto: "1624371414361-e670edf4898d", alt: "Churros con chocolate" },
+  { nombre: "Pastel", foto: "1602663491496-73f07481dbea", alt: "Porción de pastel con fresa" },
+];
 
 export const SECCIONES = [
   { id: "como-funciona", nombre: "Cómo funciona" },
   { id: "stands-menu", nombre: "Stands y Menú" },
-  { id: "carga-stock", nombre: "Carga de Stock" },
 ];
 
 export const urlFoto = (id: string, ancho: number, alto: number) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${ancho}&h=${alto}&q=72`;
@@ -49,7 +57,7 @@ export const hora = (fecha: number) => new Date(fecha).toLocaleTimeString("es-GT
 export const diaLargo = () => new Date().toLocaleDateString("es-GT", { weekday: "long", day: "numeric", month: "long" });
 
 export const renglones = (cesta: Cesta) =>
-  IDS_PRODUCTO.filter((id) => (cesta[id] ?? 0) > 0).map((id) => ({ id, cantidad: cesta[id]!, ...PRODUCTOS[id] }));
+  Object.keys(PRODUCTOS).filter((id) => (cesta[id] ?? 0) > 0).map((id) => ({ id, cantidad: cesta[id]!, ...PRODUCTOS[id] }));
 export const totalDe = (cesta: Cesta) => renglones(cesta).reduce((s, r) => s + r.cantidad * r.precio, 0);
 export const standsDe = (ticket: Ticket) => IDS_STAND.filter((s) => renglones(ticket.items).some((r) => r.stand === s));
 export const despachado = (ticket: Ticket) => standsDe(ticket).every((s) => ticket.entregas[s]);
@@ -58,7 +66,6 @@ export const pendientesDe = (tickets: Ticket[], filtro: Filtro) =>
 
 function estadoInicial(dia: string): Estado {
   const hace = (minutos: number) => Date.now() - minutos * 60_000;
-  const apertura: [ProductoId, number][] = [["carne", 120], ["choripan", 80], ["chuchitos", 70], ["elote", 40], ["ponche", 150], ["gaseosa", 144]];
   const efectivo = (recibido: number): Pago => ({ tipo: "efectivo", recibido });
   const transferencia = (banco: Banco, boleta: string): Pago => ({ tipo: "transferencia", banco, boleta });
   const venta = (numero: number, minutos: number, vecino: string, items: Cesta, pago: Pago, entregados: StandId[]): Ticket => ({
@@ -71,7 +78,7 @@ function estadoInicial(dia: string): Estado {
   });
   return {
     dia,
-    cargas: apertura.map(([producto, cantidad], i) => ({ id: i + 1, producto, cantidad, fecha: hace(150 - i * 3), apertura: true })),
+    productos: cartaInicial(),
     tickets: [
       venta(101, 112, "Marta · Casa 3", { carne: 5, chuchitos: 2, gaseosa: 5 }, efectivo(320), ["parrilla", "antojitos", "bebidas"]),
       venta(102, 96, "Luis · Casa 22", { carne: 6, elote: 6, ponche: 4 }, transferencia("BI", "448210"), ["parrilla", "antojitos", "bebidas"]),
@@ -85,7 +92,7 @@ function estadoInicial(dia: string): Estado {
   };
 }
 
-const CLAVE = "ticketfest-v1";
+const CLAVE = "ticketfest-v2";
 const hoy = () => new Date().toDateString();
 
 function guardado(): Estado | null {
@@ -98,13 +105,22 @@ function guardado(): Estado | null {
 }
 
 let estado: Estado = guardado() ?? estadoInicial(hoy());
+export let PRODUCTOS = estado.productos;
+export const productosDe = (stand: StandId) => Object.keys(PRODUCTOS).filter((id) => PRODUCTOS[id].stand === stand && !PRODUCTOS[id].baja);
+export const productosEnCarta = () => IDS_STAND.flatMap(productosDe);
+
 const oyentes = new Set<() => void>();
 const avisar = () => oyentes.forEach((f) => f());
+
+function fijar(nuevo: Estado) {
+  estado = nuevo;
+  PRODUCTOS = nuevo.productos;
+}
 
 function suscribir(oyente: () => void) {
   const otraPestana = (e: StorageEvent) => {
     if (e.key !== CLAVE) return;
-    estado = guardado() ?? estado;
+    fijar(guardado() ?? estado);
     oyente();
   };
   oyentes.add(oyente);
@@ -116,7 +132,7 @@ function suscribir(oyente: () => void) {
 }
 
 function cambiar(fn: (e: Estado) => Estado) {
-  estado = fn(guardado() ?? estado);
+  fijar(fn(guardado() ?? estado));
   try {
     localStorage.setItem(CLAVE, JSON.stringify(estado));
   } catch {
@@ -125,28 +141,34 @@ function cambiar(fn: (e: Estado) => Estado) {
   avisar();
 }
 
-const cargadoEn = (e: Estado, id: ProductoId) => e.cargas.reduce((s, c) => s + (c.producto === id ? c.cantidad : 0), 0);
 const vendidoEn = (e: Estado, id: ProductoId) => e.tickets.reduce((s, t) => s + (t.items[id] ?? 0), 0);
+const sobranteEn = (e: Estado, id: ProductoId) => e.productos[id].cargadas - vendidoEn(e, id);
+const disponibleEn = (e: Estado, id: ProductoId) => (e.productos[id].agotado || e.productos[id].baja ? 0 : sobranteEn(e, id));
 
-function cargar(producto: ProductoId, cantidad: number) {
-  cambiar((e) => ({
-    ...e,
-    cargas: [...e.cargas, { id: Math.max(0, ...e.cargas.map((c) => c.id)) + 1, producto, cantidad, fecha: Date.now(), apertura: false }],
-  }));
+function editar(id: ProductoId, cambios: (e: Estado) => Partial<Producto>) {
+  cambiar((e) => ({ ...e, productos: { ...e.productos, [id]: { ...e.productos[id], ...cambios(e) } } }));
 }
 
-function anularCarga(id: number) {
-  cambiar((e) => {
-    const carga = e.cargas.find((c) => c.id === id);
-    if (!carga || carga.apertura || cargadoEn(e, carga.producto) - carga.cantidad < vendidoEn(e, carga.producto)) return e;
-    return { ...e, cargas: e.cargas.filter((c) => c.id !== id) };
-  });
+function fijarDisponibles(id: ProductoId, cantidad: number) {
+  const nuevas = Math.max(0, Math.min(MAXIMO_PORCIONES, cantidad));
+  editar(id, (e) => ({ cargadas: vendidoEn(e, id) + nuevas, agotado: false }));
+}
+
+function sumar(id: ProductoId, cantidad: number) {
+  editar(id, (e) => ({ cargadas: vendidoEn(e, id) + Math.min(MAXIMO_PORCIONES, sobranteEn(e, id) + cantidad), agotado: false }));
+}
+
+const marcarAgotado = (id: ProductoId, agotado: boolean) => editar(id, () => ({ agotado }));
+const darDeBaja = (id: ProductoId, baja: boolean) => editar(id, () => ({ baja }));
+
+function crear(datos: PlatilloNuevo) {
+  cambiar((e) => ({ ...e, productos: { ...e.productos, [`p${Date.now()}`]: platillo(datos) } }));
 }
 
 function cobrar(vecino: string, items: Cesta, pago: Pago): Ticket | null {
   let nuevo: Ticket | null = null;
   cambiar((e) => {
-    if (renglones(items).some((r) => r.cantidad > cargadoEn(e, r.id) - vendidoEn(e, r.id))) return e;
+    if (Object.entries(items).some(([id, cantidad]) => (cantidad ?? 0) > disponibleEn(e, id))) return e;
     nuevo = { numero: Math.max(100, ...e.tickets.map((t) => t.numero)) + 1, vecino, items, pago, fecha: Date.now(), entregas: {} };
     return { ...e, tickets: [...e.tickets, nuevo] };
   });
@@ -169,13 +191,17 @@ function marcarEntrega(numero: number, stand: StandId, entregado: boolean) {
 export function useFeria() {
   const e = useSyncExternalStore(suscribir, () => estado);
   return {
-    cargas: e.cargas,
+    productos: e.productos,
     tickets: e.tickets,
-    cargado: (id: ProductoId) => cargadoEn(e, id),
+    cargado: (id: ProductoId) => e.productos[id].cargadas,
     vendido: (id: ProductoId) => vendidoEn(e, id),
-    quedan: (id: ProductoId) => cargadoEn(e, id) - vendidoEn(e, id),
-    cargar,
-    anularCarga,
+    sobrante: (id: ProductoId) => sobranteEn(e, id),
+    quedan: (id: ProductoId) => disponibleEn(e, id),
+    fijarDisponibles,
+    sumar,
+    marcarAgotado,
+    darDeBaja,
+    crear,
     cobrar,
     marcarEntrega,
   };
@@ -188,12 +214,14 @@ export function resumen(feria: Feria) {
   const porTransferencia = (banco: Banco) => feria.tickets.filter((t) => t.pago.tipo === "transferencia" && t.pago.banco === banco);
   const vendidoCon = (id: ProductoId, tipo: Pago["tipo"]) => feria.tickets.reduce((s, t) => s + (t.pago.tipo === tipo ? (t.items[id] ?? 0) : 0), 0) * PRODUCTOS[id].precio;
   const stands = IDS_STAND.map((id) => {
-    const productos = productosDe(id).map((p) => ({
+    const conMovimiento = Object.keys(PRODUCTOS).filter((p) => PRODUCTOS[p].stand === id && (!PRODUCTOS[p].baja || feria.vendido(p) > 0));
+    const productos = conMovimiento.map((p) => ({
       id: p,
       nombre: PRODUCTOS[p].nombre,
       iniciales: feria.cargado(p),
       vendidas: feria.vendido(p),
-      sobrantes: feria.quedan(p),
+      sobrantes: feria.sobrante(p),
+      baja: PRODUCTOS[p].baja,
       efectivo: vendidoCon(p, "efectivo"),
       transferencia: vendidoCon(p, "transferencia"),
       total: feria.vendido(p) * PRODUCTOS[p].precio,
@@ -241,7 +269,6 @@ export function reporteWhatsApp(feria: Feria) {
     `Efectivo en caja: ${qz(r.efectivo)}`,
     `Transferencias: ${qz(r.bi + r.bac)} (BI ${qz(r.bi)} · BAC ${qz(r.bac)})`,
     `Cuadre: ${qz(r.efectivo)} + ${qz(r.bi + r.bac)} = ${qz(r.total)}`,
-    `Meta ${CONVIVIO.obra}: ${qz(r.total)} de ${qz(CONVIVIO.meta)} (${Math.floor((r.total / CONVIVIO.meta) * 100)}%)`,
     `Tickets: ${r.cobrados} cobrados, ${r.entregados} despachados, ${r.pendientes} pendientes`,
     "",
     porStand.join("\n\n"),

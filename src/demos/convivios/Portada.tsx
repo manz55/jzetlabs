@@ -1,20 +1,17 @@
-import { Fragment } from "react";
-import { ArrowRight, Banknote, ChevronRight, Radio, ReceiptText, Smartphone } from "lucide-react";
-import { CONVIVIO, IDS_PRODUCTO, IDS_STAND, qz, resumen, type Feria } from "./datos";
+import { Fragment, useEffect, useState } from "react";
+import { ArrowRight, Banknote, CalendarClock, ChevronRight, Clock, ReceiptText, Smartphone } from "lucide-react";
+import { CONVIVIO, productosDe, productosEnCarta, IDS_STAND, type Feria } from "./datos";
 import { Foto } from "./Piezas";
 
 export function Hero({ feria, alCaja, alStands }: { feria: Feria; alCaja: () => void; alStands: () => void }) {
-  const disponibles = IDS_PRODUCTO.reduce((s, id) => s + feria.quedan(id), 0);
-  const { total } = resumen(feria);
-  const avance = Math.floor((total / CONVIVIO.meta) * 100);
+  const [esHoy, setEsHoy] = useState(true);
+  const disponibles = productosEnCarta().reduce((s, id) => s + feria.quedan(id), 0);
+  const activos = IDS_STAND.filter((s) => productosDe(s).length > 0).length;
   return (
     <section className="bg-[#18181B] text-white">
       <div className="tf-ancho grid items-center gap-10 py-10 sm:py-14 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-14">
         <div className="min-w-0">
-          <p className="inline-flex items-center gap-2 rounded-full bg-[#15803D] px-4 py-1.5 text-xs font-extrabold uppercase leading-snug tracking-wide">
-            <Radio size={15} aria-hidden className="shrink-0" /> En vivo hoy · {CONVIVIO.lugar}
-          </p>
-          <h1 className="mt-6 !text-white">
+          <h1 className="!text-white">
             <span className="tf-editorial block text-[2.75rem] leading-[1.05] sm:text-6xl xl:text-[4.5rem]">{CONVIVIO.nombre}</span>{" "}
             <span className="mt-2 block text-2xl font-extrabold leading-tight text-white/90 sm:text-4xl">
               <span className="tf-editorial font-medium italic text-white/60">&amp;</span> Bazar de Vecinos
@@ -32,34 +29,78 @@ export function Hero({ feria, alCaja, alStands }: { feria: Feria; alCaja: () => 
         </div>
 
         <div className="min-w-0 overflow-hidden rounded-3xl bg-[#FFFDFB] text-[#18181B]">
-          <Foto id="1505426101273-b50e6f3ff9a7" alt="Vecinos recorriendo una feria con banderines y puestos de comida" ancho={900} alto={460} prioridad className="aspect-[2/1] w-full" />
+          <Foto id="1505426101273-b50e6f3ff9a7" alt="Vecinos recorriendo una feria con banderines y puestos de comida" ancho={900} alto={380} prioridad className="aspect-[12/5] w-full" />
           <dl aria-live="polite" className="grid grid-cols-2">
-            <div className="flex min-w-0 flex-col-reverse justify-end border-r border-[#EAE2D8] p-5">
+            <div className="flex min-w-0 flex-col-reverse justify-end border-r border-[#EAE2D8] px-5 py-4">
               <dt className="text-sm font-semibold text-[#6B6560]">stands activos</dt>
-              <dd className="text-4xl font-extrabold leading-tight">{IDS_STAND.length}</dd>
+              <dd className="text-3xl font-extrabold leading-tight">{activos}</dd>
             </div>
-            <div className="flex min-w-0 flex-col-reverse justify-end p-5">
-              <dt className="text-sm font-semibold text-[#6B6560]">Porciones disponibles hoy</dt>
-              <dd className="text-4xl font-extrabold leading-tight">{disponibles}</dd>
-            </div>
-            <div className="col-span-2 border-t border-[#EAE2D8] p-5">
-              <dt className="text-sm font-semibold text-[#6B6560]">Meta recaudación {CONVIVIO.obra}</dt>
-              <dd>
-                <span className="flex flex-wrap items-baseline justify-between gap-x-3">
-                  <span>
-                    <b className="text-3xl font-extrabold">{qz(total)}</b> <span className="font-semibold text-[#6B6560]">de {qz(CONVIVIO.meta)}</span>
-                  </span>
-                  <b className="text-lg text-[#15803D]">{avance}%</b>
-                </span>
-                <span aria-hidden className="mt-3 block h-2.5 overflow-hidden rounded-full bg-[#F1EAE1]">
-                  <span className="block h-full rounded-full bg-[#15803D] transition-[width] duration-500" style={{ width: `${Math.min(100, avance)}%` }} />
-                </span>
-              </dd>
+            <div className="flex min-w-0 flex-col-reverse justify-end px-5 py-4">
+              <dt className="text-sm font-semibold text-[#6B6560]">{esHoy ? "Porciones disponibles hoy" : "Porciones preparadas"}</dt>
+              <dd className="text-3xl font-extrabold leading-tight">{disponibles}</dd>
             </div>
           </dl>
+          <Contador esHoy={esHoy} alCambiar={setEsHoy} />
         </div>
       </div>
     </section>
+  );
+}
+
+const DIAS_DE_ANTICIPACION = 4;
+const HORA_DE_APERTURA = 10;
+
+function aperturaProxima() {
+  const fecha = new Date();
+  fecha.setDate(fecha.getDate() + DIAS_DE_ANTICIPACION);
+  fecha.setHours(HORA_DE_APERTURA, 0, 0, 0);
+  return fecha;
+}
+
+function Contador({ esHoy, alCambiar }: { esHoy: boolean; alCambiar: (v: boolean) => void }) {
+  const [ahora, setAhora] = useState(Date.now);
+  useEffect(() => {
+    const t = window.setInterval(() => setAhora(Date.now()), 30_000);
+    return () => window.clearInterval(t);
+  }, []);
+  const apertura = aperturaProxima();
+  const horas = Math.max(0, Math.floor((apertura.getTime() - ahora) / 3_600_000));
+  const dias = Math.floor(horas / 24);
+
+  return (
+    <div className="border-t border-[#EAE2D8] bg-[#F9F5F0] p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-sm font-extrabold">Contador para el Evento</h2>
+        <div role="group" aria-label="Probar la fecha del convivio" className="flex gap-2">
+          <button type="button" aria-pressed={esHoy} onClick={() => alCambiar(true)} className="tf-pildora">
+            Hoy
+          </button>
+          <button type="button" aria-pressed={!esHoy} onClick={() => alCambiar(false)} className="tf-pildora">
+            Fecha próxima
+          </button>
+        </div>
+      </div>
+      <div role="status" className="mt-3">
+        {esHoy ? (
+          <p className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <span className="rounded-xl bg-[#15803D] px-4 py-2 text-lg font-extrabold text-white">¡Es hoy! · En curso</span>
+            <span className="flex items-center gap-1.5 font-bold">
+              <Clock size={17} aria-hidden className="text-[#B91C1C]" /> {CONVIVIO.horario}
+            </span>
+          </p>
+        ) : (
+          <>
+            <p className="flex items-center gap-2.5 text-2xl font-extrabold">
+              <CalendarClock size={24} aria-hidden className="shrink-0 text-[#B91C1C]" />
+              {dias === 1 ? "Falta 1 día" : `Faltan ${dias} días`} · {horas % 24} h
+            </p>
+            <p className="mt-1 text-sm font-semibold text-[#6B6560]">
+              <span className="inline-block first-letter:uppercase">{apertura.toLocaleDateString("es-GT", { weekday: "long", day: "numeric", month: "long" })}</span> · {CONVIVIO.horario}
+            </p>
+          </>
+        )}
+      </div>
+    </div>
   );
 }
 

@@ -60,7 +60,7 @@ export function Cierre({ feria, alCaja, alDespacho, alStock }: { feria: Feria; a
             {r.pendientes > 0 && <span className="tf-cuenta">{r.pendientes}</span>}
           </button>
           <button type="button" onClick={alStock} className="tf-boton tf-linea">
-            <PackagePlus size={16} aria-hidden /> Sumar stock
+            <PackagePlus size={16} aria-hidden /> Cargar porciones
           </button>
           <button type="button" onClick={enviar} className="tf-boton tf-verde !min-h-12 max-sm:order-first max-sm:w-full">
             {copia === "lista" ? <Check size={18} aria-hidden /> : <Copy size={18} aria-hidden />}
@@ -140,7 +140,10 @@ export function Cierre({ feria, alCaja, alDespacho, alStock }: { feria: Feria; a
                     </tr>
                     {s.productos.map((p) => (
                       <tr key={p.id} className="border-b border-[#F1EAE1]">
-                        <th scope="row" className="sticky left-0 whitespace-nowrap bg-white py-2.5 pl-5 pr-3 text-left font-semibold">{p.nombre}</th>
+                        <th scope="row" className="sticky left-0 whitespace-nowrap bg-white py-2.5 pl-5 pr-3 text-left font-semibold">
+                          {p.nombre}
+                          {p.baja && <span className="ml-1.5 text-xs font-bold text-[#8A817A]">(de baja)</span>}
+                        </th>
                         <td className="px-2.5 py-2.5 text-right">{p.iniciales}</td>
                         <td className="px-2.5 py-2.5 text-right">{p.vendidas}</td>
                         <td className={`px-2.5 py-2.5 text-right ${p.sobrantes ? "" : "font-extrabold text-[#B91C1C]"}`}>{p.sobrantes}</td>
@@ -165,7 +168,7 @@ export function Cierre({ feria, alCaja, alDespacho, alStock }: { feria: Feria; a
               </tfoot>
             </table>
           </div>
-          <p className="mt-3 text-xs font-semibold text-[#6B6560]">Iniciales incluye lo que cada puesto sumó durante el evento.</p>
+          <p className="mt-3 text-xs font-semibold text-[#6B6560]">Iniciales es el total cargado a cada platillo en Gestión de Menú.</p>
         </section>
 
         <section aria-labelledby="tf-reporte" className="tf-tarjeta p-5 xl:col-span-4">

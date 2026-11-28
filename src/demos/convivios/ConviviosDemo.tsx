@@ -1,8 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { BandaDemos } from "../comun";
 import { irA } from "./animar";
+import { Admin, type Pestana } from "./Admin";
 import { Caja, type Modo } from "./Caja";
-import { Cierre } from "./Cierre";
 import { SECCIONES, cuentaVacia, pendientesDe, useFeria } from "./datos";
 import { Menu } from "./Menu";
 import { Nav, type Vista } from "./Nav";
@@ -21,21 +21,22 @@ const TEMA = {
 const TITULOS: Record<Vista, string> = {
   menu: "TICKETFEST · Demo de Jzet Labs",
   caja: "Caja y Despacho · TICKETFEST",
-  cierre: "Cierre del Evento · TICKETFEST",
+  admin: "Admin y Cierre · TICKETFEST",
 };
 
-const leerVista = (): Vista => (["#caja", "#despacho"].includes(location.hash) ? "caja" : location.hash === "#cierre" ? "cierre" : "menu");
+const leerVista = (): Vista => (["#caja", "#despacho"].includes(location.hash) ? "caja" : ["#cierre", "#gestion-menu"].includes(location.hash) ? "admin" : "menu");
 const leerModo = (): Modo => (location.hash === "#despacho" ? "despacho" : "cobros");
-const ancla = (id: string) => (id === "carga-stock" ? "stands-menu" : id);
-const seccionDeLaDireccion = () => ancla(SECCIONES.find((s) => `#${s.id}` === location.hash)?.id ?? "");
-const pideAjuste = () => location.hash === "#carga-stock";
+const leerPestana = (): Pestana => (location.hash === "#gestion-menu" ? "gestion" : "cierre");
+const seccionDeLaDireccion = () => SECCIONES.find((s) => `#${s.id}` === location.hash)?.id ?? "";
+const DIRECCIONES: Record<Vista, string> = { menu: "", caja: "#caja", admin: "#cierre" };
 
 export default function ConviviosDemo() {
   const feria = useFeria();
   const [vista, setVista] = useState<Vista>(leerVista);
   const [modo, setModo] = useState<Modo>(leerModo);
   const [cuenta, setCuenta] = useState(cuentaVacia);
-  const [ajustando, setAjustando] = useState(pideAjuste);
+  const [pestana, setPestana] = useState<Pestana>(leerPestana);
+  const [enVivo, setEnVivo] = useState(false);
   const destino = useRef(seccionDeLaDireccion());
 
   useLayoutEffect(() => {
@@ -54,7 +55,7 @@ export default function ConviviosDemo() {
       destino.current = seccionDeLaDireccion() || destino.current;
       setVista(leerVista());
       setModo(leerModo());
-      if (pideAjuste()) setAjustando(true);
+      setPestana(leerPestana());
     };
     addEventListener("hashchange", cambio);
     addEventListener("popstate", cambio);
@@ -76,23 +77,29 @@ export default function ConviviosDemo() {
     return () => window.clearTimeout(t);
   }, [vista]);
 
-  function ir(nueva: Vista, nuevoModo: Modo = "cobros") {
-    const direccion = nueva === "menu" ? location.pathname : nueva === "cierre" ? "#cierre" : nuevoModo === "despacho" ? "#despacho" : "#caja";
-    if (nueva === vista) history.replaceState(null, "", direccion);
-    else history.pushState(null, "", direccion);
-    setModo(nuevoModo);
-    if (nueva === vista) window.scrollTo({ top: 0, behavior: "smooth" });
-    else setVista(nueva);
+  function ir(direccion: string) {
+    const seccion = SECCIONES.find((s) => `#${s.id}` === direccion)?.id;
+    if (seccion) {
+      irSeccion(seccion);
+      return;
+    }
+    const antes = leerVista();
+    const url = direccion || location.pathname;
+    history[direccion === location.hash ? "replaceState" : "pushState"](null, "", url);
+    setModo(leerModo());
+    setPestana(leerPestana());
+    if (leerVista() === antes) window.scrollTo({ top: 0, behavior: "smooth" });
+    setVista(leerVista());
   }
 
   function irSeccion(id: string) {
-    if (id === "carga-stock") setAjustando(true);
     if (vista === "menu") {
-      irA(ancla(id));
+      irA(id);
       return;
     }
-    destino.current = ancla(id);
-    ir("menu");
+    destino.current = id;
+    history.pushState(null, "", location.pathname);
+    setVista("menu");
   }
 
   function cambiarModo(nuevo: Modo) {
@@ -106,17 +113,17 @@ export default function ConviviosDemo() {
         <BandaDemos />
       </div>
       <div style={TEMA} className="flex min-h-screen w-full max-w-full flex-col overflow-x-clip bg-[#FFFDFB] text-base leading-relaxed text-[#3F3F46]">
-        <Nav vista={vista} pendientes={pendientesDe(feria.tickets, "todos").length} alVista={(v) => ir(v)} alSeccion={irSeccion} />
+        <Nav vista={vista} pendientes={pendientesDe(feria.tickets, "todos").length} alVista={(v) => ir(DIRECCIONES[v])} alSeccion={irSeccion} />
         <main className="flex-1">
           {vista === "menu" && (
             <>
-              <Hero feria={feria} alCaja={() => ir("caja")} alStands={() => ir("caja", "despacho")} />
+              <Hero feria={feria} alCaja={() => ir("#caja")} alStands={() => ir("#despacho")} />
               <Flujo />
-              <Menu feria={feria} ajustando={ajustando} alAjustar={setAjustando} />
+              <Menu feria={feria} enVivo={enVivo} alCambiar={setEnVivo} />
             </>
           )}
           {vista === "caja" && <Caja feria={feria} modo={modo} alModo={cambiarModo} cuenta={cuenta} alCuenta={setCuenta} />}
-          {vista === "cierre" && <Cierre feria={feria} alCaja={() => ir("caja")} alDespacho={() => ir("caja", "despacho")} alStock={() => irSeccion("carga-stock")} />}
+          {vista === "admin" && <Admin feria={feria} pestana={pestana} ir={ir} />}
         </main>
         <Pie />
       </div>
