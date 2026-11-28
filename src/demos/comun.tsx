@@ -46,7 +46,7 @@ export const GRUPOS_DEMOS: { grupo: string; demos: DemoItem[] }[] = [
       { nombre: "Pediatría", href: "/demos/pediatria/", para: "Vacunas por edad, crecimiento y citas" },
       { nombre: "Medicina general", href: "/demos/medicina/", para: "Control de presión y azúcar, recetas y chequeos" },
       { nombre: "Centro Médico y Laboratorio", href: "/demos/clinica-medica/", para: "Citas, resultados de lab en línea, recetas y caja", avisoSiempre: true },
-      { nombre: "Oftalmología", href: "/demos/oftalmologia/", para: "Turnos que se respetan, sucursales y sala de espera" },
+      { nombre: "Oftalmología y Óptica", href: "/demos/oftalmologia/", para: "Citas, receta digital, aros y taller óptico", avisoSiempre: true },
       { nombre: "Veterinaria y Grooming", href: "/demos/veterinaria/", para: "Citas, carnet de vacunas, pet shop y panel de la clínica", avisoSiempre: true },
       { nombre: "Salón de belleza", href: "/demos/salon/", para: "Diagnóstico capilar, citas, expediente de color y panel", avisoSiempre: true },
       { nombre: "Mobiliario para eventos", href: "/demos/eventos/", para: "Cotizador por fecha, portal del cliente y logística de bodega", avisoSiempre: true },
