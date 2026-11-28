@@ -1,0 +1,88 @@
+/* Piezas que usan las tres vistas: el logotipo, los botones, las fotos y el código del carné. */
+import { useMemo, useState } from "react";
+import { foto } from "./datos";
+
+/* clases de botón: todos grandes y fáciles de tocar */
+export const BTN = "inline-flex min-h-12 min-w-0 cursor-pointer items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-center text-[0.95rem] font-bold leading-tight transition active:scale-[0.98] disabled:cursor-not-allowed disabled:active:scale-100";
+export const VERDE = `${BTN} bg-[#15803D] text-white hover:bg-[#166534]`;
+export const CARBON = `${BTN} bg-[#0F172A] text-white hover:bg-[#1E293B]`;
+export const BORDE = `${BTN} border border-slate-300 bg-white text-[#0F172A] hover:border-[#0F172A]`;
+
+export const ANCHO = "mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8";
+
+/* la "H" de gimnasio: dos barras verticales unidas al centro, y el nombre al lado */
+export function Logo() {
+  return (
+    <span className="flex w-fit items-center gap-2 whitespace-nowrap sm:gap-2.5">
+      <span aria-hidden className="flex items-center">
+        <span className="h-6 w-1.5 bg-[#15803D]" />
+        <span className="h-1.5 w-3 bg-[#0F172A]" />
+        <span className="h-6 w-1.5 bg-[#15803D]" />
+      </span>
+      <span className="flex flex-col text-left leading-none">
+        <span className="text-[1.05rem] font-extrabold tracking-tight text-[#0F172A] sm:text-[1.2rem]">IRONPEAK</span>
+        <span className="mt-1 text-[0.5rem] font-bold tracking-[0.16em] text-slate-500 sm:text-[0.55rem] sm:tracking-[0.2em]">PERFORMANCE CLUB</span>
+      </span>
+    </span>
+  );
+}
+
+export function Foto({ id, alt, ancho, alto, pronto = false, className = "" }: { id: string; alt: string; ancho: number; alto: number; pronto?: boolean; className?: string }) {
+  const [fallo, setFallo] = useState(false);
+  return (
+    <span className={`block overflow-hidden bg-slate-200 ${className}`}>
+      {fallo ? (
+        <span role="img" aria-label={alt} className="grid h-full min-h-32 place-items-center text-sm font-bold text-slate-500">
+          IronPeak
+        </span>
+      ) : (
+        <img src={foto(id, ancho, alto)} alt={alt} width={ancho} height={alto} loading={pronto ? "eager" : "lazy"} decoding="async" onError={() => setFallo(true)} className="block h-full w-full object-cover" />
+      )}
+    </span>
+  );
+}
+
+const LADO = 21;
+
+/* Código del carné dibujado con cuadritos: las tres esquinas de siempre y un patrón propio de cada socio */
+export function CodigoQR({ numero, activo }: { numero: number; activo: boolean }) {
+  const celdas = useMemo(() => {
+    let semilla = numero * 7919 + 17;
+    const azar = () => (semilla = (semilla * 16807) % 2147483647) % 100;
+    return Array.from({ length: LADO * LADO }, (_, i) => {
+      const f = Math.floor(i / LADO);
+      const c = i % LADO;
+      for (const [y, x] of [[0, 0], [0, LADO - 7], [LADO - 7, 0]]) {
+        const dy = f - y;
+        const dx = c - x;
+        if (dy >= -1 && dy <= 7 && dx >= -1 && dx <= 7) {
+          if (dy < 0 || dy > 6 || dx < 0 || dx > 6) return false;
+          const orilla = dy === 0 || dy === 6 || dx === 0 || dx === 6;
+          return orilla || (dy >= 2 && dy <= 4 && dx >= 2 && dx <= 4);
+        }
+      }
+      return azar() < 48;
+    });
+  }, [numero]);
+  return (
+    <div
+      role="img"
+      aria-label={activo ? `Código de entrada del carné ${numero}` : `Código del carné ${numero}, sin acceso`}
+      className={`grid aspect-square w-full ${activo ? "" : "opacity-15"}`}
+      style={{ gridTemplateColumns: `repeat(${LADO}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${LADO}, minmax(0, 1fr))` }}
+    >
+      {celdas.map((on, i) => (
+        <span key={i} className={on ? "bg-[#0F172A]" : ""} />
+      ))}
+    </div>
+  );
+}
+
+export function Titulo({ titulo, texto }: { titulo: string; texto: string }) {
+  return (
+    <div className="mb-7 max-w-2xl sm:mb-9">
+      <h2 className="text-[1.75rem] font-extrabold leading-tight tracking-tight sm:text-[2.25rem]">{titulo}</h2>
+      <p className="mt-2 text-[1.02rem] text-slate-600">{texto}</p>
+    </div>
+  );
+}

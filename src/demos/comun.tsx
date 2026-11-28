@@ -40,7 +40,7 @@ export const GRUPOS_DEMOS: { grupo: string; demos: DemoItem[] }[] = [
     demos: [
       { nombre: "Distribuidora", href: "/demos/distribuidora/", para: "Pedidos de tiendas, rutas y cobros" },
       { nombre: "Planilla y personal", href: "/demos/planilla/", para: "Constructora: panel de oficina y portal del empleado" },
-      { nombre: "Gimnasio", href: "/demos/gimnasio/", para: "Planes, clases con cupo y membresías vencidas" },
+      { nombre: "Gimnasio", href: "/demos/gimnasio/", para: "Planes, reserva de clases, pase con QR y panel de recepción", avisoSiempre: true },
       { nombre: "Tiempo compartido", href: "/demos/tiempo-compartido/", para: "Planes y semanas apartadas" },
       { nombre: "Clínica dental", href: "/demos/clinica/", para: "Citas, odontograma y saldos" },
       { nombre: "Pediatría", href: "/demos/pediatria/", para: "Vacunas por edad, crecimiento y citas" },

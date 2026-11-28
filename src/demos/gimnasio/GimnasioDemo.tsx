@@ -1,570 +1,138 @@
 /*
- * Demo: "Spartan Force Gym" (negocio inventado, datos de ejemplo, fotos de Unsplash).
- * Tres partes: la página que ve la gente (cuánta gente hay, planes, clases, sedes con parqueo),
- * la membresía del socio (carnet, días que le quedan, asistencias) y recepción (quién entró y a quién cobrarle).
+ * Demo: IronPeak Performance Club (gimnasio inventado, fotos de Unsplash). Tres vistas en la misma
+ * dirección que comparten datos en vivo: Planes y Clases, Pase de Socio (#pase) y Panel Recepción
+ * (#recepcion). De lo compartido entre demos solo usa la banda superior.
  */
-import { useCallback, useEffect, useState, type ReactNode } from "react";
-import { ArrowLeft, ArrowRight, Car, Check, Clock, Dumbbell, MapPin, Navigation, Users, X } from "lucide-react";
-import PanelGimnasio from "./PanelGimnasio";
-import AppSocio from "./AppSocio";
-import { Carnet, Logo, Marca, Mastercard, Visa, btn } from "./piezas";
-import { Rev, Ventana } from "../perfil/Ventana";
-import { BandaDemos, PartesDemo, Cajon, CierreJzet, MensajeWhatsApp } from "../comun";
-import {
-  ACERO, AFORO_BASE, AMARILLO, AVANCES, AZUL, CLASES, COACHES, DIAS, FOTOS, GOMA, GOMA2, HORARIO, INSCRIPCION, PLANES, PREGUNTAS, ROJO, SEDES, TITULO, TIZA, VERDE,
-  aforo, enDias, fechaCorta, horaAhora, nivel, porId, qz, useGimnasio,
-  type Clase, type Gym, 
-} from "./datos";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { BandaDemos } from "../comun";
+import { irA } from "./animar";
+import { useClub, type PlanId } from "./datos";
+import { Inicio } from "./Inicio";
+import { Inscripcion } from "./Inscripcion";
+import { Nav, SECCIONES, type Vista } from "./Nav";
+import { Panel, type Filtro } from "./Panel";
+import { Pase } from "./Pase";
+import { Pie } from "./Pie";
 
+const LETRAS = "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap";
 
+/* van en la capa base para que las clases de cada pieza puedan cambiarlas */
 const ESTILOS = `
-.gym h1, .gym h2, .gym h3 { color: inherit; }
-.gym-titulo { font-family: ${TITULO}; text-transform: uppercase; letter-spacing: -0.01em; line-height: .92; font-weight: 900; }
-/* moleteado de la barra olímpica, como divisor */
-.moleteado { height: 22px; background:
-  repeating-linear-gradient(45deg, rgba(0,0,0,.28) 0 1.5px, transparent 1.5px 6px),
-  repeating-linear-gradient(-45deg, rgba(0,0,0,.28) 0 1.5px, transparent 1.5px 6px),
-  linear-gradient(#9aa3ab, #e3e7ea 45%, #8b949c); }
-.disco { border-radius: 9999px; display: grid; place-items: center; position: relative; box-shadow: inset 0 0 0 6px rgba(0,0,0,.18), inset 0 0 0 14px rgba(255,255,255,.08); }
-.disco::after { content: ""; position: absolute; width: 22%; height: 22%; border-radius: 9999px; background: #d4d9dd; box-shadow: inset 0 0 0 3px #9aa3ab; }
-.pizarra { background: radial-gradient(120% 80% at 30% 20%, #2f3a35, #1f2724); box-shadow: inset 0 0 0 10px #6b4a2f, inset 0 0 0 12px #3d2a1a; }
-.gym-hero { display: grid; gap: clamp(1.5rem,3vw,3rem); }
-@media (min-width: 960px) { .gym-hero { grid-template-columns: minmax(0,1.05fr) minmax(0,1fr); align-items: center; } }
-.gy-cont { width: min(100% - 2 * clamp(1rem, 4vw, 5rem), 140rem); margin-inline: auto; }
-.gy-sec { padding-block: clamp(3rem, 6vw, 7rem); }
-.gy-h1 { font-size: clamp(3.6rem, 1.4rem + 6.2vw, 9rem); }
-.gy-h2 { font-size: clamp(2.8rem, 1.4rem + 3.6vw, 5.6rem); }
-.gy-eyebrow { display: flex; align-items: center; gap: .75rem; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; font-size: .95rem; }
-.gy-eyebrow::after { content: ""; height: 3px; flex: 1; background: currentColor; opacity: .3; }
-.gy-auto { display: grid; gap: clamp(.75rem,1.6vw,1.75rem); grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--min, 16rem)), 1fr)); }
-.gy-fill { display: grid; gap: clamp(.75rem,1.6vw,1.75rem); grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--min, 16rem)), 1fr)); }
-.gy-card { position: relative; overflow: hidden; transition: transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s; }
-.gy-card::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(115deg, transparent 40%, rgba(242,194,48,.28) 50%, transparent 60%); transform: translateX(-130%); transition: transform .8s ease; }
-.gy-card:hover, .gy-card:focus-within { transform: translateY(-7px); box-shadow: 0 20px 40px -14px rgba(242,194,48,.55), 0 0 0 3px #f2c230; }
-.gy-card:hover::after { transform: translateX(130%); }
-.gy-card .gy-img { transition: transform .8s cubic-bezier(.2,.8,.2,1); }
-.gy-card:hover .gy-img { transform: scale(1.1); }
-.gy-card .gy-disco { transition: transform 1s cubic-bezier(.2,.8,.2,1); }
-.gy-card:hover .gy-disco { transform: rotate(180deg); }
-.gy-btn { transition: transform .2s, box-shadow .2s, filter .2s; }
-.gy-btn:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 0 0 3px rgba(242,194,48,.6); }
-.gy-btn:active { transform: scale(.97); }
-.gy-flip { perspective: 1600px; }
-.gy-flip-in { position: relative; height: 100%; transition: transform .9s cubic-bezier(.2,.8,.2,1); transform-style: preserve-3d; }
-.gy-flip[data-vuelta="1"] .gy-flip-in { transform: rotateY(180deg); }
-.gy-face { position: absolute; inset: 0; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-.gy-back { transform: rotateY(180deg); }
-.pf-zoom { animation: pfzoom 1s cubic-bezier(.2,.8,.2,1) both; }
-@keyframes pfzoom { from { transform: scale(1.15); opacity: .4; } to { transform: scale(1); opacity: 1; } }
-@media (hover: none) { .gy-card:hover { transform: none; box-shadow: none; } .gy-card:hover .gy-img, .gy-card:hover .gy-disco { transform: none; } }
-@media (prefers-reduced-motion: reduce) { .gy-card, .gy-card::after, .gy-card .gy-img, .gy-card .gy-disco, .gy-btn { transition: none; } .pf-zoom { animation: none; } }
-.gym-recep { display: grid; gap: 2rem; }
-@media (min-width: 1024px) { .gym-recep { grid-template-columns: 1.3fr 1fr; } }
+@layer base {
+  .ip { font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif; font-size: 1rem; line-height: 1.6; font-variant-numeric: lining-nums tabular-nums; }
+  .ip h1, .ip h2, .ip h3 { font-family: inherit; color: #0F172A; }
+  .ip :focus-visible { outline-color: #15803D; }
+}
 `;
 
-type Vista = "pagina" | "socio" | "recepcion";
+/* "#socio" es el enlace de la versión anterior */
+const leer = (): Vista => (location.hash === "#recepcion" ? "recepcion" : location.hash === "#pase" || location.hash === "#socio" ? "pase" : "planes");
+
+const TITULOS: Record<Vista, string> = {
+  planes: "IronPeak Performance Club · Demo de Jzet Labs",
+  pase: "Pase de Socio · IronPeak",
+  recepcion: "Panel Recepción · IronPeak",
+};
 
 export default function GimnasioDemo() {
-  const gym = useGimnasio();
-  const leer = (): Vista => (location.hash === "#socio" ? "socio" : location.hash === "#recepcion" ? "recepcion" : "pagina");
+  const club = useClub();
   const [vista, setVista] = useState<Vista>(leer);
-  const [socio, setSocio] = useState(104);
-  useEffect(() => {
-    const cambio = () => setVista(leer());
-    addEventListener("hashchange", cambio);
-    return () => removeEventListener("hashchange", cambio);
+  const [socioId, setSocioId] = useState(1001);
+  const [filtro, setFiltro] = useState<Filtro>("todos");
+  const [alta, setAlta] = useState<PlanId | null>(null);
+  /* sección de la portada a la que hay que bajar cuando ya esté pintada */
+  const destino = useRef(SECCIONES.find((s) => `#${s.id}` === location.hash)?.id ?? "");
+  const socio = club.socios.find((s) => s.id === socioId) ?? club.socios[0];
+
+  useLayoutEffect(() => {
+    if (document.querySelector(`link[href="${LETRAS}"]`)) return;
+    const l = document.createElement("link");
+    l.rel = "stylesheet";
+    l.href = LETRAS;
+    document.head.appendChild(l);
   }, []);
-  useEffect(() => {
-    history.replaceState(null, "", vista === "pagina" ? location.pathname : `#${vista}`);
-    document.title = vista === "recepcion" ? "Panel · Spartan Force" : vista === "socio" ? "Mi membresía · Spartan Force" : "Spartan Force Gym · Demo de Jzet Labs";
-    window.scrollTo(0, 0);
+
+  /* cada vista empieza arriba, también al volver atrás */
+  useLayoutEffect(() => {
+    const antes = history.scrollRestoration;
+    history.scrollRestoration = "manual";
+    return () => {
+      history.scrollRestoration = antes;
+    };
+  }, []);
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
   }, [vista]);
 
-  return (
-    <div className="gym min-h-screen" style={{ background: GOMA, color: TIZA }}>
-      <style>{ESTILOS}</style>
-      <BandaDemos />
-      <PartesDemo fondo={"#0d0e0f"} actual={vista} alCambiar={setVista} partes={[{ id: "pagina", nombre: "Página", quien: "Cuánta gente hay, planes y clases" }, { id: "socio", nombre: "App del socio", quien: "Su carnet, sus días y su rutina" }, { id: "recepcion", nombre: "Panel de Spartan Force", quien: "Socios, acceso, clases y pagos" }] as const} />
-      {vista === "pagina" && <Pagina gym={gym} alInscribir={(n) => { setSocio(n); setVista("socio"); }} />}
-      {vista === "socio" && <AppSocio gym={gym} num={socio} setNum={setSocio} />}
-      {vista === "recepcion" && <PanelGimnasio gym={gym} />}
-      <CierreJzet demo="gimnasio" />
-    </div>
-  );
-}
+  useEffect(() => {
+    const cambio = () => {
+      setAlta(null);
+      setVista(leer());
+    };
+    addEventListener("hashchange", cambio);
+    addEventListener("popstate", cambio);
+    return () => {
+      removeEventListener("hashchange", cambio);
+      removeEventListener("popstate", cambio);
+    };
+  }, []);
 
-/* ---------------- la página ---------------- */
+  useEffect(() => {
+    document.title = TITULOS[vista];
+    const id = destino.current;
+    if (!id || vista !== "planes") return;
+    const t = window.setTimeout(() => {
+      destino.current = "";
+      irA(id);
+    }, 150);
+    return () => window.clearTimeout(t);
+  }, [vista]);
 
-const INFO_CLASE: Record<string, { nivel: string; dura: string; trae: string[]; que: string; intensidad: number }> = {
-  Spinning: { nivel: "Todos los niveles", dura: "45 min", trae: ["Toalla", "Agua", "Tenis o zapatos de spinning"], que: "Bici con música y ritmo. Subes, bajas y sudas sin lesionarte.", intensidad: 4 },
-  Funcional: { nivel: "Todos los niveles", dura: "50 min", trae: ["Toalla", "Agua", "Tenis"], que: "Circuitos con peso corporal, kettlebell y cuerdas. Cada ronda se adapta a tu nivel.", intensidad: 5 },
-  "Glúteo y pierna": { nivel: "Intermedio", dura: "55 min", trae: ["Toalla", "Agua", "Ligas si tienes"], que: "Hip thrust, sentadillas y trabajo con barra guiado por la coach.", intensidad: 4 },
-  "Tren superior": { nivel: "Intermedio", dura: "55 min", trae: ["Toalla", "Agua"], que: "Espalda, hombro y brazo con mancuernas y poleas.", intensidad: 4 },
-  Zumba: { nivel: "Todos los niveles", dura: "50 min", trae: ["Toalla", "Agua", "Ropa cómoda"], que: "Baile y cardio al ritmo de la música. Cero complicaciones.", intensidad: 3 },
-  "Funcional en parejas": { nivel: "Todos los niveles", dura: "50 min", trae: ["Toalla", "Agua", "A tu pareja o amigo"], que: "Rondas en parejas: uno trabaja y el otro anima.", intensidad: 4 },
-  "Movilidad y estiramiento": { nivel: "Principiante", dura: "40 min", trae: ["Toalla", "Ropa cómoda"], que: "Estiramiento y movilidad de cadera, espalda y hombro.", intensidad: 1 },
-};
-const INFO_COACH: Record<string, { alias: string; frase: string; certs: string[]; fotos: { f: string; p: string }[] }> = {
-  "Ricardo Méndez": { alias: "Ricardo", frase: "Primero la técnica, después el peso.", certs: ["Entrenador de fuerza certificado", "Funcional y kettlebell", "Primeros auxilios"], fotos: [{ f: FOTOS.coach, p: "Ricardo corrigiendo la postura de una socia" }, { f: FOTOS.funcional, p: "En su clase de funcional" }, { f: FOTOS.spinning, p: "Dirigiendo spinning" }, { f: FOTOS.mancuernas, p: "En la sala de pesas" }] },
-  "María José Pérez": { alias: "Majo", frase: "Todos pueden empezar. Yo te acompaño.", certs: ["Entrenadora personal certificada", "Especialista en glúteo y pierna", "Instructora de spinning"], fotos: [{ f: FOTOS.coach2, p: "Majo guiando un ejercicio de suelo" }, { f: FOTOS.sentadilla, p: "Clase de glúteo y pierna" }, { f: FOTOS.spinning, p: "Spinning de las 5:30" }, { f: FOTOS.funcional, p: "Entrenamiento funcional" }] },
-};
-const RESULTADOS = [
-  { n: "-12 kg", t: "en 5 meses", d: "Llegué con miedo a los aparatos. Con la rutina de inicio y las clases de las 5:30 cambió mi energía y hasta mi ropa.", q: "Andrea, socia desde hace 8 meses", foto: AVANCES[0].foto },
-  { n: "3 veces", t: "por semana", d: "Antes pagaba otro gimnasio y no iba. Aquí apartar la clase me obliga a llegar, y vengo con mi hermana.", q: "Wendy, socia desde hace 1 año", foto: AVANCES[1].foto },
-  { n: "+20 kg", t: "en sentadilla", d: "En tres meses subí mi peso. El coach me corrige la técnica y no me he lesionado ni una vez.", q: "Kevin, socio desde hace 3 meses", foto: AVANCES[3].foto },
-  { n: "5 meses", t: "sin faltar", d: "Ver cuánta gente hay antes de salir me ahorra tiempo. El gimnasio ya es parte de mi día.", q: "Paola, socia desde hace 5 meses", foto: AVANCES[2].foto },
-];
-const NAV = [["planes", "Planes"], ["clases", "Clases"], ["entrenadores", "Entrenadores"], ["socios", "Resultados"], ["sedes", "Sedes"], ["preguntas", "Preguntas"]];
+  function ir(nueva: Vista) {
+    setAlta(null);
+    const direccion = nueva === "planes" ? location.pathname : `#${nueva}`;
+    if (nueva === vista) {
+      history.replaceState(null, "", direccion);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    history.pushState(null, "", direccion);
+    setVista(nueva);
+  }
 
-function Seccion({ id, etiqueta, titulo, sub, fondo, color = TIZA, borde = AMARILLO, derecha, logo = false, children }: { id: string; etiqueta: string; titulo: string; sub?: string; fondo: string; color?: string; borde?: string; derecha?: ReactNode; logo?: boolean; children: ReactNode }) {
-  return (
-    <section id={id} className="gy-sec scroll-mt-32" style={{ background: fondo, color, borderTop: `8px solid ${borde}` }}>
-      <div className="gy-cont">
-        <p className="gy-eyebrow" style={{ color: borde === ACERO ? GOMA : borde }}>{etiqueta}</p>
-        <div className="mt-3 flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
-          <div>
-            <h2 className="gym-titulo gy-h2 flex items-center gap-[0.25em]">{logo && <Logo tam={72} />}{titulo}</h2>
-            {sub && <p className="mt-2 max-w-2xl text-[clamp(1.1rem,1rem+0.5vw,1.4rem)] opacity-75">{sub}</p>}
-          </div>
-          {derecha}
-        </div>
-        <div className="mt-[clamp(1.5rem,3vw,3rem)]">{children}</div>
-      </div>
-    </section>
-  );
-}
+  function irSeccion(id: string) {
+    if (vista === "planes") {
+      irA(id);
+      return;
+    }
+    destino.current = id;
+    ir("planes");
+  }
 
-function Pagina({ gym, alInscribir }: { gym: Gym; alInscribir: (n: number) => void }) {
-  const [sede, setSede] = useState("mixco");
-  const [plan, setPlan] = useState<string | null>(null);
-  const [estudiante, setEstudiante] = useState(false);
-  const [dia, setDia] = useState(() => new Date().getDay());
-  const [msg, setMsg] = useState<string | null>(null);
-  const [clase, setClase] = useState<Clase | null>(null);
-  const [coach, setCoach] = useState<(typeof COACHES)[number] | null>(null);
-  const [fotoCoach, setFotoCoach] = useState(0);
-  const [vueltas, setVueltas] = useState<Record<string, boolean>>({});
-  const cerrarClase = useCallback(() => setClase(null), []);
-  const cerrarCoach = useCallback(() => setCoach(null), []);
-  const hReal = horaAhora();
-  const abierto = hReal >= 4 && hReal < 22;
-  // fuera de horario se muestra la hora pico, para que la demo siempre se entienda
-  const h = abierto ? hReal : 18;
-  const s = porId(SEDES, sede);
-  const ahora = aforo(sede, h);
-  const nv = nivel(ahora, s.capacidad);
-  const hoy = new Date().getDay();
-  const precio = (p: (typeof PLANES)[number]) => (estudiante && (p.id === "mensual" || p.id === "trimestral") ? Math.round((p.precio * 0.8) / 5) * 5 : p.precio);
+  function verPase(id: number) {
+    setSocioId(id);
+    ir("pase");
+  }
 
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-white/10 backdrop-blur" style={{ background: "rgba(22,24,26,.94)" }}>
-        <div className="gy-cont flex h-[4.25rem] items-center justify-between gap-4">
-          <a href="#inicio" aria-label="Spartan Force Gym"><Marca /></a>
-          <nav className="hidden gap-8 text-[1.1rem] font-semibold text-white/80 lg:flex" aria-label="Secciones">
-            {NAV.map(([id, t]) => <a key={id} href={`#${id}`} className="hover:text-white">{t}</a>)}
-          </nav>
-          <a href="#planes" className={`${btn} gy-btn !px-5 !py-3`} style={{ background: AMARILLO, color: GOMA }}>Inscribirme</a>
-        </div>
-        <nav className="gy-cont flex gap-2 overflow-x-auto pb-2.5 lg:hidden [scrollbar-width:none]" aria-label="Secciones">
-          {NAV.map(([id, t]) => <a key={id} href={`#${id}`} className="inline-flex min-h-[2.75rem] shrink-0 items-center rounded-md px-4 text-[1.05rem] font-bold" style={{ background: GOMA2 }}>{t}</a>)}
-        </nav>
-      </header>
+      <style>{ESTILOS}</style>
+      <div className="relative z-50">
+        <BandaDemos />
+      </div>
+      <div className="ip min-h-screen w-full overflow-x-clip bg-white text-slate-700">
+        <Nav vista={vista} alVista={ir} alSeccion={irSeccion} alInscribirme={() => setAlta("ilimitado")} />
 
-      {/* portada: cuánta gente hay ahora */}
-      <section id="inicio" className="gy-sec" style={{ paddingBlock: "clamp(1.5rem,4vw,5rem)" }}>
-        <div className="gy-cont">
-          <div className="gym-hero">
-            <div>
-              <h1 className="gym-titulo gy-h1">Mira cuánta gente hay antes de venir.</h1>
-              <p className="mt-5 max-w-xl text-[clamp(1.2rem,1.05rem+0.6vw,1.6rem)] leading-snug text-white/80">Desde {qz(25)} el día. Abierto desde las 4:30 de la mañana. Te inscribes desde el teléfono.</p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <a href="#planes" className={`${btn} gy-btn !px-8 !py-4 text-[1.2rem]`} style={{ background: AMARILLO, color: GOMA }}>Ver planes y precios <ArrowRight size={20} /></a>
-                <button type="button" onClick={() => setPlan("dia")} className={`${btn} gy-btn !px-8 !py-4 text-[1.2rem] border-2 border-white/30`}>Pagar pase del día</button>
-              </div>
-              <ul className="mt-9 grid gap-3 sm:grid-cols-3">
-                {[[Clock, "4:30 am", "primera clase"], [MapPin, "2 sedes", "con parqueo"], [Dumbbell, "Desde Q25", "pase del día con QR"]].map(([I, a, b]) => { const Icono = I as typeof Clock; return (
-                  <li key={a as string} className="flex items-center gap-3 rounded-lg p-3.5" style={{ background: GOMA2 }}><span className="grid h-12 w-12 shrink-0 place-items-center rounded-md" style={{ background: AMARILLO, color: GOMA }}><Icono size={24} /></span><span className="leading-tight"><b className="block text-[1.25rem]">{a as string}</b><span className="text-[1rem] text-white/65">{b as string}</span></span></li>
-                ); })}
-              </ul>
-            </div>
-            <div className="relative">
-              <img src={FOTOS.portada} alt="Mujer levantando una barra en el rack" className="h-[clamp(26rem,52vw,46rem)] w-full rounded-xl object-cover" />
-              <div className="absolute inset-x-3 bottom-3 rounded-xl p-5 sm:inset-x-auto sm:left-5 sm:bottom-5 sm:w-[min(24rem,calc(100%-2.5rem))]" style={{ background: "rgba(22,24,26,.95)" }}>
-                <div className="flex gap-1 rounded-md bg-white/10 p-1 text-[1rem]">
-                  {SEDES.map((x) => (
-                    <button key={x.id} type="button" onClick={() => setSede(x.id)} className={`min-h-[2.75rem] flex-1 rounded px-2 font-bold ${sede === x.id ? "bg-white text-black" : "text-white/80"}`}>{x.nombre}</button>
-                  ))}
-                </div>
-                <div className="mt-3 flex items-end justify-between gap-3">
-                  <p><span className="gym-titulo text-[clamp(3.4rem,3rem+1.4vw,4.6rem)]">{ahora}</span><span className="ml-2 text-[1.05rem] text-white/75">{abierto ? "personas aprox. ahora" : "personas aprox. a las 18:00"}</span></p>
-                  <span className="rounded px-3 py-1.5 text-[1rem] font-bold" style={{ background: nv.c, color: nv.c === AMARILLO ? GOMA : "#fff" }}>{nv.t}</span>
-                </div>
-                <div className="mt-3 flex h-16 items-end gap-[3px]" aria-label="Gente por hora hoy">
-                  {AFORO_BASE.map((_, i) => {
-                    const n = aforo(sede, i + 4);
-                    const esta = i + 4 === h;
-                    return <span key={i} className="flex-1 rounded-sm" title={`${i + 4}:00, ${n} personas`} style={{ height: `${Math.max(8, (n / s.capacidad) * 100)}%`, background: esta ? AMARILLO : "rgba(255,255,255,.22)" }} />;
-                  })}
-                </div>
-                <div className="mt-1 flex justify-between text-[0.9rem] text-white/60"><span>4:00</span><span>13:00</span><span>21:00</span></div>
-                <p className="mt-2 text-[0.95rem] text-white/70">Capacidad aproximada: {s.capacidad} personas. Nunca se niega la entrada.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      <div className="moleteado" aria-hidden />
+        <main className="overflow-x-hidden">
+          {vista === "planes" && <Inicio club={club} socio={socio} alElegirPlan={setAlta} alPase={() => ir("pase")} />}
+          {vista === "pase" && <Pase club={club} socio={socio} alElegir={setSocioId} alHorarios={() => irSeccion("horarios")} />}
+          {vista === "recepcion" && <Panel club={club} filtro={filtro} alFiltrar={setFiltro} alVer={verPase} />}
+        </main>
 
-      {/* planes como discos */}
-      <Seccion id="planes" etiqueta="Planes" titulo="Elige tu plan" sub={`Inscripción ${qz(INSCRIPCION)}. En noviembre, gratis con el trimestral o el anual.`} fondo={GOMA2} derecha={
-        <label className="gy-btn flex min-h-[3.25rem] cursor-pointer items-center gap-3 rounded-md border-2 border-white/25 px-5 text-[1.1rem] font-bold">
-          <input type="checkbox" checked={estudiante} onChange={(e) => setEstudiante(e.target.checked)} className="h-6 w-6" style={{ accentColor: AMARILLO }} /> Soy estudiante (20% menos)
-        </label>}>
-        <div className="gy-auto" style={{ ["--min" as string]: "17rem" }}>
-          {PLANES.map((p, i) => (
-            <Rev key={p.id} i={i} className="h-full">
-              <article className="gy-card relative flex h-full flex-col rounded-xl p-6 pt-9" style={{ background: GOMA, boxShadow: p.marca ? `inset 0 0 0 3px ${p.color}` : "inset 0 0 0 1px rgba(255,255,255,.12)" }}>
-                {p.marca && <span className="absolute left-5 top-0 rounded-b px-3 py-1 text-[0.95rem] font-bold" style={{ background: p.color, color: p.texto }}>{p.marca}</span>}
-                <div className="flex items-center gap-4">
-                  <span className="disco gy-disco h-28 w-28 shrink-0" style={{ background: p.color }}><span className="absolute top-2.5 text-[0.75rem] font-bold" style={{ color: p.texto, opacity: 0.85 }}>{p.kg} KG</span></span>
-                  <div>
-                    <h3 className="gym-titulo text-[clamp(2.2rem,2rem+0.8vw,2.8rem)]">{p.nombre}</h3>
-                    <p className="text-[clamp(1.8rem,1.6rem+0.8vw,2.3rem)] font-bold leading-none">{qz(precio(p))}{precio(p) !== p.precio && <s className="ml-2 text-[1.1rem] font-normal text-white/50">{qz(p.precio)}</s>}</p>
-                  </div>
-                </div>
-                <ul className="mt-6 grid flex-1 content-start gap-2.5 text-[1.1rem] text-white/85">
-                  {p.incluye.map((x) => <li key={x} className="flex gap-2.5"><Check size={20} className="mt-0.5 shrink-0" style={{ color: p.color }} /> {x}</li>)}
-                </ul>
-                <button type="button" onClick={() => setPlan(p.id)} className={`${btn} gy-btn mt-6 w-full !py-4 text-[1.15rem]`} style={{ background: p.color, color: p.texto }}>{p.id === "dia" ? "Comprar pase" : "Inscribirme"}</button>
-              </article>
-            </Rev>
-          ))}
-        </div>
-      </Seccion>
+        <Pie />
 
-      {/* clases Spartan */}
-      <Seccion id="clases" etiqueta="Clases" titulo="Clases Spartan" logo sub="Aparta tu lugar desde aquí. Toca una clase para ver de qué trata." fondo={GOMA} borde={ROJO}>
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Día de la semana">
-          {[1, 2, 3, 4, 5, 6, 0].map((d) => (
-            <button key={d} type="button" aria-pressed={dia === d} onClick={() => setDia(d)} className="gy-btn min-h-[3.5rem] flex-1 rounded-md px-5 text-[1.2rem] font-bold" style={dia === d ? { background: TIZA, color: GOMA } : { background: GOMA2 }}>{d === hoy ? "Hoy" : DIAS[d]}</button>
-          ))}
-        </div>
-        <div key={dia} className="gy-auto mt-6" style={{ ["--min" as string]: "27rem" }}>
-          {CLASES.filter((c) => c.dia === dia).map((c, i) => {
-            const mia = !!gym.reservas[c.id];
-            const van = c.van + (mia ? 1 : 0);
-            const lleno = van >= c.cupo && !mia;
-            return (
-              <Rev key={c.id} i={i} className="h-full">
-                <div className="gy-card flex h-full flex-col overflow-hidden rounded-xl sm:flex-row" style={{ background: GOMA2 }}>
-                  <button type="button" onClick={() => setClase(c)} aria-label={`Ver ${c.nombre}`} className="relative block h-48 shrink-0 overflow-hidden sm:h-auto sm:w-[38%]"><img src={c.foto} alt="" className="gy-img absolute inset-0 h-full w-full object-cover" /></button>
-                  <div className="flex min-w-0 flex-1 flex-col p-5">
-                    <button type="button" onClick={() => setClase(c)} className="text-left">
-                      <span className="block text-[1.3rem] font-bold" style={{ color: AMARILLO }}>{c.hora}</span>
-                      <span className="gym-titulo mt-1 block text-[clamp(2rem,1.7rem+0.8vw,2.6rem)]">{c.nombre}</span>
-                      <span className="block text-[1.1rem] text-white/70">con {c.coach}</span>
-                    </button>
-                    <span className="mt-3 block h-2.5 overflow-hidden rounded-full bg-white/10"><span className="block h-full" style={{ width: `${Math.min(100, (van / c.cupo) * 100)}%`, background: van >= c.cupo ? ROJO : van / c.cupo > 0.75 ? AMARILLO : VERDE }} /></span>
-                    <span className="mt-1.5 block text-[1.05rem] text-white/75">{lleno ? "Clase llena" : `Quedan ${c.cupo - van} de ${c.cupo} lugares`}</span>
-                    <button type="button" disabled={lleno} onClick={() => gym.reservar(c.id)} className="gy-btn mt-auto min-h-[3.25rem] w-full rounded-md pt-0 text-[1.15rem] font-bold disabled:opacity-35" style={{ marginTop: 16, ...(mia ? { background: VERDE, color: "#fff" } : { background: TIZA, color: GOMA }) }}>{mia ? "Apartado" : lleno ? "Lleno" : "Apartar mi lugar"}</button>
-                  </div>
-                </div>
-              </Rev>
-            );
-          })}
-        </div>
-      </Seccion>
-
-      {/* coaches */}
-      <Seccion id="entrenadores" etiqueta="Entrenadores" titulo="Quién te entrena" sub="Toca un coach para ver sus fotos, sus clases y cómo trabaja." fondo="#0e0f10" borde={AZUL}>
-        <div className="gy-auto" style={{ ["--min" as string]: "26rem" }}>
-          {COACHES.map((c, i) => (
-            <Rev key={c.nombre} i={i} className="h-full">
-              <button type="button" onClick={() => { setCoach(c); setFotoCoach(0); }} className="gy-card flex h-full w-full flex-col overflow-hidden rounded-xl text-left sm:flex-row" style={{ background: GOMA2 }}>
-                <span className="block h-[clamp(18rem,30vw,28rem)] overflow-hidden sm:h-auto sm:w-1/2"><img src={c.foto} alt={`Coach ${c.nombre}`} loading="lazy" className="gy-img h-full w-full object-cover" /></span>
-                <span className="flex flex-1 flex-col justify-center p-6">
-                  <span className="text-[1rem] font-bold uppercase tracking-[0.12em]" style={{ color: AMARILLO }}>{c.desde}</span>
-                  <b className="gym-titulo mt-1 block text-[clamp(2.2rem,1.9rem+1vw,3rem)]">{c.nombre}</b>
-                  <span className="mt-1 block text-[1.2rem] text-white/80">{c.que}</span>
-                  <span className="mt-4 text-[1.15rem] italic text-white/70">“{INFO_COACH[c.nombre].frase}”</span>
-                  <span className="mt-5 inline-flex items-center gap-1.5 text-[1.1rem] font-bold" style={{ color: AMARILLO }}>Conocerlo <ArrowRight size={18} /></span>
-                </span>
-              </button>
-            </Rev>
-          ))}
-        </div>
-      </Seccion>
-
-      {/* resultados de los socios */}
-      <Seccion id="socios" etiqueta="Resultados" titulo="Lo que cambia entrenando aquí" sub="Lo que cuentan los socios después de unos meses en Spartan Force." fondo={AMARILLO} color={GOMA} borde={GOMA}>
-        <dl className="gy-auto mb-8" style={{ ["--min" as string]: "11rem" }}>
-          {[["800", "socios activos"], ["2", "sedes con parqueo"], ["7 días", "de clases"], ["4:30 am", "abrimos"]].map(([n, t]) => <div key={t} className="rounded-xl p-5 text-center" style={{ background: GOMA, color: TIZA }}><dt className="gym-titulo text-[clamp(2.6rem,2.2rem+1.2vw,3.4rem)]" style={{ color: AMARILLO }}>{n}</dt><dd className="text-[1.1rem] opacity-80">{t}</dd></div>)}
-        </dl>
-        <div className="gy-auto" style={{ ["--min" as string]: "19rem" }}>
-          {RESULTADOS.map((a, i) => (
-            <Rev key={a.q} i={i} className="h-full">
-              <figure className="gy-card flex h-full flex-col overflow-hidden rounded-xl bg-white">
-                <span className="relative block overflow-hidden"><img src={a.foto} alt={a.q} loading="lazy" className="gy-img h-[clamp(13rem,17vw,18rem)] w-full object-cover" /><span className="absolute bottom-0 left-0 rounded-tr-xl px-4 py-2" style={{ background: GOMA, color: AMARILLO }}><span className="gym-titulo text-[2.6rem]">{a.n}</span> <span className="text-[1rem] font-semibold text-white">{a.t}</span></span></span>
-                <div className="flex flex-1 flex-col p-5">
-                  <blockquote className="text-[1.2rem] leading-snug">“{a.d}”</blockquote>
-                  <figcaption className="mt-auto pt-4 text-[1.1rem] font-bold">{a.q}</figcaption>
-                </div>
-              </figure>
-            </Rev>
-          ))}
-        </div>
-      </Seccion>
-
-      {/* sedes con parqueo */}
-      <Seccion id="sedes" etiqueta="Sedes" titulo="Dónde estamos" sub="Toca una sede para ver el mapa y cómo llegar." fondo={ACERO} color={GOMA} borde={GOMA}>
-        <div className="gy-auto" style={{ ["--min" as string]: "26rem" }}>
-          {SEDES.map((x, i) => {
-            const vuelta = !!vueltas[x.id];
-            const nvx = nivel(aforo(x.id, h), x.capacidad);
-            const maps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`Spartan Force Gym ${x.nombre}, ${x.dir}`)}`;
-            return (
-              <Rev key={x.id} i={i} className="h-full">
-                <div className="gy-flip h-[clamp(32rem,38vw,38rem)]" data-vuelta={vuelta ? "1" : "0"}>
-                  <div className="gy-flip-in">
-                    <button type="button" tabIndex={vuelta ? -1 : 0} onClick={() => setVueltas({ ...vueltas, [x.id]: true })} className="gy-face gy-card flex flex-col overflow-hidden rounded-xl bg-white text-left" aria-label={`Ver el mapa de la sede ${x.nombre}`}>
-                      <span className="relative block h-[48%] overflow-hidden"><img src={x.foto} alt={`Sede ${x.nombre}`} loading="lazy" className="gy-img h-full w-full object-cover" /><span className="absolute left-4 top-4 rounded-md px-3 py-1.5 text-[1.05rem] font-bold" style={abierto ? { background: VERDE, color: "#fff" } : { background: ROJO, color: "#fff" }}>{abierto ? "Abierto ahora" : "Cerrado ahora"}</span></span>
-                      <span className="grid flex-1 content-start gap-2.5 p-6">
-                        <span className="gym-titulo text-[clamp(2.4rem,2rem+1vw,3rem)]">{x.nombre}</span>
-                        <span className="flex gap-2.5 text-[1.15rem]"><MapPin size={24} className="mt-0.5 shrink-0" style={{ color: ROJO }} /> {x.dir}</span>
-                        <span className="flex gap-2.5 text-[1.15rem] font-semibold"><Car size={24} className="mt-0.5 shrink-0" style={{ color: AZUL }} /> {x.parqueo}</span>
-                        <span className="flex gap-2.5 text-[1.15rem]"><Users size={24} className="mt-0.5 shrink-0" style={{ color: VERDE }} /> Ahora: {nvx.t.toLowerCase()}, unas {aforo(x.id, h)} personas</span>
-                        <span className="mt-auto inline-flex items-center gap-1.5 pt-1 text-[1.1rem] font-bold" style={{ color: AZUL }}>Ver mapa <ArrowRight size={18} /></span>
-                      </span>
-                    </button>
-                    <div className="gy-face gy-back flex flex-col overflow-hidden rounded-xl bg-white" aria-hidden={!vuelta}>
-                      <iframe title={`Mapa de ${x.nombre}`} loading="lazy" src={`https://maps.google.com/maps?q=${encodeURIComponent(x.dir + ", Guatemala")}&output=embed`} className="min-h-0 w-full flex-1 border-0" tabIndex={vuelta ? 0 : -1} />
-                      <div className="grid gap-3 p-5">
-                        <p className="flex gap-2.5 text-[1.1rem]"><MapPin size={22} className="mt-0.5 shrink-0" style={{ color: ROJO }} /><span><b>Spartan Force {x.nombre}</b><br />{x.dir}</span></p>
-                        <div className="grid grid-cols-[1fr_auto] gap-3">
-                          <a href={maps} target="_blank" rel="noopener noreferrer" tabIndex={vuelta ? 0 : -1} className={`${btn} gy-btn !py-3.5 text-[1.15rem] text-white`} style={{ background: AZUL }}><Navigation size={20} /> Cómo llegar</a>
-                          <button type="button" tabIndex={vuelta ? 0 : -1} onClick={() => setVueltas({ ...vueltas, [x.id]: false })} className={`${btn} gy-btn !py-3.5 text-[1.1rem] border-2`} style={{ borderColor: GOMA }}>Volver</button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Rev>
-            );
-          })}
-        </div>
-        <dl className="gy-auto mt-6 rounded-xl bg-white p-6" style={{ ["--min" as string]: "15rem" }}>
-          {HORARIO.map(([d, hh]) => (
-            <div key={d} className="flex items-center gap-3"><Clock size={22} className="shrink-0 opacity-60" /><span><dt className="text-[1.1rem] font-bold">{d}</dt><dd className="text-[1.05rem] opacity-75">{hh}</dd></span></div>
-          ))}
-        </dl>
-      </Seccion>
-
-      {/* preguntas */}
-      <Seccion id="preguntas" etiqueta="Preguntas" titulo="Lo que más nos preguntan" fondo={GOMA2} borde={VERDE}>
-        <div className="grid gap-[clamp(1.5rem,3vw,3rem)] lg:grid-cols-[1fr_1.5fr]">
-          <img src={FOTOS.comunidad} alt="Socios chocando las manos después de entrenar" loading="lazy" className="hidden h-full max-h-[32rem] w-full rounded-xl object-cover lg:block" />
-          <div className="grid content-start gap-3">
-            {PREGUNTAS.map(([q, a]) => (
-              <details key={q} className="group rounded-lg px-6 py-5" style={{ background: GOMA }}>
-                <summary className="flex min-h-[2.75rem] cursor-pointer list-none items-center justify-between gap-3 text-[1.25rem] font-bold">{q}<span className="text-[1.8rem] leading-none transition group-open:rotate-45" style={{ color: AMARILLO }}>+</span></summary>
-                <p className="mt-3 text-[1.15rem] leading-relaxed text-white/80">{a}</p>
-              </details>
-            ))}
-          </div>
-        </div>
-      </Seccion>
-
-      {/* cierre */}
-      <section style={{ background: AMARILLO, color: GOMA, borderTop: `8px solid ${GOMA}` }}>
-        <div className="gy-cont flex flex-col gap-6 py-[clamp(2.5rem,5vw,5rem)] md:flex-row md:items-center md:justify-between">
-          <div><h2 className="gym-titulo gy-h2">Entra hoy mismo</h2><p className="mt-2 text-[clamp(1.1rem,1rem+0.5vw,1.4rem)] font-semibold opacity-80">Paga tu pase del día y entra a la talanquera con tu código QR.</p></div>
-          <div className="flex flex-col gap-3 sm:flex-row"><button type="button" onClick={() => setPlan("dia")} className={`${btn} gy-btn !px-9 !py-4 text-[1.25rem]`} style={{ background: GOMA, color: TIZA }}>Pagar pase del día</button><a href="#planes" className={`${btn} gy-btn !px-9 !py-4 text-[1.25rem] border-2`} style={{ borderColor: GOMA }}>Ver planes</a></div>
-        </div>
-      </section>
-
-      {clase && (() => {
-        const inf = INFO_CLASE[clase.nombre] ?? INFO_CLASE.Funcional;
-        const mia = !!gym.reservas[clase.id];
-        const van = clase.van + (mia ? 1 : 0);
-        const lleno = van >= clase.cupo && !mia;
-        return (
-          <Ventana titulo={clase.nombre} alCerrar={cerrarClase} fondo={GOMA2} color={TIZA} ancho="58rem">
-            <div className="grid md:grid-cols-[1fr_1.1fr]">
-              <div className="relative min-h-[16rem] md:min-h-[30rem]"><img src={clase.foto} alt="" className="pf-zoom absolute inset-0 h-full w-full object-cover" /><span className="absolute bottom-4 left-4 rounded-md px-4 py-2 text-[1.2rem] font-bold" style={{ background: AMARILLO, color: GOMA }}>{DIAS[clase.dia]} · {clase.hora}</span></div>
-              <div className="flex flex-col p-6 pt-8 md:p-9">
-                <h3 className="gym-titulo text-[clamp(2.6rem,2rem+2vw,4rem)]">{clase.nombre}</h3>
-                <p className="mt-2 text-[1.3rem] text-white/85">{inf.que}</p>
-                <dl className="mt-5 grid grid-cols-3 gap-2.5 text-center">
-                  {[["Con", clase.coach], ["Dura", inf.dura], ["Nivel", inf.nivel]].map(([a, b]) => <div key={a} className="rounded-lg p-3" style={{ background: GOMA }}><dt className="text-[0.9rem] text-white/60">{a}</dt><dd className="mt-0.5 text-[1.05rem] font-bold leading-tight">{b}</dd></div>)}
-                </dl>
-                <p className="mt-5 text-[1.05rem] font-bold">Intensidad</p>
-                <div className="mt-1.5 flex gap-1.5" aria-label={`Intensidad ${inf.intensidad} de 5`}>{[1, 2, 3, 4, 5].map((n) => <span key={n} className="h-3 flex-1 rounded-sm" style={{ background: n <= inf.intensidad ? ROJO : "rgba(255,255,255,.15)" }} />)}</div>
-                <p className="mt-5 text-[1.05rem] font-bold">Qué traer</p>
-                <ul className="mt-1.5 flex flex-wrap gap-2">{inf.trae.map((t) => <li key={t} className="rounded-md px-3 py-1.5 text-[1rem]" style={{ background: GOMA }}>{t}</li>)}</ul>
-                <p className="mt-5 text-[1.05rem]">{lleno ? "Clase llena" : `Quedan ${clase.cupo - van} de ${clase.cupo} lugares`}</p>
-                <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-white/10"><div className="h-full" style={{ width: `${Math.min(100, (van / clase.cupo) * 100)}%`, background: van >= clase.cupo ? ROJO : van / clase.cupo > 0.75 ? AMARILLO : VERDE }} /></div>
-                <button type="button" disabled={lleno} onClick={() => gym.reservar(clase.id)} className="gy-btn mt-7 min-h-[3.75rem] w-full rounded-md text-[1.25rem] font-bold disabled:opacity-40" style={mia ? { background: VERDE, color: "#fff" } : { background: AMARILLO, color: GOMA }}>{mia ? "Apartado, toca para soltarlo" : lleno ? "Clase llena" : "Apartar mi lugar"}</button>
-              </div>
-            </div>
-          </Ventana>
-        );
-      })()}
-      {coach && (() => {
-        const inf = INFO_COACH[coach.nombre];
-        const f = inf.fotos[fotoCoach];
-        const sus: Record<string, { dias: Set<number>; horas: Set<string> }> = {};
-        CLASES.filter((c) => c.coach === inf.alias).forEach((c) => { (sus[c.nombre] ??= { dias: new Set(), horas: new Set() }); sus[c.nombre].dias.add(c.dia); sus[c.nombre].horas.add(c.hora); });
-        return (
-          <Ventana titulo={coach.nombre} alCerrar={cerrarCoach} fondo={GOMA2} color={TIZA} ancho="70rem">
-            <div className="grid lg:grid-cols-[1.1fr_1fr]">
-              <div className="p-4 pt-5 sm:p-6">
-                <figure className="relative overflow-hidden rounded-xl" style={{ background: GOMA }}>
-                  <img key={fotoCoach} src={f.f} alt={f.p} className="pf-zoom block max-h-[62svh] w-full object-cover" style={{ aspectRatio: "4 / 3" }} />
-                  <figcaption className="absolute inset-x-0 bottom-0 px-5 pb-4 pt-12 text-[1.15rem] font-bold" style={{ background: "linear-gradient(transparent, rgba(0,0,0,.8))" }}>{f.p} · {fotoCoach + 1} de {inf.fotos.length}</figcaption>
-                  <button type="button" aria-label="Foto anterior" onClick={() => setFotoCoach((fotoCoach + inf.fotos.length - 1) % inf.fotos.length)} className="gy-btn absolute left-3 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white/95 text-black shadow-md"><ArrowLeft size={22} /></button>
-                  <button type="button" aria-label="Foto siguiente" onClick={() => setFotoCoach((fotoCoach + 1) % inf.fotos.length)} className="gy-btn absolute right-3 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white/95 text-black shadow-md"><ArrowRight size={22} /></button>
-                </figure>
-                <div className="mt-3 flex gap-2.5 overflow-x-auto pb-1">
-                  {inf.fotos.map((x, i) => <button key={i} type="button" aria-label={`Ver foto ${i + 1}`} aria-pressed={i === fotoCoach} onClick={() => setFotoCoach(i)} className="h-20 w-24 shrink-0 overflow-hidden rounded-lg transition" style={{ boxShadow: i === fotoCoach ? `0 0 0 3px ${AMARILLO}` : "none", opacity: i === fotoCoach ? 1 : 0.6 }}><img src={x.f} alt="" className="h-full w-full object-cover" /></button>)}
-                </div>
-              </div>
-              <div className="flex flex-col p-6 pt-4 lg:p-9 lg:pt-10">
-                <p className="text-[1rem] font-bold uppercase tracking-[0.15em]" style={{ color: AMARILLO }}>{coach.desde}</p>
-                <h3 className="gym-titulo mt-1 text-[clamp(2.6rem,2rem+2vw,4rem)]">{coach.nombre}</h3>
-                <p className="mt-1 text-[1.3rem] text-white/80">{coach.que}</p>
-                <p className="mt-4 text-[1.4rem] font-semibold leading-snug" style={{ color: AMARILLO }}>“{inf.frase}”</p>
-                <p className="mt-5 text-[1.05rem] font-bold">Certificaciones</p>
-                <ul className="mt-2 grid gap-2">{inf.certs.map((c) => <li key={c} className="flex gap-2.5 text-[1.1rem]"><Check size={20} className="mt-0.5 shrink-0" style={{ color: VERDE }} /> {c}</li>)}</ul>
-                <p className="mt-5 text-[1.05rem] font-bold">Clases que imparte</p>
-                <ul className="mt-2 grid gap-2">
-                  {Object.entries(sus).map(([n, v]) => <li key={n} className="rounded-lg px-4 py-2.5 text-[1.05rem]" style={{ background: GOMA }}><b>{n}</b> · {[...v.horas].join(" y ")} · {[...v.dias].sort((a, b) => ((a || 7) - (b || 7))).map((d) => DIAS[d].slice(0, 3)).join(", ")}</li>)}
-                </ul>
-                <button type="button" onClick={() => { cerrarCoach(); setMsg(`Hola, Spartan Force. Quiero entrenar con ${coach.nombre.split(" ")[0]}. ¿Qué clases tiene esta semana?`); }} className="gy-btn mt-6 min-h-[3.75rem] w-full rounded-md text-[1.25rem] font-bold" style={{ background: AMARILLO, color: GOMA }}>Escribirle a {coach.nombre.split(" ")[0]}</button>
-              </div>
-            </div>
-          </Ventana>
-        );
-      })()}
-
-      <Inscripcion gym={gym} plan={plan} alCerrar={() => setPlan(null)} estudiante={estudiante} alListo={alInscribir} />
-      <MensajeWhatsApp mensaje={msg} alCerrar={() => setMsg(null)} demo="gimnasio" que="cada mensaje" />
+        {alta && <Inscripcion club={club} planInicial={alta} alCerrar={() => setAlta(null)} alListo={setSocioId} alPase={() => ir("pase")} />}
+      </div>
     </>
   );
 }
-
-/* ---------------- inscripción en línea ---------------- */
-
-function Inscripcion({ gym, plan, alCerrar, estudiante, alListo }: { gym: Gym; plan: string | null; alCerrar: () => void; estudiante: boolean; alListo: (n: number) => void }) {
-  const [sede, setSede] = useState("mixco");
-  const [nombre, setNombre] = useState("");
-  const [tel, setTel] = useState("");
-  const [inicio, setInicio] = useState(0);
-  const [pago, setPago] = useState("tarjeta");
-  const [num, setNum] = useState<number | null>(null);
-  useEffect(() => {
-    if (plan) setNum(null);
-  }, [plan]);
-  if (!plan) return <Cajon abierto={false} alCerrar={alCerrar}>{null}</Cajon>;
-  const p = porId(PLANES, plan);
-  const precio = estudiante && (p.id === "mensual" || p.id === "trimestral") ? Math.round((p.precio * 0.8) / 5) * 5 : p.precio;
-  const insc = p.id === "dia" || p.id === "trimestral" || p.id === "anual" ? 0 : INSCRIPCION;
-  const total = precio + insc;
-  const valido = nombre.trim().length > 2 && tel.replace(/\D/g, "").length === 8;
-  const campo = "w-full rounded-md border-2 border-black/15 bg-white px-4 py-3 text-[1.02rem] outline-none focus:border-black/60";
-  const chip = (on: boolean) => (on ? { background: GOMA, color: "#fff", borderColor: GOMA } : { borderColor: "rgba(0,0,0,.15)", background: "#fff" });
-  const vence = enDias(inicio + p.dias);
-
-  return (
-    <Cajon abierto alCerrar={alCerrar} fondo="#f1f3f4">
-      <div className="h-full overflow-y-auto" style={{ color: GOMA }}>
-        <div className="flex items-center justify-between gap-3 p-5" style={{ background: p.color, color: p.texto }}>
-          <div>
-            <p className="font-semibold opacity-80">Plan</p>
-            <p className="gym-titulo text-[2.6rem]">{p.nombre}</p>
-          </div>
-          <button type="button" onClick={alCerrar} aria-label="Cerrar" className="grid h-10 w-10 place-items-center rounded-full bg-black/15">
-            <X size={20} />
-          </button>
-        </div>
-        {num ? (
-          <div className="p-6">
-            <Carnet socio={gym.socios.find((x) => x.num === num)!} />
-            <h3 className="mt-6 text-[1.6rem] font-bold leading-tight">¡Bienvenido a Spartan Force, {nombre.trim().split(" ")[0]}!</h3>
-            <p className="mt-2 opacity-75">Pasa el código QR por la talanquera para entrar. Tu plan vence el {fechaCorta(vence)} y te avisamos por WhatsApp 3 días antes.</p>
-            <button type="button" onClick={() => { alCerrar(); alListo(num); }} className={`${btn} mt-6 w-full text-white`} style={{ background: GOMA }}>
-              Ver mi membresía <ArrowRight size={18} />
-            </button>
-          </div>
-        ) : (
-          <div className="grid gap-6 p-6 pb-32">
-            <div>
-              <p className="font-bold">¿En qué sede?</p>
-              <div className="mt-2 grid grid-cols-2 gap-2">
-                {SEDES.map((x) => (
-                  <button key={x.id} type="button" onClick={() => setSede(x.id)} className="rounded-md border-2 px-3 py-2.5 text-left font-semibold" style={chip(sede === x.id)}>
-                    {x.nombre}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <p className="font-bold">¿Cuándo empiezas?</p>
-              <div className="mt-2 grid grid-cols-3 gap-2">
-                {[
-                  [0, "Hoy"],
-                  [1, "Mañana"],
-                  [(8 - new Date().getDay()) % 7 || 7, "Lunes"],
-                ].map(([n, t]) => (
-                  <button key={t} type="button" onClick={() => setInicio(n as number)} className="rounded-md border-2 px-2 py-2.5 leading-tight" style={chip(inicio === n)}>
-                    <b className="block">{t}</b>
-                    <span className="text-[0.92rem] opacity-80">{fechaCorta(enDias(n as number))}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="grid gap-2">
-              <p className="font-bold">Tus datos</p>
-              <input aria-label="Nombre completo" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre completo" autoComplete="name" className={campo} />
-              <input aria-label="WhatsApp" value={tel} onChange={(e) => setTel(e.target.value.replace(/[^\d ]/g, "").slice(0, 9))} placeholder="WhatsApp (8 dígitos)" inputMode="numeric" autoComplete="tel" className={campo} />
-            </div>
-            <div>
-              <p className="font-bold">¿Cómo pagas?</p>
-              <div className="mt-2 grid gap-2">
-                {([
-                  ["tarjeta", "Con tarjeta, aquí mismo", "Entras hoy con tu código QR", <span key="t" className="flex items-center gap-2"><Visa /><Mastercard /></span>],
-                  ["transferencia", "Por transferencia", "Sube tu comprobante y listo", <span key="b" className="rounded px-2 py-1 text-[0.85rem] font-bold text-white" style={{ background: AZUL }}>BANCA EN LÍNEA</span>],
-                  ["recepcion", "En recepción", "Paga al llegar, en efectivo o tarjeta", <span key="r" className="rounded px-2 py-1 text-[0.85rem] font-bold" style={{ background: AMARILLO, color: GOMA }}>EFECTIVO</span>],
-                ] as [string, string, string, ReactNode][]).map(([id, t, n, logo]) => (
-                  <button key={id} type="button" onClick={() => setPago(id)} className="flex items-center justify-between gap-3 rounded-md border-2 px-4 py-3 text-left" style={chip(pago === id)}>
-                    <span><b className="block text-[1.05rem]">{t}</b><span className="text-[0.92rem] opacity-80">{n}</span></span>
-                    <span className="shrink-0">{logo}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-        {!num && (
-          <div className="sticky bottom-0 border-t border-black/10 bg-white p-4">
-            <div className="flex justify-between text-[0.95rem]">
-              <span className="opacity-70">{p.nombre}{insc ? ` + inscripción ${qz(insc)}` : p.id === "dia" ? "" : " · inscripción gratis"}</span>
-              <b className="text-[1.3rem]">{qz(total)}</b>
-            </div>
-            <button
-              type="button"
-              disabled={!valido}
-              onClick={() => setNum(gym.inscribir({ nombre: nombre.trim(), plan: p.id, vence, tel: tel.replace(/\D/g, ""), sede }, total, pago))}
-              className={`${btn} mt-2 w-full disabled:opacity-40`}
-              style={{ background: AMARILLO, color: GOMA }}
-            >
-              {valido ? (pago === "tarjeta" ? `Pagar ${qz(total)} con tarjeta` : pago === "transferencia" ? "Ya hice la transferencia" : "Apartar mi inscripción") : "Pon tu nombre y WhatsApp"}
-            </button>
-          </div>
-        )}
-      </div>
-    </Cajon>
-  );
-}
-
-/* ---------------- recepción ---------------- */

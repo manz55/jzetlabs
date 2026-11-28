@@ -256,7 +256,7 @@ const PANEL_INFO: Record<string, { n: string; c: string[]; f: string }> = {
   distribuidora: { n: "Panel de El Volcán", c: ["#1f2d45", "#b3261e", "#d6bf98"], f: "Saira Stencil One" },
   asistencia: { n: "Panel de Los Cedros", c: ["#173a5e", "#f2b400", "#f4f5f7"], f: "Instrument Sans" },
   taller: { n: "Panel de Autotech", c: ["#0F172A", "#EA580C", "#F8FAFC"], f: "Plus Jakarta Sans" },
-  gimnasios: { n: "Panel de Spartan Force", c: ["#16181a", "#f2c230", "#2e9b57"], f: "Big Shoulders Display" },
+  gimnasios: { n: "Panel de IronPeak", c: ["#0F172A", "#15803D", "#F8FAFC"], f: "Plus Jakarta Sans" },
   eventos: { n: "Panel de La Ceiba", c: ["#1a275c", "#d6457a", "#e7ebf7"], f: "Young Serif" },
 };
 
