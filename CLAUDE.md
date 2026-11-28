@@ -14,7 +14,7 @@
 - **Contexto real sin disclaimers:** Nunca pongas textos dentro de la interfaz diciendo que los datos son ficticios o de ejemplo (salvo la barra superior global de `Demo de Jzet Labs`). Usa bancos, métodos de pago y ubicaciones reales de Guatemala (BI, BAC, Visanet, NeoNet, zonas y municipios reales).
 - **Navbar contextual:** Muestra los enlaces de ancla de la landing y el CTA principal únicamente cuando la vista activa sea la portada; ocúltalos cuando el usuario entre a vistas internas de cliente o administración.
 - **Dashboards sin scroll pesado:** En vistas administrativas, usa KPIs superiores puramente informativos (no cliqueables), atajos rápidos arriba y layouts en 2 columnas (`grid-cols-1 xl:grid-cols-12`) con filtros explícitos tipo píldora.
-- **Responsive y aire visual:** Usa `overflow-x-hidden`, `min-w-0` en controles dentro de flex/grid, y espaciado generoso (`p-6`, `gap-6`) para evitar textos amontonados.
+- **Responsive y aire visual:** Usa `overflow-x-clip` (no `overflow-x-hidden`, que rompe los elementos `sticky`), `min-w-0` en controles dentro de flex/grid, y espaciado generoso (`p-6`, `gap-6`) para evitar textos amontonados.
 
 ## Flujo de Entrega
 - Antes de cerrar cualquier tarea, actualiza el menú global de `"Ver otras demos"` si se creó una ruta nueva, verifica que `npm run build` compile sin errores, haz `commit` limpio y `git push`.
