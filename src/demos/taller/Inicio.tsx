@@ -1,6 +1,6 @@
 /* Vista "Taller y Auxilio": portada, ¿Puedo manejar así?, catálogo con precios y respaldo. */
 import { useRef, useState } from "react";
-import { ArrowRight, BadgeCheck, CarFront, CircleCheck, Clock, FileText, Gauge, MapPin, OctagonAlert, PackageCheck, Phone, ShieldCheck, Star, Thermometer, TriangleAlert, Truck, Vibrate, Disc3, KeyRound, ClipboardCheck } from "lucide-react";
+import { ArrowRight, BadgeCheck, CarFront, CircleCheck, Clock, FileText, Gauge, MapPin, OctagonAlert, PackageCheck, Phone, ShieldCheck, Star, Thermometer, TriangleAlert, Truck, Vibrate, Disc3, KeyRound, ClipboardCheck, ScanLine, Crosshair, Activity, Snowflake } from "lucide-react";
 import { useCarga, useEscalonado } from "./animar";
 import { Cifra } from "./Piezas";
 import { FILTROS, FOTOS, HORARIOS, RIESGOS, SEDES, SERVICIOS, SINTOMAS, TIPOS, foto, qz, type FallaId, type Filtro, type SintomaId, type Tipo } from "./datos";
@@ -13,6 +13,13 @@ const GARANTIAS = [
   { icono: PackageCheck, titulo: "Repuestos originales y OEM", texto: "Le indicamos marca y procedencia, y le devolvemos la pieza cambiada." },
   { icono: ClipboardCheck, titulo: "Nada sin su aprobación", texto: "Si aparece algo más, se le avisa con precio y usted decide." },
   { icono: FileText, titulo: "Factura FEL", texto: "Con su NIT o como consumidor final, el mismo día de la entrega." },
+];
+
+const EQUIPOS = [
+  { icono: ScanLine, titulo: "Diagnóstico Electrónico Bidireccional", equipo: ["Autel MaxiSys", "Launch X431"], texto: "Lectura de módulos ABS, airbag y transmisión, y programación de cuerpos de aceleración." },
+  { icono: Crosshair, titulo: "Alineación Computarizada 3D y Balanceo", equipo: ["Bancada láser 3D", "Camber · caster · convergencia"], texto: "Ajuste de ángulos con reporte impreso antes y después." },
+  { icono: Activity, titulo: "Laboratorio de Inyección y Osciloscopio", equipo: ["Ultrasonido", "Osciloscopio"], texto: "Prueba de presión de combustible, limpieza de inyectores y medición de sensores en tiempo real." },
+  { icono: Snowflake, titulo: "Estación de A/C y Frenos", equipo: ["R134a / R1234yf", "Torno para discos"], texto: "Recuperadora automatizada de gas refrigerante y rectificado de discos en torno." },
 ];
 
 const RESENAS = [
@@ -79,6 +86,33 @@ export function Inicio({
 
       <Triaje tipo={tipo} alAgendar={alAgendar} alAuxilio={alAuxilio} />
       <Catalogo tipo={tipo} alTipo={alTipo} filtro={filtro} alFiltrar={alFiltrar} alAgendar={alAgendar} />
+
+      <section className="at-seccion at-equipo" id="at-equipo">
+        <div className="at-ancho">
+          <header className="at-titulo">
+            <h2>Equipamiento y Tecnología de Diagnóstico</h2>
+            <p>Con esto medimos su vehículo antes de recomendarle un cambio de pieza.</p>
+          </header>
+          <ul className="at-equipos">
+            {EQUIPOS.map(({ icono: Icono, titulo, equipo, texto }) => (
+              <li key={titulo}>
+                <span className="at-equipo-icono">
+                  <Icono size={24} aria-hidden />
+                </span>
+                <div>
+                  <h3>{titulo}</h3>
+                  <p>{texto}</p>
+                  <ul aria-label="Equipo">
+                    {equipo.map((e) => (
+                      <li key={e}>{e}</li>
+                    ))}
+                  </ul>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
 
       <section className="at-seccion at-acero" id="at-respaldo">
         <div className="at-ancho">

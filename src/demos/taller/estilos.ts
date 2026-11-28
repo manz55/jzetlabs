@@ -81,7 +81,7 @@ export const ESTILOS = `
   .at-vistas button { padding-inline: 1rem; font-size: .85rem; }
   .at-nav-auxilio { justify-self: end; }
 }
-#at-triaje, #at-servicios, #at-ubicacion { scroll-margin-top: 120px; }
+#at-triaje, #at-servicios, #at-equipo, #at-ubicacion { scroll-margin-top: 120px; }
 
 /* portada */
 .at-portada { border-bottom: 1px solid ${BORDE}; }
@@ -124,9 +124,9 @@ export const ESTILOS = `
 .at-dictamen { padding: 1.2rem; background: ${BLANCO}; border: 1px solid ${BORDE}; border-radius: 16px; }
 .at-riesgo { display: inline-flex; align-items: center; gap: .45rem; padding: .4rem .75rem; border: 1px solid currentColor; border-radius: 8px; font-size: .84rem; font-weight: 700; line-height: 1.3; }
 .at-riesgo svg { flex: none; }
-.at-seguro { background: ${VERDE_CLARO}; color: ${VERDE}; }
-.at-precaucion { background: ${AMBAR_CLARO}; color: ${AMBAR}; }
-.at-detener { background: ${ROJO}; border-color: ${ROJO}; color: #fff; }
+.at-riesgo.at-seguro { background: ${VERDE_CLARO}; color: ${VERDE}; }
+.at-riesgo.at-precaucion { background: ${AMBAR_CLARO}; color: ${AMBAR}; }
+.at-riesgo.at-detener { background: ${ROJO}; border-color: ${ROJO}; color: #fff; }
 .at .at-dictamen h3 { margin-top: .9rem; font-size: 1.35rem; }
 .at-dictamen-alto p { color: ${SUAVE}; }
 .at-dictamen dl { display: grid; margin-block: 1.1rem 1.2rem; }
@@ -176,6 +176,18 @@ export const ESTILOS = `
 .at-hueso-foto { height: auto; aspect-ratio: 32 / 21; border-radius: 0; }
 @keyframes at-brillo { to { background-position: -220% 0; } }
 .at-esqueleto > div { gap: .7rem; }
+
+/* equipamiento */
+.at-equipo { border-top: 1px solid ${BORDE}; border-bottom: 1px solid ${BORDE}; }
+.at-equipos { display: grid; gap: .8rem; }
+@media (min-width: 860px) { .at-equipos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; } }
+.at-equipos > li { display: flex; flex-direction: column; align-items: flex-start; gap: .9rem; padding: 1.2rem; background: ${ACERO}; border: 1px solid ${BORDE}; border-radius: 14px; }
+@media (min-width: 520px) { .at-equipos > li { flex-direction: row; gap: 1.1rem; padding: 1.35rem; } }
+.at-equipo-icono { display: grid; flex: none; place-items: center; width: 48px; height: 48px; background: ${PIZARRA}; color: #FB923C; border-radius: 12px; }
+.at .at-equipos h3 { margin-bottom: .35rem; font-size: 1.05rem; }
+.at-equipos p { color: ${SUAVE}; font-size: .9rem; }
+.at-equipos ul { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .75rem; }
+.at-equipos ul li { padding: .25rem .6rem; background: ${BLANCO}; border: 1px solid ${BORDE_CAMPO}; border-radius: 6px; font-size: .78rem; font-weight: 600; }
 
 /* respaldo, reseñas y ubicación */
 .at-garantias { display: grid; gap: .8rem; }
@@ -263,21 +275,55 @@ export const ESTILOS = `
 .at .at-aprobar h3 { margin-block: .15rem .25rem; font-size: 1.18rem; }
 .at-aprobar div p:last-child { color: ${SUAVE}; font-size: .9rem; }
 @media (min-width: 820px) { .at-aprobar { grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; margin-inline: 1.4rem; } }
-.at-ficha-columnas { display: grid; margin-top: 1.2rem; border-top: 1px solid ${BORDE}; }
+.at-ficha-columnas { display: grid; border-top: 1px solid ${BORDE}; }
 .at-ficha-columnas > section { padding: 1.2rem; border-bottom: 1px solid ${BORDE}; }
 .at-ficha-columnas > section:last-child { border-bottom: 0; }
 .at .at-ficha-columnas h3 { margin-bottom: .75rem; font-size: 1rem; }
-@media (min-width: 900px) {
-  .at-ficha-columnas { grid-template-columns: 1fr 1.15fr .9fr; }
+@media (min-width: 820px) {
+  .at-ficha-columnas { grid-template-columns: 1.4fr 1fr; }
   .at-ficha-columnas > section { padding: 1.4rem; border-bottom: 0; border-right: 1px solid ${BORDE}; }
   .at-ficha-columnas > section:last-child { border-right: 0; }
 }
-.at-checklist { display: grid; gap: .45rem; }
-.at-checklist li { display: flex; align-items: center; gap: .65rem; padding: .6rem .75rem; background: ${ACERO}; border: 1px dashed ${BORDE_CAMPO}; border-radius: 10px; color: ${SUAVE}; font-size: .88rem; }
-.at-checklist li svg { flex: none; }
-.at-checklist li span { flex: 1; }
-.at-checklist li.at-ok { border-style: solid; border-color: ${BORDE}; color: ${PIZARRA}; font-weight: 500; }
-.at-checklist li.at-ok > svg:last-child { color: ${VERDE}; }
+
+/* reporte de inspección multipunto */
+.at-reporte { margin-top: 1.2rem; padding: 1.2rem; border-top: 1px solid ${BORDE}; }
+@media (min-width: 820px) { .at-reporte { padding: 1.4rem; } }
+.at-reporte-alto { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .6rem 1rem; }
+.at .at-reporte h3 { font-size: 1.15rem; }
+.at-resumen { display: flex; flex-wrap: wrap; gap: .35rem 1rem; font-size: .84rem; font-weight: 600; }
+.at-resumen li { display: flex; align-items: center; gap: .4rem; }
+.at-punto { display: inline-block; flex: none; width: 11px; height: 11px; border-radius: 999px; background: ${SUAVE}; }
+.at-punto.at-optimo { background: #16A34A; }
+.at-punto.at-precaucion { background: #EAB308; }
+.at-punto.at-critico { background: ${ROJO}; }
+.at-recibido { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .9rem; }
+.at-recibido li { display: flex; align-items: center; gap: .4rem; padding: .35rem .65rem; background: ${ACERO}; border: 1px solid ${BORDE}; border-radius: 8px; font-size: .8rem; font-weight: 500; }
+.at-recibido li svg { flex: none; color: ${SUAVE}; }
+.at-codigo { display: grid; gap: .8rem; margin-top: 1rem; padding: 1.1rem; background: ${PIZARRA}; color: #fff; border-radius: 12px; }
+.at-codigo > div:first-child { display: flex; flex-direction: column; }
+.at-codigo small { color: #FB923C; font-weight: 600; }
+.at-codigo strong { font-family: ${TITULO}; font-size: 1.7rem; letter-spacing: .03em; line-height: 1.2; }
+.at-codigo b { display: block; font-size: 1.02rem; }
+.at-codigo p { margin-top: .3rem; color: rgba(255,255,255,.8); font-size: .9rem; }
+@media (min-width: 720px) { .at-codigo-con { grid-template-columns: 9rem minmax(0, 1fr); align-items: start; gap: 1.2rem; } }
+.at-mediciones { display: grid; gap: .55rem; margin-top: .8rem; }
+@media (min-width: 640px) { .at-mediciones { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1060px) { .at-mediciones { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.at-medicion { display: flex; flex-direction: column; align-items: flex-start; gap: .3rem; min-width: 0; padding: .85rem .95rem; background: ${BLANCO}; border: 1px solid ${BORDE}; border-left: 5px solid #16A34A; border-radius: 10px; overflow-wrap: anywhere; }
+.at-medicion.at-precaucion { border-left-color: #EAB308; }
+.at-medicion.at-critico { border-left-color: ${ROJO}; }
+.at-medicion > span:first-child { color: ${SUAVE}; font-size: .82rem; font-weight: 600; }
+.at-medicion strong { font-size: 1.12rem; line-height: 1.3; }
+.at-medicion em { margin-top: auto; padding: .15rem .55rem; border-radius: 6px; font-size: .76rem; font-style: normal; font-weight: 700; }
+.at-medicion.at-optimo em { background: ${VERDE_CLARO}; color: ${VERDE}; }
+.at-medicion.at-precaucion em { background: ${AMBAR_CLARO}; color: ${AMBAR}; }
+.at-medicion.at-critico em { background: #FEF2F2; color: ${ROJO_HONDO}; }
+.at-medicion small { color: ${SUAVE}; font-weight: 600; }
+.at-repuestos { margin-top: 1rem; }
+.at-repuestos h4 { margin-bottom: .4rem; font-size: .84rem; font-weight: 700; color: ${SUAVE}; }
+.at-repuestos li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .2rem 1rem; padding-block: .55rem; border-top: 1px solid ${BORDE}; font-size: .9rem; overflow-wrap: anywhere; }
+.at-repuestos li b { letter-spacing: .02em; }
+.at-reporte-vacio { margin-top: .8rem; padding: 1rem; border: 1px dashed ${BORDE_CAMPO}; border-radius: 10px; color: ${SUAVE}; font-size: .9rem; }
 .at-cuentas > div { display: flex; justify-content: space-between; gap: 1rem; padding-block: .6rem; border-bottom: 1px solid ${BORDE}; font-size: .9rem; }
 .at-cuentas dd { font-weight: 600; white-space: nowrap; }
 .at-cuentas .at-tenue { color: ${SUAVE}; }
@@ -285,7 +331,9 @@ export const ESTILOS = `
 .at-cuentas .at-total { align-items: baseline; border-bottom: 0; font-weight: 700; }
 .at-total strong { font-family: ${TITULO}; font-size: 1.55rem; }
 .at-jefe { display: flex; align-items: center; gap: .7rem; margin-bottom: .9rem; }
-.at-jefe span { display: grid; place-items: center; width: 44px; height: 44px; background: ${PIZARRA}; color: #fff; border-radius: 10px; }
+.at-jefe > span:first-child { display: grid; flex: none; place-items: center; width: 44px; height: 44px; background: ${PIZARRA}; color: #fff; border-radius: 10px; }
+.at-jefe-datos { display: flex; flex-direction: column; line-height: 1.4; }
+.at-jefe-datos small { color: ${SUAVE}; }
 .at-vacio { display: grid; justify-items: center; gap: .6rem; padding: 3rem 1.2rem; background: ${BLANCO}; border: 1px solid ${BORDE}; border-radius: 18px; text-align: center; }
 .at-vacio p { color: ${SUAVE}; }
 .at .at-vacio h2 { font-size: 1.3rem; }
@@ -330,6 +378,20 @@ export const ESTILOS = `
 .at-tarjeta > header p { color: ${SUAVE}; font-size: .8rem; }
 .at-tarjeta-servicio { display: flex; justify-content: space-between; gap: .75rem; padding-top: .7rem; border-top: 1px solid ${BORDE}; font-size: .9rem; }
 .at-tarjeta-servicio strong { white-space: nowrap; font-size: 1.05rem; }
+.at-tarjeta-falla { display: flex; gap: .55rem; padding: .55rem .65rem; background: ${ACERO}; border: 1px solid ${BORDE}; border-radius: 8px; font-size: .82rem; line-height: 1.4; }
+.at-tarjeta-falla svg { flex: none; margin-top: .05rem; color: ${NARANJA_HONDO}; }
+.at-tarjeta-falla b { margin-right: .4rem; }
+.at-anotar { padding: .75rem; background: ${ACERO}; border: 1px solid ${BORDE}; border-radius: 10px; }
+.at-anotar form { display: grid; gap: .45rem; }
+.at-anotar form > div { display: flex; gap: .45rem; }
+.at-anotar form > div input { flex: 1; min-width: 0; min-height: 46px; padding: .5rem .7rem; background: ${BLANCO}; color: ${PIZARRA}; border: 1px solid ${BORDE_CAMPO}; border-radius: 10px; font-size: 1rem; }
+.at-anotar-hecho { color: ${VERDE}; font-size: .8rem; font-weight: 600; }
+.at-anotar-hecho:not(:empty) { margin-top: .4rem; }
+.at-anotar summary { min-height: 34px; padding-top: .45rem; font-size: .82rem; font-weight: 600; }
+.at-anotar li { display: flex; align-items: center; gap: .5rem; border-top: 1px solid ${BORDE}; font-size: .82rem; }
+.at-anotar li span { flex: 1; min-width: 0; padding-block: .35rem; overflow-wrap: anywhere; }
+.at-anotar li button { display: grid; flex: none; place-items: center; width: 36px; height: 36px; border-radius: 8px; color: ${SUAVE}; }
+.at-anotar li button:hover { background: ${BLANCO}; color: ${PIZARRA}; }
 .at-tarjeta-hallazgo { padding: .45rem .65rem; background: ${NARANJA_CLARO}; color: #9A3412; border-radius: 8px; font-size: .8rem; font-weight: 600; }
 .at-tarjeta-hallazgo.at-ok { background: ${VERDE_CLARO}; color: ${VERDE}; }
 .at-avance > div { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }

@@ -1,20 +1,20 @@
 /* Panel Taller: cifras del día, ingreso por placa y las tarjetas de los vehículos en bahía. */
 import { useRef, useState, type FormEvent } from "react";
-import { ArrowRight, Banknote, CalendarClock, CarFront, CircleCheck, Hourglass, MessageCircle, Plus, Search, Send, ThumbsUp } from "lucide-react";
+import { ArrowRight, Banknote, CalendarClock, CarFront, CircleCheck, Hourglass, MessageCircle, Plus, ScanLine, Search, Send, ThumbsUp, X } from "lucide-react";
 import { useEscalonado } from "./animar";
 import { Campo, Cifra, Placa, Ventana } from "./Piezas";
-import { COMBUSTIBLE, ETAPAS, JEFES, enTaller, enlaceWhatsApp, fechaCorta, mensajeEstado, miles, nombreEtapa, normalizarPlaca, ordenDe, qz, totalDe, type Orden, type Taller } from "./datos";
+import { BAHIAS, COMBUSTIBLE, ETAPAS, JEFES, SEMAFORO, TIPOS_NOTA, enTaller, enlaceWhatsApp, fechaCorta, mensajeEstado, miles, nombreEtapa, normalizarPlaca, ordenDe, qz, totalDe, type Orden, type Taller, type TipoNota } from "./datos";
 
 const ACCIONES = ["Recibir vehículo", "Pasar a diagnóstico", "Enviar a aprobación", "Aprobó por teléfono", "Pasar a prueba en ruta", "Entregar al cliente"];
 const numero = (n: number) => String(n);
 const PESTANAS: { id: FiltroPanel; nombre: string }[] = [
   { id: "todos", nombre: "Todos" },
   { id: "aprobacion", nombre: "Esperando aprobación" },
-  { id: "proceso", nombre: "En proceso" },
+  { id: "bahia", nombre: "En bahía" },
   { id: "listos", nombre: "Listos" },
 ];
 
-export type FiltroPanel = "todos" | "aprobacion" | "proceso" | "listos";
+export type FiltroPanel = "todos" | "aprobacion" | "bahia" | "listos";
 
 export function Panel({ taller, filtro, alFiltrar, alVer }: { taller: Taller; filtro: FiltroPanel; alFiltrar: (f: FiltroPanel) => void; alVer: (placa: string) => void }) {
   const { ordenes } = taller.estado;
@@ -23,13 +23,13 @@ export function Panel({ taller, filtro, alFiltrar, alVer }: { taller: Taller; fi
   const pendientes = bahia.filter((o) => o.etapa === 3);
   const listos = bahia.filter((o) => o.etapa === 5);
   /* todo lo que se está trabajando: ni espera respuesta ni está por entregarse */
-  const proceso = bahia.filter((o) => o.etapa !== 3 && o.etapa !== 5);
+  const trabajando = bahia.filter((o) => o.etapa !== 3 && o.etapa !== 5);
   const citas = ordenes.filter((o) => o.etapa === 0);
   const entregados = ordenes.filter((o) => o.etapa === 6);
   const facturacion = [...bahia, ...entregados].reduce((s, o) => s + totalDe(o), 0);
   /* lo que espera respuesta va primero; después lo que está por entregarse */
   const peso = (o: Orden) => [9, 3, 4, 0, 2, 1][o.etapa];
-  const listas: Record<FiltroPanel, Orden[]> = { todos: bahia, aprobacion: pendientes, proceso, listos };
+  const listas: Record<FiltroPanel, Orden[]> = { todos: bahia, aprobacion: pendientes, bahia: trabajando, listos };
   const visibles = listas[filtro].slice().sort((a, b) => peso(a) - peso(b));
 
   const tarjetas = useRef<HTMLDivElement>(null);
@@ -170,6 +170,13 @@ function Tarjeta({ taller, orden: o, alMensaje, alVer }: { taller: Taller; orden
         <p>{o.servicio}</p>
         <Cifra valor={totalDe(o)} formato={qz} />
       </div>
+      <p className="at-tarjeta-falla">
+        <ScanLine size={17} aria-hidden />
+        <span>
+          {o.falla?.codigo && <b>{o.falla.codigo}</b>}
+          {o.falla ? o.falla.titulo : "Sin código ni falla registrada"}
+        </span>
+      </p>
       {h && <p className={`at-tarjeta-hallazgo ${h.aprobado ? "at-ok" : ""}`}>{h.aprobado ? "Aprobado" : "Sin aprobar"}: {h.nombre}, {qz(h.precio)}</p>}
 
       <div className="at-avance">
@@ -184,6 +191,16 @@ function Tarjeta({ taller, orden: o, alMensaje, alVer }: { taller: Taller; orden
       </div>
 
       <label className="at-campo">
+        <span>Bahía / elevador</span>
+        <select value={o.bahia} onChange={(e) => taller.ubicar(o.codigo, e.target.value)}>
+          <option value="">Sin asignar</option>
+          {BAHIAS.map((b) => (
+            <option key={b}>{b}</option>
+          ))}
+        </select>
+      </label>
+
+      <label className="at-campo">
         <span>Jefe de bahía</span>
         <select value={o.jefe} onChange={(e) => taller.asignar(o.codigo, e.target.value)}>
           <option value="">Sin asignar</option>
@@ -192,6 +209,8 @@ function Tarjeta({ taller, orden: o, alMensaje, alVer }: { taller: Taller; orden
           ))}
         </select>
       </label>
+
+      <Anotar taller={taller} orden={o} />
 
       <details className="at-recepcion" open={o.etapa === 1}>
         <summary>
@@ -234,6 +253,78 @@ function Tarjeta({ taller, orden: o, alMensaje, alVer }: { taller: Taller; orden
         </button>
       </div>
     </article>
+  );
+}
+
+/* campo rápido del mecánico: lo que se anota aquí aparece de una vez en el reporte del cliente */
+function Anotar({ taller, orden: o }: { taller: Taller; orden: Orden }) {
+  const [tipo, setTipo] = useState<TipoNota>("optimo");
+  const [texto, setTexto] = useState("");
+  const [hecho, setHecho] = useState("");
+  const elegido = TIPOS_NOTA.find((t) => t.id === tipo)!;
+
+  function enviar(e: FormEvent) {
+    e.preventDefault();
+    if (!texto.trim()) return;
+    taller.anotar(o.codigo, tipo, texto);
+    setHecho("Anotado en el reporte del cliente.");
+    setTexto("");
+  }
+
+  return (
+    <div className="at-anotar">
+      <form onSubmit={enviar}>
+        <label className="at-campo">
+          <span>Anotar medición o repuesto OEM</span>
+          <select value={tipo} onChange={(e) => setTipo(e.target.value as TipoNota)} aria-label="Tipo de anotación">
+            {TIPOS_NOTA.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.nombre}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div>
+          <input
+            value={texto}
+            onChange={(e) => {
+              setTexto(e.target.value);
+              setHecho("");
+            }}
+            placeholder={elegido.guia}
+            aria-label={`${elegido.nombre} para ${o.placa}`}
+            maxLength={80}
+          />
+          <button type="submit" className="at-btn at-pizarra" disabled={!texto.trim()}>
+            Anotar
+          </button>
+        </div>
+      </form>
+      <p className="at-anotar-hecho" role="status">
+        {hecho}
+      </p>
+      {o.notas.length > 0 && (
+        <details>
+          <summary>
+            {o.notas.length} {o.notas.length === 1 ? "anotación" : "anotaciones"} en el reporte
+          </summary>
+          <ul>
+            {o.notas.map((n) => (
+              <li key={n.id}>
+                <i className={`at-punto at-${n.tipo}`} title={n.tipo === "repuesto" ? "Repuesto OEM" : SEMAFORO[n.tipo]} />
+                <span>
+                  {n.nombre}
+                  {n.valor && `: ${n.valor}`}
+                </span>
+                <button type="button" onClick={() => taller.borrarNota(o.codigo, n.id)} aria-label={`Borrar ${n.nombre}`}>
+                  <X size={16} aria-hidden />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+    </div>
   );
 }
 

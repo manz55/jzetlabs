@@ -222,6 +222,40 @@ export const nombreEtapa = (etapa: number) => (etapa === 0 ? "Cita agendada" : e
 
 export const JEFES = ["Mario Cifuentes", "Rudy Alvarado", "Estuardo Paz", "Karla Monzón"];
 export const COMBUSTIBLE = ["Reserva", "1/4", "1/2", "3/4", "Lleno"];
+export const BAHIAS = ["Elevador 1 · Mecánica", "Elevador 2 · Mecánica", "Elevador 3 · Suspensión", "Bahía 1 · Recepción", "Bahía 2 · Electrónica", "Bancada 3D · Alineación", "Estación A/C y Frenos"];
+
+/* ───────── inspección técnica: falla, mediciones y repuestos ───────── */
+
+export type Semaforo = "optimo" | "precaucion" | "critico";
+export const SEMAFORO: Record<Semaforo, string> = { optimo: "Óptimo", precaucion: "Precaución", critico: "Crítico" };
+export type TipoNota = Semaforo | "repuesto" | "falla";
+export const TIPOS_NOTA: { id: TipoNota; nombre: string; guia: string }[] = [
+  { id: "optimo", nombre: "Medición · Óptimo", guia: "Discos traseros: 11.8 mm" },
+  { id: "precaucion", nombre: "Medición · Precaución", guia: "Llantas traseras: 3.0 mm" },
+  { id: "critico", nombre: "Medición · Crítico", guia: "Faja de accesorios: agrietada" },
+  { id: "repuesto", nombre: "Repuesto OEM", guia: "Pieza: número de parte" },
+  { id: "falla", nombre: "Código OBD-II o falla", guia: "P0300 o describa la falla" },
+];
+export type Nota = { id: string; tipo: Semaforo | "repuesto"; nombre: string; valor: string; delHallazgo?: boolean };
+export type Falla = { codigo: string; titulo: string; explicacion: string };
+
+/* códigos frecuentes, explicados para el dueño del vehículo */
+const CODIGOS: Record<string, Omit<Falla, "codigo">> = {
+  P0128: { titulo: "Temperatura del refrigerante bajo lo esperado", explicacion: "El motor tarda en llegar a su temperatura de trabajo, casi siempre por un termostato que no cierra bien." },
+  P0171: { titulo: "Sistema demasiado pobre (Banco 1)", explicacion: "El motor está recibiendo más aire o menos gasolina de lo debido. Puede dar tirones, marcha inestable y mayor consumo. Lo usual es una fuga de vacío, un sensor de flujo de aire sucio o baja presión de combustible." },
+  P0300: { titulo: "Fallo de encendido en varios cilindros", explicacion: "Uno o más cilindros no queman bien. Conviene revisar bujías, bobinas e inyectores antes de que dañe el catalizador." },
+  P0420: { titulo: "Eficiencia del catalizador baja (Banco 1)", explicacion: "El catalizador no está limpiando los gases como debe. Antes de cambiarlo se revisan los sensores de oxígeno y las fugas de escape." },
+  P0562: { titulo: "Voltaje del sistema bajo", explicacion: "La computadora detecta poca corriente. Se revisan la batería, el alternador y los bornes." },
+};
+
+export function leerFalla(texto: string): Falla {
+  const m = texto.trim().match(/^([PBCU][0-3][0-9A-F]{3})(?![0-9A-Z])[\s·:–-]*(.*)$/i);
+  if (!m) return { codigo: "", titulo: texto.trim(), explicacion: "" };
+  const codigo = m[1].toUpperCase();
+  const conocido = CODIGOS[codigo];
+  return { codigo, titulo: m[2] || conocido?.titulo || "Código registrado por el taller", explicacion: conocido?.explicacion ?? "" };
+}
+export const textoFalla = (f: Falla) => [f.codigo, f.titulo].filter(Boolean).join(" · ");
 
 export type Recepcion = { sinGolpes: boolean; herramienta: boolean; combustible: string; km: number | null };
 export type Hallazgo = { nombre: string; detalle: string; precio: number; aprobado: boolean };
@@ -239,6 +273,9 @@ export type Orden = {
   hallazgo?: Hallazgo;
   cita?: { fecha: string; hora: string };
   marcas: Record<number, number>;
+  bahia: string;
+  falla: Falla | null;
+  notas: Nota[];
 };
 
 export const totalDe = (o: Orden) => o.costo + (o.hallazgo?.aprobado ? o.hallazgo.precio : 0);
@@ -281,12 +318,42 @@ export function mensajeEstado(o: Orden, enlace: string) {
 /* ───────── estado compartido ───────── */
 
 export type Estado = { dia: string; ordenes: Orden[]; siguiente: number };
-export type NuevaOrden = { placa: string; cliente: string; telefono: string; vehiculo: string; servicio: string; costo: number; km?: number | null; cita?: Orden["cita"] };
+export type NuevaOrden = { placa: string; cliente: string; telefono: string; vehiculo: string; servicio: string; costo: number; km?: number | null; cita?: Orden["cita"]; falla?: Falla | null };
 
 const SIN_RECIBIR: Recepcion = { sinGolpes: false, herramienta: false, combustible: "", km: null };
 
+/* inspección de las órdenes con las que abre el día */
+function inspecciones(): Record<string, { bahia: string; falla: Falla | null; notas: Nota[] }> {
+  const nota = (id: string, tipo: Nota["tipo"], nombre: string, valor: string, delHallazgo?: boolean): Nota => ({ id, tipo, nombre, valor, delHallazgo });
+  return {
+    "P-482JKL": {
+      bahia: "Elevador 1 · Mecánica",
+      falla: leerFalla("P0171"),
+      notas: [
+        nota("a1", "critico", "Pastillas traseras", "2.0 mm", true),
+        nota("a2", "precaucion", "Batería", "12.1V · 62% vida útil"),
+        nota("a3", "optimo", "Discos delanteros", "26.4 mm"),
+        nota("a4", "optimo", "Fluido de frenos", "<1% humedad"),
+      ],
+    },
+    "P-915MTR": {
+      bahia: "Elevador 3 · Suspensión",
+      falla: { codigo: "", titulo: "Fuga en amortiguadores delanteros", explicacion: "Pierden aceite y ya no controlan el rebote: el vehículo frena en más distancia y gasta las llantas." },
+      notas: [nota("b1", "critico", "Amortiguadores delanteros", "Con fuga de aceite"), nota("b2", "precaucion", "Bujes de barra estabilizadora", "Con desgaste"), nota("b3", "optimo", "Llantas delanteras", "5.5 mm de grabado")],
+    },
+    "P-307HDN": { bahia: "Bahía 2 · Electrónica", falla: leerFalla("P0420"), notas: [nota("c1", "optimo", "Voltaje de carga", "14.2V")] },
+    "P-761BQF": {
+      bahia: "Bancada 3D · Alineación",
+      falla: { codigo: "", titulo: "Sin códigos almacenados", explicacion: "El escáner no reporta fallas en los módulos del vehículo." },
+      notas: [nota("d1", "optimo", "Pastillas delanteras", "7.5 mm"), nota("d2", "optimo", "Presión de llantas", "33 psi")],
+    },
+    "P-128FGT": { bahia: "Estación A/C y Frenos", falla: { codigo: "", titulo: "Aire acondicionado enfría poco", explicacion: "Se medirán presiones y se buscarán fugas antes de cargar gas." }, notas: [] },
+  };
+}
+
 function diaNuevo(): Estado {
   const ahora = Date.now();
+  const tecnica = inspecciones();
   /* marcas de hora repartidas hacia atrás, una por cada etapa ya alcanzada */
   const marcas = (etapa: number, hace: number) => Object.fromEntries(Array.from({ length: etapa }, (_, i) => [i + 1, ahora - Math.round((hace * (etapa - i)) / etapa) * 60_000]));
   const orden = (n: number, placa: string, cliente: string, vehiculo: string, servicio: string, costo: number, etapa: number, jefe: string, km: number, combustible: string, hace: number, hallazgo?: Hallazgo): Orden => ({
@@ -302,6 +369,7 @@ function diaNuevo(): Estado {
     recepcion: { sinGolpes: true, herramienta: true, combustible, km },
     hallazgo,
     marcas: marcas(etapa, hace),
+    ...tecnica[placa],
   });
   return {
     dia: hoyISO(),
@@ -329,13 +397,16 @@ function diaNuevo(): Estado {
         recepcion: SIN_RECIBIR,
         cita: { fecha: masDias(1), hora: horasDe(masDias(1))[1] ?? "08:30" },
         marcas: {},
+        bahia: "",
+        falla: { codigo: "", titulo: "Cliente reporta: el vehículo se jala a un lado", explicacion: "" },
+        notas: [],
       },
     ],
     siguiente: 2423,
   };
 }
 
-const CLAVE = "autotech-v1";
+const CLAVE = "autotech-v2";
 
 function leerGuardado(crudo: string | null): Estado | null {
   try {
@@ -397,6 +468,9 @@ export function useAutotech() {
         recepcion: { ...SIN_RECIBIR, km: d.km ?? null },
         cita: d.cita,
         marcas: etapa ? { 1: Date.now() } : {},
+        bahia: "",
+        falla: d.falla ?? null,
+        notas: [],
       };
       setEstado((e) => ({ ...e, siguiente: e.siguiente + 1, ordenes: [orden, ...e.ordenes] }));
       return orden;
@@ -406,6 +480,27 @@ export function useAutotech() {
     aprobar: (codigo: string) => cambiar(codigo, (o) => (o.etapa !== 3 ? o : pasar({ ...o, hallazgo: o.hallazgo && { ...o.hallazgo, aprobado: true } }, 4))),
     asignar: (codigo: string, jefe: string) => cambiar(codigo, (o) => ({ ...o, jefe })),
     recibir: (codigo: string, parte: Partial<Recepcion>) => cambiar(codigo, (o) => ({ ...o, recepcion: { ...o.recepcion, ...parte } })),
+    ubicar: (codigo: string, bahia: string) => cambiar(codigo, (o) => ({ ...o, bahia })),
+    /* anotación del mecánico; "Pieza: valor". Volver a medir la misma pieza actualiza el dato */
+    anotar(codigo: string, tipo: TipoNota, texto: string) {
+      const limpio = texto.trim();
+      if (!limpio) return;
+      if (tipo === "falla") {
+        cambiar(codigo, (o) => ({ ...o, falla: leerFalla(limpio) }));
+        return;
+      }
+      const corte = limpio.indexOf(":");
+      const nombre = (corte > 0 ? limpio.slice(0, corte) : limpio).trim();
+      const valor = corte > 0 ? limpio.slice(corte + 1).trim() : "";
+      const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+      cambiar(codigo, (o) => {
+        const igual = (n: Nota) => n.nombre.toLowerCase() === nombre.toLowerCase() && (n.tipo === "repuesto") === (tipo === "repuesto");
+        const previa = o.notas.find(igual);
+        const nueva: Nota = { id, tipo, nombre, valor, delHallazgo: previa?.delHallazgo };
+        return { ...o, notas: previa ? o.notas.map((n) => (n === previa ? nueva : n)) : [...o.notas, nueva] };
+      });
+    },
+    borrarNota: (codigo: string, id: string) => cambiar(codigo, (o) => ({ ...o, notas: o.notas.filter((n) => n.id !== id) })),
   };
 }
 export type Taller = ReturnType<typeof useAutotech>;

@@ -1,9 +1,10 @@
 /* Vista "Seguimiento por Placa": lo que ve el cliente de su orden, con aprobación en vivo. */
 import { useRef, useState, type FormEvent } from "react";
-import { CalendarClock, Check, CircleAlert, Fuel, Gauge, MessageCircle, Search, ShieldCheck, ThumbsUp, UserRound, Wrench } from "lucide-react";
+import { CalendarClock, Check, CircleAlert, MessageCircle, Search, ThumbsUp, UserRound } from "lucide-react";
 import { useLinea } from "./animar";
 import { Cifra, Placa } from "./Piezas";
-import { ETAPAS, enlaceWhatsApp, fechaCorta, miles, nombreEtapa, normalizarPlaca, ordenDe, qz, reloj, totalDe, type Orden, type Taller } from "./datos";
+import { Reporte } from "./Reporte";
+import { ETAPAS, enlaceWhatsApp, fechaCorta, nombreEtapa, normalizarPlaca, ordenDe, qz, reloj, totalDe, type Orden, type Taller } from "./datos";
 
 const PRINCIPALES = ["P-482JKL", "P-915MTR"];
 
@@ -84,15 +85,7 @@ function Ficha({ taller, orden: o }: { taller: Taller; orden: Orden }) {
   const avance = o.etapa === 0 ? 0 : Math.min(o.etapa, 5) - 1;
   useLinea(linea, o.codigo, avance);
   const h = o.hallazgo;
-  const r = o.recepcion;
   const porAprobar = o.etapa === 3;
-
-  const checklist = [
-    { listo: r.sinGolpes, texto: "Sin golpes nuevos", falta: "Carrocería por revisar", icono: ShieldCheck },
-    { listo: r.herramienta, texto: "Herramienta completa", falta: "Herramienta por verificar", icono: Wrench },
-    { listo: !!r.combustible, texto: `Nivel combustible: ${r.combustible}`, falta: "Combustible por anotar", icono: Fuel },
-    { listo: r.km !== null, texto: `Kilometraje: ${miles(r.km ?? 0)} km`, falta: "Kilometraje por anotar", icono: Gauge },
-  ];
 
   return (
     <article className="at-ficha">
@@ -157,20 +150,9 @@ function Ficha({ taller, orden: o }: { taller: Taller; orden: Orden }) {
         </p>
       )}
 
-      <div className="at-ficha-columnas">
-        <section>
-          <h3>Checklist de recepción</h3>
-          <ul className="at-checklist">
-            {checklist.map(({ listo, texto, falta, icono: Icono }) => (
-              <li key={falta} className={listo ? "at-ok" : ""}>
-                <Icono size={19} aria-hidden />
-                <span>{listo ? texto : falta}</span>
-                {listo && <Check size={17} aria-label="Verificado" />}
-              </li>
-            ))}
-          </ul>
-        </section>
+      <Reporte orden={o} />
 
+      <div className="at-ficha-columnas">
         <section>
           <h3>Presupuesto</h3>
           <dl className="at-cuentas">
@@ -202,7 +184,10 @@ function Ficha({ taller, orden: o }: { taller: Taller; orden: Orden }) {
             <span>
               <UserRound size={22} aria-hidden />
             </span>
-            <b>{o.jefe || "Por asignar"}</b>
+            <span className="at-jefe-datos">
+              <b>{o.jefe || "Por asignar"}</b>
+              <small>{o.bahia || "Bahía por asignar"}</small>
+            </span>
           </p>
           <a
             className="at-btn at-contorno at-lleno"

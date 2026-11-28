@@ -2,7 +2,7 @@
 import { useState, type FormEvent } from "react";
 import { ArrowRight, CalendarCheck } from "lucide-react";
 import { Campo, Placa, Ventana } from "./Piezas";
-import { AGENDABLES, TIPOS, agendableDe, enTaller, fechaCorta, horasDe, hoyISO, masDias, normalizarPlaca, ordenDe, primerDiaConCupo, qz, type Orden, type Taller, type Tipo } from "./datos";
+import { AGENDABLES, SINTOMAS, TIPOS, agendableDe, enTaller, fechaCorta, horasDe, hoyISO, masDias, normalizarPlaca, ordenDe, primerDiaConCupo, qz, type Orden, type Taller, type Tipo } from "./datos";
 
 const GRUPOS = ["Servicios", "Revisiones por síntoma"];
 
@@ -32,7 +32,9 @@ export function Cita({ taller, servicioInicial, tipo, alTipo, alCerrar, alVer }:
     if (!elegida) err.hora = horas.length ? "Elija una hora." : "Ese día no hay citas.";
     setErrores(err);
     if (Object.keys(err).length) return;
-    setLista(taller.crear({ ...f, placa, servicio: elegido.nombre, costo, cita: { fecha, hora: elegida } }));
+    const sintoma = SINTOMAS.find((s) => `sintoma-${s.id}` === servicio);
+    const falla = sintoma ? { codigo: "", titulo: `Cliente reporta: ${sintoma.nombre}`, explicacion: "" } : null;
+    setLista(taller.crear({ ...f, placa, servicio: elegido.nombre, costo, cita: { fecha, hora: elegida }, falla }));
   }
 
   if (lista)
