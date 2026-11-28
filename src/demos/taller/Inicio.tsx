@@ -125,7 +125,7 @@ export function Inicio({
           <h2>Marcas que atendemos</h2>
           <div className="at-marcas-grupos">
             {MARCAS.map((g) => (
-              <div key={g.origen} data-ver>
+              <div key={g.origen}>
                 <h3>{g.origen}</h3>
                 <ul>
                   {g.marcas.map((m) => (

@@ -158,6 +158,13 @@ export const ESTILOS = `
   .at-portada-foto img { position: absolute; inset: 0; max-height: none; aspect-ratio: auto; }
 }
 
+/* laptop chica: la columna es angosta, el titular y las cifras bajan un poco */
+@media (min-width: 920px) and (max-width: 1179px) {
+  .at .at-portada h1 { font-size: 2.15rem; }
+  .at-portada-fila .at-metricas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .at-portada-fila .at-metricas li:last-child { grid-column: 1 / -1; }
+}
+
 /* marcas que atendemos */
 .at-marcas { padding-block: 1.6rem 1.8rem; background: ${ACERO}; border-bottom: 1px solid ${BORDE}; }
 .at .at-marcas h2 { margin-bottom: 1rem; font-size: 1.15rem; }
