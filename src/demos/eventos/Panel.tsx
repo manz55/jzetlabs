@@ -1,7 +1,3 @@
-/*
- * Panel Logística: centro de mando de bodega y flota. Atajos (Alt+1 a Alt+4), cifras del fin de
- * semana, control de órdenes y, a la derecha, la flota en vivo y las piezas críticas del sábado.
- */
 import { useEffect, useState } from "react";
 import { AlertTriangle, CalendarRange, ClipboardList, Gauge, HandCoins, Landmark, MessageCircle, PackageCheck, PackageSearch, PhoneCall, Search, Truck, Undo2 } from "lucide-react";
 import { irA } from "./animar";
@@ -19,7 +15,8 @@ const COLOR: Record<EstadoOrden, string> = {
 };
 const ORDEN: EstadoOrden[] = ["retorno", "evento", "reservada", "liquidada"];
 const PUNTO: Record<EstadoCamion, string> = { bodega: "bg-[#3F6212]", carga: "bg-[#A16207]", ruta: "bg-[#2563EB]", montaje: "bg-[#7C3AED]", regreso: "bg-[#0891B2]", taller: "bg-[#9F2F1E]" };
-const chico = "inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border px-2.5 text-[0.78rem] font-bold leading-none transition active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-35";
+const columnas = "lg:grid-cols-[130px_minmax(0,1.5fr)_110px_135px_135px_190px]";
+const chico = "inline-flex min-h-9 shrink-0 items-center justify-center gap-1 rounded-lg border px-2 text-[0.78rem] font-bold leading-none transition active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-35";
 
 export function Panel({ imp }: { imp: Imperial }) {
   const [ventana, setVentana] = useState<V>(null);
@@ -40,7 +37,7 @@ export function Panel({ imp }: { imp: Imperial }) {
     { nombre: "Ver disponibilidad crítica", icono: PackageSearch, clase: "border-[#CFC6BA] bg-white text-[#1C1917] hover:border-[#1C1917]", accion: critica },
   ];
 
-  /* Alt+1 a Alt+4. Se usa la tecla física porque en Mac Opción+número escribe otro símbolo */
+  // e.code y no e.key: en Mac, Opción+número escribe otro símbolo
   useEffect(() => {
     const tecla = (e: KeyboardEvent) => {
       if (!e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || e.repeat) return;
@@ -127,11 +124,11 @@ export function Panel({ imp }: { imp: Imperial }) {
               <label className="relative ml-auto w-full min-w-0 sm:w-56">
                 <span className="sr-only">Buscar orden, cliente o finca</span>
                 <Search size={16} aria-hidden className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#8A8076]" />
-                <input value={buscar} onChange={(e) => setBuscar(e.target.value)} placeholder="Buscar orden, cliente o finca" className="h-10 w-full rounded-lg border border-[#CFC6BA] bg-[#FAF8F5] pl-9 pr-3 text-sm text-[#1C1917]" />
+                <input value={buscar} onChange={(e) => setBuscar(e.target.value)} placeholder="Buscar orden o cliente..." className="h-10 w-full rounded-lg border border-[#CFC6BA] bg-[#FAF8F5] pl-9 pr-3 text-sm text-[#1C1917]" />
               </label>
             </div>
 
-            <div className="hidden grid-cols-[6rem_minmax(0,1fr)_5.6rem_6.6rem_7.4rem_auto] gap-3 border-b border-[#EFE9E1] px-4 py-2 text-[0.7rem] font-bold uppercase tracking-[0.08em] text-[#8A8076] md:grid" aria-hidden>
+            <div className={`hidden gap-x-3 overflow-y-hidden border-b border-[#EFE9E1] px-4 py-2 text-[0.7rem] font-bold uppercase tracking-[0.08em] text-[#8A8076] [scrollbar-gutter:stable] lg:grid ${columnas}`} aria-hidden>
               <span>Orden</span>
               <span>Cliente / finca</span>
               <span>Fecha</span>
@@ -140,7 +137,7 @@ export function Panel({ imp }: { imp: Imperial }) {
               <span className="text-right">Acciones</span>
             </div>
             {lista.length === 0 && <p className="p-6 text-sm">No hay órdenes con ese filtro.</p>}
-            <ul className="divide-y divide-[#EFE9E1] xl:max-h-[calc(100dvh-20rem)] xl:min-h-[24rem] xl:overflow-y-auto">
+            <ul className="divide-y divide-[#EFE9E1] [scrollbar-gutter:stable] xl:max-h-[calc(100dvh-20rem)] xl:min-h-[24rem] xl:overflow-y-auto">
               {lista.map((o) => (
                 <Fila key={o.folio} o={o} imp={imp} alCarga={() => setVentana({ tipo: "carga", folio: o.folio })} alRetorno={() => {
                   if (o.estado === "evento") imp.recibir(o.folio);
@@ -181,13 +178,13 @@ function Fila({ o, imp, alCarga, alRetorno }: { o: Orden; imp: Imperial; alCarga
   const revisar = porVerificar(o);
   const opciones = imp.camiones.filter((c) => c.estado !== "taller" || c.id === o.camion);
   return (
-    <li className={`grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 px-4 py-3 md:grid-cols-[6rem_minmax(0,1fr)_5.6rem_6.6rem_7.4rem_auto] ${o.nueva ? "bg-[#FBF3E4]" : ""}`}>
-      <div className="min-w-0 max-md:col-span-2 max-md:flex max-md:items-center max-md:gap-2">
+    <li className={`grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 px-4 py-3 ${columnas} ${o.nueva ? "bg-[#FBF3E4]" : ""}`}>
+      <div className="min-w-0 max-lg:col-span-2 max-lg:flex max-lg:items-center max-lg:gap-2">
         <b className="block text-[0.9rem] text-[#1C1917]">{o.folio}</b>
         <span className={`mt-0.5 inline-block rounded-full px-2 py-0.5 text-[0.66rem] font-bold leading-tight ${COLOR[o.estado]}`}>{ESTADOS[o.estado]}</span>
-        {o.nueva && <span className="ml-1 rounded-full bg-[#A16207] px-2 py-0.5 text-[0.66rem] font-bold text-white md:ml-0 md:mt-1 md:block md:w-fit">Nueva</span>}
+        {o.nueva && <span className="ml-1 rounded-full bg-[#A16207] px-2 py-0.5 text-[0.66rem] font-bold text-white lg:ml-0 lg:mt-1 lg:block lg:w-fit">Nueva</span>}
       </div>
-      <div className="min-w-0 max-md:col-span-2">
+      <div className="min-w-0 max-lg:col-span-2">
         <p className="truncate text-[0.9rem] font-bold text-[#1C1917]">
           {o.cliente}
           {o.origen === "manual" && <span className="ml-1.5 align-middle text-[0.66rem] font-bold text-[#A16207]">TEL/WA</span>}
@@ -214,7 +211,7 @@ function Fila({ o, imp, alCarga, alRetorno }: { o: Orden; imp: Imperial; alCarga
           <span className="font-semibold text-[#1C1917]">{camion?.nombre ?? "—"}</span>
         )}
       </div>
-      <div className="min-w-0 max-md:col-span-2 max-md:flex max-md:flex-wrap max-md:gap-2 md:grid md:gap-1">
+      <div className="min-w-0 max-lg:col-span-2 max-lg:flex max-lg:flex-wrap max-lg:gap-2 lg:grid lg:gap-1">
         <span className={`w-fit rounded-full px-2 py-0.5 text-[0.72rem] font-bold ${pago.clase}`}>{pago.texto}</span>
         {revisar > 0 && (
           <button type="button" onClick={() => imp.verificarPagos(o.folio)} title="Marcar como verificado el pago que reportó el cliente" className="w-fit rounded-full border border-[#A16207] px-2 py-0.5 text-[0.72rem] font-bold text-[#A16207] hover:bg-[#A16207] hover:text-white">
@@ -222,16 +219,16 @@ function Fila({ o, imp, alCarga, alRetorno }: { o: Orden; imp: Imperial; alCarga
           </button>
         )}
       </div>
-      <div className="flex flex-wrap justify-end gap-1.5 max-md:col-span-2 max-md:justify-start">
+      <div className="flex flex-wrap justify-end gap-1 max-lg:col-span-2 max-lg:justify-start lg:flex-nowrap">
         <button type="button" onClick={alCarga} disabled={o.estado !== "reservada"} aria-label={`Checklist de carga de ${o.folio}`} title="Checklist de carga" className={`${chico} border-[#CFC6BA] bg-white text-[#1C1917] hover:border-[#1C1917]`}>
           <ClipboardList size={15} aria-hidden /> Carga
         </button>
         <button type="button" onClick={alRetorno} disabled={o.estado === "reservada"} aria-label={`${o.estado === "liquidada" ? "Ver liquidación" : "Revisar retorno"} de ${o.folio}`} title={o.estado === "evento" ? "Recibir en bodega y revisar retorno" : "Revisar retorno"} className={`${chico} border-[#CFC6BA] bg-white text-[#1C1917] hover:border-[#1C1917]`}>
-          <PackageCheck size={15} aria-hidden /> {o.estado === "liquidada" ? "Liquidación" : "Retorno"}
+          <PackageCheck size={15} aria-hidden /> Retorno
         </button>
         <a href={avisoWhatsApp(o)} target="_blank" rel="noopener noreferrer" aria-label={`Avisar por WhatsApp a ${o.cliente}`} title="Avisar por WhatsApp" className={`${chico} border-[#15803D] bg-[#15803D] text-white hover:bg-[#166534]`}>
           <MessageCircle size={15} aria-hidden />
-          <span className="md:sr-only">WhatsApp</span>
+          <span className="lg:sr-only">WhatsApp</span>
         </a>
       </div>
     </li>
@@ -296,7 +293,7 @@ function Alertas({ imp, brillo }: { imp: Imperial; brillo: number }) {
     return () => window.clearTimeout(t);
   }, [brillo]);
 
-  /* piezas que siguen fuera (en otro evento o sin revisar) y tienen que volver listas para el sábado */
+  // cuentan las piezas de eventos anteriores que aún no regresan o no se revisan
   const fuera = (id: keyof typeof ARTICULOS) => imp.ordenes.filter((o) => (o.estado === "evento" || o.estado === "retorno") && o.fecha < sab).reduce((s, o) => s + (o.cesta[id] ?? 0), 0);
   const criticas = IDS.map((id) => {
     const a = ARTICULOS[id];
