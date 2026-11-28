@@ -10,12 +10,14 @@ export type Pago = { tipo: "efectivo"; recibido: number } | { tipo: "transferenc
 
 export type Producto = { nombre: string; detalle: string; precio: number; stand: StandId; foto: string; alt: string; cargadas: number; agotado: boolean; baja: boolean };
 export type PlatilloNuevo = Pick<Producto, "nombre" | "detalle" | "precio" | "stand" | "foto" | "alt" | "cargadas">;
-export type Ticket = { numero: number; vecino: string; items: Cesta; pago: Pago; fecha: number; entregas: Partial<Record<StandId, number>> };
+export type Entrega = "salon" | "casa";
+export type Cliente = { vecino: string; casa: string; entrega: Entrega };
+export type Ticket = Cliente & { numero: number; items: Cesta; pago: Pago; fecha: number; entregas: Partial<Record<StandId, number>> };
 type Estado = { dia: string; productos: Record<ProductoId, Producto>; tickets: Ticket[] };
 
-export type Cuenta = { vecino: string; items: Cesta; metodo: Pago["tipo"]; recibido: string; banco: Banco; boleta: string };
+export type Cuenta = Cliente & { items: Cesta; metodo: Pago["tipo"]; recibido: string; banco: Banco; boleta: string };
 
-export const cuentaVacia = (): Cuenta => ({ vecino: "", items: {}, metodo: "efectivo", recibido: "", banco: "BI", boleta: "" });
+export const cuentaVacia = (): Cuenta => ({ vecino: "", casa: "", entrega: "salon", items: {}, metodo: "efectivo", recibido: "", banco: "BI", boleta: "" });
 
 export const CONVIVIO = { nombre: "Convivio Navideño", lugar: "Residenciales Villa Real", zona: "Zona 16, Ciudad de Guatemala", horario: "10:00 a.m. – 6:00 p.m." };
 
@@ -53,6 +55,7 @@ export const SECCIONES = [
 export const urlFoto = (id: string, ancho: number, alto: number) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${ancho}&h=${alto}&q=72`;
 export const qz = (n: number) => `Q${n.toLocaleString("en-US")}`;
 export const codigo = (numero: number) => `#CV-${numero}`;
+export const quien = ({ vecino, casa }: Cliente) => (casa ? `${vecino} · ${/^\d/.test(casa) ? "Casa " : ""}${casa}` : vecino);
 export const hora = (fecha: number) => new Date(fecha).toLocaleTimeString("es-GT", { hour: "numeric", minute: "2-digit" });
 export const diaLargo = () => new Date().toLocaleDateString("es-GT", { weekday: "long", day: "numeric", month: "long" });
 
@@ -68,9 +71,11 @@ function estadoInicial(dia: string): Estado {
   const hace = (minutos: number) => Date.now() - minutos * 60_000;
   const efectivo = (recibido: number): Pago => ({ tipo: "efectivo", recibido });
   const transferencia = (banco: Banco, boleta: string): Pago => ({ tipo: "transferencia", banco, boleta });
-  const venta = (numero: number, minutos: number, vecino: string, items: Cesta, pago: Pago, entregados: StandId[]): Ticket => ({
+  const venta = (numero: number, minutos: number, vecino: string, casa: string, items: Cesta, pago: Pago, entregados: StandId[], entrega: Entrega = "salon"): Ticket => ({
     numero,
     vecino,
+    casa,
+    entrega,
     items,
     pago,
     fecha: hace(minutos),
@@ -80,19 +85,19 @@ function estadoInicial(dia: string): Estado {
     dia,
     productos: cartaInicial(),
     tickets: [
-      venta(101, 112, "Marta · Casa 3", { carne: 5, chuchitos: 2, gaseosa: 5 }, efectivo(320), ["parrilla", "antojitos", "bebidas"]),
-      venta(102, 96, "Luis · Casa 22", { carne: 6, elote: 6, ponche: 4 }, transferencia("BI", "448210"), ["parrilla", "antojitos", "bebidas"]),
-      venta(103, 78, "Ana Lucía · Casa 8", { carne: 4, choripan: 3, elote: 8, gaseosa: 4 }, efectivo(500), ["parrilla", "antojitos", "bebidas"]),
-      venta(104, 61, "Familia Reyes · Casa 31", { carne: 5, chuchitos: 4, elote: 6, ponche: 6 }, transferencia("BAC", "903377"), ["parrilla", "antojitos", "bebidas"]),
-      venta(105, 44, "Jorge · Casa 17", { carne: 3, choripan: 4, elote: 6, gaseosa: 3 }, efectivo(400), ["parrilla", "antojitos", "bebidas"]),
-      venta(106, 19, "Sofía · Casa 5", { carne: 6, elote: 6, gaseosa: 6 }, transferencia("BI", "451902"), ["bebidas"]),
-      venta(107, 11, "Rafael · Casa 12", { carne: 4, choripan: 2, elote: 4, ponche: 5 }, efectivo(400), []),
-      venta(108, 4, "Claudia · Casa 27", { carne: 3, chuchitos: 3, elote: 4, gaseosa: 2 }, transferencia("BAC", "911045"), []),
+      venta(101, 112, "Marta", "3-15", { carne: 5, chuchitos: 2, gaseosa: 5 }, efectivo(320), ["parrilla", "antojitos", "bebidas"]),
+      venta(102, 96, "Luis", "22-04", { carne: 6, elote: 6, ponche: 4 }, transferencia("BI", "448210"), ["parrilla", "antojitos", "bebidas"]),
+      venta(103, 78, "Ana Lucía", "Mz. B 4-10", { carne: 4, choripan: 3, elote: 8, gaseosa: 4 }, efectivo(500), ["parrilla", "antojitos", "bebidas"]),
+      venta(104, 61, "Familia Reyes", "31-08", { carne: 5, chuchitos: 4, elote: 6, ponche: 6 }, transferencia("BAC", "903377"), ["parrilla", "antojitos", "bebidas"]),
+      venta(105, 44, "Jorge", "17-12", { carne: 3, choripan: 4, elote: 6, gaseosa: 3 }, efectivo(400), ["parrilla", "antojitos", "bebidas"]),
+      venta(106, 19, "Sofía", "5-41", { carne: 6, elote: 6, gaseosa: 6 }, transferencia("BI", "451902"), ["bebidas"]),
+      venta(107, 11, "Rafael", "12-23", { carne: 4, choripan: 2, elote: 4, ponche: 5 }, efectivo(400), [], "casa"),
+      venta(108, 4, "Claudia", "Mz. C 2-07", { carne: 3, chuchitos: 3, elote: 4, gaseosa: 2 }, transferencia("BAC", "911045"), []),
     ],
   };
 }
 
-const CLAVE = "ticketfest-v2";
+const CLAVE = "ticketfest-v3";
 const hoy = () => new Date().toDateString();
 
 function guardado(): Estado | null {
@@ -165,11 +170,11 @@ function crear(datos: PlatilloNuevo) {
   cambiar((e) => ({ ...e, productos: { ...e.productos, [`p${Date.now()}`]: platillo(datos) } }));
 }
 
-function cobrar(vecino: string, items: Cesta, pago: Pago): Ticket | null {
+function cobrar({ vecino, casa, entrega }: Cliente, items: Cesta, pago: Pago): Ticket | null {
   let nuevo: Ticket | null = null;
   cambiar((e) => {
     if (Object.entries(items).some(([id, cantidad]) => (cantidad ?? 0) > disponibleEn(e, id))) return e;
-    nuevo = { numero: Math.max(100, ...e.tickets.map((t) => t.numero)) + 1, vecino, items, pago, fecha: Date.now(), entregas: {} };
+    nuevo = { numero: Math.max(100, ...e.tickets.map((t) => t.numero)) + 1, vecino: vecino.trim(), casa: casa.trim().replace(/^casa\s+/i, ""), entrega, items, pago, fecha: Date.now(), entregas: {} };
     return { ...e, tickets: [...e.tickets, nuevo] };
   });
   return nuevo;

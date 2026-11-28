@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from "react";
-import { Banknote, Check, CircleCheck, CircleDollarSign, Copy, Landmark, PackagePlus, ReceiptText, Smartphone, TicketCheck } from "lucide-react";
+import { Banknote, Check, ChefHat, CircleCheck, CircleDollarSign, Copy, Landmark, PackagePlus, ReceiptText, TicketCheck } from "lucide-react";
 import { CONVIVIO, STANDS, diaLargo, qz, reporteWhatsApp, resumen, type Feria, type Filtro } from "./datos";
 import { FiltroStands } from "./Piezas";
 
@@ -53,10 +53,10 @@ export function Cierre({ feria, alCaja, alDespacho, alStock }: { feria: Feria; a
         </div>
         <div className="flex w-full flex-wrap gap-2 sm:w-auto">
           <button type="button" onClick={alCaja} className="tf-boton tf-linea">
-            <ReceiptText size={16} aria-hidden /> Mesa de Cobros
+            <ReceiptText size={16} aria-hidden /> Hacer Pedido / Caja
           </button>
           <button type="button" onClick={alDespacho} className="tf-boton tf-linea">
-            <Smartphone size={16} aria-hidden /> Despacho
+            <ChefHat size={16} aria-hidden /> Vista de Stands
             {r.pendientes > 0 && <span className="tf-cuenta">{r.pendientes}</span>}
           </button>
           <button type="button" onClick={alStock} className="tf-boton tf-linea">

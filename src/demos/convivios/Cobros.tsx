@@ -1,14 +1,14 @@
 import { useRef, useState } from "react";
 import { ArrowDown, ArrowRight, Banknote, CircleCheck, Landmark, Minus, Plus, ReceiptText, Trash2 } from "lucide-react";
-import { IDS_STAND, STANDS, codigo, hora, productosDe, PRODUCTOS, qz, renglones, standsDe, totalDe, cuentaVacia, type Cuenta, type Feria, type Pago, type ProductoId, type Ticket } from "./datos";
+import { IDS_STAND, STANDS, codigo, hora, productosDe, PRODUCTOS, qz, renglones, standsDe, totalDe, cuentaVacia, quien, type Cuenta, type Feria, type Pago, type ProductoId, type Ticket } from "./datos";
 import { irA } from "./animar";
-import { Foto } from "./Piezas";
+import { BadgeEntrega, Foto } from "./Piezas";
 
 const BILLETE_MAYOR = 200;
 
 export function MesaCobros({ feria, cuenta, alCuenta, alDespacho }: { feria: Feria; cuenta: Cuenta; alCuenta: (c: Cuenta) => void; alDespacho: () => void }) {
   const [ticket, setTicket] = useState<Ticket | null>(null);
-  const campoVecino = useRef<HTMLInputElement>(null);
+  const campoNombre = useRef<HTMLInputElement>(null);
   const lineas = renglones(cuenta.items);
   const total = totalDe(cuenta.items);
   const piezas = lineas.reduce((s, l) => s + l.cantidad, 0);
@@ -21,14 +21,16 @@ export function MesaCobros({ feria, cuenta, alCuenta, alDespacho }: { feria: Fer
     : sinStock.length
       ? `Ya no alcanza ${sinStock.map((l) => l.nombre).join(" ni ")}: baja la cantidad.`
       : !cuenta.vecino.trim()
-        ? "Escribe el nombre del vecino y su casa."
-        : cuenta.metodo === "efectivo" && !cuenta.recibido
-          ? "Ingresa con cuánto paga."
-          : cuenta.metodo === "efectivo" && vuelto < 0
-            ? `Faltan ${qz(-vuelto)}.`
-            : cuenta.metodo === "efectivo" && vuelto >= BILLETE_MAYOR
-              ? `Revisa el monto: el vuelto sería de ${qz(vuelto)}.`
-              : "";
+        ? "Escribe el nombre de quien pide."
+        : cuenta.entrega === "casa" && !cuenta.casa.trim()
+          ? "Escribe la nomenclatura de la casa para el envío."
+          : cuenta.metodo === "efectivo" && !cuenta.recibido
+            ? "Ingresa con cuánto paga."
+            : cuenta.metodo === "efectivo" && vuelto < 0
+              ? `Faltan ${qz(-vuelto)}.`
+              : cuenta.metodo === "efectivo" && vuelto >= BILLETE_MAYOR
+                ? `Revisa el monto: el vuelto sería de ${qz(vuelto)}.`
+                : "";
 
   const cambiar = (parte: Partial<Cuenta>) => {
     setTicket(null);
@@ -39,7 +41,7 @@ export function MesaCobros({ feria, cuenta, alCuenta, alDespacho }: { feria: Fer
   function cobrar() {
     if (falta) return;
     const pago: Pago = cuenta.metodo === "efectivo" ? { tipo: "efectivo", recibido } : { tipo: "transferencia", banco: cuenta.banco, boleta: cuenta.boleta.trim() };
-    const nuevo = feria.cobrar(cuenta.vecino.trim(), Object.fromEntries(lineas.map((l) => [l.id, l.cantidad])), pago);
+    const nuevo = feria.cobrar(cuenta, Object.fromEntries(lineas.map((l) => [l.id, l.cantidad])), pago);
     if (!nuevo) return;
     setTicket(nuevo);
     alCuenta(cuentaVacia());
@@ -48,16 +50,39 @@ export function MesaCobros({ feria, cuenta, alCuenta, alDespacho }: { feria: Fer
 
   function siguiente() {
     setTicket(null);
-    campoVecino.current?.focus({ preventScroll: true });
+    window.setTimeout(() => campoNombre.current?.focus({ preventScroll: true }));
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   return (
     <div className="mt-6 grid items-start gap-6 xl:grid-cols-12">
       <div className="grid min-w-0 gap-5 xl:col-span-8">
-        <div>
-          <label htmlFor="tf-vecino" className="tf-rotulo">Vecino / Casa</label>
-          <input ref={campoVecino} id="tf-vecino" autoComplete="off" maxLength={40} placeholder="Carlos · Casa 14" value={cuenta.vecino} onChange={(e) => cambiar({ vecino: e.target.value })} className="tf-campo !h-14 !text-lg" />
+        <div className="grid items-end gap-3 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1.15fr)]">
+          <div className="min-w-0">
+            <label htmlFor="tf-nombre" className="tf-rotulo">Nombre</label>
+            <input ref={campoNombre} id="tf-nombre" autoComplete="off" maxLength={30} placeholder="Carlos" value={cuenta.vecino} onChange={(e) => cambiar({ vecino: e.target.value })} className="tf-campo" />
+          </div>
+          <fieldset className="min-w-0">
+            <legend className="tf-rotulo">¿Cómo recibe?</legend>
+            <div className="flex h-12 gap-1 rounded-xl border border-[#D9CFC3] bg-[#F9F5F0] p-1">
+              {(
+                [
+                  ["salon", "Recoger en salón / evento"],
+                  ["casa", "Enviar a mi casa"],
+                ] as const
+              ).map(([id, nombre]) => (
+                <button key={id} type="button" aria-pressed={cuenta.entrega === id} onClick={() => cambiar({ entrega: id })} className={`min-w-0 flex-auto rounded-lg px-2.5 text-[0.78rem] font-bold leading-tight transition ${cuenta.entrega === id ? "bg-[#18181B] text-white" : "text-[#3F3F46] hover:bg-white"}`}>
+                  {nombre}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+          <div className="min-w-0">
+            <label htmlFor="tf-casa" className="tf-rotulo">
+              Nomenclatura / Casa {cuenta.entrega === "casa" && <span className="text-[#B91C1C]">(obligatoria)</span>}
+            </label>
+            <input id="tf-casa" autoComplete="off" maxLength={20} required={cuenta.entrega === "casa"} placeholder="Ej. 12-23 o Mz. B 4-10" value={cuenta.casa} onChange={(e) => cambiar({ casa: e.target.value })} className={`tf-campo ${cuenta.entrega === "casa" && !cuenta.casa.trim() ? "!border-[#B91C1C]" : ""}`} />
+          </div>
         </div>
 
         <div className="grid gap-5 md:grid-cols-3">
@@ -223,12 +248,15 @@ function TicketDigital({ ticket, alSiguiente, alDespacho }: { ticket: Ticket; al
           <CircleCheck size={18} aria-hidden /> Pagado · {hora(ticket.fecha)}
         </p>
         <p className="mt-1 text-4xl font-extrabold">{codigo(ticket.numero)}</p>
-        <p className="font-semibold">{ticket.vecino}</p>
+        <p className="break-words font-semibold">{quien(ticket)}</p>
       </div>
       <div className="border-t-2 border-dashed border-[#D9CFC3] p-5">
+        <BadgeEntrega entrega={ticket.entrega} casa={ticket.casa} className="mb-4" />
         {standsDe(ticket).map((stand) => (
           <div key={stand} className="mb-3">
-            <p className="text-xs font-extrabold uppercase tracking-wide text-[#B91C1C]">Retira en {STANDS[stand].nombre}</p>
+            <p className="text-xs font-extrabold uppercase tracking-wide text-[#B91C1C]">
+              {ticket.entrega === "casa" ? "Sale de" : "Retira en"} {STANDS[stand].nombre}
+            </p>
             <ul>
               {renglones(ticket.items)
                 .filter((l) => l.stand === stand)

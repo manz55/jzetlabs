@@ -33,7 +33,7 @@ export function GestionMenu({ feria, alCaja, alCarta }: { feria: Feria; alCaja: 
             <Store size={16} aria-hidden /> Ver carta pública
           </button>
           <button type="button" onClick={alCaja} className="tf-boton tf-linea">
-            <ReceiptText size={16} aria-hidden /> Mesa de Cobros
+            <ReceiptText size={16} aria-hidden /> Hacer Pedido / Caja
           </button>
         </div>
       </div>

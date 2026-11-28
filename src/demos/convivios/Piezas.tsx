@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { ImageOff } from "lucide-react";
-import { IDS_STAND, STANDS, urlFoto, type Filtro } from "./datos";
+import { House, ImageOff, Store } from "lucide-react";
+import { IDS_STAND, STANDS, urlFoto, type Entrega, type Filtro } from "./datos";
 
 export function Foto({ id, alt, ancho, alto, className = "", prioridad = false }: { id: string; alt: string; ancho: number; alto: number; className?: string; prioridad?: boolean }) {
   const [fallo, setFallo] = useState(false);
@@ -35,5 +35,17 @@ export function FiltroStands({ actual, alElegir, cuentas, etiqueta }: { actual: 
         </button>
       ))}
     </div>
+  );
+}
+
+export function BadgeEntrega({ entrega, casa, className = "" }: { entrega: Entrega; casa: string; className?: string }) {
+  const aCasa = entrega === "casa";
+  const Icono = aCasa ? House : Store;
+  const texto = aCasa ? `Llevar a casa ${casa}` : "Recoge en salón";
+  return (
+    <p className={`flex min-h-11 min-w-0 items-center gap-2 rounded-lg px-2.5 py-1 text-sm font-extrabold leading-tight ${aCasa ? "bg-[#F59E0B] text-[#18181B]" : "bg-[#F1EAE1] text-[#3F3F46]"} ${className}`}>
+      <Icono size={16} aria-hidden className="shrink-0" />
+      <span className="min-w-0 break-words">{texto}</span>
+    </p>
   );
 }

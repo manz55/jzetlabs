@@ -20,7 +20,7 @@ export function Hero({ feria, alCaja, alStands }: { feria: Feria; alCaja: () => 
           <p className="mt-6 max-w-xl text-[1.05rem] text-white/75">Consulta platillos disponibles en tiempo real, pide en Caja Central y recoge en tu stand con tu número de orden.</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <button type="button" onClick={alCaja} className="tf-boton tf-rojo !min-h-12 !px-6">
-              Abrir Caja Central <ArrowRight size={17} aria-hidden />
+              Hacer mi pedido <ArrowRight size={17} aria-hidden />
             </button>
             <button type="button" onClick={alStands} className="tf-boton !min-h-12 !border-white/30 !px-6 text-white hover:!border-white hover:bg-white/10">
               <Smartphone size={17} aria-hidden /> Ver pantallas de stands

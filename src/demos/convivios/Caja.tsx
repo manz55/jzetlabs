@@ -1,4 +1,4 @@
-import { Banknote, Smartphone } from "lucide-react";
+import { Banknote, ChefHat } from "lucide-react";
 import { MesaCobros } from "./Cobros";
 import { Despacho } from "./Despacho";
 import { pendientesDe, type Cuenta, type Feria } from "./datos";
@@ -8,8 +8,8 @@ export type Modo = "cobros" | "despacho";
 export function Caja({ feria, modo, alModo, cuenta, alCuenta }: { feria: Feria; modo: Modo; alModo: (m: Modo) => void; cuenta: Cuenta; alCuenta: (c: Cuenta) => void }) {
   const pendientes = pendientesDe(feria.tickets, "todos").length;
   const modos = [
-    { id: "cobros", nombre: "Mesa de Cobros", texto: "Caja Central", icono: Banknote },
-    { id: "despacho", nombre: "Despacho en Stands", texto: "Pantalla de cada puesto", icono: Smartphone },
+    { id: "cobros", nombre: "Hacer Pedido / Caja", texto: "Vecinos desde su teléfono o encargado de caja", icono: Banknote },
+    { id: "despacho", nombre: "Vista de Stands (Cocina)", texto: "Solo para quien prepara y entrega", icono: ChefHat },
   ] as const;
   return (
     <div className="tf-ancho !max-w-[90rem] py-6">
