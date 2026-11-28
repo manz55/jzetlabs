@@ -1,7 +1,8 @@
 /*
  * Demo: IronPeak Performance Club (gimnasio inventado, fotos de Unsplash). Tres vistas en la misma
  * dirección que comparten datos en vivo: Planes y Clases, Pase de Socio (#pase) y Panel Recepción
- * (#recepcion). De lo compartido entre demos solo usa la banda superior.
+ * (#recepcion). El enlace de cobro (?socio=1002#pagar) abre la pasarela de ese socio.
+ * De lo compartido entre demos solo usa la banda superior.
  */
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { BandaDemos } from "../comun";
@@ -26,7 +27,7 @@ const ESTILOS = `
 `;
 
 /* "#socio" es el enlace de la versión anterior */
-const leer = (): Vista => (location.hash === "#recepcion" ? "recepcion" : location.hash === "#pase" || location.hash === "#socio" ? "pase" : "planes");
+const leer = (): Vista => (location.hash === "#recepcion" ? "recepcion" : ["#pase", "#pagar", "#socio"].includes(location.hash) ? "pase" : "planes");
 
 const TITULOS: Record<Vista, string> = {
   planes: "IronPeak Performance Club · Demo de Jzet Labs",
@@ -37,12 +38,14 @@ const TITULOS: Record<Vista, string> = {
 export default function GimnasioDemo() {
   const club = useClub();
   const [vista, setVista] = useState<Vista>(leer);
-  const [socioId, setSocioId] = useState(1001);
+  const [socioId, setSocioId] = useState(() => Number(new URLSearchParams(location.search).get("socio")) || 1001);
+  const [pagando, setPagando] = useState(() => location.hash === "#pagar" && club.socios.some((s) => s.id === socioId));
   const [filtro, setFiltro] = useState<Filtro>("todos");
   const [alta, setAlta] = useState<PlanId | null>(null);
   /* sección de la portada a la que hay que bajar cuando ya esté pintada */
   const destino = useRef(SECCIONES.find((s) => `#${s.id}` === location.hash)?.id ?? "");
-  const socio = club.socios.find((s) => s.id === socioId) ?? club.socios[0];
+  /* si el número del enlace no existe, se muestra el socio de siempre */
+  const socio = club.socios.find((s) => s.id === socioId) ?? club.socios.find((s) => s.id === 1001)!;
 
   useLayoutEffect(() => {
     if (document.querySelector(`link[href="${LETRAS}"]`)) return;
@@ -67,6 +70,7 @@ export default function GimnasioDemo() {
   useEffect(() => {
     const cambio = () => {
       setAlta(null);
+      setPagando(false);
       setVista(leer());
     };
     addEventListener("hashchange", cambio);
@@ -90,6 +94,7 @@ export default function GimnasioDemo() {
 
   function ir(nueva: Vista) {
     setAlta(null);
+    setPagando(false);
     const direccion = nueva === "planes" ? location.pathname : `#${nueva}`;
     if (nueva === vista) {
       history.replaceState(null, "", direccion);
@@ -125,7 +130,7 @@ export default function GimnasioDemo() {
 
         <main className="overflow-x-hidden">
           {vista === "planes" && <Inicio club={club} socio={socio} alElegirPlan={setAlta} alPase={() => ir("pase")} />}
-          {vista === "pase" && <Pase club={club} socio={socio} alElegir={setSocioId} alHorarios={() => irSeccion("horarios")} />}
+          {vista === "pase" && <Pase club={club} socio={socio} alElegir={setSocioId} alHorarios={() => irSeccion("horarios")} pagando={pagando} alPagar={setPagando} />}
           {vista === "recepcion" && <Panel club={club} filtro={filtro} alFiltrar={setFiltro} alVer={verPase} />}
         </main>
 

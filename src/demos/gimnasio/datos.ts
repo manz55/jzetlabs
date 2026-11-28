@@ -153,19 +153,57 @@ export type Ejercicio = (typeof EJERCICIOS)[number];
 
 export type Medida = { ahora: number; antes: number };
 
-export type Socio = {
+export type Personales = { dpi: string; nacimiento: string; telefono: string; correo: string; emergenciaNombre: string; emergenciaTelefono: string };
+export type Tarjeta = { marca: string; ultimos: string; vence: string };
+export type Nota = { cuando: string; texto: string };
+
+export type Movimiento = { nombre: string; series: number; reps: number; peso: number; hecho: boolean };
+export type DiaRutina = { dia: string; nombre: string; ejercicios: Movimiento[] };
+
+export type PeriodoId = "mes" | "trimestre" | "anual";
+export const PERIODOS = [
+  { id: "mes" as PeriodoId, nombre: "1 mes", dias: 30, meses: 1, descuento: 0 },
+  { id: "trimestre" as PeriodoId, nombre: "Trimestre", dias: 90, meses: 3, descuento: 0.1 },
+  { id: "anual" as PeriodoId, nombre: "Anual", dias: 365, meses: 12, descuento: 0.2 },
+];
+export const periodoDe = (id: PeriodoId) => PERIODOS.find((p) => p.id === id)!;
+export const montoDe = (plan: PlanId, periodo: PeriodoId) => {
+  const p = periodoDe(periodo);
+  return Math.round(planDe(plan).precio * p.meses * (1 - p.descuento));
+};
+
+export type Metodo = "tarjeta" | "transferencia" | "efectivo" | "pos";
+export const NOMBRE_METODO: Record<Metodo, string> = { tarjeta: "Tarjeta de crédito o débito", transferencia: "Transferencia bancaria", efectivo: "Efectivo", pos: "POS con tarjeta" };
+
+export const CUENTAS = [
+  { banco: "Banco Industrial (BI)", numero: "000-000123-4" },
+  { banco: "BAC Credomatic", numero: "000000456" },
+];
+
+export type Pago = { recibo: string; fecha: string; periodo: string; metodo: Metodo; detalle: string; monto: number; hasta: string };
+
+export type Cobro = { periodo: PeriodoId; metodo: Metodo; detalle: string; tarjeta?: Tarjeta; debito?: boolean };
+
+export type Socio = Personales & {
   id: number;
   nombre: string;
   plan: PlanId;
   sede: SedeId;
   /* días que le quedan; cero o menos es mensualidad vencida */
   dias: number;
+  /* hasta cuándo dura el pase de tolerancia; null si no tiene */
+  tolerancia: string | null;
   /* hora a la que entró hoy */
   entrada: string | null;
-  recordado: boolean;
+  tarjeta: Tarjeta | null;
+  debito: boolean;
+  notas: Nota[];
+  pagos: Pago[];
+  avisos: { whatsapp: boolean; correo: boolean };
   medidas: { peso: Medida; grasa: Medida; musculo: Medida } | null;
   visitas: number;
   marcas: Record<Ejercicio, Medida>;
+  rutina: DiaRutina[];
 };
 
 export const META_VISITAS = 16;
@@ -175,11 +213,25 @@ export const BARRA = 45;
 export type Estado = "vencido" | "pronto" | "al-dia";
 export const estadoDe = (dias: number): Estado => (dias <= 0 ? "vencido" : dias <= 7 ? "pronto" : "al-dia");
 
-export function fechaEn(dias: number) {
+/* para recepción: el que debe pero tiene pase de tolerancia va aparte */
+export type Grupo = Estado | "tolerancia";
+export const grupoDe = (s: Socio): Grupo => (s.dias <= 0 && s.tolerancia ? "tolerancia" : estadoDe(s.dias));
+
+export type Acceso = "activo" | "tolerancia" | "bloqueado";
+export const accesoDe = (s: Socio): Acceso => (s.dias > 0 ? "activo" : s.tolerancia ? "tolerancia" : "bloqueado");
+
+export function fechaEn(dias: number, conAnio = false) {
   const d = new Date();
   d.setDate(d.getDate() + dias);
-  return d.toLocaleDateString("es-GT", { day: "numeric", month: "long" });
+  return d.toLocaleDateString("es-GT", { day: "numeric", month: "long", ...(conAnio ? { year: "numeric" } : {}) });
 }
+
+export function horaDe(d = new Date()) {
+  const h = d.getHours();
+  return `${h % 12 || 12}:${String(d.getMinutes()).padStart(2, "0")} ${h < 12 ? "a.m." : "p.m."}`;
+}
+
+const ahora = () => `${fechaEn(0)}, ${horaDe()}`;
 
 export function textoDias(dias: number) {
   if (dias === 0) return "Venció hoy";
@@ -187,98 +239,239 @@ export function textoDias(dias: number) {
   return dias === 1 ? "Le queda 1 día" : `Le quedan ${dias} días`;
 }
 
+/* DPI de 13 números en grupos de 4, 5 y 4 */
+export const formatoDpi = (t: string) => [t.slice(0, 4), t.slice(4, 9), t.slice(9, 13)].filter(Boolean).join(" ");
+export const formatoTelefono = (t: string) => [t.slice(0, 4), t.slice(4, 8)].filter(Boolean).join(" ");
+
+export const metodoDebito = (s: Socio) => (s.tarjeta ? `${s.tarjeta.marca} •••• ${s.tarjeta.ultimos} · ${s.debito ? "débito automático activo" : "sin débito automático"}` : "Sin tarjeta guardada");
+
+/* ---------- rutina ---------- */
+
+const redondo = (n: number) => Math.max(5, Math.round(n / 5) * 5);
+
+function rutinaDe(banca: number, sentadilla: number, muerto: number): DiaRutina[] {
+  const e = (nombre: string, series: number, reps: number, peso: number): Movimiento => ({ nombre, series, reps, peso: redondo(peso), hecho: false });
+  return [
+    { dia: "Lunes", nombre: "Empuje · Pecho y hombro", ejercicios: [e("Press Banca", 4, 8, banca * 0.8), e("Press militar", 3, 10, banca * 0.5), e("Press inclinado con mancuernas", 3, 10, banca * 0.3), e("Extensión de tríceps", 3, 12, banca * 0.3)] },
+    { dia: "Miércoles", nombre: "Pierna completa", ejercicios: [e("Sentadilla", 4, 8, sentadilla * 0.8), e("Peso muerto rumano", 3, 10, muerto * 0.6), e("Prensa de pierna", 3, 12, sentadilla * 1.3), e("Elevación de pantorrilla", 4, 15, sentadilla * 0.7)] },
+    { dia: "Viernes", nombre: "Jalón · Espalda y bíceps", ejercicios: [e("Peso Muerto", 4, 5, muerto * 0.8), e("Jalón al pecho", 3, 10, banca * 0.7), e("Remo con barra", 3, 10, banca * 0.65), e("Curl de bíceps", 3, 12, banca * 0.25)] },
+  ];
+}
+
+/* ---------- socios de arranque ---------- */
+
 const m = (ahora: number, antes: number): Medida => ({ ahora, antes });
 
-function socio(
-  id: number,
-  nombre: string,
-  plan: PlanId,
-  sede: SedeId,
-  dias: number,
-  entrada: string | null,
-  [peso, grasa, musculo]: [number, number, number],
-  [banca, sentadilla, muerto]: [number, number, number],
-  visitas: number,
-): Socio {
+type Ficha = {
+  id: number;
+  nombre: string;
+  plan: PlanId;
+  sede: SedeId;
+  dias: number;
+  entrada?: string;
+  cuerpo: [number, number, number];
+  fuerza: [number, number, number];
+  visitas: number;
+  nacimiento: string;
+  contacto: string;
+  tarjeta?: Tarjeta;
+  debito?: boolean;
+  tolerancia?: boolean;
+};
+
+function socio(f: Ficha): Socio {
+  const [peso, grasa, musculo] = f.cuerpo;
+  const [banca, sentadilla, muerto] = f.fuerza;
+  const metodo: Metodo = f.debito ? "tarjeta" : f.id % 2 ? "efectivo" : "pos";
+  const detalle = f.debito ? `${f.tarjeta!.marca} •••• ${f.tarjeta!.ultimos} (débito automático)` : "Cobrado en recepción";
+  /* los dos últimos meses pagados */
+  const pagos: Pago[] = [0, 1].map((i) => {
+    const hasta = f.dias - i * 30;
+    return { recibo: `R-${String(f.id * 10 - i).padStart(6, "0")}`, fecha: fechaEn(hasta - 30, true), periodo: "1 mes", metodo, detalle, monto: planDe(f.plan).precio, hasta: fechaEn(hasta, true) };
+  });
+  const correo = f.nombre.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().replace(/\s+/g, ".") + "@example.com";
   return {
-    id,
-    nombre,
-    plan,
-    sede,
-    dias,
-    entrada,
-    recordado: false,
+    id: f.id,
+    nombre: f.nombre,
+    plan: f.plan,
+    sede: f.sede,
+    dias: f.dias,
+    tolerancia: f.tolerancia ? `mañana a las ${horaDe()}` : null,
+    entrada: f.entrada ?? null,
+    dpi: `0000${10000 + f.id}0101`,
+    nacimiento: f.nacimiento,
+    telefono: `0000${f.id}`,
+    correo,
+    emergenciaNombre: f.contacto,
+    emergenciaTelefono: `0000${f.id + 1000}`,
+    tarjeta: f.tarjeta ?? null,
+    debito: f.debito ?? false,
+    notas: f.tolerancia ? [{ cuando: ahora(), texto: "Pase de tolerancia 24h. Promesa de pago mañana." }] : [],
+    pagos,
+    avisos: { whatsapp: false, correo: false },
     medidas: { peso: m(peso, peso + 3), grasa: m(grasa, grasa + 1.2), musculo: m(musculo, musculo - 1) },
-    visitas,
+    visitas: f.visitas,
     marcas: { "Press Banca": m(banca, banca - 5), Sentadilla: m(sentadilla, sentadilla - 10), "Peso Muerto": m(muerto, muerto - 10) },
+    rutina: rutinaDe(banca, sentadilla, muerto),
   };
 }
 
+const visa = (ultimos: string, vence = "08/28"): Tarjeta => ({ marca: "Visa", ultimos, vence });
+const master = (ultimos: string, vence = "03/29"): Tarjeta => ({ marca: "Mastercard", ultimos, vence });
+
+/* en orden de urgencia: primero quien debe */
 const SOCIOS: Socio[] = [
-  socio(1001, "Andrea López", "ilimitado", "z14", 18, "6:05 a.m.", [138, 24.5, 58], [75, 135, 165], 11),
-  socio(1002, "Héctor Ruano", "esencial", "z14", -15, null, [196, 27, 82], [135, 185, 225], 2),
-  socio(1003, "José Pablo Ramírez", "duo", "caes", -8, null, [172, 19.5, 78], [155, 225, 275], 4),
-  socio(1004, "Carlos Méndez", "esencial", "z14", -3, null, [181, 22, 79], [145, 205, 245], 8),
-  socio(1005, "María Fernanda Ortiz", "ilimitado", "caes", -1, null, [129, 23, 54], [65, 115, 145], 12),
-  socio(1006, "Lucía Castañeda", "esencial", "caes", 2, "7:40 a.m.", [144, 28, 55], [55, 95, 125], 9),
-  socio(1007, "Diego Aguilar", "ilimitado", "z14", 4, null, [165, 15, 76], [175, 245, 305], 13),
-  socio(1008, "Gabriela Monzón", "duo", "z14", 6, "5:20 a.m.", [133, 22.5, 56], [70, 125, 155], 10),
-  socio(1009, "Roberto Solís", "esencial", "z14", 11, "5:45 a.m.", [204, 29, 84], [125, 165, 215], 7),
-  socio(1010, "Paola Estrada", "ilimitado", "z14", 14, "8:10 a.m.", [126, 21, 55], [75, 145, 175], 14),
-  socio(1011, "Ana Sofía Barrios", "ilimitado", "caes", 22, "6:55 a.m.", [141, 25.5, 57], [60, 105, 135], 6),
-  socio(1012, "Fernando Chacón", "ilimitado", "z14", 25, "9:30 a.m.", [176, 17.5, 80], [185, 255, 315], 12),
-  socio(1013, "Claudia Herrera", "duo", "caes", 27, null, [152, 30, 56], [50, 85, 115], 5),
-  socio(1014, "Marvin de León", "esencial", "caes", 29, "10:05 a.m.", [168, 20, 74], [135, 195, 235], 3),
+  socio({ id: 1002, nombre: "Héctor Ruano", plan: "esencial", sede: "z14", dias: -15, cuerpo: [196, 27, 82], fuerza: [135, 185, 225], visitas: 2, nacimiento: "1988-03-14", contacto: "Rosa Ruano (mamá)", tarjeta: visa("1190", "01/27") }),
+  socio({ id: 1003, nombre: "José Pablo Ramírez", plan: "duo", sede: "caes", dias: -8, cuerpo: [172, 19.5, 78], fuerza: [155, 225, 275], visitas: 4, nacimiento: "1992-07-02", contacto: "Karla Ramírez (hermana)" }),
+  socio({ id: 1004, nombre: "Carlos Méndez", plan: "esencial", sede: "z14", dias: -3, cuerpo: [181, 22, 79], fuerza: [145, 205, 245], visitas: 8, nacimiento: "1985-11-21", contacto: "Elena de Méndez (esposa)" }),
+  socio({ id: 1005, nombre: "María Fernanda Ortiz", plan: "ilimitado", sede: "caes", dias: -1, cuerpo: [129, 23, 54], fuerza: [65, 115, 145], visitas: 12, nacimiento: "1996-01-30", contacto: "Luis Ortiz (papá)", tolerancia: true }),
+  socio({ id: 1006, nombre: "Lucía Castañeda", plan: "esencial", sede: "caes", dias: 2, entrada: "7:40 a.m.", cuerpo: [144, 28, 55], fuerza: [55, 95, 125], visitas: 9, nacimiento: "1990-05-18", contacto: "Mario Castañeda (hermano)" }),
+  socio({ id: 1007, nombre: "Diego Aguilar", plan: "ilimitado", sede: "z14", dias: 4, cuerpo: [165, 15, 76], fuerza: [175, 245, 305], visitas: 13, nacimiento: "1999-09-09", contacto: "Sandra Aguilar (mamá)", tarjeta: master("7732") }),
+  socio({ id: 1008, nombre: "Gabriela Monzón", plan: "duo", sede: "z14", dias: 6, entrada: "5:20 a.m.", cuerpo: [133, 22.5, 56], fuerza: [70, 125, 155], visitas: 10, nacimiento: "1994-12-05", contacto: "Julio Monzón (esposo)" }),
+  socio({ id: 1001, nombre: "Andrea López", plan: "ilimitado", sede: "z14", dias: 18, entrada: "6:05 a.m.", cuerpo: [138, 24.5, 58], fuerza: [75, 135, 165], visitas: 11, nacimiento: "1995-04-23", contacto: "Claudia de López (mamá)", tarjeta: visa("4821"), debito: true }),
+  socio({ id: 1009, nombre: "Roberto Solís", plan: "esencial", sede: "z14", dias: 11, entrada: "5:45 a.m.", cuerpo: [204, 29, 84], fuerza: [125, 165, 215], visitas: 7, nacimiento: "1979-08-12", contacto: "Marta de Solís (esposa)" }),
+  socio({ id: 1010, nombre: "Paola Estrada", plan: "ilimitado", sede: "z14", dias: 14, entrada: "8:10 a.m.", cuerpo: [126, 21, 55], fuerza: [75, 145, 175], visitas: 14, nacimiento: "1997-02-27", contacto: "Iván Estrada (hermano)", tarjeta: master("2045"), debito: true }),
+  socio({ id: 1011, nombre: "Ana Sofía Barrios", plan: "ilimitado", sede: "caes", dias: 22, entrada: "6:55 a.m.", cuerpo: [141, 25.5, 57], fuerza: [60, 105, 135], visitas: 6, nacimiento: "2001-06-15", contacto: "Patricia Barrios (mamá)" }),
+  socio({ id: 1012, nombre: "Fernando Chacón", plan: "ilimitado", sede: "z14", dias: 25, entrada: "9:30 a.m.", cuerpo: [176, 17.5, 80], fuerza: [185, 255, 315], visitas: 12, nacimiento: "1991-10-08", contacto: "Silvia Chacón (hermana)", tarjeta: visa("9034", "11/27"), debito: true }),
+  socio({ id: 1013, nombre: "Claudia Herrera", plan: "duo", sede: "caes", dias: 27, cuerpo: [152, 30, 56], fuerza: [50, 85, 115], visitas: 5, nacimiento: "1983-03-03", contacto: "Óscar Herrera (esposo)" }),
+  socio({ id: 1014, nombre: "Marvin de León", plan: "esencial", sede: "caes", dias: 29, entrada: "10:05 a.m.", cuerpo: [168, 20, 74], fuerza: [135, 195, 235], visitas: 3, nacimiento: "1987-07-19", contacto: "Irma de León (mamá)" }),
 ];
 
-export type Alta = { nombre: string; plan: PlanId; sede: SedeId };
+/* ---------- talanquera ---------- */
+
+export type Resultado = "paso" | "tolerancia" | "rechazo" | "manual";
+export type Lectura = { n: number; ts: number; hora: string; socio: number | null; nombre: string; metodo: string; sede: SedeId; resultado: Resultado };
+
+/* las entradas de la mañana, de la más reciente a la más antigua */
+const minutos = (hora: string) => {
+  const [h, resto] = hora.split(":");
+  return ((Number(h) % 12) + (hora.includes("p.m.") ? 12 : 0)) * 60 + parseInt(resto, 10);
+};
+const LECTURAS: Lectura[] = SOCIOS.filter((s) => s.entrada)
+  .sort((a, b) => minutos(b.entrada!) - minutos(a.entrada!))
+  .map((s, i) => ({ n: 100 - i, ts: 0, hora: s.entrada!, socio: s.id, nombre: s.nombre, metodo: i % 3 === 1 ? "QR App" : "Huella", sede: s.sede, resultado: "paso" as const }));
+
+export type Alta = { nombre: string; plan: PlanId; sede: SedeId; telefono: string };
 
 export function useClub() {
   const [socios, setSocios] = useState<Socio[]>(SOCIOS);
   const [ingresos, setIngresos] = useState(() => SOCIOS.filter((s) => s.dias > 0).reduce((t, s) => t + planDe(s.plan).precio, 0));
+  const [lecturas, setLecturas] = useState<Lectura[]>(LECTURAS);
   /* cada reserva es "socio:clase" */
   const [reservas, setReservas] = useState<string[]>([]);
+  const [recibos, setRecibos] = useState(10200);
 
   const cambiar = (id: number, cambio: (s: Socio) => Socio) => setSocios((l) => l.map((s) => (s.id === id ? cambio(s) : s)));
+  const conNota = (s: Socio, texto: string): Socio => ({ ...s, notas: [{ cuando: ahora(), texto }, ...s.notas] });
+  const anotar = (l: Omit<Lectura, "n" | "ts" | "hora">) => {
+    const nueva = { ...l, n: Math.max(0, ...lecturas.map((x) => x.n)) + 1, ts: Date.now(), hora: horaDe() };
+    setLecturas((todas) => [nueva, ...todas]);
+    return nueva;
+  };
 
   return {
     socios,
     ingresos,
     reservas,
+    lecturas,
 
-    inscribir({ nombre, plan, sede }: Alta) {
+    inscribir({ nombre, plan, sede, telefono }: Alta) {
       const id = Math.max(...socios.map((s) => s.id)) + 1;
+      const recibo = recibos + 1;
+      const precio = planDe(plan).precio;
       const nuevo: Socio = {
         id,
         nombre,
         plan,
         sede,
         dias: 30,
+        tolerancia: null,
         entrada: null,
-        recordado: false,
+        dpi: "",
+        nacimiento: "",
+        telefono,
+        correo: "",
+        emergenciaNombre: "",
+        emergenciaTelefono: "",
+        tarjeta: null,
+        debito: false,
+        notas: [{ cuando: ahora(), texto: "Inscripción en línea. Falta DPI y contacto de emergencia." }],
+        pagos: [{ recibo: `R-${String(recibo).padStart(6, "0")}`, fecha: fechaEn(0, true), periodo: "1 mes", metodo: "efectivo", detalle: "Inscripción en línea", monto: precio, hasta: fechaEn(30, true) }],
+        avisos: { whatsapp: false, correo: false },
         medidas: null,
         visitas: 0,
         marcas: { "Press Banca": m(BARRA, BARRA), Sentadilla: m(BARRA, BARRA), "Peso Muerto": m(BARRA, BARRA) },
+        rutina: rutinaDe(BARRA / 0.8, BARRA / 0.8, BARRA / 0.8),
       };
+      setRecibos(recibo);
       setSocios((l) => [nuevo, ...l]);
-      setIngresos((t) => t + planDe(plan).precio);
+      setIngresos((t) => t + precio);
       return id;
     },
 
-    /* suma 30 días a partir de hoy (o de la fecha de vencimiento si aún no llega) */
-    renovar(s: Socio) {
-      cambiar(s.id, (x) => ({ ...x, dias: Math.max(x.dias, 0) + 30, recordado: false }));
-      setIngresos((t) => t + planDe(s.plan).precio);
+    /* suma los días del periodo desde hoy (o desde el vencimiento si aún no llega) y devuelve el recibo */
+    cobrar(s: Socio, c: Cobro): Pago {
+      const periodo = periodoDe(c.periodo);
+      const dias = Math.max(s.dias, 0) + periodo.dias;
+      const numero = recibos + 1;
+      const pago: Pago = { recibo: `R-${String(numero).padStart(6, "0")}`, fecha: fechaEn(0, true), periodo: periodo.nombre, metodo: c.metodo, detalle: c.detalle, monto: montoDe(s.plan, c.periodo), hasta: fechaEn(dias, true) };
+      setRecibos(numero);
+      cambiar(s.id, (x) => {
+        const pagado: Socio = {
+          ...x,
+          dias,
+          tolerancia: null,
+          avisos: { whatsapp: false, correo: false },
+          pagos: [pago, ...x.pagos],
+          tarjeta: c.tarjeta ?? x.tarjeta,
+          debito: c.debito ?? x.debito,
+        };
+        return c.metodo === "transferencia" ? conNota(pagado, `Verificar en banco: ${c.detalle} (${pago.recibo}).`) : pagado;
+      });
+      setIngresos((t) => t + pago.monto);
+      return pago;
     },
 
     /* "antes" es el socio tal como estaba antes del cobro */
-    deshacerCobro(antes: Socio) {
-      cambiar(antes.id, (x) => ({ ...x, dias: antes.dias, recordado: antes.recordado }));
-      setIngresos((t) => t - planDe(antes.plan).precio);
+    anularCobro(antes: Socio, pago: Pago) {
+      cambiar(antes.id, () => conNota(antes, `Cobro ${pago.recibo} anulado.`));
+      setIngresos((t) => t - pago.monto);
     },
 
-    recordar(id: number) {
-      cambiar(id, (x) => ({ ...x, recordado: true }));
+    tolerar(id: number) {
+      cambiar(id, (x) => conNota({ ...x, tolerancia: `mañana a las ${horaDe()}` }, "Pase de tolerancia 24h. Promesa de pago mañana."));
+    },
+
+    quitarTolerancia(id: number) {
+      cambiar(id, (x) => conNota({ ...x, tolerancia: null }, "Pase de tolerancia retirado."));
+    },
+
+    avisar(id: number, canal: "whatsapp" | "correo") {
+      cambiar(id, (x) => ({ ...x, avisos: { ...x.avisos, [canal]: true } }));
+    },
+
+    /* lectura de QR o huella: abre si está al día o con tolerancia */
+    leer(s: Socio, metodo: string) {
+      const acceso = accesoDe(s);
+      const lectura = anotar({ socio: s.id, nombre: s.nombre, metodo, sede: "z14", resultado: acceso === "activo" ? "paso" : acceso === "tolerancia" ? "tolerancia" : "rechazo" });
+      if (acceso !== "bloqueado") cambiar(s.id, (x) => ({ ...x, entrada: lectura.hora, visitas: x.entrada ? x.visitas : x.visitas + 1 }));
+      return lectura;
+    },
+
+    abrirManual(motivo: string) {
+      anotar({ socio: null, nombre: motivo, metodo: "Apertura manual", sede: "z14", resultado: "manual" });
+    },
+
+    guardar(id: number, cambios: Partial<Socio>) {
+      cambiar(id, (x) => ({ ...x, ...cambios }));
+    },
+
+    nota(id: number, texto: string) {
+      cambiar(id, (x) => conNota(x, texto));
+    },
+
+    ejercicio(id: number, dia: number, cual: number, cambio: (e: Movimiento) => Movimiento) {
+      cambiar(id, (x) => ({ ...x, rutina: x.rutina.map((d, i) => (i === dia ? { ...d, ejercicios: d.ejercicios.map((e, j) => (j === cual ? cambio(e) : e)) } : d)) }));
     },
 
     alternarReserva(socioId: number, claseId: string) {

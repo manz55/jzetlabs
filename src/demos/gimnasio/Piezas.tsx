@@ -1,5 +1,6 @@
-/* Piezas que usan las tres vistas: el logotipo, los botones, las fotos y el código del carné. */
-import { useMemo, useState } from "react";
+/* Piezas que usan las tres vistas: el logotipo, los botones, las ventanas, las fotos y el código del carné. */
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
+import { X } from "lucide-react";
 import { foto } from "./datos";
 
 /* clases de botón: todos grandes y fáciles de tocar */
@@ -8,7 +9,46 @@ export const VERDE = `${BTN} bg-[#15803D] text-white hover:bg-[#166534]`;
 export const CARBON = `${BTN} bg-[#0F172A] text-white hover:bg-[#1E293B]`;
 export const BORDE = `${BTN} border border-slate-300 bg-white text-[#0F172A] hover:border-[#0F172A]`;
 
+export const AMBAR = `${BTN} bg-amber-700 text-white hover:bg-amber-800`;
+
 export const ANCHO = "mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8";
+export const CAMPO = "block min-h-12 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3.5 text-base font-medium text-[#0F172A] outline-none focus:border-[#15803D] focus:ring-2 focus:ring-[#15803D]/30 aria-[invalid=true]:border-red-600";
+export const ROTULO = "grid min-w-0 content-start gap-1.5 text-[0.88rem] font-bold text-[#0F172A]";
+export const TARJETA = "min-w-0 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6";
+
+/* ventana encima de la página; se cierra con la equis, con Escape o tocando afuera */
+export function Ventana({ titulo, sub, alCerrar, children }: { titulo: string; sub?: string; alCerrar: () => void; children: ReactNode }) {
+  const ref = useRef<HTMLDialogElement>(null);
+  const id = useId();
+  useEffect(() => {
+    const d = ref.current;
+    if (d && !d.open) d.showModal();
+  }, []);
+  return (
+    <dialog
+      ref={ref}
+      aria-labelledby={id}
+      onClose={alCerrar}
+      onClick={(e) => {
+        if (e.target === ref.current) alCerrar();
+      }}
+      className="m-auto max-h-[min(92dvh,52rem)] w-[min(34rem,calc(100vw-1.5rem))] max-w-none overflow-y-auto overflow-x-hidden rounded-2xl bg-white p-0 text-left text-slate-700 backdrop:bg-[#0F172A]/70"
+    >
+      <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-slate-200 bg-white px-5 py-4 sm:px-6">
+        <div className="min-w-0">
+          <h2 id={id} className="text-[1.3rem] font-extrabold leading-tight">
+            {titulo}
+          </h2>
+          {sub && <p className="text-[0.88rem] text-slate-600">{sub}</p>}
+        </div>
+        <button type="button" onClick={alCerrar} aria-label="Cerrar" className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-lg border border-slate-200 text-[#0F172A]">
+          <X size={20} aria-hidden />
+        </button>
+      </div>
+      <div className="p-4 sm:p-6">{children}</div>
+    </dialog>
+  );
+}
 
 /* la "H" de gimnasio: dos barras verticales unidas al centro, y el nombre al lado */
 export function Logo() {

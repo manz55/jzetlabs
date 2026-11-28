@@ -32,7 +32,7 @@ export function Inscripcion({ club, planInicial, alCerrar, alListo, alPase }: { 
       return;
     }
     const limpio = nombre.trim().replace(/\s+/g, " ");
-    alListo(club.inscribir({ nombre: limpio, plan: planId, sede }));
+    alListo(club.inscribir({ nombre: limpio, plan: planId, sede, telefono: tel }));
     setHecho(limpio.split(" ")[0]);
   }
 
