@@ -1,5 +1,5 @@
 /* Estilos de "Autotech": blanco, gris acero, azul pizarra, naranja técnico y rojo solo para auxilio. Todo va bajo .at. */
-export const LETRAS = "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap";
+export const LETRAS = "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap";
 
 const BLANCO = "#FFFFFF";
 const ACERO = "#F8FAFC";
@@ -41,16 +41,29 @@ export const ESTILOS = `
 @media (min-width: 720px) { .at-ancho { padding-inline: 1.75rem; } }
 .at-oculto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
-/* logo: emblema cuadrado con las iniciales y, al lado, el nombre con su etiqueta */
-.at-logo { display: inline-flex; align-items: center; gap: .6rem; line-height: 1; text-align: left; white-space: nowrap; }
-.at-emblema { position: relative; display: flex; flex: none; align-items: center; justify-content: center; width: 36px; height: 36px; background: ${PIZARRA}; color: #fff; border-radius: 6px; font-family: ${TITULO}; font-size: .95rem; font-weight: 700; letter-spacing: .02em; }
-.at-emblema::after { content: ""; position: absolute; left: 8px; right: 8px; bottom: 6px; height: 2px; background: ${NARANJA}; }
-.at-logo-texto { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
-.at-logo b { font-family: ${TITULO}; font-size: 1.12rem; letter-spacing: .05em; }
-.at-logo small { padding: 2px 7px; background: rgba(148,163,184,.16); border: 1px solid rgba(148,163,184,.34); border-radius: 999px; color: ${SUAVE}; font-size: .54rem; font-weight: 600; letter-spacing: .09em; line-height: 1.35; }
-/* sobre el pie oscuro el emblema lleva borde para que no se pierda */
-.at-pie .at-emblema { box-shadow: inset 0 0 0 1px rgba(255,255,255,.28); }
-.at-pie .at-logo small { color: rgba(255,255,255,.82); }
+/* logo tipo placa de chasis: celda naranja con el icono y celda con el nombre */
+.at-logo { display: inline-flex; align-items: stretch; overflow: hidden; border: 1px solid ${PIZARRA}; border-radius: 6px; line-height: 1; text-align: left; white-space: nowrap; }
+.at-logo-icono { display: flex; flex: none; align-items: center; justify-content: center; padding-inline: .625rem; background: ${NARANJA}; color: #fff; }
+.at-logo-texto { display: flex; flex-direction: column; justify-content: center; gap: 3px; padding: .25rem .75rem; background: ${BLANCO}; }
+.at .at-logo b { font-family: ${TITULO}; font-size: 1.05rem; font-weight: 800; letter-spacing: -.015em; line-height: 1.15; }
+.at .at-logo small { color: ${SUAVE}; font-size: 9px; font-weight: 600; letter-spacing: .14em; line-height: 1.3; }
+/* en el pie la celda es pizarra más clara y el borde sube de tono para que la placa se vea */
+.at .at-pie .at-logo { border-color: #475569; }
+.at-pie .at-logo-texto { background: #1E293B; }
+.at .at-pie .at-logo small { color: rgba(255,255,255,.76); }
+/* en celular la placa de la barra se compacta para que quepa junto a los botones */
+@media (max-width: 413px) {
+  .at .at-nav .at-logo-icono { padding-inline: .4rem; }
+  .at .at-nav .at-logo-texto { padding-inline: .4rem; }
+  .at .at-nav .at-logo b { font-size: .95rem; }
+  .at .at-nav .at-logo small { letter-spacing: .005em; }
+}
+@media (max-width: 359px) {
+  .at .at-nav .at-logo-icono { padding-inline: .3rem; }
+  .at .at-nav .at-logo-texto { padding-inline: .35rem; }
+  .at .at-nav .at-logo b { font-size: .86rem; }
+  .at .at-nav .at-logo small { font-size: 7.5px; letter-spacing: 0; }
+}
 
 /* botones */
 .at-btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; max-width: 100%; min-height: 46px; padding: .6rem 1.1rem; border: 1px solid transparent; border-radius: 10px; font-size: .92rem; font-weight: 600; line-height: 1.25; text-align: center; transition: background-color .16s, border-color .16s, color .16s, transform .12s; }
@@ -129,10 +142,6 @@ export const ESTILOS = `
 /* celulares angostos: logo, botones y síntomas caben completos */
 @media (max-width: 359px) {
   .at-nav-fila { gap: .4rem; padding-inline: .8rem; }
-  .at-nav-fila .at-logo { gap: .4rem; }
-  .at-nav-fila .at-emblema { width: 32px; height: 32px; font-size: .84rem; }
-  .at-nav-fila .at-logo b { font-size: .94rem; letter-spacing: .02em; }
-  .at-nav-fila .at-logo small { padding-inline: 5px; font-size: .45rem; letter-spacing: .04em; }
   .at .at-nav-auxilio { gap: .3rem; padding-inline: .5rem; font-size: .76rem; }
   .at-nav-menu { width: 40px; }
   .at .at-sintomas button { gap: .4rem; padding-inline: .5rem; font-size: .82rem; }

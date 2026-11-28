@@ -95,7 +95,7 @@ export function Nav({
   return (
     <header ref={barra} className="at-nav">
       <div className="at-nav-fila">
-        <button type="button" className="at-nav-logo" onClick={elegir(() => alVista("taller"))} aria-label="Autotech, servicio certificado: ir al inicio">
+        <button type="button" className="at-nav-logo" onClick={elegir(() => alVista("taller"))} aria-label="Autotech, diagnóstico y mecánica: ir al inicio">
           <Logo />
         </button>
 
