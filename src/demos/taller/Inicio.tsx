@@ -1,18 +1,39 @@
-/* Vista "Taller y Auxilio": portada, ¿Puedo manejar así?, catálogo con precios y respaldo. */
-import { useRef, useState } from "react";
-import { ArrowRight, BadgeCheck, CarFront, CircleCheck, Clock, FileText, Gauge, MapPin, OctagonAlert, PackageCheck, Phone, ShieldCheck, Star, Thermometer, TriangleAlert, Truck, Vibrate, Disc3, KeyRound, ClipboardCheck, ScanLine, Crosshair, Activity, Snowflake } from "lucide-react";
-import { useCarga, useEscalonado } from "./animar";
+/*
+ * Vista "Taller y Auxilio". Primero lo que se entiende en 5 segundos (quiénes son, qué carros,
+ * qué repuestos y por qué confiar) y debajo las herramientas, reseñas y ubicación.
+ */
+import { useRef, useState, type CSSProperties } from "react";
+import { Activity, ArrowRight, BadgeCheck, Camera, CarFront, CircleCheck, Clock, Crosshair, Disc3, Gauge, KeyRound, MapPin, OctagonAlert, PackageCheck, Phone, ScanLine, ShieldCheck, Snowflake, Star, Thermometer, TriangleAlert, Truck, UserRound, Vibrate, Wrench } from "lucide-react";
+import { useAlVer, useCarga, useEscalonado, useTramos } from "./animar";
 import { Cifra } from "./Piezas";
 import { FILTROS, FOTOS, HORARIOS, RIESGOS, SEDES, SERVICIOS, SINTOMAS, TIPOS, foto, qz, type FallaId, type Filtro, type SintomaId, type Tipo } from "./datos";
 
 const ICONOS: Record<SintomaId, typeof Gauge> = { check: Gauge, frenos: Disc3, temperatura: Thermometer, vibracion: Vibrate, arranque: KeyRound };
 const ICONO_RIESGO = { seguro: CircleCheck, precaucion: TriangleAlert, detener: OctagonAlert };
 
-const GARANTIAS = [
-  { icono: ShieldCheck, titulo: "Garantía por escrito", texto: "6 meses o 10,000 km en mano de obra, anotada en su orden." },
-  { icono: PackageCheck, titulo: "Repuestos originales y OEM", texto: "Le indicamos marca y procedencia, y le devolvemos la pieza cambiada." },
-  { icono: ClipboardCheck, titulo: "Nada sin su aprobación", texto: "Si aparece algo más, se le avisa con precio y usted decide." },
-  { icono: FileText, titulo: "Factura FEL", texto: "Con su NIT o como consumidor final, el mismo día de la entrega." },
+const MARCAS = [
+  { origen: "Japonés y Coreano", marcas: ["Toyota", "Mazda", "Honda", "Nissan", "Hyundai", "Kia", "Mitsubishi"] },
+  { origen: "Americano", marcas: ["Ford", "Chevrolet", "Jeep"] },
+  { origen: "Europeo", marcas: ["Volkswagen", "Audi", "BMW", "Mercedes-Benz"] },
+];
+
+const REGLAS = [
+  { icono: ShieldCheck, titulo: "Cero sorpresas", texto: "Nadie desarma ni cambia una pieza sin su aprobación escrita por WhatsApp." },
+  { icono: PackageCheck, titulo: "Devolución de repuestos", texto: "Le entregamos en caja cada pieza reemplazada para que compruebe el cambio." },
+  { icono: Camera, titulo: "Evidencia en bahía", texto: "Fotos y video del hallazgo antes de autorizar trabajos adicionales." },
+];
+
+const CALIDADES = [
+  { icono: BadgeCheck, titulo: "Original de Agencia", texto: "Pieza genuina importada con número de parte de fabricante.", marcas: [] },
+  { icono: PackageCheck, titulo: "OEM Certificado (Equipo Original)", texto: "Marcas líderes que fabrican para las agencias, con la misma durabilidad y mejor precio.", marcas: ["Bosch", "Denso", "Brembo", "KYB", "NGK", "Aisin"] },
+  { icono: Wrench, titulo: "Alternativo Garantizado", texto: "Opciones confiables seleccionadas por nuestro laboratorio para mantenimiento económico, siempre con garantía escrita.", marcas: [] },
+];
+
+const PASOS = [
+  { titulo: "Recepción e inventario físico", texto: "Anotamos kilometraje, combustible, golpes y herramienta." },
+  { titulo: "Diagnóstico con escáner y presupuesto claro", texto: "Recibe la falla explicada y el precio antes de decidir." },
+  { titulo: "Reparación con repuesto aprobado", texto: "Se instala la calidad que usted escogió." },
+  { titulo: "Prueba en ruta, limpieza y factura FEL", texto: "Probamos el vehículo y se lo entregamos limpio, con su factura." },
 ];
 
 const EQUIPOS = [
@@ -27,6 +48,10 @@ const RESENAS = [
   { nombre: "José Ajú", carro: "Nissan Frontier", texto: "Uso el pick-up para trabajar. Me dieron la hora de entrega y la cumplieron, con factura a nombre del negocio." },
   { nombre: "Lucía Monterroso", carro: "Honda Fit", texto: "Se me quedó sin batería en la Aguilar Batres. Mandé mi ubicación y llegaron a pasarme corriente." },
 ];
+
+/* formatos fijos para las cifras que cuentan */
+const conMas = (n: number) => `+${n}`;
+const entero = (n: number) => String(n);
 
 export function Inicio({
   tipo,
@@ -43,35 +68,46 @@ export function Inicio({
   alAgendar: (servicio: string) => void;
   alAuxilio: (falla?: FallaId) => void;
 }) {
+  const todo = useRef<HTMLDivElement>(null);
+  const portada = useRef<HTMLElement>(null);
+  const pasos = useRef<HTMLOListElement>(null);
+  useEscalonado(portada, "portada", true);
+  useAlVer(todo);
+  useTramos(pasos, PASOS.length - 1);
+
   return (
-    <>
-      <section className="at-portada">
+    <div ref={todo}>
+      <section ref={portada} className="at-portada">
         <div className="at-ancho at-portada-fila">
-          <div className="at-portada-texto">
-            <p className="at-sobre">Taller automotriz en Zona 9 y Calzada Aguilar Batres</p>
-            <h1>Diagnóstico claro y precio aprobado antes de reparar.</h1>
-            <p className="at-bajada">Mecánica preventiva, frenos, electrónica y aire acondicionado. Usted sigue su carro por la placa y decide cada trabajo adicional.</p>
-            <div className="at-botones">
+          <div>
+            <p className="at-sobre" data-entra>
+              Taller multimarca en Zona 9 y Aguilar Batres
+            </p>
+            <h1 data-entra>Mecánica general, diagnóstico electrónico y frenos con precio aprobado antes de tocar su carro.</h1>
+            <div className="at-botones" data-entra>
               <button type="button" className="at-btn at-naranja at-grande" onClick={() => alAgendar("km5")}>
                 Agendar servicio <ArrowRight size={19} aria-hidden />
               </button>
-              <button type="button" className="at-btn at-rojo at-grande" onClick={() => alAuxilio()}>
-                <Truck size={20} aria-hidden /> Pedir grúa / auxilio ahora
+              <button type="button" className="at-btn at-rojo at-grande" onClick={() => alAuxilio("grua")}>
+                <Truck size={20} aria-hidden /> Pedir grúa 24/7
               </button>
             </div>
-            <ul className="at-portada-datos">
+            <ul className="at-metricas" data-entra>
               <li>
-                <BadgeCheck size={18} aria-hidden /> Garantía escrita
+                <Cifra valor={14} formato={conMas} desdeCero />
+                <span>años de experiencia</span>
               </li>
               <li>
-                <PackageCheck size={18} aria-hidden /> Repuestos OEM
+                <Cifra valor={6} formato={entero} desdeCero />
+                <span>elevadores en bahía</span>
               </li>
               <li>
-                <FileText size={18} aria-hidden /> Factura FEL
+                <strong>6 meses / 10,000 km</strong>
+                <span>de garantía escrita</span>
               </li>
             </ul>
           </div>
-          <div className="at-portada-foto">
+          <div className="at-portada-foto" data-entra>
             <img src={foto(FOTOS.portada, 1200, 960)} alt="Mecánico revisando un vehículo con el capó abierto en un taller limpio" width={1200} height={960} fetchPriority="high" />
             <p className="at-portada-ficha">
               <Clock size={20} aria-hidden />
@@ -84,18 +120,112 @@ export function Inicio({
         </div>
       </section>
 
+      <section className="at-marcas" id="at-marcas">
+        <div className="at-ancho">
+          <h2>Marcas que atendemos</h2>
+          <div className="at-marcas-grupos">
+            {MARCAS.map((g) => (
+              <div key={g.origen} data-ver>
+                <h3>{g.origen}</h3>
+                <ul>
+                  {g.marcas.map((m) => (
+                    <li key={m}>{m}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="at-seccion" id="at-nosotros">
+        <div className="at-ancho at-nosotros">
+          <img src={foto(FOTOS.recepcion, 900, 900)} alt="Área de trabajo limpia del taller, con elevadores y vehículos en revisión" width={900} height={900} loading="lazy" data-ver />
+          <div>
+            <div data-ver>
+              <h2>Quiénes somos y cómo trabajamos</h2>
+              <p className="at-nosotros-intro">Un taller multimarca de mecánica general, electrónica y frenos, donde usted decide con el presupuesto a la vista.</p>
+              <p className="at-jefe-taller">
+                <span>
+                  <UserRound size={24} aria-hidden />
+                </span>
+                <span>
+                  <b>Ing. Roberto Méndez</b>
+                  <small>Jefe de Taller · Certificación en Diagnóstico Electrónico</small>
+                </span>
+              </p>
+              <h3>Nuestras 3 reglas de hierro</h3>
+            </div>
+            <ul className="at-reglas">
+              {REGLAS.map(({ icono: Icono, titulo, texto }) => (
+                <li key={titulo} data-ver>
+                  <Icono size={22} aria-hidden />
+                  <p>
+                    <b>{titulo}</b>
+                    {texto}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section className="at-seccion at-acero" id="at-calidad">
+        <div className="at-ancho">
+          <header className="at-titulo" data-ver>
+            <h2>Usted elige la calidad y el presupuesto</h2>
+            <p>Estos son los tres tipos de repuesto que instalamos. Antes de aprobar, sabe cuál va en su carro.</p>
+          </header>
+          <ul className="at-calidad">
+            {CALIDADES.map(({ icono: Icono, titulo, texto, marcas }) => (
+              <li key={titulo} data-ver>
+                <Icono size={26} aria-hidden />
+                <h3>{titulo}</h3>
+                <p>{texto}</p>
+                {marcas.length > 0 && (
+                  <ul aria-label="Marcas">
+                    {marcas.map((m) => (
+                      <li key={m}>{m}</li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section className="at-seccion at-proceso" id="at-proceso">
+        <div className="at-ancho">
+          <h2 data-ver>Proceso blindado en 4 pasos</h2>
+          <ol ref={pasos} className="at-pasos">
+            {PASOS.map((p, n) => (
+              <li key={p.titulo} style={{ "--i": n } as CSSProperties} data-ver>
+                {n < PASOS.length - 1 && <i aria-hidden />}
+                <span>{n + 1}</span>
+                <div>
+                  <h3>{p.titulo}</h3>
+                  <p>{p.texto}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
       <Triaje tipo={tipo} alAgendar={alAgendar} alAuxilio={alAuxilio} />
       <Catalogo tipo={tipo} alTipo={alTipo} filtro={filtro} alFiltrar={alFiltrar} alAgendar={alAgendar} />
 
       <section className="at-seccion at-equipo" id="at-equipo">
         <div className="at-ancho">
-          <header className="at-titulo">
+          <header className="at-titulo" data-ver>
             <h2>Equipamiento y Tecnología de Diagnóstico</h2>
             <p>Con esto medimos su vehículo antes de recomendarle un cambio de pieza.</p>
           </header>
           <ul className="at-equipos">
             {EQUIPOS.map(({ icono: Icono, titulo, equipo, texto }) => (
-              <li key={titulo}>
+              <li key={titulo} data-ver>
                 <span className="at-equipo-icono">
                   <Icono size={24} aria-hidden />
                 </span>
@@ -114,26 +244,14 @@ export function Inicio({
         </div>
       </section>
 
-      <section className="at-seccion at-acero" id="at-respaldo">
+      <section className="at-seccion at-acero" id="at-resenas">
         <div className="at-ancho">
-          <header className="at-titulo">
-            <h2>Respaldo en cada orden</h2>
-            <p>Lo que recibe por escrito cuando deja su vehículo con nosotros.</p>
+          <header className="at-titulo" data-ver>
+            <h2>Reseñas de clientes</h2>
           </header>
-          <ul className="at-garantias">
-            {GARANTIAS.map(({ icono: Icono, titulo, texto }) => (
-              <li key={titulo}>
-                <Icono size={24} aria-hidden />
-                <h3>{titulo}</h3>
-                <p>{texto}</p>
-              </li>
-            ))}
-          </ul>
-
-          <h3 className="at-subtitulo">Lo que dicen nuestros clientes</h3>
           <ul className="at-resenas">
             {RESENAS.map((r) => (
-              <li key={r.nombre}>
+              <li key={r.nombre} data-ver>
                 <span className="at-estrellas" role="img" aria-label="5 de 5 estrellas">
                   {[0, 1, 2, 3, 4].map((n) => (
                     <Star key={n} size={16} fill="currentColor" aria-hidden />
@@ -151,8 +269,8 @@ export function Inicio({
 
       <section className="at-seccion" id="at-ubicacion">
         <div className="at-ancho at-ubicacion">
-          <img src={foto(FOTOS.recepcion, 900, 700)} alt="Área de trabajo del taller con elevadores y vehículos en revisión" width={900} height={700} loading="lazy" />
-          <div>
+          <img src={foto(FOTOS.elevadores, 900, 700)} alt="Nave del taller con elevadores hidráulicos" width={900} height={700} loading="lazy" data-ver />
+          <div data-ver>
             <h2>Horarios y ubicación</h2>
             <ul className="at-sedes">
               {SEDES.map((s) => (
@@ -187,7 +305,7 @@ export function Inicio({
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }
 

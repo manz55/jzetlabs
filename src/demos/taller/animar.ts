@@ -121,3 +121,61 @@ export function useLinea(ref: RefObject<HTMLElement | null>, orden: string, avan
     };
   }, [ref, orden, avance]);
 }
+
+/* cada [data-ver] entra la primera vez que asoma en pantalla; los que llegan juntos, escalonados */
+export function useAlVer(ref: RefObject<HTMLElement | null>) {
+  useLayoutEffect(() => {
+    const fichas = [...(ref.current?.querySelectorAll<HTMLElement>("[data-ver]") ?? [])];
+    if (!fichas.length || sinMovimiento() || !("IntersectionObserver" in window)) return;
+    const mostrar = () => fichas.forEach((f) => (f.style.opacity = ""));
+    fichas.forEach((f) => (f.style.opacity = "0"));
+    const entradas: ReturnType<typeof animate>[] = [];
+    const seguros: number[] = [];
+    const mirador = new IntersectionObserver(
+      (cambios) => {
+        const nuevas = cambios.filter((c) => c.isIntersecting).map((c) => c.target as HTMLElement);
+        if (!nuevas.length) return;
+        nuevas.forEach((f) => mirador.unobserve(f));
+        const a = animate(nuevas, { opacity: [0, 1], translateY: [28, 0], delay: stagger(90), duration: 600, ease: "outCubic" });
+        entradas.push(a);
+        seguros.push(window.setTimeout(() => a.complete(), 1600));
+      },
+      { rootMargin: "0px 0px -8% 0px" },
+    );
+    fichas.forEach((f) => mirador.observe(f));
+    return () => {
+      mirador.disconnect();
+      seguros.forEach(clearTimeout);
+      entradas.forEach((a) => a.revert());
+      mostrar();
+    };
+  }, [ref]);
+}
+
+/* la línea del proceso se dibuja cuando la lista aparece en pantalla (--av de 0 a "tramos") */
+export function useTramos(ref: RefObject<HTMLElement | null>, tramos: number) {
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el || sinMovimiento() || !("IntersectionObserver" in window)) return;
+    el.style.setProperty("--av", "0");
+    const paso = { n: 0 };
+    let linea: ReturnType<typeof animate> | null = null;
+    let seguro = 0;
+    const mirador = new IntersectionObserver(
+      ([c]) => {
+        if (!c.isIntersecting) return;
+        mirador.disconnect();
+        linea = animate(paso, { n: tramos, duration: 1500, delay: 250, ease: "inOutCubic", onUpdate: () => el.style.setProperty("--av", String(paso.n)) });
+        seguro = window.setTimeout(() => el.style.setProperty("--av", String(tramos)), 2200);
+      },
+      { threshold: 0.3 },
+    );
+    mirador.observe(el);
+    return () => {
+      mirador.disconnect();
+      linea?.cancel();
+      window.clearTimeout(seguro);
+      el.style.removeProperty("--av");
+    };
+  }, [ref, tramos]);
+}

@@ -10,6 +10,7 @@ export const foto = (id: string, ancho: number, alto: number) => `https://images
 export const FOTOS = {
   portada: "1771340012319-0b4fca008b54",
   recepcion: "1727893119356-1702fe921cf9",
+  elevadores: "1792793176006-a7b35e29c7e1",
 };
 
 export const SEDES = [
@@ -222,7 +223,7 @@ export const nombreEtapa = (etapa: number) => (etapa === 0 ? "Cita agendada" : e
 
 export const JEFES = ["Mario Cifuentes", "Rudy Alvarado", "Estuardo Paz", "Karla Monzón"];
 export const COMBUSTIBLE = ["Reserva", "1/4", "1/2", "3/4", "Lleno"];
-export const BAHIAS = ["Elevador 1 · Mecánica", "Elevador 2 · Mecánica", "Elevador 3 · Suspensión", "Bahía 1 · Recepción", "Bahía 2 · Electrónica", "Bancada 3D · Alineación", "Estación A/C y Frenos"];
+export const BAHIAS = ["Elevador 1 · Mecánica", "Elevador 2 · Mecánica", "Elevador 3 · Suspensión", "Elevador 4 · Frenos", "Elevador 5 · Mecánica", "Elevador 6 · Servicio rápido", "Bahía 1 · Recepción", "Bahía 2 · Electrónica", "Bancada 3D · Alineación", "Estación A/C y Frenos"];
 
 /* ───────── inspección técnica: falla, mediciones y repuestos ───────── */
 

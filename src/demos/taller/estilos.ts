@@ -23,7 +23,12 @@ const TITULO = "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif";
 const TEXTO = TITULO;
 
 export const ESTILOS = `
-.at { background: ${BLANCO}; color: ${PIZARRA}; font-family: ${TEXTO}; font-size: 16px; line-height: 1.55; font-variant-numeric: tabular-nums lining-nums; min-height: 100vh; }
+.at { background: ${BLANCO}; color: ${PIZARRA}; font-family: ${TEXTO}; font-size: 16px; line-height: 1.55; font-variant-numeric: tabular-nums lining-nums; min-height: 100vh; overflow-x: clip; overflow-wrap: break-word; }
+.at *, .at *::before, .at *::after { box-sizing: border-box; }
+.at img, .at input, .at select, .at button, .at fieldset { max-width: 100%; }
+.at fieldset { min-width: 0; }
+/* las rejillas de una columna nunca crecen más que su caja (un select largo no las empuja) */
+.at-portada-fila, .at-nosotros, .at-reglas, .at-calidad, .at-triaje, .at-dictamen dl, .at-dictamen dl > div, .at-controles, .at-rejilla, .at-equipos, .at-resenas, .at-ubicacion, .at-sedes, .at-linea, .at-pasos, .at-aprobar, .at-ficha-columnas, .at-codigo, .at-mediciones, .at-panel-cuerpo, .at-panel-lado, .at-citas, .at-citas li, .at-panel-bahias, .at-anotar form, .at-ventana-cuerpo, .at-confirmada, .at-vacio, .at-pie-columnas, .at-pie dl, .at-marcas-grupos, .at-tarjetas { grid-template-columns: minmax(0, 1fr); }
 .at h1, .at h2, .at h3 { color: inherit; font-family: ${TITULO}; font-weight: 700; letter-spacing: -.018em; line-height: 1.18; }
 .at input, .at select, .at button { font-family: inherit; font-variant-numeric: tabular-nums lining-nums; }
 .at b, .at strong { font-weight: 700; }
@@ -43,7 +48,7 @@ export const ESTILOS = `
 .at-logo small { margin-top: 4px; font-size: .56rem; font-weight: 600; letter-spacing: .15em; opacity: .72; }
 
 /* botones */
-.at-btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 46px; padding: .6rem 1.1rem; border: 1px solid transparent; border-radius: 10px; font-size: .92rem; font-weight: 600; line-height: 1.25; text-align: center; transition: background-color .16s, border-color .16s, color .16s, transform .12s; }
+.at-btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; max-width: 100%; min-height: 46px; padding: .6rem 1.1rem; border: 1px solid transparent; border-radius: 10px; font-size: .92rem; font-weight: 600; line-height: 1.25; text-align: center; transition: background-color .16s, border-color .16s, color .16s, transform .12s; }
 .at-btn svg { flex: none; }
 .at-btn:not(:disabled):active { transform: scale(.975); }
 .at-btn:disabled { opacity: .5; }
@@ -81,27 +86,96 @@ export const ESTILOS = `
   .at-vistas button { padding-inline: 1rem; font-size: .85rem; }
   .at-nav-auxilio { justify-self: end; }
 }
-#at-triaje, #at-servicios, #at-equipo, #at-ubicacion { scroll-margin-top: 120px; }
+/* celulares angostos: logo, botón de auxilio y síntomas caben completos */
+@media (max-width: 359px) {
+  .at-nav-fila .at-logo { padding-left: 16px; }
+  .at-nav-fila .at-logo b { font-size: 1rem; letter-spacing: .04em; }
+  .at-nav-fila .at-logo small { font-size: .48rem; letter-spacing: .07em; }
+  .at .at-nav-auxilio { gap: .35rem; padding-inline: .55rem; font-size: .76rem; }
+  .at .at-sintomas button { gap: .4rem; padding-inline: .5rem; font-size: .82rem; }
+}
+#at-nosotros, #at-triaje, #at-servicios, #at-equipo, #at-ubicacion { scroll-margin-top: 120px; }
 
 /* portada */
 .at-portada { border-bottom: 1px solid ${BORDE}; }
-.at-portada-fila { display: grid; gap: 1.8rem; padding-block: 1.8rem 2.4rem; }
-.at-sobre { color: ${NARANJA_HONDO}; font-size: .9rem; font-weight: 600; }
-.at .at-portada h1 { margin-top: .7rem; font-size: clamp(2.05rem, 5.4vw, 3.5rem); line-height: 1.08; letter-spacing: -.03em; }
-.at-bajada { max-width: 34rem; margin: 1rem 0 1.5rem; color: ${SUAVE}; font-size: 1.05rem; }
-.at-portada-datos { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; margin-top: 1.6rem; padding-top: 1.1rem; border-top: 1px solid ${BORDE}; font-size: .88rem; font-weight: 600; }
-.at-portada-datos li { display: flex; align-items: center; gap: .45rem; }
-.at-portada-datos svg { color: ${NARANJA_HONDO}; }
-.at-portada-foto { position: relative; align-self: stretch; }
+.at-portada-fila { display: grid; gap: 1.8rem; padding-block: 1.6rem 2.4rem; }
+.at-sobre { color: ${NARANJA_HONDO}; font-size: .78rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; line-height: 1.5; }
+.at .at-portada h1 { margin-top: .75rem; margin-bottom: 1.4rem; font-size: clamp(1.8rem, 4.3vw, 3rem); line-height: 1.12; letter-spacing: -.028em; text-wrap: balance; }
+.at-metricas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; margin-top: 1.6rem; background: ${BORDE}; border: 1px solid ${BORDE}; border-radius: 12px; overflow: hidden; }
+.at-metricas li { display: flex; flex-direction: column; padding: .8rem .95rem; background: ${BLANCO}; }
+.at-metricas li:last-child { grid-column: 1 / -1; }
+.at-metricas strong { font-family: ${TITULO}; font-size: 1.5rem; line-height: 1.2; }
+.at-metricas span { color: ${SUAVE}; font-size: .8rem; font-weight: 500; line-height: 1.4; }
+@media (min-width: 640px) { .at-metricas { grid-template-columns: .85fr .85fr 1.3fr; } .at-metricas li:last-child { grid-column: auto; } }
+.at-portada-foto { position: relative; align-self: stretch; min-width: 0; }
 .at-portada-foto img { width: 100%; height: 100%; max-height: 50svh; aspect-ratio: 5 / 4; object-fit: cover; border-radius: 16px; }
 .at-portada-ficha { position: absolute; left: .8rem; bottom: .8rem; display: flex; align-items: center; gap: .75rem; max-width: calc(100% - 1.6rem); padding: .75rem 1rem; background: ${PIZARRA}; color: #fff; border-radius: 12px; }
+.at-portada-ficha svg { flex: none; }
 .at-portada-ficha span { display: flex; flex-direction: column; font-size: .82rem; color: rgba(255,255,255,.8); line-height: 1.4; }
 .at-portada-ficha b { color: #fff; font-size: .95rem; }
-@media (max-width: 519px) { .at-portada .at-botones { display: grid; } }
+@media (max-width: 519px) { .at-portada .at-botones { display: grid; grid-template-columns: minmax(0, 1fr); } }
 @media (min-width: 920px) {
-  .at-portada-fila { grid-template-columns: 1.05fr 1fr; gap: 3rem; align-items: center; padding-block: 3.5rem; }
+  .at-portada-fila { grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr); gap: 3rem; align-items: center; padding-block: 3rem; }
   .at-portada-foto { height: 100%; min-height: 430px; }
   .at-portada-foto img { position: absolute; inset: 0; max-height: none; aspect-ratio: auto; }
+}
+
+/* marcas que atendemos */
+.at-marcas { padding-block: 1.6rem 1.8rem; background: ${ACERO}; border-bottom: 1px solid ${BORDE}; }
+.at .at-marcas h2 { margin-bottom: 1rem; font-size: 1.15rem; }
+.at-marcas-grupos { display: grid; gap: 1.1rem; }
+.at-marcas-grupos h3 { margin-bottom: .5rem; color: ${SUAVE}; font-family: ${TEXTO}; font-size: .78rem; font-weight: 700; letter-spacing: .02em; }
+.at-marcas-grupos ul { display: flex; flex-wrap: wrap; gap: .4rem; }
+.at-marcas-grupos li li, .at-marcas-grupos ul > li { padding: .35rem .7rem; background: ${BLANCO}; border: 1px solid ${BORDE_CAMPO}; border-radius: 8px; font-size: .86rem; font-weight: 600; }
+@media (min-width: 900px) { .at-marcas-grupos { grid-template-columns: minmax(0, 1.5fr) minmax(0, .8fr) minmax(0, 1fr); gap: 2rem; } }
+
+/* quiénes somos */
+.at-nosotros { display: grid; gap: 1.8rem; }
+.at-nosotros > img { width: 100%; height: 100%; max-height: 420px; aspect-ratio: 5 / 4; object-fit: cover; border-radius: 16px; }
+.at .at-nosotros h2, .at .at-proceso h2 { font-size: clamp(1.55rem, 3.4vw, 2.15rem); }
+.at-nosotros-intro { margin-top: .6rem; color: ${SUAVE}; }
+.at-jefe-taller { display: flex; align-items: center; gap: .85rem; margin-top: 1.2rem; padding: .9rem 1rem; background: ${PIZARRA}; color: #fff; border-radius: 14px; }
+.at-jefe-taller > span:first-child { display: grid; flex: none; place-items: center; width: 46px; height: 46px; background: rgba(255,255,255,.1); color: #FB923C; border-radius: 10px; }
+.at-jefe-taller > span:last-child { display: flex; flex-direction: column; min-width: 0; line-height: 1.4; }
+.at-jefe-taller small { color: rgba(255,255,255,.76); }
+.at .at-nosotros h3 { margin-block: 1.5rem .3rem; font-size: 1.1rem; }
+.at-reglas { display: grid; }
+.at-reglas li { display: flex; gap: .85rem; padding-block: .85rem; border-bottom: 1px solid ${BORDE}; }
+.at-reglas li:last-child { border-bottom: 0; }
+.at-reglas svg { flex: none; margin-top: .15rem; color: ${NARANJA_HONDO}; }
+.at-reglas p { color: ${SUAVE}; font-size: .92rem; }
+.at-reglas b { display: block; color: ${PIZARRA}; font-size: .98rem; }
+@media (min-width: 920px) {
+  .at-nosotros { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 3rem; align-items: stretch; }
+  .at-nosotros > img { max-height: none; min-height: 100%; aspect-ratio: auto; }
+}
+
+/* tipos de repuesto */
+.at-calidad { display: grid; gap: .9rem; }
+@media (min-width: 880px) { .at-calidad { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; } }
+.at-calidad > li { display: flex; flex-direction: column; align-items: flex-start; gap: .6rem; padding: 1.3rem; background: ${BLANCO}; border: 1px solid ${BORDE}; border-top: 4px solid ${PIZARRA}; border-radius: 14px; }
+.at-calidad > li > svg { color: ${NARANJA_HONDO}; }
+.at .at-calidad h3 { font-size: 1.1rem; }
+.at-calidad p { color: ${SUAVE}; font-size: .92rem; }
+.at-calidad ul { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: auto; padding-top: .4rem; }
+.at-calidad ul li { padding: .25rem .6rem; background: ${ACERO}; border: 1px solid ${BORDE_CAMPO}; border-radius: 6px; font-size: .8rem; font-weight: 600; }
+
+/* proceso en 4 pasos: --av va de 0 a 3 */
+.at-proceso { background: ${PIZARRA}; color: #fff; }
+.at-pasos { --av: 3; display: grid; margin-top: 1.8rem; }
+.at-pasos li { position: relative; display: flex; gap: 1rem; min-width: 0; padding-bottom: 1.5rem; }
+.at-pasos li:last-child { padding-bottom: 0; }
+.at-pasos li > span { position: relative; z-index: 1; display: grid; flex: none; place-items: center; width: 42px; height: 42px; background: ${NARANJA}; border-radius: 999px; font-family: ${TITULO}; font-size: 1.05rem; font-weight: 700; }
+.at-pasos li > div { min-width: 0; }
+.at .at-pasos h3 { padding-top: .55rem; font-size: 1.02rem; line-height: 1.35; }
+.at-pasos p { margin-top: .3rem; color: rgba(255,255,255,.74); font-size: .89rem; }
+.at-pasos i { position: absolute; left: 19.5px; top: 42px; bottom: 0; width: 3px; background: rgba(255,255,255,.18); }
+.at-pasos i::after { content: ""; position: absolute; inset: 0; background: ${NARANJA}; transform-origin: top; transform: scaleY(clamp(0, calc(var(--av) - var(--i)), 1)); }
+@media (min-width: 900px) {
+  .at-pasos { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .at-pasos li { flex-direction: column; gap: .5rem; padding: 0 1.4rem 0 0; }
+  .at-pasos i { left: 42px; right: 0; top: 19.5px; bottom: auto; width: auto; height: 3px; }
+  .at-pasos i::after { transform-origin: left; transform: scaleX(clamp(0, calc(var(--av) - var(--i)), 1)); }
 }
 
 /* secciones */
@@ -114,7 +188,7 @@ export const ESTILOS = `
 
 /* ¿puedo manejar así? */
 .at-triaje { display: grid; gap: 1rem; }
-.at-sintomas { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; }
+.at-sintomas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; }
 .at-sintomas button { display: flex; align-items: center; gap: .65rem; min-height: 58px; padding: .6rem .8rem; background: ${BLANCO}; border: 1px solid ${BORDE}; border-radius: 12px; font-size: .88rem; font-weight: 600; line-height: 1.3; text-align: left; transition: border-color .15s, background-color .15s, color .15s; }
 .at-sintomas button:last-child:nth-child(odd) { grid-column: 1 / -1; }
 .at-sintomas button svg { flex: none; color: ${NARANJA_HONDO}; }
@@ -140,7 +214,7 @@ export const ESTILOS = `
 @media (max-width: 519px) { .at-dictamen .at-botones { display: grid; } }
 @media (min-width: 880px) {
   .at-triaje { grid-template-columns: 18rem minmax(0, 1fr); gap: 1.5rem; align-items: start; }
-  .at-sintomas { grid-template-columns: 1fr; }
+  .at-sintomas { grid-template-columns: minmax(0, 1fr); }
   .at-dictamen { padding: 1.8rem; }
 }
 
@@ -150,14 +224,13 @@ export const ESTILOS = `
 .at-segmentos button { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; min-height: 44px; padding: .3rem .4rem; border-radius: 9px; color: ${SUAVE}; font-size: .82rem; font-weight: 600; line-height: 1.25; }
 .at-segmentos button svg { display: none; flex: none; }
 .at-segmentos button[aria-pressed="true"] { background: ${PIZARRA}; color: #fff; }
-.at-filtros { display: flex; gap: .45rem; overflow-x: auto; padding: 3px; margin-inline: -3px; scrollbar-width: none; }
-.at-filtros button { flex: none; min-height: 40px; padding-inline: .95rem; border: 1px solid ${BORDE_CAMPO}; border-radius: 999px; background: ${BLANCO}; font-size: .84rem; font-weight: 600; }
+.at-filtros { display: flex; flex-wrap: wrap; gap: .45rem; }
+.at-filtros button { min-height: 40px; padding-inline: .95rem; border: 1px solid ${BORDE_CAMPO}; border-radius: 999px; background: ${BLANCO}; font-size: .84rem; font-weight: 600; }
 .at-filtros button[aria-pressed="true"] { background: ${NARANJA_CLARO}; border-color: ${NARANJA}; color: #9A3412; }
 @media (min-width: 640px) { .at-segmentos button svg { display: block; } }
 @media (min-width: 1060px) {
   .at-controles { grid-template-columns: auto 1fr; align-items: center; justify-content: space-between; gap: 1.5rem; }
   .at-controles .at-segmentos { order: 2; justify-self: end; width: 25.5rem; }
-  .at-filtros { flex-wrap: wrap; }
   .at-filtros button { padding-inline: .8rem; }
 }
 .at-rejilla { display: grid; gap: 1rem; align-content: start; }
@@ -189,15 +262,7 @@ export const ESTILOS = `
 .at-equipos ul { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .75rem; }
 .at-equipos ul li { padding: .25rem .6rem; background: ${BLANCO}; border: 1px solid ${BORDE_CAMPO}; border-radius: 6px; font-size: .78rem; font-weight: 600; }
 
-/* respaldo, reseñas y ubicación */
-.at-garantias { display: grid; gap: .8rem; }
-@media (min-width: 620px) { .at-garantias { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 1000px) { .at-garantias { grid-template-columns: repeat(4, 1fr); gap: 1rem; } }
-.at-garantias li { padding: 1.2rem; background: ${PIZARRA}; color: #fff; border-radius: 14px; }
-.at-garantias svg { color: #FB923C; }
-.at .at-garantias h3 { margin-block: .7rem .35rem; font-size: 1.02rem; }
-.at-garantias p { color: rgba(255,255,255,.76); font-size: .88rem; }
-.at .at-subtitulo { margin-block: 2.6rem 1rem; font-size: 1.3rem; }
+/* reseñas y ubicación */
 .at-resenas { display: grid; gap: .8rem; }
 @media (min-width: 880px) { .at-resenas { grid-template-columns: repeat(3, 1fr); gap: 1rem; } }
 .at-resenas li { display: flex; flex-direction: column; gap: .75rem; padding: 1.2rem; background: ${BLANCO}; border: 1px solid ${BORDE}; border-radius: 14px; }
@@ -344,15 +409,17 @@ export const ESTILOS = `
 .at .at-panel-alto h1 { font-size: 1.7rem; }
 .at-panel-alto p { color: ${SUAVE}; font-size: .9rem; }
 .at-panel-alto p::first-letter { text-transform: uppercase; }
-.at-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
-@media (min-width: 900px) { .at-kpis { grid-template-columns: repeat(4, 1fr); gap: .9rem; } }
+.at-kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+@media (min-width: 900px) { .at-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .9rem; } }
 .at-kpis li { display: flex; flex-direction: column; align-items: flex-start; padding: .95rem 1rem; background: ${PIZARRA}; color: #fff; border-radius: 14px; }
 .at-kpis svg { color: #FB923C; }
 .at-kpis strong { margin-block: .45rem .1rem; font-family: ${TITULO}; font-size: clamp(1.6rem, 4.4vw, 2.1rem); line-height: 1.15; }
 .at-kpis span { color: rgba(255,255,255,.76); font-size: .82rem; line-height: 1.35; }
 .at-panel-cuerpo { display: grid; gap: 1.4rem; margin-top: 1.4rem; align-items: start; }
 .at-panel-lado { display: grid; gap: 1rem; }
-@media (min-width: 1000px) { .at-panel-cuerpo { grid-template-columns: 22rem minmax(0, 1fr); } }
+/* tableta y laptop chica: formulario y citas lado a lado, arriba de las bahías */
+@media (min-width: 720px) and (max-width: 1279px) { .at-panel-lado { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; } }
+@media (min-width: 1280px) { .at-panel-cuerpo { grid-template-columns: 22rem minmax(0, 1fr); } }
 .at-caja { padding: 1.1rem; background: ${BLANCO}; border: 1px solid ${BORDE}; border-radius: 14px; }
 .at .at-caja h2 { display: flex; align-items: center; gap: .5rem; margin-bottom: .9rem; font-size: 1.05rem; }
 .at-citas { display: grid; gap: .9rem; }
@@ -368,9 +435,11 @@ export const ESTILOS = `
 .at-pestanas button { min-height: 44px; padding: .5rem 1.05rem; background: ${BLANCO}; border: 1.5px solid ${BORDE_CAMPO}; border-radius: 999px; font-size: .9rem; font-weight: 600; transition: background-color .15s, border-color .15s, color .15s; }
 .at-pestanas button:hover { border-color: ${PIZARRA}; }
 .at-pestanas button[aria-pressed="true"] { background: ${NARANJA}; border-color: ${NARANJA}; color: #fff; }
-.at-tarjetas { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr)); gap: .9rem; align-items: start; }
-.at-panel .at-ancho { max-width: 88rem; }
-.at-tarjeta { display: flex; flex-direction: column; gap: .75rem; padding: 1rem; background: ${BLANCO}; border: 1px solid ${BORDE}; border-radius: 14px; }
+.at-tarjetas { display: grid; gap: .9rem; align-items: start; }
+@media (min-width: 1024px) { .at-tarjetas { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1536px) { .at-tarjetas { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.at-panel .at-ancho { max-width: 96rem; }
+.at-tarjeta { min-width: 0; display: flex; flex-direction: column; gap: .75rem; padding: 1rem; background: ${BLANCO}; border: 1px solid ${BORDE}; border-radius: 14px; }
 .at-tarjeta-espera { border-color: ${NARANJA}; }
 .at-tarjeta > header { display: flex; align-items: center; gap: .75rem; }
 .at-tarjeta > header > div { min-width: 0; }
@@ -381,10 +450,11 @@ export const ESTILOS = `
 .at-tarjeta-falla { display: flex; gap: .55rem; padding: .55rem .65rem; background: ${ACERO}; border: 1px solid ${BORDE}; border-radius: 8px; font-size: .82rem; line-height: 1.4; }
 .at-tarjeta-falla svg { flex: none; margin-top: .05rem; color: ${NARANJA_HONDO}; }
 .at-tarjeta-falla b { margin-right: .4rem; }
-.at-anotar { padding: .75rem; background: ${ACERO}; border: 1px solid ${BORDE}; border-radius: 10px; }
+.at-anotar { min-width: 0; padding: .75rem; background: ${ACERO}; border: 1px solid ${BORDE}; border-radius: 10px; }
 .at-anotar form { display: grid; gap: .45rem; }
-.at-anotar form > div { display: flex; gap: .45rem; }
-.at-anotar form > div input { flex: 1; min-width: 0; min-height: 46px; padding: .5rem .7rem; background: ${BLANCO}; color: ${PIZARRA}; border: 1px solid ${BORDE_CAMPO}; border-radius: 10px; font-size: 1rem; }
+.at-anotar form > div { display: flex; gap: .5rem; min-width: 0; }
+.at-anotar form > div .at-btn { flex-shrink: 0; padding-inline: .75rem; }
+.at-anotar form > div input { flex: 1; width: 100%; min-width: 0; min-height: 46px; padding: .5rem .7rem; background: ${BLANCO}; color: ${PIZARRA}; border: 1px solid ${BORDE_CAMPO}; border-radius: 10px; font-size: 1rem; }
 .at-anotar-hecho { color: ${VERDE}; font-size: .8rem; font-weight: 600; }
 .at-anotar-hecho:not(:empty) { margin-top: .4rem; }
 .at-anotar summary { min-height: 34px; padding-top: .45rem; font-size: .82rem; font-weight: 600; }
@@ -401,7 +471,7 @@ export const ESTILOS = `
 .at-avance b { color: ${PIZARRA}; }
 .at-recepcion { border: 1px solid ${BORDE}; border-radius: 10px; }
 .at-recepcion summary { min-height: 42px; padding: .6rem .75rem; font-size: .84rem; font-weight: 600; }
-.at-recepcion > div { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; padding: .2rem .75rem .75rem; }
+.at-recepcion > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; padding: .2rem .75rem .75rem; }
 .at-casilla { display: flex; grid-column: 1 / -1; align-items: center; gap: .55rem; min-height: 32px; font-size: .86rem; }
 .at-casilla input { width: 19px; height: 19px; accent-color: ${PIZARRA}; }
 .at-tarjeta-pie { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 .75rem; }
@@ -410,11 +480,11 @@ export const ESTILOS = `
 .at-entregados li span { color: ${SUAVE}; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
 /* formularios */
-.at-formulario { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+.at-formulario { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
 .at-campo-ancho { grid-column: 1 / -1; }
 .at-campo { display: flex; flex-direction: column; gap: .3rem; min-width: 0; }
 .at-campo > span { font-size: .8rem; font-weight: 600; color: ${SUAVE}; }
-.at-campo input, .at-campo select { width: 100%; min-width: 0; min-height: 46px; padding: .5rem .7rem; background: ${BLANCO}; color: ${PIZARRA}; border: 1px solid ${BORDE_CAMPO}; border-radius: 10px; font-size: 1rem; font-weight: 400; }
+.at-campo input, .at-campo select { width: 100%; max-width: 100%; min-width: 0; min-height: 46px; padding: .5rem .7rem; background: ${BLANCO}; color: ${PIZARRA}; border: 1px solid ${BORDE_CAMPO}; border-radius: 10px; font-size: 1rem; font-weight: 400; }
 .at-campo select:disabled { background: ${ACERO}; color: ${SUAVE}; }
 .at-campo em { color: #9A3412; font-size: .78rem; font-style: normal; font-weight: 600; }
 
@@ -434,7 +504,7 @@ export const ESTILOS = `
 .at-ventana-cuerpo { display: grid; gap: 1rem; padding: 1.1rem 1.2rem 1.3rem; overflow-y: auto; }
 .at-ventana-pie { padding: .8rem 1.2rem calc(.8rem + env(safe-area-inset-bottom)); border-top: 1px solid ${BORDE}; }
 @media (min-width: 640px) { .at-ventana { width: min(34rem, 94vw); margin: auto; } .at-ventana-caja { border-radius: 18px; } }
-.at-fallas { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; border: 0; }
+.at-fallas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; border: 0; }
 .at-fallas legend { margin-bottom: .5rem; font-size: .8rem; font-weight: 600; color: ${SUAVE}; }
 .at-fallas button { display: flex; flex-direction: column; align-items: flex-start; gap: .2rem; padding: .75rem; background: ${BLANCO}; border: 2px solid ${BORDE}; border-radius: 12px; text-align: left; }
 .at-fallas button svg { color: ${ROJO}; }

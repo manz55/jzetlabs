@@ -83,7 +83,7 @@ export function Auxilio({ fallaInicial, alCerrar }: { fallaInicial: FallaId | ""
           )}
         </div>
         <Campo nombre="Referencia (opcional)" ancho>
-          <input value={referencia} onChange={(e) => setReferencia(e.target.value)} placeholder="Frente a una gasolinera, kilómetro, color del carro" maxLength={120} />
+          <input value={referencia} onChange={(e) => setReferencia(e.target.value)} placeholder="Kilómetro o punto cercano" maxLength={120} />
         </Campo>
       </div>
 
