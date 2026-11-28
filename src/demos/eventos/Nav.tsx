@@ -3,17 +3,17 @@
  * solo salen en la portada. En pantallas angostas todo pasa al menú desplegable.
  */
 import { useEffect, useRef, useState } from "react";
-import { Armchair, LayoutDashboard, Menu, Receipt, X } from "lucide-react";
+import { Armchair, CalendarHeart, Menu, Truck, X } from "lucide-react";
 import { SECCIONES } from "./datos";
 import { Logo } from "./Piezas";
 import { ancho, boton } from "./estilos";
 
-export type Vista = "renta" | "caja" | "panel";
+export type Vista = "renta" | "evento" | "panel";
 
 const VISTAS = [
-  { id: "renta", nombre: "Renta y Convivios", icono: Armchair },
-  { id: "caja", nombre: "Caja y Stands", icono: Receipt },
-  { id: "panel", nombre: "Panel Organizador", icono: LayoutDashboard },
+  { id: "renta", nombre: "Catálogo y Cotizador", icono: Armchair },
+  { id: "evento", nombre: "Mi Evento", icono: CalendarHeart },
+  { id: "panel", nombre: "Panel Logística", icono: Truck },
 ] as const;
 
 export function Nav({ vista, avisos, alVista, alSeccion, alCotizar }: { vista: Vista; avisos: Record<Vista, number>; alVista: (v: Vista) => void; alSeccion: (id: string) => void; alCotizar: () => void }) {
@@ -62,7 +62,7 @@ export function Nav({ vista, avisos, alVista, alSeccion, alCotizar }: { vista: V
           {avisos[id] > 0 && (
             <span className={`grid h-5 min-w-5 place-items-center rounded-full bg-[#A16207] px-1 text-[0.68rem] text-white ${enMenu ? "ml-auto" : ""}`}>
               {avisos[id]}
-              <span className="sr-only">{id === "caja" ? " órdenes por entregar" : " reservas nuevas"}</span>
+              <span className="sr-only">{id === "evento" ? " pagos pendientes" : " reservas o pagos por revisar"}</span>
             </span>
           )}
         </button>

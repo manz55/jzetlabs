@@ -7,6 +7,7 @@ const POLITICAS = [
   "La fecha queda apartada con el anticipo del 50%.",
   "El depósito de garantía (15%) se devuelve al revisar el mobiliario.",
   "Las piezas faltantes o rotas se descuentan del depósito, con el detalle por escrito.",
+  "Pagos con tarjeta por Visanet o NeoNet, o por transferencia a BI o BAC.",
   "Cambios de fecha según disponibilidad, avisando con 72 horas.",
   "Sus datos se usan solo para atender su reserva.",
 ];
@@ -18,7 +19,7 @@ export function Pie() {
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.1fr_1fr_1.3fr]">
           <div>
             <Logo claro />
-            <p className="mt-5 max-w-xs">Alquiler de mobiliario y toldos, con control digital de stands para convivios y ferias de colonia.</p>
+            <p className="mt-5 max-w-xs">Alquiler de mobiliario, toldos y montaje para bodas, eventos corporativos y recepciones.</p>
           </div>
           <section>
             <h2 className="text-lg !text-white">Zonas de cobertura</h2>

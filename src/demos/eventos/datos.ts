@@ -1,7 +1,8 @@
 /*
  * Demo de eventos: "Casa Imperial" (negocio inventado; fotos de Unsplash enlazadas).
- * Alquiler de mobiliario y toldos, y caja con stands para convivios. Las tres vistas leen y
- * escriben el mismo estado, que se guarda en el navegador y vuelve a empezar cada día.
+ * Alquiler de mobiliario y montaje para bodas, eventos corporativos y recepciones. Las tres vistas
+ * (cotizador, Mi Evento y Panel Logística) leen y escriben el mismo estado, que se guarda en el
+ * navegador y vuelve a empezar cada día.
  */
 import { useCallback, useEffect, useState } from "react";
 
@@ -29,12 +30,12 @@ export const SECCIONES = [
 const dos = (n: number) => String(n).padStart(2, "0");
 export const iso = (d: Date) => `${d.getFullYear()}-${dos(d.getMonth() + 1)}-${dos(d.getDate())}`;
 export const aFecha = (f: string) => new Date(`${f}T12:00:00`);
-export const dia = (n: number) => {
-  const d = new Date();
-  d.setHours(12, 0, 0, 0);
+export const mas = (f: string, n: number) => {
+  const d = aFecha(f);
   d.setDate(d.getDate() + n);
   return iso(d);
 };
+export const dia = (n: number) => mas(iso(new Date()), n);
 const limpio = (t: string) => t.replace(/[.,]/g, "");
 export const diaSemana = (f: string) => limpio(aFecha(f).toLocaleDateString("es-GT", { weekday: "short" }));
 export const diaMes = (f: string) => limpio(aFecha(f).toLocaleDateString("es-GT", { day: "numeric", month: "short" }));
@@ -44,6 +45,8 @@ export const ahora = () => {
   const d = new Date();
   return `${dos(d.getHours())}:${dos(d.getMinutes())}`;
 };
+/* "16:00" menos 6 horas = "10:00" */
+export const antes = (hora: string, horas: number) => `${dos(Number(hora.slice(0, 2)) - horas)}:${hora.slice(3)}`;
 
 /* los próximos viernes, sábados y domingos, desde mañana */
 export function finesDeSemana(n = 8) {
@@ -55,9 +58,17 @@ export function finesDeSemana(n = 8) {
   return out;
 }
 
+/* el sábado que viene (hoy, si hoy es sábado) y su fin de semana, sin días que ya pasaron */
+export function sabado() {
+  let f = dia(0);
+  while (aFecha(f).getDay() !== 6) f = mas(f, 1);
+  return f;
+}
+export const finDeSemana = () => [mas(sabado(), -1), sabado(), mas(sabado(), 1)].filter((f) => f >= dia(0));
+
 /* ---------------- inventario ---------------- */
 
-export const CATEGORIAS = ["Sillas y Mesas", "Toldos y Stands", "Cristalería y Mantelería", "Calentadores y Audio"] as const;
+export const CATEGORIAS = ["Sillas y Mesas", "Toldos y Carpas", "Cristalería y Mantelería", "Calentadores y Audio"] as const;
 export type Categoria = (typeof CATEGORIAS)[number];
 
 type Ficha = {
@@ -84,10 +95,9 @@ export const ARTICULOS = {
   redonda: ficha({ nombre: "Mesa redonda · 10 personas", detalle: "1.50 m de diámetro", cat: "Sillas y Mesas", precio: 40, total: 320, paso: 1, reposicion: 850, foto: "1751891159950-bf33e1e8705b", alt: "Mesa redonda montada para una cena" }),
   rectangular: ficha({ nombre: "Mesa rectangular · 8 personas", detalle: "2.40 × 0.90 m", cat: "Sillas y Mesas", precio: 35, total: 180, paso: 1, reposicion: 750, foto: "1696805966408-5f92fdb79ae7", alt: "Mesa larga de madera con sillas y cubiertos" }),
   coctel: ficha({ nombre: "Mesa de cóctel alta", detalle: "Con funda blanca ajustada", cat: "Sillas y Mesas", precio: 45, total: 80, paso: 1, reposicion: 600, foto: "1618106494700-4b0049e83ed8", alt: "Mesas altas de cóctel con fundas blancas en un jardín" }),
-  toldo3: ficha({ nombre: "Toldo 3 × 3 m", detalle: "Para puesto de venta o mesa de cobro", cat: "Toldos y Stands", precio: 175, total: 40, paso: 1, reposicion: 1800, clase: "toldo", foto: "1786019932386-997dbb5caf21", alt: "Toldos blancos con punta en un campo abierto" }),
-  toldo6: ficha({ nombre: "Toldo 6 × 12 m", detalle: "Cubre hasta 60 personas sentadas", cat: "Toldos y Stands", precio: 750, total: 14, paso: 1, reposicion: 9500, clase: "toldo", foto: "1692166927778-056466153552", alt: "Toldo blanco montado en un jardín" }),
-  toldo10: ficha({ nombre: "Toldo 10 × 20 m", detalle: "Cubre hasta 200 personas sentadas", cat: "Toldos y Stands", precio: 1850, total: 6, paso: 1, reposicion: 22000, clase: "toldo", foto: "1695393386569-cf141ff2c552", alt: "Carpa blanca grande instalada sobre césped" }),
-  stand: ficha({ nombre: "Stand de feria con mostrador", detalle: "Mostrador de madera y repisa", cat: "Toldos y Stands", precio: 225, total: 30, paso: 1, reposicion: 1400, foto: "1779319684873-d2210f31850c", alt: "Vendedora atendiendo en un puesto de madera al aire libre" }),
+  toldo3: ficha({ nombre: "Toldo 3 × 3 m", detalle: "Para mesa de regalos, bar o cabina de DJ", cat: "Toldos y Carpas", precio: 175, total: 40, paso: 1, reposicion: 1800, clase: "toldo", foto: "1786019932386-997dbb5caf21", alt: "Toldos blancos con punta en un campo abierto" }),
+  toldo6: ficha({ nombre: "Toldo 6 × 12 m", detalle: "Cubre hasta 60 personas sentadas", cat: "Toldos y Carpas", precio: 750, total: 14, paso: 1, reposicion: 9500, clase: "toldo", foto: "1692166927778-056466153552", alt: "Toldo blanco montado en un jardín" }),
+  toldo10: ficha({ nombre: "Toldo 10 × 20 m", detalle: "Cubre hasta 200 personas sentadas", cat: "Toldos y Carpas", precio: 1850, total: 6, paso: 1, reposicion: 22000, clase: "toldo", foto: "1695393386569-cf141ff2c552", alt: "Carpa blanca grande instalada sobre césped" }),
   mantel: ficha({ nombre: "Mantel de mesa marfil", detalle: "Lavado y planchado, redondo o rectangular", cat: "Cristalería y Mantelería", precio: 22, total: 340, paso: 1, reposicion: 160, foto: "1544576623-d817a825bc64", alt: "Mantel blanco con orilla de encaje" }),
   camino: ficha({ nombre: "Camino de mesa", detalle: "Lino, en tonos de temporada", cat: "Cristalería y Mantelería", precio: 10, total: 300, paso: 1, reposicion: 60, foto: "1762638197960-d1ee50ddcff3", alt: "Camino de mesa con velas y arreglos" }),
   copas: ficha({ nombre: "Cristalería por persona", detalle: "Copa de agua y copa de vino", cat: "Cristalería y Mantelería", precio: 6, total: 1500, paso: 10, reposicion: 55, foto: "1558670426-931963635470", alt: "Copas de tallo largo sobre una mesa" }),
@@ -106,9 +116,9 @@ export const unidades = (c: Cesta, clase: "silla" | "toldo") => renglones(c).red
 /* ---------------- zonas, cuentas y paquetes ---------------- */
 
 export const ZONAS = {
-  ciudad: { nombre: "Ciudad de Guatemala", flete: 250, alcance: "Zonas de la capital y colonias cercanas del área metropolitana." },
-  carretera: { nombre: "Carretera a El Salvador", flete: 375, alcance: "Santa Catarina Pinula, Fraijanes y condominios sobre la ruta." },
-  antigua: { nombre: "Antigua Guatemala", flete: 600, alcance: "Antigua, sus aldeas y fincas de Sacatepéquez." },
+  ciudad: { nombre: "Ciudad de Guatemala", corto: "la capital", flete: 250, alcance: "Zonas de la capital y colonias cercanas del área metropolitana." },
+  carretera: { nombre: "Carretera a El Salvador", corto: "Carretera a El Salvador", flete: 375, alcance: "Santa Catarina Pinula, Fraijanes y fincas sobre la ruta." },
+  antigua: { nombre: "Antigua Guatemala", corto: "Antigua GT", flete: 600, alcance: "Antigua, sus aldeas y fincas de Sacatepéquez." },
 };
 export type ZonaId = keyof typeof ZONAS;
 export const ZONA_IDS = Object.keys(ZONAS) as ZonaId[];
@@ -127,22 +137,42 @@ export function cuentas(c: Cesta, zona: ZonaId) {
 }
 
 /* lo que normalmente lleva un evento según los invitados */
-export function sugerido(n: Invitados): Cesta {
+export function sugerido(n: number): Cesta {
   const mesas = Math.ceil(n / 10);
   const toldos: Cesta = n <= 50 ? { toldo6: 1 } : n <= 100 ? { toldo6: 2 } : n <= 150 ? { toldo10: 1 } : { toldo10: 1, toldo6: 1 };
   return { plegable: n, redonda: mesas, mantel: mesas, ...toldos, luces: Math.ceil(n / 25) };
 }
 
 export const PAQUETES: { id: string; nombre: string; para: string; cesta: Cesta; foto: string; alt: string }[] = [
-  { id: "convivio", nombre: "Convivio de Colonia · 4 Stands + Toldos", para: "Kermés, posada o feria de vecinos", cesta: { stand: 4, toldo3: 4, plegable: 100, rectangular: 12, luces: 4, audio: 1 }, foto: "1464047736614-af63643285bf", alt: "Banderines y luces encendidas en una fiesta" },
-  { id: "recepcion", nombre: "Recepción Clásica 100 personas", para: "Bautizo, graduación o cena de empresa", cesta: { tiffany: 100, redonda: 10, mantel: 10, camino: 10, copas: 100, vajilla: 100, toldo6: 2 }, foto: "1763553113391-a659bee36e06", alt: "Mesas de recepción con arreglos florales" },
+  { id: "corporativo", nombre: "Cóctel Corporativo 120 personas", para: "Lanzamiento, aniversario o cena de empresa", cesta: { coctel: 20, tiffany: 60, redonda: 6, mantel: 26, copas: 120, toldo6: 2, luces: 8, audio: 1 }, foto: "1618106494700-4b0049e83ed8", alt: "Mesas altas de cóctel con fundas blancas en un jardín" },
+  { id: "recepcion", nombre: "Recepción Clásica 100 personas", para: "Bautizo, graduación o primera comunión", cesta: { tiffany: 100, redonda: 10, mantel: 10, camino: 10, copas: 100, vajilla: 100, toldo6: 2 }, foto: "1763553113391-a659bee36e06", alt: "Mesas de recepción con arreglos florales" },
   { id: "boda", nombre: "Boda Imperial 200 personas", para: "Boda completa en jardín o finca", cesta: { crossback: 200, redonda: 20, mantel: 20, camino: 20, copas: 200, vajilla: 200, toldo10: 1, calentador: 6, luces: 12, audio: 1 }, foto: "1772127822525-7eda37383b9f", alt: "Recepción de boda al aire libre con toldo y mesas montadas" },
 ];
 
+/* ---------------- pagos ---------------- */
+
+export const MEDIOS = ["Visanet", "NeoNet", "Transferencia BI", "Transferencia BAC"] as const;
+export type Medio = (typeof MEDIOS)[number];
+export const esTarjeta = (m: Medio) => m === "Visanet" || m === "NeoNet";
+export type Pago = { id: number; monto: number; medio: Medio; ref: string; fecha: string; verificado: boolean };
+
+/* ---------------- flota ---------------- */
+
+export type EstadoCamion = "bodega" | "carga" | "ruta" | "montaje" | "regreso" | "taller";
+export const ESTADOS_CAMION: Record<EstadoCamion, string> = {
+  bodega: "En bodega, listo para carga",
+  carga: "Cargando en andén",
+  ruta: "En ruta",
+  montaje: "Montando en el lugar",
+  regreso: "Regresando a bodega",
+  taller: "En taller",
+};
+export type Camion = { id: string; nombre: string; ton: string; piloto: string; estado: EstadoCamion; orden?: string };
+
 /* ---------------- órdenes de alquiler ---------------- */
 
-export type EstadoOrden = "reservada" | "ruta" | "retorno" | "liquidada";
-export const ESTADOS: Record<EstadoOrden, string> = { reservada: "Por cargar", ruta: "En ruta", retorno: "Por revisar", liquidada: "Liquidada" };
+export type EstadoOrden = "reservada" | "evento" | "retorno" | "liquidada";
+export const ESTADOS: Record<EstadoOrden, string> = { reservada: "Por cargar", evento: "En montaje / evento", retorno: "Retorno y revisión", liquidada: "Liquidada" };
 export type Dano = { faltan: number; rotas: number };
 export type Orden = {
   folio: string;
@@ -157,10 +187,22 @@ export type Orden = {
   estado: EstadoOrden;
   cargado: ArtId[];
   revision: Partial<Record<ArtId, Dano>>;
+  pagos: Pago[];
+  camion?: string;
+  /* por dónde entró: la página o el teléfono / WhatsApp */
+  origen: "web" | "manual";
+  /* reservas hechas desde este navegador: salen en Mi Evento */
+  mia?: boolean;
   nueva?: boolean;
 };
 
-export const horaMontaje = (hora: string) => `${Number(hora.slice(0, 2)) - 6}:${hora.slice(3)}`;
+export const pagado = (o: Orden) => o.pagos.filter((p) => p.verificado).reduce((s, p) => s + p.monto, 0);
+export const porVerificar = (o: Orden) => o.pagos.filter((p) => !p.verificado).reduce((s, p) => s + p.monto, 0);
+export const saldo = (o: Orden) => Math.max(0, cuentas(o.cesta, o.zona).total - pagado(o));
+
+/* horario del día del evento: el camión llega 6 horas antes y el montaje queda listo 1 hora antes */
+export const cronograma = (o: Orden) => ({ llegada: antes(o.hora, 6), listo: antes(o.hora, 1), recoleccion: mas(o.fecha, 1) });
+
 export const cargoDe = (o: Orden) => renglones(o.cesta).reduce((s, r) => s + ((o.revision[r.id]?.faltan ?? 0) + (o.revision[r.id]?.rotas ?? 0)) * r.art.reposicion, 0);
 /* lo que se devuelve del depósito y, si los daños lo superan, lo que queda por cobrar */
 export function liquidacion(o: Orden) {
@@ -169,121 +211,60 @@ export function liquidacion(o: Orden) {
   return { deposito, cargo, devolver: Math.max(0, deposito - cargo), cobrar: Math.max(0, cargo - deposito) };
 }
 
-/* ---------------- stands y tickets ---------------- */
-
-export const PUESTOS = ["Parrilla", "Antojitos", "Bebidas"] as const;
-export type Puesto = (typeof PUESTOS)[number];
-
-type Producto = { nombre: string; precio: number; puesto: Puesto; foto: string; alt: string };
-const producto = (p: Producto) => p;
-export const MENU = {
-  carne: producto({ nombre: "Carne Asada", precio: 45, puesto: "Parrilla", foto: "1523986490752-c28064f26be3", alt: "Carne asada en rodajas sobre una tabla" }),
-  choripan: producto({ nombre: "Choripán", precio: 25, puesto: "Parrilla", foto: "1705512557389-841efbde54db", alt: "Pan con chorizo sobre una tabla" }),
-  chuchitos: producto({ nombre: "2 Chuchitos", precio: 15, puesto: "Antojitos", foto: "1732118070605-8c5faa62d284", alt: "Tamalitos en hoja de maíz sobre un plato" }),
-  elote: producto({ nombre: "Elote Loco", precio: 15, puesto: "Antojitos", foto: "1570716774271-ab30ad4924a8", alt: "Elote en palillo con queso y chile" }),
-  ponche: producto({ nombre: "Ponche Navideño", precio: 12, puesto: "Bebidas", foto: "1773809407789-fa0b42b6131c", alt: "Ponche de frutas con rodajas de naranja" }),
-  gaseosa: producto({ nombre: "Gaseosa", precio: 10, puesto: "Bebidas", foto: "1629654613528-5d0a2e4166de", alt: "Vaso de gaseosa con hielo" }),
-};
-export type ProdId = keyof typeof MENU;
-export const PRODUCTOS = Object.keys(MENU) as ProdId[];
-export type Cuenta = Partial<Record<ProdId, number>>;
-export type Pago = "Efectivo" | "Transferencia";
-export type Ticket = { n: number; hora: string; pago: Pago; items: Cuenta; entregado: Partial<Record<Puesto, string>> };
-
-export const codigo = (n: number) => `#CV-${n}`;
-export const itemsDe = (c: Cuenta, puesto?: Puesto) => PRODUCTOS.filter((id) => (c[id] ?? 0) > 0 && (!puesto || MENU[id].puesto === puesto)).map((id) => ({ id, n: c[id]!, ...MENU[id] }));
-export const totalDe = (c: Cuenta, puesto?: Puesto) => itemsDe(c, puesto).reduce((s, i) => s + i.n * i.precio, 0);
-export const puestosDe = (c: Cuenta) => PUESTOS.filter((p) => itemsDe(c, p).length > 0);
-export const pendiente = (t: Ticket, puesto?: Puesto) => puestosDe(t.items).some((p) => (!puesto || p === puesto) && !t.entregado[p]);
-
-export const CONVIVIO = { nombre: "Convivio navideño", lugar: "Residenciales Villa Real" };
-
-export function cuadre(tickets: Ticket[]) {
-  return PUESTOS.map((puesto) => {
-    const suyos = tickets.filter((t) => itemsDe(t.items, puesto).length > 0);
-    const por = (pago: Pago) => suyos.filter((t) => t.pago === pago).reduce((s, t) => s + totalDe(t.items, puesto), 0);
-    const entregadas = suyos.filter((t) => t.entregado[puesto]).length;
-    const vendidos = PRODUCTOS.filter((id) => MENU[id].puesto === puesto).map((id) => ({ nombre: MENU[id].nombre, n: tickets.reduce((s, t) => s + (t.items[id] ?? 0), 0) }));
-    const efectivo = por("Efectivo");
-    const transferencia = por("Transferencia");
-    return { puesto, ordenes: suyos.length, entregadas, pendientes: suyos.length - entregadas, efectivo, transferencia, total: efectivo + transferencia, vendidos };
-  });
-}
-
 /* ---------------- datos con los que abre el día ---------------- */
 
-function ordenesIniciales(): Orden[] {
-  const f = finesDeSemana(8);
-  const o = (folio: number, cliente: string, evento: string, lugar: string, zona: ZonaId, fecha: string, hora: string, cesta: Cesta, estado: EstadoOrden = "reservada", revision: Orden["revision"] = {}): Orden => ({
-    folio: `CI-${folio}`,
-    cliente,
-    tel: "",
-    evento,
-    lugar,
-    zona,
-    fecha,
-    hora,
-    cesta,
-    estado,
-    cargado: estado === "reservada" ? [] : renglones(cesta).map((r) => r.id),
-    revision,
-  });
-  return [
-    o(2036, "Colegio San Agustín", "Clausura", "Zona 11", "ciudad", dia(-6), "10:00", { plegable: 180, rectangular: 6, toldo6: 2, audio: 1 }, "liquidada", { plegable: { faltan: 1, rotas: 2 } }),
-    o(2038, "Familia Arriola", "Boda civil", "San Pedro El Panorama", "antigua", dia(-1), "16:00", { tiffany: 120, redonda: 12, mantel: 12, copas: 120, vajilla: 120, toldo6: 2, calentador: 4 }, "retorno"),
-    o(2041, "Comité de Vecinos Villa Real", CONVIVIO.nombre, CONVIVIO.lugar, "carretera", dia(0), "17:00", { plegable: 220, rectangular: 24, toldo3: 8, stand: 6, luces: 10, audio: 2 }, "ruta"),
-    o(2042, "Distribuidora Santa Lucía", "Cena de fin de año", "Zona 14", "ciudad", dia(0), "19:00", { crossback: 90, redonda: 9, mantel: 9, copas: 90, toldo6: 2, calentador: 5 }, "ruta"),
-    o(2043, "Asociación de Vecinos El Encinal", "Feria navideña", "Condominio El Encinal", "carretera", f[0], "15:00", { plegable: 900, rectangular: 80, toldo3: 24, stand: 20, luces: 40, audio: 4 }),
-    o(2044, "Andrea Méndez y Luis Rosales", "Boda", "Finca en San Miguel Dueñas", "antigua", f[0], "16:00", { tiffany: 220, redonda: 22, mantel: 22, camino: 22, copas: 220, vajilla: 220, toldo10: 2, calentador: 14 }),
-    o(2049, "Cooperativa San Cristóbal", "Gala de asociados", "San Cristóbal", "ciudad", f[0], "18:00", { crossback: 460, redonda: 90, mantel: 130, camino: 90, copas: 700, vajilla: 620, toldo10: 2, toldo6: 7, calentador: 8, audio: 3, luces: 20 }),
-    o(2045, "Familia Cifuentes", "Primera comunión", "Zona 15", "ciudad", f[1], "12:00", { plegable: 80, redonda: 8, mantel: 8, toldo6: 1 }),
-    o(2046, "Grupo Textil La Fuente", "Convivio de empresa", "Zona 12", "ciudad", f[3], "13:00", { plegable: 600, redonda: 60, mantel: 60, toldo10: 3, audio: 3, luces: 20 }),
-    o(2047, "María José y Rodrigo", "Boda", "Santa Elena Barillas", "carretera", f[4], "15:00", { crossback: 260, redonda: 26, mantel: 26, copas: 260, vajilla: 260, toldo10: 2, calentador: 18 }),
-    o(2048, "Colonia Las Charcas", "Posada de colonia", "Zona 11", "ciudad", f[6], "17:00", { plegable: 1500, rectangular: 120, toldo3: 30, stand: 24, luces: 52, audio: 6 }),
-    o(2050, "Municipalidad de Santa Catarina", "Festival navideño", "Santa Catarina Pinula", "carretera", f[6], "16:00", { tiffany: 700, crossback: 430, redonda: 160, mantel: 220, camino: 150, copas: 800, vajilla: 700, toldo10: 6, toldo6: 9, calentador: 28, coctel: 60 }),
-  ];
-}
-
-/* las horas se cuentan hacia atrás desde que se abre la demo, para que nunca queden "en el futuro" */
-function ticketsIniciales(): Ticket[] {
-  const hace = (min: number) => {
-    const d = new Date(Date.now() - min * 60000);
-    return `${dos(d.getHours())}:${dos(d.getMinutes())}`;
+function iniciales(): { ordenes: Orden[]; camiones: Camion[] } {
+  const s = sabado();
+  let n = 0;
+  const pago = (monto: number, medio: Medio, ref: string, fecha: string, verificado = true): Pago => ({ id: ++n, monto, medio, ref, fecha, verificado });
+  /* "pagos" dice cuánto entró: todo, el anticipo o nada */
+  const o = (folio: number, cliente: string, evento: string, lugar: string, zona: ZonaId, fecha: string, hora: string, cesta: Cesta, estado: EstadoOrden, cobro: "todo" | "anticipo" | "nada", extra: Partial<Orden> = {}): Orden => {
+    const c = cuentas(cesta, zona);
+    const pagos = cobro === "nada" ? [] : [pago(c.anticipo, "Transferencia BI", `BI-${44710 + folio}`, mas(fecha, -20))];
+    if (cobro === "todo") pagos.push(pago(c.total - c.anticipo, "Visanet", `Aut. ${300100 + folio * 7}`, mas(fecha, -1)));
+    return { folio: `EVT-${folio}`, cliente, tel: "", evento, lugar, zona, fecha, hora, cesta, estado, cargado: estado === "reservada" ? [] : renglones(cesta).map((r) => r.id), revision: {}, pagos, origen: "web", ...extra };
   };
-  const t = (n: number, min: number, pago: Pago, items: Cuenta, entregas: Partial<Record<Puesto, number>> = {}): Ticket => ({
-    n,
-    hora: hace(min),
-    pago,
-    items,
-    entregado: Object.fromEntries(Object.entries(entregas).map(([puesto, m]) => [puesto, hace(m)])),
-  });
-  return [
-    t(101, 48, "Efectivo", { carne: 2, gaseosa: 2 }, { Parrilla: 39, Bebidas: 46 }),
-    t(102, 41, "Transferencia", { chuchitos: 3, ponche: 3 }, { Antojitos: 35, Bebidas: 38 }),
-    t(103, 34, "Efectivo", { choripan: 4, elote: 2 }, { Parrilla: 23, Antojitos: 29 }),
-    t(104, 26, "Efectivo", { elote: 3, ponche: 2 }, { Antojitos: 20, Bebidas: 24 }),
-    t(105, 19, "Transferencia", { carne: 3, chuchitos: 1, gaseosa: 3 }, { Bebidas: 16 }),
-    t(106, 13, "Efectivo", { choripan: 2, ponche: 4 }, { Bebidas: 10 }),
-    t(107, 8, "Efectivo", { carne: 1, elote: 2, gaseosa: 1 }),
+  const ordenes = [
+    o(795, "Colegio Montessori del Valle", "Graduación", "Gimnasio del colegio, zona 16", "ciudad", dia(-6), "10:00", { plegable: 180, rectangular: 6, toldo6: 2, audio: 1 }, "liquidada", "todo", { revision: { plegable: { faltan: 1, rotas: 2 } } }),
+    o(798, "Familia Arriola", "Boda civil", "Jardín en San Pedro El Panorama", "antigua", dia(-1), "16:00", { tiffany: 120, redonda: 12, mantel: 12, copas: 120, vajilla: 120, toldo6: 2, calentador: 4 }, "retorno", "todo"),
+    o(799, "Distribuidora Santa Lucía", "Cena de fin de año", "Terraza corporativa, zona 14", "ciudad", dia(-1), "19:00", { crossback: 90, redonda: 9, mantel: 9, copas: 90, toldo6: 2, calentador: 5 }, "retorno", "todo"),
+    o(801, "Grupo Textil La Fuente", "Lanzamiento de producto", "Plaza corporativa, zona 10", "ciudad", dia(0), "18:00", { coctel: 30, plegable: 120, toldo6: 2, audio: 1, luces: 8 }, "evento", "todo", { camion: "c3" }),
+    o(802, "Familia Cifuentes", "Recepción de bodas de plata", "Hacienda en San Juan del Obispo", "antigua", dia(0), "17:00", { tiffany: 150, redonda: 15, mantel: 15, copas: 150, vajilla: 150, toldo6: 3, calentador: 4 }, "evento", "todo", { camion: "c1" }),
+    o(804, "Daniela Herrera y Andrés Monzón", "Boda", "Finca San Cayetano", "antigua", s, "16:00", { crossback: 220, redonda: 22, mantel: 22, camino: 22, copas: 220, vajilla: 220, toldo10: 2, calentador: 10, luces: 12, audio: 1 }, "reservada", "anticipo", { camion: "c2", mia: true }),
+    o(806, "Agroindustrial Los Volcanes", "Cena de gala de fin de año", "Jardín Las Lomas, zona 15", "ciudad", s, "19:00", { tiffany: 420, redonda: 50, mantel: 50, copas: 600, vajilla: 450, toldo10: 2, toldo6: 4, calentador: 12, coctel: 30, audio: 2 }, "reservada", "anticipo", { origen: "manual" }),
+    o(807, "María José Pineda y Rodrigo Estrada", "Boda", "Finca en Santa Elena Barillas", "carretera", s, "15:00", { crossback: 300, redonda: 30, mantel: 30, camino: 30, copas: 300, vajilla: 300, toldo10: 1, calentador: 8 }, "reservada", "anticipo"),
+    o(808, "Familia Godoy", "Bautizo", "Casa familiar, zona 15", "ciudad", mas(s, 1), "12:00", { tiffany: 80, redonda: 8, mantel: 8, camino: 8, copas: 80, toldo6: 2 }, "reservada", "anticipo"),
+    o(809, "Cámara de Comercio Regional", "Almuerzo de asociados", "Salón al aire libre, Fraijanes", "carretera", mas(s, 7), "12:00", { tiffany: 250, redonda: 25, mantel: 25, copas: 250, vajilla: 250, toldo10: 1, audio: 1 }, "reservada", "anticipo", { origen: "manual" }),
+    o(810, "Lucía Barrios", "XV años", "Jardín en Santa Catarina Pinula", "carretera", mas(s, 8), "18:00", { tiffany: 150, redonda: 15, mantel: 15, camino: 15, copas: 150, toldo10: 1, luces: 10, audio: 1 }, "reservada", "nada"),
   ];
+  /* la gala ya mandó su saldo con tarjeta y falta verificarlo */
+  const gala = ordenes.find((x) => x.folio === "EVT-806")!;
+  gala.pagos.push(pago(cuentas(gala.cesta, gala.zona).total - cuentas(gala.cesta, gala.zona).anticipo, "Visanet", "Aut. 552019", dia(0), false));
+  const camiones: Camion[] = [
+    { id: "c1", nombre: "Camión 1", ton: "5 Ton", piloto: "Carlos M.", estado: "ruta", orden: "EVT-802" },
+    { id: "c2", nombre: "Camión 2", ton: "3.5 Ton", piloto: "Edwin R.", estado: "bodega" },
+    { id: "c3", nombre: "Camión 3", ton: "3.5 Ton", piloto: "Julio P.", estado: "montaje", orden: "EVT-801" },
+    { id: "c4", nombre: "Camión 4", ton: "1.5 Ton", piloto: "Marvin L.", estado: "taller" },
+  ];
+  return { ordenes, camiones };
 }
 
 /* ---------------- estado compartido ---------------- */
 
-type Estado = { dia: string; ordenes: Orden[]; tickets: Ticket[]; folio: number };
-const CLAVE = "casa-imperial-v1";
-const inicial = (): Estado => ({ dia: dia(0), ordenes: ordenesIniciales(), tickets: ticketsIniciales(), folio: 2051 });
+type Estado = { dia: string; ordenes: Orden[]; camiones: Camion[]; folio: number; pago: number };
+const CLAVE = "casa-imperial-v2";
+const inicial = (): Estado => ({ dia: dia(0), ...iniciales(), folio: 812, pago: 100 });
 
 function leer(texto: string | null): Estado | null {
   try {
     const v = texto ? (JSON.parse(texto) as Estado) : null;
-    return v && v.dia === dia(0) && Array.isArray(v.ordenes) && Array.isArray(v.tickets) ? v : null;
+    return v && v.dia === dia(0) && Array.isArray(v.ordenes) && Array.isArray(v.camiones) ? v : null;
   } catch {
     return null;
   }
 }
 
-export type NuevaReserva = Pick<Orden, "cliente" | "tel" | "evento" | "lugar" | "zona" | "fecha" | "hora" | "cesta">;
+export type NuevaReserva = Pick<Orden, "cliente" | "tel" | "evento" | "lugar" | "zona" | "fecha" | "hora" | "cesta" | "origen"> & { mia?: boolean };
 
 export function useImperial() {
   const [estado, setEstado] = useState<Estado>(() => {
@@ -302,7 +283,7 @@ export function useImperial() {
     }
   }, [estado]);
 
-  /* dos pestañas abiertas (la caja y un stand) se ven entre sí */
+  /* dos pestañas abiertas (el cliente y la bodega) se ven entre sí */
   useEffect(() => {
     const otra = (e: StorageEvent) => {
       if (e.key !== CLAVE) return;
@@ -330,41 +311,47 @@ export function useImperial() {
   );
 
   const cambiarOrden = useCallback((folio: string, fn: (o: Orden) => Orden) => setEstado((e) => ({ ...e, ordenes: e.ordenes.map((o) => (o.folio === folio ? fn(o) : o)) })), []);
+  const cambiarCamion = useCallback((id: string, fn: (c: Camion) => Camion) => setEstado((e) => ({ ...e, camiones: e.camiones.map((c) => (c.id === id ? fn(c) : c)) })), []);
 
   const reservar = useCallback(
     (n: NuevaReserva) => {
-      const orden: Orden = { ...n, folio: `CI-${estado.folio}`, estado: "reservada", cargado: [], revision: {}, nueva: true };
+      const orden: Orden = { ...n, folio: `EVT-${estado.folio}`, estado: "reservada", cargado: [], revision: {}, pagos: [], nueva: true };
       setEstado((e) => ({ ...e, folio: e.folio + 1, ordenes: [...e.ordenes, orden] }));
       return orden;
     },
     [estado.folio],
   );
 
-  const cobrar = useCallback(
-    (items: Cuenta, pago: Pago) => {
-      const ticket: Ticket = { n: Math.max(100, ...estado.tickets.map((t) => t.n)) + 1, hora: ahora(), pago, items, entregado: {} };
-      setEstado((e) => ({ ...e, tickets: [...e.tickets, ticket] }));
-      return ticket;
-    },
-    [estado.tickets],
+  /* el cliente reporta un pago; la bodega lo verifica en su panel */
+  const reportarPago = useCallback(
+    (folio: string, p: Omit<Pago, "id" | "fecha" | "verificado">) =>
+      setEstado((e) => ({ ...e, pago: e.pago + 1, ordenes: e.ordenes.map((o) => (o.folio === folio ? { ...o, pagos: [...o.pagos, { ...p, id: e.pago, fecha: dia(0), verificado: false }] } : o)) })),
+    [],
   );
+  const verificarPagos = useCallback((folio: string) => setEstado((e) => ({ ...e, ordenes: e.ordenes.map((o) => (o.folio === folio ? { ...o, pagos: o.pagos.map((p) => ({ ...p, verificado: true })) } : o)) })), []);
 
-  /* entregar un puesto de un ticket; con hora vacía se deshace */
-  const entregar = useCallback(
-    (n: number, puesto: Puesto, hora: string) =>
+  /* sale el camión: la orden pasa a montaje y el camión queda en ruta con ella */
+  const despachar = useCallback(
+    (folio: string, camion: string) =>
       setEstado((e) => ({
         ...e,
-        tickets: e.tickets.map((t) => {
-          if (t.n !== n || (hora && t.entregado[puesto])) return t;
-          const entregado = { ...t.entregado };
-          if (hora) entregado[puesto] = hora;
-          else delete entregado[puesto];
-          return { ...t, entregado };
-        }),
+        ordenes: e.ordenes.map((o) => (o.folio === folio ? { ...o, estado: "evento", camion, nueva: false } : o)),
+        camiones: e.camiones.map((c) => (c.id === camion ? { ...c, estado: "ruta", orden: folio } : c)),
       })),
     [],
   );
 
-  return { ordenes: estado.ordenes, tickets: estado.tickets, libres, ocupacion, reservar, cambiarOrden, cobrar, entregar };
+  /* el mobiliario vuelve a bodega: queda por revisar y el camión libre */
+  const recibir = useCallback(
+    (folio: string) =>
+      setEstado((e) => ({
+        ...e,
+        ordenes: e.ordenes.map((o) => (o.folio === folio ? { ...o, estado: "retorno" } : o)),
+        camiones: e.camiones.map((c) => (c.orden === folio ? { ...c, estado: "bodega", orden: undefined } : c)),
+      })),
+    [],
+  );
+
+  return { ordenes: estado.ordenes, camiones: estado.camiones, libres, ocupacion, reservar, cambiarOrden, cambiarCamion, reportarPago, verificarPagos, despachar, recibir };
 }
 export type Imperial = ReturnType<typeof useImperial>;

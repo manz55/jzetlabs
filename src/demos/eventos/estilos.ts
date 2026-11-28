@@ -1,9 +1,5 @@
 /* Clases y letras de Casa Imperial. Marfil #FAF8F5, piedra #F3EFEA, carbón #1C1917, bronce #A16207. */
 import type { CSSProperties } from "react";
-import { CupSoda, Flame, UtensilsCrossed } from "lucide-react";
-
-export const ICONO_PUESTO = { Parrilla: Flame, Antojitos: UtensilsCrossed, Bebidas: CupSoda };
-
 export const LETRAS = "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap";
 
 /* variables que usan los estilos base del sitio (títulos y contorno de foco) */

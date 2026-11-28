@@ -1,9 +1,9 @@
-/* Cotización flotante y la reserva: al confirmar, la orden aparece en el Panel Organizador. */
+/* Cotización flotante y la reserva: al confirmar, la orden aparece en Mi Evento y en el Panel Logística. */
 import { useLayoutEffect, useRef, useState, type FormEvent } from "react";
 import { ChevronDown, ChevronUp, CircleCheck, MessageCircle, TriangleAlert } from "lucide-react";
 import { animate } from "animejs";
 import { sinMovimiento } from "./animar";
-import { ZONAS, cuentas, diaCorto, diaLargo, horaMontaje, num, qz, renglones, type Cesta, type Imperial, type Orden } from "./datos";
+import { ZONAS, antes, cuentas, diaCorto, diaLargo, num, qz, renglones, type Cesta, type Imperial, type Orden } from "./datos";
 import type { Plan } from "./Inicio";
 import { boton, campo, rotulo } from "./estilos";
 import { Ventana } from "./Piezas";
@@ -94,10 +94,10 @@ export function Dock({ imp, plan, cesta, alReservar, alAjustar, alVaciar }: { im
   );
 }
 
-const TIPOS = ["Convivio de colonia", "Boda", "Primera comunión o bautizo", "Cena de empresa", "Cumpleaños", "Otro evento"];
-const HORAS = ["10:00", "12:00", "14:00", "16:00", "18:00"];
+const TIPOS = ["Boda", "Evento corporativo", "Cena de gala", "Recepción o cóctel", "Primera comunión o bautizo", "XV años", "Otro evento"];
+const HORAS = ["12:00", "14:00", "16:00", "18:00", "19:00"];
 
-export function Reserva({ imp, plan, cesta, alCerrar, alConfirmada, alPanel }: { imp: Imperial; plan: Plan; cesta: Cesta; alCerrar: () => void; alConfirmada: () => void; alPanel: () => void }) {
+export function Reserva({ imp, plan, cesta, alCerrar, alConfirmada, alEvento }: { imp: Imperial; plan: Plan; cesta: Cesta; alCerrar: () => void; alConfirmada: () => void; alEvento: (folio: string) => void }) {
   /* la cesta se guarda al abrir: al confirmar se vacía, pero el resumen se sigue mostrando */
   const [pedido] = useState(cesta);
   const [hecha, setHecha] = useState<Orden | null>(null);
@@ -110,9 +110,9 @@ export function Reserva({ imp, plan, cesta, alCerrar, alConfirmada, alPanel }: {
     e.preventDefault();
     if (d.cliente.trim().length < 3) return setError("Escriba su nombre.");
     if (d.tel.replace(/\D/g, "").length !== 8) return setError("Escriba su teléfono de 8 dígitos.");
-    if (d.lugar.trim().length < 3) return setError("Escriba la colonia o dirección del evento.");
+    if (d.lugar.trim().length < 3) return setError("Escriba la finca, salón o dirección del evento.");
     if (renglones(pedido).some((r) => r.n > imp.libres(plan.fecha, r.id))) return setError("El inventario de esa fecha cambió. Cierre y ajuste las cantidades.");
-    setHecha(imp.reservar({ ...d, cliente: d.cliente.trim(), lugar: d.lugar.trim(), zona: plan.zona, fecha: plan.fecha, cesta: pedido }));
+    setHecha(imp.reservar({ ...d, cliente: d.cliente.trim(), lugar: d.lugar.trim(), zona: plan.zona, fecha: plan.fecha, cesta: pedido, origen: "web", mia: true }));
     alConfirmada();
   }
 
@@ -140,7 +140,7 @@ export function Reserva({ imp, plan, cesta, alCerrar, alConfirmada, alPanel }: {
     const texto = [
       `Casa Imperial · Reserva ${hecha.folio}`,
       `${hecha.evento} de ${hecha.cliente}`,
-      `Fecha: ${diaLargo(hecha.fecha)}, ${hecha.hora} h (montaje desde las ${horaMontaje(hecha.hora)})`,
+      `Fecha: ${diaLargo(hecha.fecha)}, ${hecha.hora} h (montaje desde las ${antes(hecha.hora, 6)})`,
       `Lugar: ${hecha.lugar}, ${ZONAS[hecha.zona].nombre}`,
       ...renglones(hecha.cesta).map((r) => `- ${r.n} ${r.art.nombre}`),
       `Total ${qz(c.total)} · Anticipo ${qz(c.anticipo)} · Saldo al montar ${qz(c.total - c.anticipo)}`,
@@ -150,13 +150,13 @@ export function Reserva({ imp, plan, cesta, alCerrar, alConfirmada, alPanel }: {
         <p className="mt-4 flex items-start gap-3">
           <CircleCheck size={22} aria-hidden className="mt-0.5 shrink-0 text-[#3F6212]" />
           <span className="min-w-0">
-            El mobiliario quedó bloqueado para el {diaLargo(hecha.fecha)}. Montaje desde las {horaMontaje(hecha.hora)} h.
+            El mobiliario quedó bloqueado para el {diaLargo(hecha.fecha)}. Montaje desde las {antes(hecha.hora, 6)} h. Para confirmar la fecha, reporte su anticipo desde Mi Evento.
           </span>
         </p>
         {resumen}
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          <button type="button" onClick={alPanel} className={boton.oscuro}>
-            Ver en Panel Organizador
+          <button type="button" onClick={() => alEvento(hecha.folio)} className={boton.oscuro}>
+            Ver en Mi Evento
           </button>
           <a href={`https://wa.me/?text=${encodeURIComponent(texto)}`} target="_blank" rel="noopener noreferrer" className={boton.linea}>
             <MessageCircle size={17} aria-hidden /> Enviar resumen por WhatsApp
@@ -181,7 +181,7 @@ export function Reserva({ imp, plan, cesta, alCerrar, alConfirmada, alPanel }: {
           <input className={campo} value={d.tel} onChange={poner("tel")} inputMode="tel" autoComplete="tel" maxLength={14} />
         </label>
         <label className="block min-w-0">
-          <span className={rotulo}>Colonia o dirección del evento</span>
+          <span className={rotulo}>Finca, salón o dirección del evento</span>
           <input className={campo} value={d.lugar} onChange={poner("lugar")} maxLength={80} />
         </label>
         <div className="grid gap-4 sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">

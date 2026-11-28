@@ -10,7 +10,7 @@ export type Plan = { fecha: string; invitados: Invitados; zona: ZonaId };
 const METRICAS = [
   ["+4,000", "sillas en bodega"],
   ["6 horas", "montaje antes de su evento"],
-  ["Cero", "papelitos en convivios"],
+  ["4 camiones", "propios, con piloto y montadores"],
 ];
 
 /* guarda lo que se va escribiendo y solo avisa cuando ya es una fecha futura completa */
@@ -44,8 +44,8 @@ export function Hero({ imp, plan, alCambiar, alArmar }: { imp: Imperial; plan: P
       <div className="absolute inset-0 -z-10 bg-[#1C1917]/70 lg:bg-transparent lg:bg-gradient-to-r lg:from-[#1C1917]/90 lg:via-[#1C1917]/70 lg:to-[#1C1917]/35" />
       <div className={`${ancho} grid items-center gap-10 py-10 sm:py-14 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:py-16`}>
         <div className="min-w-0">
-          <h1 className="text-[clamp(1.8rem,4.4vw,3.4rem)] !leading-[1.12] text-white">Alquiler de mobiliario, toldos y control digital de stands para eventos y convivios de colonia</h1>
-          <p className="mt-4 max-w-xl text-[#EDE6DC] sm:mt-5 sm:text-lg">Aparte su fecha con el inventario real de bodega y cobre su convivio con tickets digitales que cada stand entrega desde el teléfono.</p>
+          <h1 className="text-[clamp(1.8rem,4.4vw,3.4rem)] !leading-[1.12] text-white">Alquiler de mobiliario y montaje para bodas, eventos corporativos y recepciones</h1>
+          <p className="mt-4 max-w-xl text-[#EDE6DC] sm:mt-5 sm:text-lg">Aparte su fecha con el inventario real de bodega. Llegamos con camión propio, montamos 6 horas antes y usted sigue su evento, sus pagos y su depósito desde el teléfono.</p>
           <dl className="mt-6 grid grid-cols-3 gap-4 border-t border-white/25 pt-5 sm:mt-9 sm:gap-5 sm:pt-7">
             {METRICAS.map(([n, t]) => (
               <div key={t} className="min-w-0">

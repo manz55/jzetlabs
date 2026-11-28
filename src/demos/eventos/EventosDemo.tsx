@@ -1,29 +1,29 @@
 /*
- * Demo: Casa Imperial · Eventos, mobiliario y convivios (negocio inventado). Tres vistas en la misma
- * dirección que comparten datos en vivo: Renta y Convivios (portada), Caja y Stands (#caja) y
- * Panel Organizador (#panel). De lo compartido entre demos solo usa la banda superior.
+ * Demo: Casa Imperial · Mobiliario y montaje de eventos (negocio inventado). Tres vistas en la misma
+ * dirección que comparten datos en vivo: Catálogo y Cotizador (portada), Mi Evento (#mi-evento) y
+ * Panel Logística (#panel). De lo compartido entre demos solo usa la banda superior.
  */
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { BandaDemos } from "../comun";
 import { irA, useVista } from "./animar";
-import { Caja, type Modo } from "./Caja";
 import { Mobiliario, Paquetes } from "./Catalogo";
-import { PAQUETES, SECCIONES, diaLargo, finesDeSemana, pendiente, renglones, sugerido, textoInvitados, useImperial, type ArtId, type Cesta, type Cuenta } from "./datos";
+import { PAQUETES, SECCIONES, diaLargo, finesDeSemana, porVerificar, renglones, saldo, sugerido, textoInvitados, useImperial, type ArtId, type Cesta } from "./datos";
 import { Dock, Reserva } from "./Dock";
 import { LETRAS, TEMA } from "./estilos";
 import { Cobertura, Garantias, Hero, type Plan } from "./Inicio";
+import { MiEvento } from "./MiEvento";
 import { Nav, type Vista } from "./Nav";
-import { Panel, type Pestana } from "./Panel";
+import { Panel } from "./Panel";
 import { Pie } from "./Pie";
 
-const leer = (): Vista => (location.hash === "#caja" ? "caja" : location.hash === "#panel" || location.hash === "#bodega" ? "panel" : "renta");
+const leer = (): Vista => (location.hash === "#mi-evento" ? "evento" : ["#panel", "#bodega", "#logistica"].includes(location.hash) ? "panel" : "renta");
 /* un enlace como #paquetes abre la portada en esa sección */
 const seccionDeLaDireccion = () => SECCIONES.find((s) => `#${s.id}` === location.hash)?.id ?? "";
 
 const TITULOS: Record<Vista, string> = {
   renta: "Casa Imperial · Demo de Jzet Labs",
-  caja: "Caja y Stands · Casa Imperial",
-  panel: "Panel Organizador · Casa Imperial",
+  evento: "Mi Evento · Casa Imperial",
+  panel: "Panel Logística · Casa Imperial",
 };
 
 export default function EventosDemo() {
@@ -34,9 +34,7 @@ export default function EventosDemo() {
   const [paquete, setPaquete] = useState("");
   const [aviso, setAviso] = useState("");
   const [reservando, setReservando] = useState(false);
-  const [modo, setModo] = useState<Modo>("caja");
-  const [cuenta, setCuenta] = useState<Cuenta>({});
-  const [pestana, setPestana] = useState<Pestana>("cuadre");
+  const [miFolio, setMiFolio] = useState("EVT-804");
   const principal = useRef<HTMLElement>(null);
   /* sección de la portada a la que hay que bajar cuando ya esté pintada */
   const destino = useRef(seccionDeLaDireccion());
@@ -98,7 +96,7 @@ export default function EventosDemo() {
 
   function ir(nueva: Vista) {
     setReservando(false);
-    const direccion = nueva === "renta" ? location.pathname : `#${nueva}`;
+    const direccion = nueva === "renta" ? location.pathname : nueva === "evento" ? "#mi-evento" : "#panel";
     if (nueva === vista) {
       history.replaceState(null, "", direccion);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -146,7 +144,7 @@ export default function EventosDemo() {
 
   const hayCotizacion = renglones(cesta).length > 0;
   const conDock = vista === "renta" && hayCotizacion;
-  const avisos = { renta: 0, caja: imp.tickets.filter((t) => pendiente(t)).length, panel: imp.ordenes.filter((o) => o.nueva).length };
+  const avisos = { renta: 0, evento: imp.ordenes.filter((o) => o.mia && o.estado === "reservada" && saldo(o) > porVerificar(o)).length, panel: imp.ordenes.filter((o) => o.nueva || porVerificar(o) > 0).length };
 
   return (
     <>
@@ -175,12 +173,12 @@ export default function EventosDemo() {
               <Cobertura zona={plan.zona} alElegir={(zona) => setPlan((x) => ({ ...x, zona }))} />
             </>
           )}
-          {vista === "caja" && <Caja imp={imp} modo={modo} alModo={setModo} cuenta={cuenta} alCuenta={setCuenta} />}
-          {vista === "panel" && <Panel imp={imp} pestana={pestana} alPestana={setPestana} />}
+          {vista === "evento" && <MiEvento imp={imp} folio={miFolio} alFolio={setMiFolio} alCotizar={() => irSeccion("cotizar")} />}
+          {vista === "panel" && <Panel imp={imp} />}
         </main>
 
         {/* espacio para que lo fijo de abajo no tape el final */}
-        <div className={conDock ? "bg-[#1C1917] pb-52 sm:pb-40 lg:pb-28" : vista === "caja" ? "bg-[#1C1917] max-lg:pb-20" : undefined}>
+        <div className={conDock ? "bg-[#1C1917] pb-52 sm:pb-40 lg:pb-28" : undefined}>
           <Pie />
         </div>
 
@@ -209,9 +207,9 @@ export default function EventosDemo() {
               setPaquete("");
               setAviso("");
             }}
-            alPanel={() => {
-              setPestana("logistica");
-              ir("panel");
+            alEvento={(folio) => {
+              setMiFolio(folio);
+              ir("evento");
             }}
           />
         )}
