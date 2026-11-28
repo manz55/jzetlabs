@@ -50,7 +50,7 @@ export const ESTILOS = `
 .al-foto-sin { display: grid; place-items: center; height: 100%; min-height: 8rem; font-family: var(--titulo); color: var(--suave); }
 
 /* logotipo */
-.al-logo { display: flex; flex-direction: column; align-items: flex-start; line-height: 1; white-space: nowrap; }
+.al-logo { display: flex; flex-direction: column; align-items: flex-start; width: fit-content; line-height: 1; white-space: nowrap; }
 .al-logo-nombre { font-family: var(--titulo); font-weight: 700; font-size: 1.22rem; letter-spacing: .06em; color: var(--espresso); }
 .al-logo-raya { align-self: stretch; height: 1px; margin: .32rem 0 .3rem; background: #9D5C4C; }
 .al-logo-linea { font-size: .52rem; font-weight: 600; letter-spacing: .22em; color: var(--terra); }
