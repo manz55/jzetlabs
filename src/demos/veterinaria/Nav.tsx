@@ -10,7 +10,7 @@ const VISTAS = [
   { id: "panel", nombre: "Panel Veterinaria", icono: LayoutDashboard },
 ] as const;
 
-export function Logo() {
+export function Logo({ claro = false }: { claro?: boolean }) {
   return (
     <span className="flex items-center gap-2.5">
       <span aria-hidden className="relative block h-7 w-7 shrink-0 rounded-xl bg-[#0D9488]">
@@ -18,8 +18,8 @@ export function Logo() {
         <span className="absolute bottom-[5px] right-[5px] h-[9px] w-[14px] -rotate-[24deg] rounded-full bg-white" />
       </span>
       <span className="block leading-none">
-        <span className="block whitespace-nowrap text-[1.02rem] font-extrabold tracking-tight text-[#0F172A]">HUELLA VITAL</span>
-        <span className="mt-1 block whitespace-nowrap text-[0.5rem] font-bold uppercase tracking-[0.18em] text-[#475569]">Veterinaria &amp; Grooming</span>
+        <span className={`block whitespace-nowrap text-[1.02rem] font-extrabold tracking-tight ${claro ? "text-white" : "text-[#0F172A]"}`}>HUELLA VITAL</span>
+        <span className={`mt-1 block whitespace-nowrap text-[0.5rem] font-bold uppercase tracking-[0.18em] ${claro ? "text-[#99F6E4]" : "text-[#475569]"}`}>Veterinaria &amp; Grooming</span>
       </span>
     </span>
   );

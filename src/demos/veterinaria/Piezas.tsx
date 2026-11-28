@@ -52,7 +52,7 @@ export function SelectorEspecie({ valor, alElegir }: { valor: Especie; alElegir:
   );
 }
 
-export function Ventana({ titulo, alCerrar, children }: { titulo: string; alCerrar: () => void; children: ReactNode }) {
+export function Ventana({ titulo, alCerrar, children, amplia = false }: { titulo: string; alCerrar: () => void; children: ReactNode; amplia?: boolean }) {
   const ref = useRef<HTMLDialogElement>(null);
   const idTitulo = useId();
 
@@ -69,7 +69,7 @@ export function Ventana({ titulo, alCerrar, children }: { titulo: string; alCerr
       onClick={(e) => {
         if (e.target === ref.current) alCerrar();
       }}
-      className="hv-ventana"
+      className={`hv-ventana ${amplia ? "hv-ventana-amplia" : ""}`}
     >
       <div className="max-h-[88svh] overflow-y-auto rounded-t-3xl bg-white p-6 sm:rounded-3xl">
         <div className="mb-5 flex items-start justify-between gap-4">

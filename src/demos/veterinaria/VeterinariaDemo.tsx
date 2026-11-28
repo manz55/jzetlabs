@@ -1,26 +1,21 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CircleAlert, CircleCheck } from "lucide-react";
 import { BandaDemos } from "../comun";
+import type { Dia } from "./AgendaDelDia";
 import { Agendador } from "./Agendador";
-import { SECCIONES, aplicaA, hoyIso, type Cita, type Mascota, type ServicioId } from "./datos";
-import { solicitudVacia, useClinica } from "./estado";
+import { solicitudVacia } from "./agenda";
+import { SECCIONES, aplicaA, hoyIso, type Cita, type ServicioId } from "./datos";
+import { useClinica } from "./estado";
 import { irA } from "./irA";
 import { MisMascotas } from "./MisMascotas";
 import { Nav, type Vista } from "./Nav";
-import { Panel, type Dia } from "./Panel";
+import { Panel } from "./Panel";
 import { PetShop } from "./PetShop";
 import { Pie } from "./Pie";
+import { TEMA } from "./tema";
 import { Hero, Servicios, Tarifario } from "./Portada";
 import { Urgencias } from "./Urgencias";
 import "./veterinaria.css";
-
-const TEMA = {
-  "--font-titulo": '"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif',
-  "--color-tinta": "#0F172A",
-  "--color-acento": "#0D9488",
-  fontFamily: '"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif',
-  fontVariantNumeric: "lining-nums tabular-nums",
-} as CSSProperties;
 
 const TITULOS: Record<Vista, string> = {
   inicio: "Huella Vital · Demo de Jzet Labs",
@@ -109,11 +104,8 @@ export default function VeterinariaDemo() {
     setVista("inicio");
   }
 
-  function irAgendar(mascota?: Mascota) {
+  function irAgendar() {
     setReservada("");
-    if (mascota) {
-      setSolicitud((s) => ({ ...s, nombre: mascota.nombre, especie: mascota.especie, servicio: aplicaA(s.servicio, mascota.especie) ? s.servicio : "consulta" }));
-    }
     irSeccion("agendar");
   }
 
@@ -139,7 +131,7 @@ export default function VeterinariaDemo() {
         <BandaDemos />
       </div>
       <div style={TEMA} className="flex min-h-screen w-full max-w-full flex-col overflow-x-clip bg-[#FAFAF9] text-base leading-relaxed text-[#334155]">
-        <Nav vista={vista} alVista={ir} alSeccion={irSeccion} alAgendar={() => irAgendar()} />
+        <Nav vista={vista} alVista={ir} alSeccion={irSeccion} alAgendar={irAgendar} />
         <main className="flex-1">
           {vista === "inicio" && (
             <>
@@ -165,7 +157,7 @@ export default function VeterinariaDemo() {
               <Urgencias />
             </>
           )}
-          {vista === "mascotas" && <MisMascotas clinica={clinica} activa={mascotaActiva} alElegir={setMascotaActiva} alAgendar={irAgendar} alAvisar={avisar} />}
+          {vista === "mascotas" && <MisMascotas clinica={clinica} activa={mascotaActiva} alElegir={setMascotaActiva} alAvisar={avisar} />}
           {vista === "panel" && <Panel clinica={clinica} dia={dia} alDia={setDia} alAvisar={avisar} />}
         </main>
         <Pie />

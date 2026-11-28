@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { MessageCircle, Plus, ReceiptText, Truck } from "lucide-react";
 import { CLIENTA, FILTROS_TIENDA, PRODUCTOS, enlaceWhatsApp, qz, type Categoria, type Producto } from "./datos";
-import { precioDe, type ClinicaViva } from "./estado";
+import { precioDe } from "./cuentas";
+import type { ClinicaViva } from "./estado";
 import { Foto } from "./Piezas";
 
 const pedido = (p: Producto) =>

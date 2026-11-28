@@ -1,30 +1,26 @@
 import { useState, type FormEvent } from "react";
 import { Check, Send } from "lucide-react";
-import { IDS_SERVICIO, MEDICOS, SERVICIOS, VACUNAS, aplicaA, fechaCorta, fechaRelativa, hora12, hoyIso, qz, sumarMeses, type Especie, type ServicioId } from "./datos";
-import { horasLibres, type ClinicaViva, type Recordatorio } from "./estado";
-import { Retrato, SelectorEspecie, Ventana } from "./Piezas";
+import { horasLibres } from "./agenda";
+import { CamposHorario } from "./CamposHorario";
+import { IDS_SERVICIO, SERVICIOS, aplicaA, fechaCorta, fechaRelativa, hora12, hoyIso, qz, type Cita, type Especie, type ServicioId } from "./datos";
+import type { ClinicaViva } from "./estado";
+import type { Recordatorio } from "./expediente";
+import { SelectorEspecie, Ventana } from "./Piezas";
+import { useHorario } from "./useHorario";
 
 type Props = { clinica: ClinicaViva; alCerrar: () => void; alAvisar: (texto: string) => void };
-
-function OpcionesDeHora({ horas }: { horas: string[] }) {
-  return horas.map((h) => (
-    <option key={h} value={h}>
-      {hora12(h)}
-    </option>
-  ));
-}
 
 export function PacienteNuevo({ clinica, alCerrar, alAvisar }: Props) {
   const [datos, setDatos] = useState({ nombre: "", especie: "perro" as Especie, raza: "", dueno: "", telefono: "" });
   const [elegida, setElegida] = useState<string | null>(null);
-  const libres = horasLibres(clinica.citas, "consulta", hoyIso());
+  const libres = horasLibres(clinica, "consulta", hoyIso());
   const hora = elegida === "" || (elegida && libres.includes(elegida)) ? elegida : (libres[0] ?? "");
   const completo = datos.nombre.trim() && datos.dueno.trim() && datos.telefono.trim();
 
   function guardar(e: FormEvent) {
     e.preventDefault();
     const mascota = clinica.registrarPaciente(datos, hora ?? "");
-    alAvisar(`${mascota.nombre} quedó registrado${hora ? ` y en la agenda a las ${hora12(hora)}` : ""}.`);
+    alAvisar(`${mascota.nombre} quedó registrado${hora ? ` · agenda de hoy, ${hora12(hora)}` : ""}`);
     alCerrar();
   }
 
@@ -48,7 +44,11 @@ export function PacienteNuevo({ clinica, alCerrar, alAvisar }: Props) {
             <span className="hv-rotulo">Consulta de hoy</span>
             <select value={hora ?? ""} onChange={(e) => setElegida(e.target.value)} className="hv-campo">
               <option value="">Solo abrir ficha</option>
-              <OpcionesDeHora horas={libres} />
+              {libres.map((h) => (
+                <option key={h} value={h}>
+                  {hora12(h)}
+                </option>
+              ))}
             </select>
           </label>
         </div>
@@ -63,18 +63,16 @@ export function PacienteNuevo({ clinica, alCerrar, alAvisar }: Props) {
 export function CitaGrooming({ clinica, alCerrar, alAvisar }: Props) {
   const [mascotaId, setMascotaId] = useState(clinica.mascotas[0].id);
   const [paquete, setPaquete] = useState<ServicioId>("bano-pequeno");
-  const [fecha, setFecha] = useState(hoyIso());
-  const [elegida, setElegida] = useState("");
+  const horario = useHorario(clinica, "grooming");
+  const { fecha, hora } = horario;
   const mascota = clinica.mascota(mascotaId) ?? clinica.mascotas[0];
   const servicio = aplicaA(paquete, mascota.especie) ? paquete : "bano-pequeno";
-  const libres = horasLibres(clinica.citas, "grooming", fecha);
-  const hora = libres.includes(elegida) ? elegida : (libres[0] ?? "");
 
   function guardar(e: FormEvent) {
     e.preventDefault();
     const cita = clinica.agendar({ nombre: mascota.nombre, especie: mascota.especie, servicio, fecha, hora }, { mascotaId: mascota.id });
     if (!cita) return;
-    alAvisar(`Grooming de ${mascota.nombre}: ${fechaRelativa(fecha).toLowerCase()} a las ${hora12(hora)}.`);
+    alAvisar(`Grooming de ${mascota.nombre}: ${fechaRelativa(fecha).toLowerCase()}, ${hora12(hora)}`);
     alCerrar();
   }
 
@@ -101,18 +99,7 @@ export function CitaGrooming({ clinica, alCerrar, alAvisar }: Props) {
             ))}
           </select>
         </label>
-        <div className="grid grid-cols-2 gap-3">
-          <label className="block min-w-0">
-            <span className="hv-rotulo">Fecha</span>
-            <input type="date" value={fecha} min={hoyIso()} onChange={(e) => setFecha(e.target.value)} className="hv-campo !px-2.5" />
-          </label>
-          <label className="block min-w-0">
-            <span className="hv-rotulo">Horario libre</span>
-            <select value={hora} onChange={(e) => setElegida(e.target.value)} disabled={!libres.length} className="hv-campo">
-              {libres.length ? <OpcionesDeHora horas={libres} /> : <option value="">Sin horarios</option>}
-            </select>
-          </label>
-        </div>
+        <CamposHorario horario={horario} />
         <button type="submit" disabled={!hora} className="hv-boton hv-turquesa">
           Agregar a la agenda
         </button>
@@ -168,70 +155,31 @@ export function Recordatorios({ clinica, alCerrar, alAvisar }: Props) {
   );
 }
 
-export function VacunaAplicada({ clinica, alCerrar, alAvisar }: Props) {
-  const enAtencion = clinica.citasHoy.find((c) => c.estado === "atencion" && SERVICIOS[c.servicio].area === "consulta");
-  const [mascotaId, setMascotaId] = useState(enAtencion?.mascotaId ?? clinica.mascotas[0].id);
-  const [elegida, setElegida] = useState("");
-  const [medico, setMedico] = useState(MEDICOS[0]);
-  const [peso, setPeso] = useState("");
-  const mascota = clinica.mascota(mascotaId) ?? clinica.mascotas[0];
-  const vacuna = VACUNAS[mascota.especie].find((v) => v.nombre === elegida) ?? VACUNAS[mascota.especie][0];
-  const kg = Number(peso.replace(",", "."));
-  const pesoValido = !peso.trim() || (kg > 0 && kg < 120);
+export function ProponerHora({ clinica, cita, alCerrar, alAvisar }: Props & { cita: Cita }) {
+  const mascota = clinica.mascota(cita.mascotaId);
+  const horario = useHorario(clinica, SERVICIOS[cita.servicio].area, { exceptoId: cita.id, omitir: cita.solicitud });
 
-  function guardar(e: FormEvent) {
+  function enviar(e: FormEvent) {
     e.preventDefault();
-    clinica.registrarVacuna(mascota.id, vacuna.nombre, medico, peso.trim() ? Math.round(kg * 10) / 10 : null);
-    alAvisar(`${vacuna.nombre} anotada en el expediente de ${mascota.nombre}.`);
+    if (!clinica.proponerHorario(cita.id, { fecha: horario.fecha, hora: horario.hora })) return;
+    alAvisar(`Propuesta enviada a ${mascota?.dueno}.`);
     alCerrar();
   }
 
   return (
-    <Ventana titulo="Registrar vacuna aplicada" alCerrar={alCerrar}>
-      <form onSubmit={guardar} className="grid gap-4">
-        <div className="flex items-end gap-3">
-          <Retrato mascota={mascota} className="size-12" />
-          <label className="block min-w-0 flex-1">
-            <span className="hv-rotulo">Paciente</span>
-            <select value={mascota.id} onChange={(e) => setMascotaId(e.target.value)} className="hv-campo">
-              {clinica.mascotas.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.nombre} · {m.dueno}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-        <label className="block min-w-0">
-          <span className="hv-rotulo">Aplicación</span>
-          <select value={vacuna.nombre} onChange={(e) => setElegida(e.target.value)} className="hv-campo">
-            {VACUNAS[mascota.especie].map((v) => (
-              <option key={v.nombre}>{v.nombre}</option>
-            ))}
-          </select>
-        </label>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <label className="block min-w-0">
-            <span className="hv-rotulo">Médico</span>
-            <select value={medico} onChange={(e) => setMedico(e.target.value)} className="hv-campo">
-              {MEDICOS.map((m) => (
-                <option key={m}>{m}</option>
-              ))}
-            </select>
-          </label>
-          <label className="block min-w-0">
-            <span className="hv-rotulo">Peso en kg (opcional)</span>
-            <input value={peso} onChange={(e) => setPeso(e.target.value)} inputMode="decimal" placeholder="Ej. 12.5" aria-invalid={!pesoValido} className="hv-campo tabular-nums" />
-          </label>
-        </div>
-        {!pesoValido && (
-          <p role="alert" className="text-sm font-bold text-[#B91C1C]">
-            Escribe el peso en kilos, por ejemplo 12.5.
-          </p>
-        )}
-        <p className="rounded-2xl bg-[#F0FDFA] p-4 text-sm font-semibold text-[#115E59]">Próximo refuerzo: {fechaCorta(sumarMeses(hoyIso(), vacuna.meses))}</p>
-        <button type="submit" disabled={!pesoValido} className="hv-boton hv-turquesa">
-          Guardar en el expediente
+    <Ventana titulo="Proponer otra hora" alCerrar={alCerrar}>
+      <form onSubmit={enviar} className="grid gap-4">
+        <p className="text-sm">
+          {mascota?.nombre} · {SERVICIOS[cita.servicio].nombre}
+          {cita.solicitud && (
+            <span className="block font-bold text-[#0F172A]">
+              Pidió: {fechaRelativa(cita.solicitud.fecha)} · {hora12(cita.solicitud.hora)}
+            </span>
+          )}
+        </p>
+        <CamposHorario horario={horario} />
+        <button type="submit" disabled={!horario.hora} className="hv-boton hv-turquesa">
+          Enviar propuesta
         </button>
       </form>
     </Ventana>

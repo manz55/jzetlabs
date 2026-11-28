@@ -158,8 +158,26 @@
   .hv-ventana::backdrop { background: rgba(15, 23, 42, 0.55); }
   .hv-ventana[open] { animation: hv-sube 0.28s cubic-bezier(0.2, 0.8, 0.2, 1); }
 
+  .hv-ventana-amplia { width: min(46rem, 100%); }
+
   @media (min-width: 40rem) {
     .hv-ventana { margin-block: auto; }
+  }
+
+  .hv-impresion { display: none; }
+
+  @media print {
+    html:has(> body > .hv-impresion) { overflow: visible !important; }
+    body:has(> .hv-impresion) { background: #fff !important; }
+    body:has(> .hv-impresion) > :not(.hv-impresion) { display: none !important; }
+    .hv-impresion {
+      display: block;
+      zoom: 0.8;
+      font-size: 16px;
+      line-height: 1.5;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
   }
 
   @keyframes hv-sube { from { opacity: 0; transform: translateY(20px); } }

@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from "react";
 import { CalendarCheck2, CalendarPlus } from "lucide-react";
 import { IDS_SERVICIO, SERVICIOS, aplicaA, fechaRelativa, hora12, hoyIso, qz, type Cita, type Especie, type ServicioId } from "./datos";
-import { horasLibres, solicitudVacia, type ClinicaViva, type Solicitud } from "./estado";
+import { horasLibres, solicitudVacia, type Solicitud } from "./agenda";
+import type { ClinicaViva } from "./estado";
 import { Retrato, SelectorEspecie } from "./Piezas";
 
 type Props = {
@@ -17,7 +18,7 @@ type Props = {
 export function Agendador({ clinica, solicitud, alCambiar, reservada, alReservar, alVerCarnet, alVerAgenda }: Props) {
   const [error, setError] = useState("");
   const { nombre, especie, servicio, fecha } = solicitud;
-  const libres = horasLibres(clinica.citas, SERVICIOS[servicio].area, fecha);
+  const libres = horasLibres(clinica, SERVICIOS[servicio].area, fecha);
   const hora = libres.includes(solicitud.hora) ? solicitud.hora : (libres[0] ?? "");
   const cita = clinica.citas.find((c) => c.id === reservada);
   const mascota = cita && clinica.mascota(cita.mascotaId);

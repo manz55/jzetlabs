@@ -122,10 +122,16 @@ export const VACUNAS: Record<Especie, { nombre: string; meses: number }[]> = {
   ],
 };
 
-export const MEDICOS = ["Dra. Mariela Ortiz", "Dr. Julio Cabrera"];
+export const MEDICOS = [
+  { nombre: "Dra. Mariela Ortiz", colegiado: "1482" },
+  { nombre: "Dr. Julio Cabrera", colegiado: "2067" },
+];
+
+export const colegiadoDe = (medico: string) => MEDICOS.find((m) => m.nombre === medico)?.colegiado ?? "";
 
 export type Vacuna = { id: string; nombre: string; aplicada: string; proxima: string; medico: string };
 export type Peso = { fecha: string; kg: number };
+export type Indicacion = { id: string; fecha: string; hasta: string; medico: string; medicamento: string; dosis: string; cuidados: string };
 
 export type Mascota = {
   id: string;
@@ -136,9 +142,25 @@ export type Mascota = {
   dueno: string;
   telefono: string;
   foto?: string;
+  expediente: string;
+  notas: string;
+  alimento?: string;
   pesos: Peso[];
   vacunas: Vacuna[];
+  indicaciones: Indicacion[];
 };
+
+export type ExtraId = "unas" | "deslanado";
+
+export const EXTRAS: Record<ExtraId, { nombre: string; precio: number }> = {
+  unas: { nombre: "Corte de uñas", precio: 35 },
+  deslanado: { nombre: "Deslanado", precio: 60 },
+};
+
+export const IDS_EXTRA = Object.keys(EXTRAS) as ExtraId[];
+
+export type Horario = { fecha: string; hora: string };
+export type SolicitudCita = Horario & { tipo: "nueva" | "cambio"; propuesta?: Horario };
 
 export type Cita = {
   id: string;
@@ -150,11 +172,31 @@ export type Cita = {
   estacion?: Estacion;
   cobro?: Metodo;
   desdeWeb?: boolean;
+  extras?: ExtraId[];
+  solicitud?: SolicitudCita;
+  confirmadaPorClinica?: boolean;
 };
 
 export type Cargo = { id: string; dueno: string; productoId: string; cobro?: Metodo; cobradoEl?: string };
 
-export const CLIENTA = { nombre: "Andrea Recinos", telefono: "5512 8830" };
+export type Articulo = { id: string; nombre: string; precio: number; tipo: "alimento" | "preventivo"; especie: Especie };
+
+export const ARTICULOS: Articulo[] = [
+  { id: "proplan", nombre: "Pro Plan Adulto 15 kg", precio: 540, tipo: "alimento", especie: "perro" },
+  { id: "perro-adulto", nombre: "Concentrado perro adulto 15 kg", precio: 465, tipo: "alimento", especie: "perro" },
+  { id: "cachorro", nombre: "Concentrado cachorro 8 kg", precio: 325, tipo: "alimento", especie: "perro" },
+  { id: "royal-indoor", nombre: "Royal Canin Indoor 3 kg", precio: 265, tipo: "alimento", especie: "gato" },
+  { id: "gato-adulto", nombre: "Concentrado gato adulto 7.5 kg", precio: 345, tipo: "alimento", especie: "gato" },
+  { id: "nexgard", nombre: "NexGard masticable · 1 mes", precio: 135, tipo: "preventivo", especie: "perro" },
+  { id: "nexgard-combo", nombre: "NexGard Combo para gato · 1 mes", precio: 145, tipo: "preventivo", especie: "gato" },
+];
+
+export const articulo = (id: string) => ARTICULOS.find((a) => a.id === id);
+
+export type EstadoPedido = "solicitado" | "ruta" | "entregado";
+export type Pedido = { id: string; mascotaId: string; dueno: string; articulos: string[]; direccion: string; estado: EstadoPedido; cobro?: Metodo; cobradoEl?: string };
+
+export const CLIENTA = { nombre: "Andrea Recinos", telefono: "5512 8830", direccion: "Condominio Las Luces, casa 14, Vista Hermosa III, zona 15" };
 
 const dosCifras = (n: number) => String(n).padStart(2, "0");
 const aIso = (d: Date) => `${d.getFullYear()}-${dosCifras(d.getMonth() + 1)}-${dosCifras(d.getDate())}`;
@@ -191,75 +233,3 @@ export function hora12(hora: string) {
 
 export const qz = (n: number) => `Q${n.toLocaleString("en-US")}`;
 export const enlaceWhatsApp = (mensaje: string) => `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
-
-function vacuna(nombre: string, proximaEn: number, meses: number, medico = MEDICOS[0]): Vacuna {
-  const proxima = enDias(proximaEn);
-  return { id: `${nombre}-${proximaEn}`, nombre, proxima, aplicada: sumarMeses(proxima, -meses), medico };
-}
-
-const pesos = (...kilos: number[]): Peso[] => kilos.map((kg, i) => ({ kg, fecha: sumarMeses(hoyIso(), -3 * (kilos.length - i)) }));
-
-function paciente(id: string, nombre: string, especie: Especie, raza: string, edad: string, dueno: string, telefono: string, foto: string, kg: number, vacunas: Vacuna[]): Mascota {
-  return { id, nombre, especie, raza, edad, dueno, telefono, foto, pesos: pesos(kg), vacunas };
-}
-
-export function mascotasIniciales(): Mascota[] {
-  return [
-    {
-      id: "max",
-      nombre: "Max",
-      especie: "perro",
-      raza: "Golden Retriever",
-      edad: "4 años",
-      dueno: CLIENTA.nombre,
-      telefono: CLIENTA.telefono,
-      foto: FOTOS.max,
-      pesos: pesos(29.4, 30.8, 31.6, 31.2),
-      vacunas: [
-        vacuna("Séxtuple canina", 142, 12),
-        vacuna("Antirrábica", 96, 12, MEDICOS[1]),
-        vacuna("Bordetella", 58, 12),
-        vacuna("Desparasitación interna", 24, 3, MEDICOS[1]),
-      ],
-    },
-    {
-      id: "luna",
-      nombre: "Luna",
-      especie: "gato",
-      raza: "Gato Criollo",
-      edad: "2 años",
-      dueno: CLIENTA.nombre,
-      telefono: CLIENTA.telefono,
-      foto: FOTOS.luna,
-      pesos: pesos(3.6, 3.9, 4.1, 4.2),
-      vacunas: [vacuna("Triple felina", 3, 12), vacuna("Antirrábica", 118, 12), vacuna("Leucemia felina", 74, 12, MEDICOS[1]), vacuna("Desparasitación interna", 41, 3)],
-    },
-    paciente("rocky", "Rocky", "perro", "Bóxer", "5 años", "Carlos Méndez", "4478 1203", "1442605527737-ed62b867591f", 28.5, [vacuna("Séxtuple canina", 210, 12)]),
-    paciente("mia", "Mía", "gato", "Siamés", "1 año", "Gabriela Soto", "5901 6624", "1568152950566-c1bf43f4ab28", 3.4, [vacuna("Triple felina", 365, 12)]),
-    paciente("bruno", "Bruno", "perro", "Schnauzer miniatura", "3 años", "Luis Paiz", "3015 7789", "1579698374511-6017bd6db7f2", 8.2, [vacuna("Antirrábica", 190, 12)]),
-    paciente("kira", "Kira", "perro", "Pastor Alemán", "6 años", "Mónica Arriola", "5236 4410", "1625321483581-e4b662b8abf1", 33.1, [vacuna("Bordetella", 87, 12)]),
-    paciente("coco", "Coco", "perro", "French Poodle", "7 años", "Silvia de León", "4152 0937", "1772437883387-8076cf660c65", 6.8, [vacuna("Antirrábica", 5, 12)]),
-    paciente("simon", "Simón", "gato", "Persa", "8 años", "Jorge Batres", "5788 2146", "1733783506192-653df6185a7d", 5.1, [vacuna("Triple felina", 132, 12)]),
-    paciente("nala", "Nala", "gato", "Gato Criollo", "3 años", "Paola Estrada", "3390 5528", "1719305406153-b0d36aa305ac", 4.4, [vacuna("Triple felina", 6, 12)]),
-    paciente("toby", "Toby", "perro", "Cocker Spaniel", "4 años", "Ricardo Alvarado", "4620 8851", "1657088746570-0218626e8f55", 13.7, [vacuna("Séxtuple canina", 2, 12)]),
-    paciente("olivia", "Olivia", "perro", "Beagle", "2 años", "Fernanda Cifuentes", "5144 3072", "1685387714443-53931626d59b", 11.3, [vacuna("Séxtuple canina", 19, 12)]),
-  ];
-}
-
-export function citasIniciales(): Cita[] {
-  const hoy = hoyIso();
-  const cita = (id: string, mascotaId: string, servicio: ServicioId, hora: string, estado: Estado, extra: Partial<Cita> = {}): Cita => ({ id, mascotaId, servicio, fecha: hoy, hora, estado, ...extra });
-  return [
-    cita("c1", "rocky", "consulta", "08:00", "entregada", { cobro: "Visanet" }),
-    cita("c2", "mia", "consulta", "08:30", "entregada", { cobro: "Efectivo" }),
-    cita("c3", "bruno", "bano-pequeno", "09:00", "entregada", { cobro: "NeoNet" }),
-    cita("c4", "kira", "consulta", "09:30", "atencion", { estacion: "consultorio1" }),
-    cita("c5", "coco", "bano-pequeno", "10:00", "atencion", { estacion: "grooming" }),
-    cita("c6", "simon", "consulta", "10:30", "lista"),
-    cita("c7", "max", "bano-grande", "11:00", "espera"),
-    cita("c8", "nala", "consulta", "11:30", "espera"),
-    cita("c9", "toby", "bano-mediano", "14:00", "espera"),
-    cita("c10", "olivia", "vacuna", "15:30", "espera"),
-    cita("c11", "luna", "consulta", "09:00", "espera", { fecha: enDias(3) }),
-  ];
-}
