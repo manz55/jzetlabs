@@ -128,7 +128,7 @@ export default function GimnasioDemo() {
       <div className="ip min-h-screen w-full overflow-x-clip bg-white text-slate-700">
         <Nav vista={vista} acceso={accesoDe(socio)} alVista={ir} alSeccion={irSeccion} alInscribirme={() => setAlta("ilimitado")} />
 
-        <main className="overflow-x-hidden">
+        <main className="overflow-x-clip">
           {vista === "planes" && <Inicio club={club} socio={socio} alElegirPlan={setAlta} alPase={() => ir("pase")} />}
           {vista === "pase" && <Pase club={club} socio={socio} alElegir={setSocioId} alHorarios={() => irSeccion("horarios")} pagando={pagando} alPagar={setPagando} />}
           {vista === "recepcion" && <Panel club={club} filtro={filtro} alFiltrar={setFiltro} alVer={verPase} />}

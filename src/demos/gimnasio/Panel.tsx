@@ -1,206 +1,129 @@
-/* Panel Recepción: cifras del día, control de la talanquera y las acciones sobre cada socio. */
-import { useState } from "react";
-import { Banknote, Check, CircleAlert, Clock3, FileText, LogIn, Mail, MessageCircle, QrCode, Search, Users, Wallet } from "lucide-react";
-import { fechaEn, grupoDe, planDe, qz, sedeDe, textoDias, type Club, type Grupo, type Socio } from "./datos";
+/*
+ * Panel Recepción en una sola pantalla: atajos arriba (Alt+1 a Alt+4), las cuatro cifras del día,
+ * el directorio de socios a la izquierda y la talanquera con su bitácora a la derecha.
+ */
+import { useEffect, useState } from "react";
+import { Banknote, CircleAlert, DoorOpen, LogIn, Send, UserPlus, Users, Wallet } from "lucide-react";
+import { planDe, qz, type Club } from "./datos";
 import { Cobro } from "./Cobro";
+import { Directorio, type Filtro } from "./Directorio";
 import { Ficha } from "./Ficha";
-import { Talanquera } from "./Talanquera";
-import { AMBAR, ANCHO, BORDE, VERDE } from "./Piezas";
+import { MOTIVOS, Talanquera } from "./Talanquera";
+import { CobroRapido, Masivo, Mostrador } from "./VentanasAtajo";
 
-export type Filtro = "todos" | Grupo;
+export type { Filtro };
 
-const FILTROS: { id: Filtro; nombre: string }[] = [
-  { id: "todos", nombre: "Todos" },
-  { id: "vencido", nombre: "Vencidos" },
-  { id: "tolerancia", nombre: "Con tolerancia" },
-  { id: "pronto", nombre: "Por vencer" },
-  { id: "al-dia", nombre: "Al día" },
-];
-
-const ETIQUETA: Record<Grupo, { texto: string; clase: string }> = {
-  vencido: { texto: "Vencido", clase: "bg-red-100 text-red-800" },
-  tolerancia: { texto: "Tolerancia activa", clase: "bg-amber-700 text-white" },
-  pronto: { texto: "Por vencer", clase: "bg-amber-100 text-amber-900" },
-  "al-dia": { texto: "Al día", clase: "bg-green-100 text-green-900" },
-};
-
-/* para buscar sin importar tildes ni mayúsculas */
-const plano = (t: string) => t.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
-
-/* abre la pasarela de ese socio */
-const enlacePago = (s: Socio) => `${location.origin}/demos/gimnasio/?socio=${s.id}#pagar`;
-
-/* mensaje listo; WhatsApp pide escoger el chat antes de enviar */
-function enlaceWhatsApp(s: Socio) {
-  const plan = planDe(s.plan);
-  const cuando = s.dias <= 0 ? `venció el ${fechaEn(s.dias)}` : `vence el ${fechaEn(s.dias)}`;
-  const mensaje = `Hola ${s.nombre.split(" ")[0]}, le saluda IronPeak. Su ${plan.nombre} ${cuando}. Monto a pagar: ${qz(plan.precio)}. Puede pagar en línea aquí: ${enlacePago(s)}`;
-  return `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
-}
-
-function enlaceCorreo(s: Socio) {
-  const plan = planDe(s.plan);
-  const asunto = `Estado de su membresía IronPeak · N.º ${s.id}`;
-  const cuerpo = [
-    `Estimado(a) ${s.nombre}:`,
-    "",
-    `Le compartimos el estado de su membresía.`,
-    "",
-    `Plan: ${plan.nombre}`,
-    `Fecha de corte: ${fechaEn(s.dias, true)}`,
-    `Estado: ${s.dias <= 0 ? "mensualidad pendiente de pago" : "próxima a vencer"}`,
-    `Monto a pagar: ${qz(plan.precio)}`,
-    "",
-    `Puede pagar en línea en ${enlacePago(s)} o en recepción.`,
-    "",
-    "Atentamente,",
-    "Recepción · IronPeak Performance Club",
-  ].join("\r\n");
-  return `mailto:${encodeURIComponent(s.correo).replace("%40", "@")}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
-}
+type Abierta = { tipo: "cobro" | "ficha"; id: number } | { tipo: "rapido" | "mostrador" | "masivo" } | null;
 
 export function Panel({ club, filtro, alFiltrar, alVer }: { club: Club; filtro: Filtro; alFiltrar: (f: Filtro) => void; alVer: (id: number) => void }) {
-  const [busqueda, setBusqueda] = useState("");
-  const [ventana, setVentana] = useState<{ tipo: "cobro" | "ficha"; id: number } | null>(null);
+  const [ventana, setVentana] = useState<Abierta>(null);
+  const [motivo, setMotivo] = useState(MOTIVOS[0]);
+  /* aviso de "puerta abierta", para quien no está viendo la barra lateral */
+  const [abrio, setAbrio] = useState<{ motivo: string; vez: number } | null>(null);
+
+  useEffect(() => {
+    if (!abrio) return;
+    const t = window.setTimeout(() => setAbrio(null), 4000);
+    return () => window.clearTimeout(t);
+  }, [abrio]);
+
+  function abrir() {
+    club.abrirManual(motivo);
+    setAbrio((a) => ({ motivo, vez: (a?.vez ?? 0) + 1 }));
+  }
 
   const { socios } = club;
   const deben = socios.filter((s) => s.dias <= 0);
   const conTolerancia = deben.filter((s) => s.tolerancia).length;
   const porCobrar = deben.reduce((t, s) => t + planDe(s.plan).precio, 0);
-  const cuantos = (f: Filtro) => (f === "todos" ? socios.length : socios.filter((s) => grupoDe(s) === f).length);
-  const texto = plano(busqueda.trim());
-  const lista = socios.filter((s) => (filtro === "todos" || grupoDe(s) === filtro) && plano(s.nombre).includes(texto));
-  const abierto = ventana && socios.find((s) => s.id === ventana.id);
+
+  const atajos = [
+    { nombre: "Abrir talanquera ahora", icono: DoorOpen, clase: "border-[#0F172A] bg-[#0F172A] text-white hover:bg-[#1E293B]", accion: abrir },
+    { nombre: "Cobro rápido", icono: Banknote, clase: "border-[#15803D] bg-[#15803D] text-white hover:bg-[#166534]", accion: () => setVentana({ tipo: "rapido" }) },
+    { nombre: "Nuevo socio / Visita del día", icono: UserPlus, clase: "border-slate-300 bg-white text-[#0F172A] hover:border-[#0F172A]", accion: () => setVentana({ tipo: "mostrador" }) },
+    { nombre: "Recordatorio masivo a vencidos", icono: Send, clase: "border-slate-300 bg-white text-[#0F172A] hover:border-[#0F172A]", accion: () => setVentana({ tipo: "masivo" }) },
+  ];
+
+  /* Alt+1 a Alt+4. Se usa la tecla física porque en Mac Opción+número escribe otro símbolo */
+  useEffect(() => {
+    const tecla = (e: KeyboardEvent) => {
+      if (!e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || e.repeat) return;
+      const cual = ["Digit1", "Digit2", "Digit3", "Digit4"].indexOf(e.code);
+      if (cual < 0 || document.querySelector("dialog[open]")) return;
+      e.preventDefault();
+      atajos[cual].accion();
+    };
+    addEventListener("keydown", tecla);
+    return () => removeEventListener("keydown", tecla);
+  });
 
   const cifras = [
     { icono: Users, nombre: "Socios activos", valor: String(socios.length - deben.length), nota: "con mensualidad vigente" },
     { icono: LogIn, nombre: "Entradas hoy", valor: String(club.lecturas.filter((l) => l.resultado !== "rechazo").length), nota: "en las dos sedes" },
     { icono: CircleAlert, nombre: "Por cobrar / vencidos", valor: qz(porCobrar), nota: `${deben.length === 1 ? "1 socio debe" : `${deben.length} socios deben`}${conTolerancia ? ` · ${conTolerancia} con tolerancia` : ""}` },
-    { icono: Wallet, nombre: "Ingresos del mes", valor: qz(club.ingresos), nota: "mensualidades cobradas" },
+    { icono: Wallet, nombre: "Ingresos del mes", valor: qz(club.ingresos), nota: "cobrado este mes" },
   ];
 
   const hoy = new Date().toLocaleDateString("es-GT", { weekday: "long", day: "numeric", month: "long" });
+  const delSocio = ventana && "id" in ventana ? socios.find((s) => s.id === ventana.id) : undefined;
+  const cerrar = () => setVentana(null);
 
   return (
-    <div className="bg-[#F8FAFC] pb-20 pt-8 sm:pt-12">
-      <div className={ANCHO}>
-        <h1 className="text-[1.75rem] font-extrabold tracking-tight sm:text-[2.2rem]">Panel Recepción</h1>
-        <p className="mt-1.5 text-slate-600 first-letter:uppercase">{hoy}</p>
+    <div className="bg-[#F8FAFC] pb-8 pt-4">
+      <div className="mx-auto w-full max-w-[90rem] px-4 sm:px-6">
+        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+          <h1 className="text-[1.5rem] font-extrabold leading-tight tracking-tight">Panel Recepción</h1>
+          <p className="text-[0.88rem] text-slate-600 first-letter:uppercase">{hoy}</p>
+        </div>
 
-        <dl className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6">
+        <div role="group" aria-label="Atajos rápidos" className="mt-3 grid grid-cols-[repeat(2,minmax(0,1fr))] gap-2 lg:grid-cols-[repeat(4,minmax(0,1fr))] lg:gap-3">
+          {atajos.map(({ nombre, icono: Icono, clase, accion }, i) => (
+            <button key={nombre} type="button" onClick={accion} aria-keyshortcuts={`Alt+${i + 1}`} title={`${nombre} (Alt+${i + 1}; en Mac, Opción+${i + 1})`} className={`flex min-h-12 min-w-0 cursor-pointer items-center justify-center gap-2 rounded-xl border px-2.5 py-2 text-[0.82rem] font-bold leading-tight transition active:scale-[0.98] sm:justify-start sm:px-3 ${clase}`}>
+              <Icono size={18} aria-hidden className="shrink-0" />
+              <span className="min-w-0 sm:flex-1 sm:text-left">{nombre}</span>
+              <kbd aria-hidden className="hidden shrink-0 rounded border border-current/30 px-1.5 py-0.5 font-sans text-[0.68rem] font-bold opacity-80 sm:inline-block">
+                Alt+{i + 1}
+              </kbd>
+            </button>
+          ))}
+        </div>
+
+        <dl className="mt-3 grid grid-cols-[repeat(2,minmax(0,1fr))] gap-2 lg:grid-cols-[repeat(4,minmax(0,1fr))] lg:gap-3">
           {cifras.map(({ icono: Icono, nombre, valor, nota }) => (
-            <div key={nombre} className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6">
-              <dt className="flex items-start gap-2 text-[0.85rem] font-bold leading-snug text-slate-600">
-                <Icono size={17} aria-hidden className="mt-0.5 shrink-0 text-[#15803D]" />
+            <div key={nombre} className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
+              <dt className="flex items-center gap-1.5 text-[0.76rem] font-bold leading-tight text-slate-600">
+                <Icono size={15} aria-hidden className="shrink-0 text-[#15803D]" />
                 {nombre}
               </dt>
-              <dd className="mt-3 break-words text-[clamp(1.55rem,1.1rem+1.8vw,2.3rem)] font-extrabold leading-tight text-[#0F172A]">{valor}</dd>
-              <dd className="mt-1.5 text-[0.8rem] leading-snug text-slate-500">{nota}</dd>
+              <dd className="mt-1 break-words text-[1.55rem] font-extrabold leading-none text-[#0F172A]">{valor}</dd>
+              <dd className="mt-1 text-[0.72rem] leading-tight text-slate-500">{nota}</dd>
             </div>
           ))}
         </dl>
 
-        <Talanquera club={club} />
-
-        <h2 className="mt-12 text-[1.35rem] font-extrabold">Socios</h2>
-        <div className="mt-4 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-          <div role="group" aria-label="Filtrar socios" className="flex flex-wrap gap-2.5">
-            {FILTROS.map((f) => (
-              <button
-                key={f.id}
-                type="button"
-                aria-pressed={filtro === f.id}
-                onClick={() => alFiltrar(f.id)}
-                className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border px-4 text-[0.9rem] font-bold ${filtro === f.id ? "border-[#0F172A] bg-[#0F172A] text-white" : "border-slate-300 bg-white text-[#0F172A] hover:border-[#0F172A]"}`}
-              >
-                {f.nombre}
-                <span className={`rounded-full px-2 py-0.5 text-[0.78rem] ${filtro === f.id ? "bg-white/20" : "bg-slate-100 text-slate-600"}`}>{cuantos(f.id)}</span>
-              </button>
-            ))}
-          </div>
-          <label className="relative block w-full min-w-0 xl:w-80">
-            <span className="sr-only">Buscar socio por nombre</span>
-            <Search size={18} aria-hidden className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
-            <input type="search" value={busqueda} onChange={(e) => setBusqueda(e.target.value)} placeholder="Buscar por nombre" className="min-h-12 w-full min-w-0 rounded-lg border border-slate-300 bg-white pl-11 pr-3 text-base text-[#0F172A] outline-none focus:border-[#15803D] focus:ring-2 focus:ring-[#15803D]/30" />
-          </label>
+        <div className="mt-4 grid grid-cols-[minmax(0,1fr)] items-start gap-6 xl:grid-cols-12">
+          <Directorio club={club} filtro={filtro} alFiltrar={alFiltrar} alCobrar={(id) => setVentana({ tipo: "cobro", id })} alFicha={(id) => setVentana({ tipo: "ficha", id })} alVer={alVer} />
+          <Talanquera club={club} motivo={motivo} alMotivo={setMotivo} alAbrir={abrir} />
         </div>
+      </div>
 
-        {lista.length === 0 ? (
-          <div className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center">
-            <p className="font-bold text-[#0F172A]">{texto ? "No hay socios con esa búsqueda." : "No hay socios en este grupo."}</p>
-            <button
-              type="button"
-              onClick={() => {
-                setBusqueda("");
-                alFiltrar("todos");
-              }}
-              className={`${BORDE} mt-3`}
-            >
-              Ver todos los socios
-            </button>
-          </div>
-        ) : (
-          <ul className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-6">
-            {lista.map((s) => {
-              const grupo = grupoDe(s);
-              const plan = planDe(s.plan);
-              const debe = s.dias <= 0;
-              const avisar = debe || grupo === "pronto";
-              return (
-                <li key={s.id} className="min-w-0 rounded-2xl border border-slate-200 bg-white p-6 sm:p-7">
-                  <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
-                    <div className="min-w-0">
-                      <button type="button" onClick={() => alVer(s.id)} aria-label={`Ver el carné de ${s.nombre}`} className="inline-flex max-w-full cursor-pointer items-center gap-2 text-left text-[1.1rem] font-extrabold text-[#0F172A] hover:text-[#15803D]">
-                        <span className="min-w-0 break-words">{s.nombre}</span>
-                        <QrCode size={17} aria-hidden className="shrink-0 text-slate-400" />
-                      </button>
-                      <p className="mt-1.5 text-[0.88rem] text-slate-600">
-                        {plan.nombre} · {qz(plan.precio)} · {sedeDe(s.sede).nombre}
-                      </p>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                      <span className={`rounded-full px-3 py-1 text-[0.8rem] font-extrabold ${ETIQUETA[grupo].clase}`}>{ETIQUETA[grupo].texto}</span>
-                      <span className="text-[0.88rem] font-semibold text-slate-700">{textoDias(s.dias)}</span>
-                      {s.entrada && <span className="text-[0.82rem] text-slate-500">Entró hoy {s.entrada}</span>}
-                    </div>
-                  </div>
-
-                  {debe && s.notas[0] && <p className="mt-4 break-words rounded-lg bg-amber-50 px-4 py-3 text-[0.85rem] font-semibold text-amber-950">{s.notas[0].texto}</p>}
-
-                  <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] xl:flex xl:flex-wrap [&>*]:!px-2 [&>*]:!text-[0.88rem] xl:[&>*]:flex-auto">
-                    {debe && (
-                      <button type="button" onClick={() => (s.tolerancia ? club.quitarTolerancia(s.id) : club.tolerar(s.id))} className={`${s.tolerancia ? BORDE : AMBAR} col-span-2 md:col-span-1`}>
-                        <Clock3 size={18} aria-hidden className="shrink-0" /> {s.tolerancia ? "Quitar tolerancia" : "Pase de tolerancia (24h)"}
-                      </button>
-                    )}
-                    <button type="button" onClick={() => setVentana({ tipo: "cobro", id: s.id })} className={`${VERDE} col-span-2 md:col-span-1`}>
-                      <Banknote size={18} aria-hidden className="shrink-0" /> Registrar cobro
-                    </button>
-                    {avisar && (
-                      <>
-                        <a href={enlaceWhatsApp(s)} target="_blank" rel="noopener noreferrer" onClick={() => club.avisar(s.id, "whatsapp")} className={BORDE}>
-                          {s.avisos.whatsapp ? <Check size={18} aria-label="ya abierto" className="shrink-0 text-[#15803D]" /> : <MessageCircle size={18} aria-hidden className="shrink-0 text-[#15803D]" />}
-                          <span className="min-w-0">Cobrar por WhatsApp</span>
-                        </a>
-                        <a href={enlaceCorreo(s)} onClick={() => club.avisar(s.id, "correo")} className={BORDE}>
-                          {s.avisos.correo ? <Check size={18} aria-label="ya abierto" className="shrink-0 text-[#15803D]" /> : <Mail size={18} aria-hidden className="shrink-0 text-[#15803D]" />}
-                          <span className="min-w-0">Enviar estado por Email</span>
-                        </a>
-                      </>
-                    )}
-                    <button type="button" onClick={() => setVentana({ tipo: "ficha", id: s.id })} className={`${BORDE} col-span-2 md:col-span-1`}>
-                      <FileText size={18} aria-hidden className="shrink-0" /> Ver / Editar ficha
-                    </button>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+      <div role="status" className="pointer-events-none fixed inset-x-3 bottom-3 z-30 mx-auto max-w-sm">
+        {abrio && (
+          <p key={abrio.vez} className="flex items-center gap-3 rounded-xl bg-[#15803D] px-4 py-3 text-white shadow-2xl">
+            <DoorOpen size={24} aria-hidden className="shrink-0" />
+            <span className="min-w-0 text-[0.9rem]">
+              <b className="block text-[1rem]">Talanquera abierta</b>
+              {abrio.motivo}
+            </span>
+          </p>
         )}
       </div>
 
-      {abierto && ventana.tipo === "cobro" && <Cobro key={abierto.id} club={club} socio={abierto} alCerrar={() => setVentana(null)} alVer={() => alVer(abierto.id)} />}
-      {abierto && ventana.tipo === "ficha" && <Ficha key={abierto.id} club={club} socio={abierto} alCerrar={() => setVentana(null)} alVer={() => alVer(abierto.id)} />}
+      {ventana?.tipo === "rapido" && <CobroRapido club={club} alElegir={(id) => setVentana({ tipo: "cobro", id })} alCerrar={cerrar} />}
+      {ventana?.tipo === "mostrador" && <Mostrador club={club} alCerrar={cerrar} alVerFicha={(id) => setVentana({ tipo: "ficha", id })} />}
+      {ventana?.tipo === "masivo" && <Masivo club={club} alCerrar={cerrar} />}
+      {ventana?.tipo === "cobro" && delSocio && <Cobro key={delSocio.id} club={club} socio={delSocio} alCerrar={cerrar} alVer={() => alVer(delSocio.id)} />}
+      {ventana?.tipo === "ficha" && delSocio && <Ficha key={delSocio.id} club={club} socio={delSocio} alCerrar={cerrar} alVer={() => alVer(delSocio.id)} />}
     </div>
   );
 }

@@ -59,6 +59,8 @@ export function Ventana({ titulo, sub, alCerrar, children }: { titulo: string; s
   useEffect(() => {
     const d = ref.current;
     if (d && !d.open) d.showModal();
+    /* el campo marcado con data-foco recibe el cursor, para escribir de una vez */
+    d?.querySelector<HTMLElement>("[data-foco]")?.focus();
   }, []);
   return (
     <dialog

@@ -369,7 +369,11 @@ const LECTURAS: Lectura[] = SOCIOS.filter((s) => s.entrada)
   .sort((a, b) => minutos(b.entrada!) - minutos(a.entrada!))
   .map((s, i) => ({ n: 100 - i, ts: 0, hora: s.entrada!, socio: s.id, nombre: s.nombre, metodo: i % 3 === 1 ? "QR App" : "Huella", sede: s.sede, resultado: "paso" as const }));
 
-export type Alta = { nombre: string; plan: PlanId; sede: SedeId; telefono: string };
+/* la forma de pago solo la manda recepción; en línea queda como efectivo por confirmar */
+export type Alta = { nombre: string; plan: PlanId; sede: SedeId; telefono: string; metodo?: Metodo; detalle?: string };
+
+/* pase para entrar un solo día */
+export const PRECIO_VISITA = 50;
 
 export function useClub() {
   const [socios, setSocios] = useState<Socio[]>(SOCIOS);
@@ -393,7 +397,7 @@ export function useClub() {
     reservas,
     lecturas,
 
-    inscribir({ nombre, plan, sede, telefono }: Alta) {
+    inscribir({ nombre, plan, sede, telefono, metodo = "efectivo", detalle = "Inscripción en línea" }: Alta) {
       const id = Math.max(...socios.map((s) => s.id)) + 1;
       const recibo = recibos + 1;
       const precio = planDe(plan).precio;
@@ -414,10 +418,10 @@ export function useClub() {
         emergenciaTelefono: "",
         tarjeta: null,
         debito: false,
-        notas: [{ cuando: ahora(), texto: "Inscripción en línea. Falta DPI y contacto de emergencia." }],
-        pagos: [{ recibo: `R-${String(recibo).padStart(6, "0")}`, fecha: fechaEn(0, true), periodo: "1 mes", metodo: "efectivo", detalle: "Inscripción en línea", monto: precio, hasta: fechaEn(30, true) }],
+        notas: [{ cuando: ahora(), texto: `${detalle}. Falta DPI y contacto de emergencia.` }],
+        pagos: [{ recibo: `R-${String(recibo).padStart(6, "0")}`, fecha: fechaEn(0, true), periodo: "1 mes", metodo, detalle, monto: precio, hasta: fechaEn(30, true) }],
         avisos: { whatsapp: false, correo: false },
-        preferido: "efectivo",
+        preferido: metodo,
         huella: false,
         medidas: { peso: null, grasa: null, musculo: null },
         meta: META_INICIAL,
@@ -482,6 +486,17 @@ export function useClub() {
 
     abrirManual(motivo: string) {
       anotar({ socio: null, nombre: motivo, metodo: "Apertura manual", sede: "z14", resultado: "manual" });
+    },
+
+    /* cobra el pase del día y abre la talanquera */
+    visita(nombre: string, metodo: Metodo) {
+      anotar({ socio: null, nombre, metodo: `Visita del día · ${NOMBRE_METODO[metodo]}`, sede: "z14", resultado: "manual" });
+      setIngresos((t) => t + PRECIO_VISITA);
+    },
+
+    /* deja anotado el recordatorio de cobro en cada socio; no envía mensajes */
+    recordarATodos(ids: number[]) {
+      setSocios((l) => l.map((s) => (ids.includes(s.id) ? conNota({ ...s, avisos: { ...s.avisos, whatsapp: true } }, "Recordatorio de cobro registrado (envío masivo simulado).") : s)));
     },
 
     guardar(id: number, cambios: Partial<Socio>) {
