@@ -153,12 +153,14 @@ export type Ejercicio = (typeof EJERCICIOS)[number];
 
 export type Medida = { ahora: number; antes: number };
 
-export type Personales = { dpi: string; nacimiento: string; telefono: string; correo: string; emergenciaNombre: string; emergenciaTelefono: string };
+export type Personales = { nombre: string; dpi: string; nit: string; nacimiento: string; telefono: string; correo: string; emergenciaNombre: string; emergenciaTelefono: string };
 export type Tarjeta = { marca: string; ultimos: string; vence: string };
 export type Nota = { cuando: string; texto: string };
 
-export type Movimiento = { nombre: string; series: number; reps: number; peso: number; hecho: boolean };
-export type DiaRutina = { dia: string; nombre: string; ejercicios: Movimiento[] };
+export type Movimiento = { id: string; nombre: string; series: number; reps: number; peso: number; hecho: boolean };
+export type DiaRutina = { dia: string; nombre: string; descanso: boolean; ejercicios: Movimiento[] };
+
+export type Cuerpo = "peso" | "grasa" | "musculo";
 
 export type PeriodoId = "mes" | "trimestre" | "anual";
 export const PERIODOS = [
@@ -186,7 +188,6 @@ export type Cobro = { periodo: PeriodoId; metodo: Metodo; detalle: string; tarje
 
 export type Socio = Personales & {
   id: number;
-  nombre: string;
   plan: PlanId;
   sede: SedeId;
   /* días que le quedan; cero o menos es mensualidad vencida */
@@ -200,13 +201,18 @@ export type Socio = Personales & {
   notas: Nota[];
   pagos: Pago[];
   avisos: { whatsapp: boolean; correo: boolean };
-  medidas: { peso: Medida; grasa: Medida; musculo: Medida } | null;
+  /* cómo prefiere pagar el socio */
+  preferido: Metodo;
+  huella: boolean;
+  medidas: Record<Cuerpo, Medida | null>;
+  /* entrenos que quiere hacer al mes */
+  meta: number;
   visitas: number;
   marcas: Record<Ejercicio, Medida>;
   rutina: DiaRutina[];
 };
 
-export const META_VISITAS = 16;
+export const META_INICIAL = 16;
 export const PASO_PESO = 5;
 export const BARRA = 45;
 
@@ -250,11 +256,19 @@ export const metodoDebito = (s: Socio) => (s.tarjeta ? `${s.tarjeta.marca} •�
 const redondo = (n: number) => Math.max(5, Math.round(n / 5) * 5);
 
 function rutinaDe(banca: number, sentadilla: number, muerto: number): DiaRutina[] {
-  const e = (nombre: string, series: number, reps: number, peso: number): Movimiento => ({ nombre, series, reps, peso: redondo(peso), hecho: false });
+  const dia = (nombreDia: string, nombre: string, lista: [string, number, number, number][]): DiaRutina => ({
+    dia: nombreDia,
+    nombre,
+    descanso: lista.length === 0,
+    ejercicios: lista.map(([n, series, reps, peso], i) => ({ id: `${nombreDia}-${i}`, nombre: n, series, reps, peso: peso ? redondo(peso) : 0, hecho: false })),
+  });
   return [
-    { dia: "Lunes", nombre: "Empuje · Pecho y hombro", ejercicios: [e("Press Banca", 4, 8, banca * 0.8), e("Press militar", 3, 10, banca * 0.5), e("Press inclinado con mancuernas", 3, 10, banca * 0.3), e("Extensión de tríceps", 3, 12, banca * 0.3)] },
-    { dia: "Miércoles", nombre: "Pierna completa", ejercicios: [e("Sentadilla", 4, 8, sentadilla * 0.8), e("Peso muerto rumano", 3, 10, muerto * 0.6), e("Prensa de pierna", 3, 12, sentadilla * 1.3), e("Elevación de pantorrilla", 4, 15, sentadilla * 0.7)] },
-    { dia: "Viernes", nombre: "Jalón · Espalda y bíceps", ejercicios: [e("Peso Muerto", 4, 5, muerto * 0.8), e("Jalón al pecho", 3, 10, banca * 0.7), e("Remo con barra", 3, 10, banca * 0.65), e("Curl de bíceps", 3, 12, banca * 0.25)] },
+    dia("Lunes", "Empuje · Pecho y hombro", [["Press Banca", 4, 8, banca * 0.8], ["Press militar", 3, 10, banca * 0.5], ["Press inclinado con mancuernas", 3, 10, banca * 0.3], ["Extensión de tríceps", 3, 12, banca * 0.3]]),
+    dia("Martes", "Descanso", []),
+    dia("Miércoles", "Pierna completa", [["Sentadilla", 4, 8, sentadilla * 0.8], ["Peso muerto rumano", 3, 10, muerto * 0.6], ["Prensa de pierna", 3, 12, sentadilla * 1.3], ["Elevación de pantorrilla", 4, 15, sentadilla * 0.7]]),
+    dia("Jueves", "Descanso", []),
+    dia("Viernes", "Jalón · Espalda y bíceps", [["Peso Muerto", 4, 5, muerto * 0.8], ["Jalón al pecho", 3, 10, banca * 0.7], ["Remo con barra", 3, 10, banca * 0.65], ["Curl de bíceps", 3, 12, banca * 0.25]]),
+    dia("Sábado", "Cardio y abdomen", [["Bicicleta por intervalos", 5, 2, 0], ["Abdominales en banco", 3, 15, 0], ["Elevación de piernas", 3, 12, 0]]),
   ];
 }
 
@@ -293,6 +307,7 @@ function socio(f: Ficha): Socio {
   return {
     id: f.id,
     nombre: f.nombre,
+    nit: f.id % 3 === 0 ? `${f.id * 7919}-${f.id % 9}` : "CF",
     plan: f.plan,
     sede: f.sede,
     dias: f.dias,
@@ -309,7 +324,10 @@ function socio(f: Ficha): Socio {
     notas: f.tolerancia ? [{ cuando: ahora(), texto: "Pase de tolerancia 24h. Promesa de pago mañana." }] : [],
     pagos,
     avisos: { whatsapp: false, correo: false },
+    preferido: metodo,
+    huella: true,
     medidas: { peso: m(peso, peso + 3), grasa: m(grasa, grasa + 1.2), musculo: m(musculo, musculo - 1) },
+    meta: META_INICIAL,
     visitas: f.visitas,
     marcas: { "Press Banca": m(banca, banca - 5), Sentadilla: m(sentadilla, sentadilla - 10), "Peso Muerto": m(muerto, muerto - 10) },
     rutina: rutinaDe(banca, sentadilla, muerto),
@@ -389,6 +407,7 @@ export function useClub() {
         entrada: null,
         dpi: "",
         nacimiento: "",
+        nit: "CF",
         telefono,
         correo: "",
         emergenciaNombre: "",
@@ -398,7 +417,10 @@ export function useClub() {
         notas: [{ cuando: ahora(), texto: "Inscripción en línea. Falta DPI y contacto de emergencia." }],
         pagos: [{ recibo: `R-${String(recibo).padStart(6, "0")}`, fecha: fechaEn(0, true), periodo: "1 mes", metodo: "efectivo", detalle: "Inscripción en línea", monto: precio, hasta: fechaEn(30, true) }],
         avisos: { whatsapp: false, correo: false },
-        medidas: null,
+        preferido: "efectivo",
+        huella: false,
+        medidas: { peso: null, grasa: null, musculo: null },
+        meta: META_INICIAL,
         visitas: 0,
         marcas: { "Press Banca": m(BARRA, BARRA), Sentadilla: m(BARRA, BARRA), "Peso Muerto": m(BARRA, BARRA) },
         rutina: rutinaDe(BARRA / 0.8, BARRA / 0.8, BARRA / 0.8),
@@ -470,17 +492,17 @@ export function useClub() {
       cambiar(id, (x) => conNota(x, texto));
     },
 
-    ejercicio(id: number, dia: number, cual: number, cambio: (e: Movimiento) => Movimiento) {
-      cambiar(id, (x) => ({ ...x, rutina: x.rutina.map((d, i) => (i === dia ? { ...d, ejercicios: d.ejercicios.map((e, j) => (j === cual ? cambio(e) : e)) } : d)) }));
+    marcarEjercicio(id: number, dia: number, ejercicio: string) {
+      cambiar(id, (x) => ({ ...x, rutina: x.rutina.map((d, i) => (i === dia ? { ...d, ejercicios: d.ejercicios.map((e) => (e.id === ejercicio ? { ...e, hecho: !e.hecho } : e)) } : d)) }));
+    },
+
+    guardarDia(id: number, dia: number, nuevo: DiaRutina) {
+      cambiar(id, (x) => ({ ...x, rutina: x.rutina.map((d, i) => (i === dia ? nuevo : d)) }));
     },
 
     alternarReserva(socioId: number, claseId: string) {
       const llave = `${socioId}:${claseId}`;
       setReservas((r) => (r.includes(llave) ? r.filter((x) => x !== llave) : [...r, llave]));
-    },
-
-    marcar(id: number, ejercicio: Ejercicio, cambio: number) {
-      cambiar(id, (x) => ({ ...x, marcas: { ...x.marcas, [ejercicio]: { ...x.marcas[ejercicio], ahora: Math.max(BARRA, x.marcas[ejercicio].ahora + cambio) } } }));
     },
   };
 }

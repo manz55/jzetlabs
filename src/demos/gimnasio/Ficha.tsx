@@ -15,7 +15,7 @@ export function Ficha({ club, socio, alCerrar, alVer }: { club: Club; socio: Soc
   function guardar(e: FormEvent) {
     e.preventDefault();
     if (hayError) return;
-    club.guardar(socio.id, { ...datos, debito });
+    club.guardar(socio.id, { ...datos, nombre: datos.nombre.trim(), debito });
     if (nota.trim()) club.nota(socio.id, nota.trim());
     alCerrar();
   }

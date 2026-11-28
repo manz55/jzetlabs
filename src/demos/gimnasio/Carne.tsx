@@ -29,10 +29,10 @@ export function Carne({ club, socio, alRenovar }: { club: Club; socio: Socio; al
 
   return (
     <article aria-label="Carné digital de entrada" className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white">
-      <div className="bg-[#0F172A] px-5 py-4 text-white">
+      <div className="bg-[#0F172A] px-6 py-5 text-white sm:px-7">
         <p className="text-[0.72rem] font-bold tracking-[0.18em] text-green-300">CARNÉ DIGITAL · N.º {socio.id}</p>
-        <h2 className="mt-1 break-words text-[1.45rem] font-extrabold leading-tight text-white">{socio.nombre}</h2>
-        <p className="text-[0.9rem] text-slate-300">
+        <h2 className="mt-2 break-words text-[1.45rem] font-extrabold leading-tight text-white">{socio.nombre}</h2>
+        <p className="mt-1.5 text-[0.9rem] text-slate-300">
           {planDe(socio.plan).nombre} · {sedeDe(socio.sede).nombre}
         </p>
       </div>
@@ -41,35 +41,35 @@ export function Carne({ club, socio, alRenovar }: { club: Club; socio: Socio; al
         <span className="min-w-0 text-[1.25rem] font-extrabold leading-tight">{banda.texto}</span>
       </div>
 
-      <div className="p-5">
+      <div className="p-6 sm:p-7">
         <div className={`relative mx-auto w-full max-w-[14rem] ${acceso === "tolerancia" ? "rounded-xl p-2 ring-4 ring-amber-500" : ""}`}>
           <CodigoQR numero={socio.id} activo={acceso !== "bloqueado"} />
           {acceso === "bloqueado" && <p className="absolute inset-0 m-auto h-fit w-fit rounded-lg bg-white px-4 py-2 text-center font-extrabold text-red-700 shadow-md">Renueve para entrar</p>}
         </div>
-        {acceso === "tolerancia" && <p className="mt-3 text-center text-[0.9rem] font-extrabold text-amber-800">TOLERANCIA ACTIVA</p>}
+        {acceso === "tolerancia" && <p className="mt-4 text-center text-[0.9rem] font-extrabold text-amber-800">TOLERANCIA ACTIVA</p>}
 
-        <p className="mt-3 flex items-start justify-center gap-2 text-center text-[0.86rem] font-semibold text-slate-600">
+        <p className="mt-5 flex items-start justify-center gap-2 text-center text-[0.86rem] font-semibold text-slate-600">
           <Fingerprint size={18} aria-hidden className="mt-0.5 shrink-0 text-[#15803D]" />
-          <span className="min-w-0">{socio.medidas ? `QR App + Huella Biométrica #${socio.id}` : "QR App · huella por registrar en recepción"}</span>
+          <span className="min-w-0">{socio.huella ? `QR App + Huella Biométrica #${socio.id}` : "QR App · huella por registrar en recepción"}</span>
         </p>
 
-        <div className="mt-3 border-t border-slate-200 pt-3 text-center">
+        <div className="mt-4 border-t border-slate-200 pt-5 text-center">
           {acceso === "activo" ? (
             <>
               <p className="text-[2.8rem] font-extrabold leading-none text-[#0F172A]">{socio.dias}</p>
-              <p className="mt-1 font-semibold text-slate-600">
+              <p className="mt-2 font-semibold text-slate-600">
                 {socio.dias === 1 ? "día restante" : "días restantes"} · hasta el {fechaEn(socio.dias)}
               </p>
             </>
           ) : (
             <>
               <p className={`text-[1.1rem] font-bold ${acceso === "tolerancia" ? "text-amber-800" : "text-red-700"}`}>{textoDias(socio.dias)}</p>
-              {socio.tolerancia && <p className="text-[0.88rem] text-slate-600">El pago sigue pendiente. Puede entrar hasta {socio.tolerancia}</p>}
+              {socio.tolerancia && <p className="mt-1.5 text-[0.88rem] text-slate-600">El pago sigue pendiente. Puede entrar hasta {socio.tolerancia}</p>}
             </>
           )}
         </div>
 
-        <div className="mt-4 grid gap-2.5">
+        <div className="mt-6 grid gap-3">
           <button type="button" onClick={() => setPrueba({ de: clave, lectura: club.leer(socio, "QR App") })} className={`${CARBON} !min-h-13 w-full`}>
             <ScanLine size={19} aria-hidden className="shrink-0" /> Simular lectura en talanquera
           </button>
@@ -92,14 +92,14 @@ export function Carne({ club, socio, alRenovar }: { club: Club; socio: Socio; al
           </button>
         </div>
 
-        <div className="mt-4">
-          <h3 className="text-[0.95rem] font-extrabold">Mis lecturas de hoy</h3>
+        <div className="mt-6 border-t border-slate-200 pt-5">
+          <h3 className="mb-3 text-[0.95rem] font-extrabold">Mis lecturas de hoy</h3>
           {hoy.length === 0 ? (
             <p className="text-[0.88rem] text-slate-600">Todavía no ha pasado por la talanquera.</p>
           ) : (
-            <ul className="mt-1.5 grid max-h-44 gap-1.5 overflow-y-auto">
+            <ul className="grid max-h-52 gap-2 overflow-y-auto">
               {hoy.map((l) => (
-                <li key={l.n} className="flex items-center justify-between gap-2 rounded-lg bg-[#F8FAFC] px-3 py-2 text-[0.85rem]">
+                <li key={l.n} className="flex items-center justify-between gap-2 rounded-lg bg-[#F8FAFC] px-3.5 py-3 text-[0.85rem]">
                   <span className="min-w-0">
                     <b className="text-[#0F172A]">{l.hora}</b> · {l.metodo}
                   </span>

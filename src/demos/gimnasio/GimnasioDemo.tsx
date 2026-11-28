@@ -7,7 +7,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { BandaDemos } from "../comun";
 import { irA } from "./animar";
-import { useClub, type PlanId } from "./datos";
+import { accesoDe, useClub, type PlanId } from "./datos";
 import { Inicio } from "./Inicio";
 import { Inscripcion } from "./Inscripcion";
 import { Nav, SECCIONES, type Vista } from "./Nav";
@@ -126,7 +126,7 @@ export default function GimnasioDemo() {
         <BandaDemos />
       </div>
       <div className="ip min-h-screen w-full overflow-x-clip bg-white text-slate-700">
-        <Nav vista={vista} alVista={ir} alSeccion={irSeccion} alInscribirme={() => setAlta("ilimitado")} />
+        <Nav vista={vista} acceso={accesoDe(socio)} alVista={ir} alSeccion={irSeccion} alInscribirme={() => setAlta("ilimitado")} />
 
         <main className="overflow-x-hidden">
           {vista === "planes" && <Inicio club={club} socio={socio} alElegirPlan={setAlta} alPase={() => ir("pase")} />}

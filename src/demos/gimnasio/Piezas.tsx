@@ -1,6 +1,6 @@
 /* Piezas que usan las tres vistas: el logotipo, los botones, las ventanas, las fotos y el código del carné. */
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
-import { X } from "lucide-react";
+import { Check, Save, X } from "lucide-react";
 import { foto } from "./datos";
 
 /* clases de botón: todos grandes y fáciles de tocar */
@@ -14,7 +14,43 @@ export const AMBAR = `${BTN} bg-amber-700 text-white hover:bg-amber-800`;
 export const ANCHO = "mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8";
 export const CAMPO = "block min-h-12 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3.5 text-base font-medium text-[#0F172A] outline-none focus:border-[#15803D] focus:ring-2 focus:ring-[#15803D]/30 aria-[invalid=true]:border-red-600";
 export const ROTULO = "grid min-w-0 content-start gap-1.5 text-[0.88rem] font-bold text-[#0F172A]";
-export const TARJETA = "min-w-0 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6";
+export const TARJETA = "min-w-0 rounded-2xl border border-slate-200 bg-white p-6 sm:p-7";
+
+/* aviso verde de que algo quedó guardado */
+export function Guardado({ texto }: { texto: string }) {
+  return (
+    <p role="status" className={texto ? "flex items-center gap-2.5 rounded-xl border border-green-300 bg-green-50 px-4 py-3 text-[0.93rem] font-extrabold text-green-900" : "sr-only"}>
+      {texto && (
+        <>
+          <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#15803D] text-white">
+            <Check size={15} aria-hidden />
+          </span>
+          <span className="min-w-0">{texto}</span>
+        </>
+      )}
+    </p>
+  );
+}
+
+/* pie de un formulario: avisa si hay cambios sin guardar y confirma cuando se guardan */
+export function BarraGuardar({ sucio, guardado, error, alDescartar }: { sucio: boolean; guardado: string; error?: string; alDescartar: () => void }) {
+  return (
+    <div className="mt-6 grid gap-3 border-t border-slate-200 pt-5">
+      <Guardado texto={sucio ? "" : guardado} />
+      {sucio && <p className={`text-[0.9rem] font-bold ${error ? "text-red-700" : "text-amber-800"}`}>{error || "Tiene cambios sin guardar."}</p>}
+      <div className="flex flex-col gap-2.5 sm:flex-row">
+        <button type="submit" disabled={!sucio} className={`${VERDE} disabled:!bg-slate-200 disabled:!text-slate-500`}>
+          <Save size={18} aria-hidden /> Guardar cambios
+        </button>
+        {sucio && (
+          <button type="button" onClick={alDescartar} className={BORDE}>
+            Descartar
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
 
 /* ventana encima de la página; se cierra con la equis, con Escape o tocando afuera */
 export function Ventana({ titulo, sub, alCerrar, children }: { titulo: string; sub?: string; alCerrar: () => void; children: ReactNode }) {

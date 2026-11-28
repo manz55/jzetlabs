@@ -82,29 +82,29 @@ export function Panel({ club, filtro, alFiltrar, alVer }: { club: Club; filtro: 
   const hoy = new Date().toLocaleDateString("es-GT", { weekday: "long", day: "numeric", month: "long" });
 
   return (
-    <div className="bg-[#F8FAFC] pb-16 pt-6 sm:pt-10">
+    <div className="bg-[#F8FAFC] pb-20 pt-8 sm:pt-12">
       <div className={ANCHO}>
         <h1 className="text-[1.75rem] font-extrabold tracking-tight sm:text-[2.2rem]">Panel Recepción</h1>
-        <p className="text-slate-600 first-letter:uppercase">{hoy}</p>
+        <p className="mt-1.5 text-slate-600 first-letter:uppercase">{hoy}</p>
 
-        <dl className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <dl className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6">
           {cifras.map(({ icono: Icono, nombre, valor, nota }) => (
-            <div key={nombre} className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
+            <div key={nombre} className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6">
               <dt className="flex items-start gap-2 text-[0.85rem] font-bold leading-snug text-slate-600">
                 <Icono size={17} aria-hidden className="mt-0.5 shrink-0 text-[#15803D]" />
                 {nombre}
               </dt>
-              <dd className="mt-1.5 break-words text-[clamp(1.55rem,1.1rem+1.8vw,2.3rem)] font-extrabold leading-tight text-[#0F172A]">{valor}</dd>
-              <dd className="text-[0.8rem] text-slate-500">{nota}</dd>
+              <dd className="mt-3 break-words text-[clamp(1.55rem,1.1rem+1.8vw,2.3rem)] font-extrabold leading-tight text-[#0F172A]">{valor}</dd>
+              <dd className="mt-1.5 text-[0.8rem] leading-snug text-slate-500">{nota}</dd>
             </div>
           ))}
         </dl>
 
         <Talanquera club={club} />
 
-        <h2 className="mt-8 text-[1.35rem] font-extrabold">Socios</h2>
-        <div className="mt-3 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-          <div role="group" aria-label="Filtrar socios" className="flex flex-wrap gap-2">
+        <h2 className="mt-12 text-[1.35rem] font-extrabold">Socios</h2>
+        <div className="mt-4 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+          <div role="group" aria-label="Filtrar socios" className="flex flex-wrap gap-2.5">
             {FILTROS.map((f) => (
               <button
                 key={f.id}
@@ -126,7 +126,7 @@ export function Panel({ club, filtro, alFiltrar, alVer }: { club: Club; filtro: 
         </div>
 
         {lista.length === 0 ? (
-          <div className="mt-4 rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
+          <div className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center">
             <p className="font-bold text-[#0F172A]">{texto ? "No hay socios con esa búsqueda." : "No hay socios en este grupo."}</p>
             <button
               type="button"
@@ -140,34 +140,34 @@ export function Panel({ club, filtro, alFiltrar, alVer }: { club: Club; filtro: 
             </button>
           </div>
         ) : (
-          <ul className="mt-4 grid grid-cols-[minmax(0,1fr)] gap-3">
+          <ul className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-6">
             {lista.map((s) => {
               const grupo = grupoDe(s);
               const plan = planDe(s.plan);
               const debe = s.dias <= 0;
               const avisar = debe || grupo === "pronto";
               return (
-                <li key={s.id} className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
-                  <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+                <li key={s.id} className="min-w-0 rounded-2xl border border-slate-200 bg-white p-6 sm:p-7">
+                  <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
                     <div className="min-w-0">
                       <button type="button" onClick={() => alVer(s.id)} aria-label={`Ver el carné de ${s.nombre}`} className="inline-flex max-w-full cursor-pointer items-center gap-2 text-left text-[1.1rem] font-extrabold text-[#0F172A] hover:text-[#15803D]">
                         <span className="min-w-0 break-words">{s.nombre}</span>
                         <QrCode size={17} aria-hidden className="shrink-0 text-slate-400" />
                       </button>
-                      <p className="text-[0.88rem] text-slate-600">
+                      <p className="mt-1.5 text-[0.88rem] text-slate-600">
                         {plan.nombre} · {qz(plan.precio)} · {sedeDe(s.sede).nombre}
                       </p>
                     </div>
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                       <span className={`rounded-full px-3 py-1 text-[0.8rem] font-extrabold ${ETIQUETA[grupo].clase}`}>{ETIQUETA[grupo].texto}</span>
                       <span className="text-[0.88rem] font-semibold text-slate-700">{textoDias(s.dias)}</span>
                       {s.entrada && <span className="text-[0.82rem] text-slate-500">Entró hoy {s.entrada}</span>}
                     </div>
                   </div>
 
-                  {debe && s.notas[0] && <p className="mt-2 break-words rounded-lg bg-amber-50 px-3 py-2 text-[0.85rem] font-semibold text-amber-950">{s.notas[0].texto}</p>}
+                  {debe && s.notas[0] && <p className="mt-4 break-words rounded-lg bg-amber-50 px-4 py-3 text-[0.85rem] font-semibold text-amber-950">{s.notas[0].texto}</p>}
 
-                  <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] [&>*]:!px-2 [&>*]:!text-[0.88rem]">
+                  <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] xl:flex xl:flex-wrap [&>*]:!px-2 [&>*]:!text-[0.88rem] xl:[&>*]:flex-auto">
                     {debe && (
                       <button type="button" onClick={() => (s.tolerancia ? club.quitarTolerancia(s.id) : club.tolerar(s.id))} className={`${s.tolerancia ? BORDE : AMBAR} col-span-2 md:col-span-1`}>
                         <Clock3 size={18} aria-hidden className="shrink-0" /> {s.tolerancia ? "Quitar tolerancia" : "Pase de tolerancia (24h)"}
