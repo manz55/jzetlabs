@@ -15,7 +15,7 @@ const COLOR: Record<EstadoOrden, string> = {
 };
 const ORDEN: EstadoOrden[] = ["retorno", "evento", "reservada", "liquidada"];
 const PUNTO: Record<EstadoCamion, string> = { bodega: "bg-[#3F6212]", carga: "bg-[#A16207]", ruta: "bg-[#2563EB]", montaje: "bg-[#7C3AED]", regreso: "bg-[#0891B2]", taller: "bg-[#9F2F1E]" };
-const columnas = "lg:grid-cols-[130px_minmax(0,1.5fr)_110px_135px_135px_190px]";
+const columnas = "lg:grid-cols-[130px_minmax(0,1.5fr)_110px_120px_120px_190px]";
 const chico = "inline-flex min-h-9 shrink-0 items-center justify-center gap-1 rounded-lg border px-2 text-[0.78rem] font-bold leading-none transition active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-35";
 
 export function Panel({ imp }: { imp: Imperial }) {
