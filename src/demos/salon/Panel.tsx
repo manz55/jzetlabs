@@ -3,7 +3,7 @@
  * estación o lavacabezas, la fórmula aplicada (que pasa al expediente) y el aviso por WhatsApp.
  */
 import { useRef, useState, type FormEvent } from "react";
-import { CheckCircle2, ChevronDown, FlaskConical, MessageCircle } from "lucide-react";
+import { Check, CheckCircle2, ChevronDown, FlaskConical, MessageCircle } from "lucide-react";
 import { useEscalonado } from "./animar";
 import {
   ESTACIONES, NOMBRE_ESTADO, OXIDANTES, POROSIDADES, SUCURSALES,
@@ -191,28 +191,70 @@ function Tarjeta({ cita, atelier, alVer }: { cita: Cita; atelier: Atelier; alVer
 
 const VACIA: Formula = { mezcla: "", oxidante: "20 Vol", minutos: 35, porosidad: "Media", tratamiento: "", nota: "" };
 
+/* fórmulas frecuentes: se guardan con un toque y después se pueden ajustar */
+const FRECUENTES: { nombre: string; formula: Pick<Formula, "mezcla" | "oxidante" | "minutos"> & { tratamiento?: string } }[] = [
+  { nombre: "Matiz frío 8.12 + 20 Vol", formula: { mezcla: "Matiz frío 8.12", oxidante: "20 Vol", minutos: 20 } },
+  { nombre: "Cobertura raíz 6.0 + 20 Vol", formula: { mezcla: "Cobertura de raíz 6.0", oxidante: "20 Vol", minutos: 35 } },
+  { nombre: "Hidratación Olaplex 1+2", formula: { mezcla: "Hidratación Olaplex 1+2", oxidante: "Sin oxidante", minutos: 20, tratamiento: "Olaplex No.1 y No.2" } },
+];
+
 function Editor({ cita, atelier, nombre }: { cita: Cita; atelier: Atelier; nombre: string }) {
-  const [f, setF] = useState<Formula>(cita.formula ?? VACIA);
-  const [error, setError] = useState("");
-  const [guardada, setGuardada] = useState(false);
   /* la última fórmula de la clienta, para partir de ella */
   const anterior = atelier.citas
     .filter((c) => c.clienta === cita.clienta && c.id !== cita.id && c.formula && c.fecha <= cita.fecha)
     .sort((a, b) => b.fecha.localeCompare(a.fecha))[0]?.formula;
+  /* la porosidad es de la clienta: se parte de la última anotada */
+  const enBlanco: Formula = { ...VACIA, porosidad: anterior?.porosidad ?? VACIA.porosidad };
+  const [f, setF] = useState<Formula>(cita.formula ?? enBlanco);
+  const [error, setError] = useState("");
+  const [guardada, setGuardada] = useState(false);
+  /* lo que había antes del último toque rápido, para poder deshacerlo */
+  const [previa, setPrevia] = useState<{ formula: Formula | null } | null>(null);
 
   const poner = (x: Partial<Formula>) => {
     setF((v) => ({ ...v, ...x }));
     setGuardada(false);
+    setPrevia(null);
     setError("");
   };
+
+  function guardarFrecuente(x: (typeof FRECUENTES)[number]["formula"]) {
+    if (cita.formula?.mezcla === x.mezcla) return;
+    const nueva: Formula = { ...VACIA, porosidad: f.porosidad, nota: f.nota.trim(), ...x };
+    setPrevia({ formula: cita.formula });
+    setF(nueva);
+    setError("");
+    setGuardada(true);
+    atelier.cambiar(cita.id, { formula: nueva });
+  }
+
+  function deshacer() {
+    if (!previa) return;
+    atelier.cambiar(cita.id, { formula: previa.formula });
+    setF(previa.formula ?? enBlanco);
+    setPrevia(null);
+    setGuardada(false);
+  }
 
   function guardar(e: FormEvent) {
     e.preventDefault();
     if (!f.mezcla.trim()) return setError("Escriba la mezcla aplicada.");
     if (!(f.minutos > 0 && f.minutos <= 180)) return setError("El tiempo de pose va de 1 a 180 minutos.");
     atelier.cambiar(cita.id, { formula: { ...f, mezcla: f.mezcla.trim(), tratamiento: f.tratamiento.trim(), nota: f.nota.trim() } });
+    setPrevia(null);
     setGuardada(true);
   }
+
+  const aviso = guardada && (
+    <p className="al-aviso" role="status">
+      <CheckCircle2 size={16} aria-hidden /> Guardada en el expediente de {nombre}.
+      {previa && (
+        <button type="button" className="al-enlace" onClick={deshacer}>
+          Deshacer
+        </button>
+      )}
+    </p>
+  );
 
   return (
     <details className="al-editor">
@@ -223,6 +265,18 @@ function Editor({ cita, atelier, nombre }: { cita: Cita; atelier: Atelier; nombr
         <ChevronDown size={17} aria-hidden />
       </summary>
       <form onSubmit={guardar} noValidate>
+        <fieldset>
+          <legend>Guardar con un toque</legend>
+          <div className="al-chips">
+            {FRECUENTES.map((x) => (
+              <button key={x.nombre} type="button" aria-pressed={cita.formula?.mezcla === x.formula.mezcla} onClick={() => guardarFrecuente(x.formula)}>
+                {cita.formula?.mezcla === x.formula.mezcla && <Check size={14} aria-hidden />}
+                {x.nombre}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+        {previa && aviso}
         {anterior && !cita.formula && (
           <button type="button" className="al-enlace" style={{ justifySelf: "start" }} onClick={() => poner(anterior)}>
             Copiar la fórmula anterior
@@ -270,11 +324,7 @@ function Editor({ cita, atelier, nombre }: { cita: Cita; atelier: Atelier; nombr
             {error}
           </p>
         )}
-        {guardada && (
-          <p className="al-aviso" role="status">
-            <CheckCircle2 size={16} aria-hidden /> Guardada en el expediente de {nombre}.
-          </p>
-        )}
+        {!previa && aviso}
         <button type="submit" className="al-btn al-terra">
           Guardar fórmula
         </button>

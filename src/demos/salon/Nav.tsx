@@ -14,10 +14,11 @@ const VISTAS = [
   { id: "panel", nombre: "Panel Salón", icono: LayoutDashboard },
 ] as const;
 
+/* en el mismo orden en que aparecen en la portada, para navegar siempre hacia abajo */
 const ACCESOS = [
+  { id: "al-garantias", nombre: "Garantías" },
   { id: "al-diagnostico", nombre: "Diagnóstico" },
   { id: "al-servicios", nombre: "Servicios" },
-  { id: "al-garantias", nombre: "Garantías" },
   { id: "al-sucursales", nombre: "Sucursales" },
 ];
 
