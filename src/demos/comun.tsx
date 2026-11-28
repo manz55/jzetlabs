@@ -47,7 +47,7 @@ export const GRUPOS_DEMOS: { grupo: string; demos: DemoItem[] }[] = [
       { nombre: "Medicina general", href: "/demos/medicina/", para: "Control de presión y azúcar, recetas y chequeos" },
       { nombre: "Oftalmología", href: "/demos/oftalmologia/", para: "Turnos que se respetan, sucursales y sala de espera" },
       { nombre: "Veterinaria", href: "/demos/veterinaria/", para: "¿Es urgencia?, carné de vacunas e internados" },
-      { nombre: "Salón", href: "/demos/salon/", para: "Salón con sucursales: citas por estilista" },
+      { nombre: "Salón de belleza", href: "/demos/salon/", para: "Diagnóstico capilar, citas, expediente de color y panel", avisoSiempre: true },
       { nombre: "Eventos", href: "/demos/eventos/", para: "Alquiler de mobiliario: fechas, paquetes y anticipos" },
     ],
   },
