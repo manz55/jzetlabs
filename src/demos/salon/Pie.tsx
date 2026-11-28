@@ -35,6 +35,7 @@ export function Pie() {
             </ul>
           </section>
         </div>
+        <p className="al-pie-demo">Esta es una página de demostración: el negocio, los precios, las clientas y los datos son de muestra.</p>
         <div className="al-pie-final">
           <p>© {new Date().getFullYear()} Atelier L’Art</p>
           <p>

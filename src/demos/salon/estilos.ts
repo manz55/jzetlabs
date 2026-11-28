@@ -340,6 +340,7 @@ export const ESTILOS = `
 .al-pie dl div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .2rem 1rem; }
 .al-pie dd { color: #fff; font-weight: 600; }
 .al-pie ul { list-style: none; padding: 0; display: grid; gap: .55rem; }
+.al-pie-demo { border-top: 1px solid rgba(255,255,255,.14); padding-block: 1.1rem; font-size: .82rem; }
 .al-pie-final { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem 1.5rem; border-top: 1px solid rgba(255,255,255,.14); padding-top: 1.2rem; font-size: .82rem; }
 .al-pie-final a { color: #fff; font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
 
