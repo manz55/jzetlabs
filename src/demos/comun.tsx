@@ -49,6 +49,7 @@ export const GRUPOS_DEMOS: { grupo: string; demos: DemoItem[] }[] = [
       { nombre: "Veterinaria", href: "/demos/veterinaria/", para: "¿Es urgencia?, carné de vacunas e internados" },
       { nombre: "Salón de belleza", href: "/demos/salon/", para: "Diagnóstico capilar, citas, expediente de color y panel", avisoSiempre: true },
       { nombre: "Mobiliario para eventos", href: "/demos/eventos/", para: "Cotizador por fecha, portal del cliente y logística de bodega", avisoSiempre: true },
+      { nombre: "Convivios y Stands", href: "/demos/convivios/", para: "Stock por puesto, caja, despacho y cierre del evento", avisoSiempre: true },
     ],
   },
 ];

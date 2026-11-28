@@ -153,6 +153,14 @@
       "destination": "/demos/eventos/index.html"
     },
     {
+      "source": "/demos/convivios",
+      "destination": "/demos/convivios/index.html"
+    },
+    {
+      "source": "/demos/convivios/",
+      "destination": "/demos/convivios/index.html"
+    },
+    {
       "source": "/demos/pediatria",
       "destination": "/demos/pediatria/index.html"
     },
