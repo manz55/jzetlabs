@@ -1,9 +1,3 @@
-/*
- * Demo de eventos: "Casa Imperial" (negocio inventado; fotos de Unsplash enlazadas).
- * Alquiler de mobiliario y montaje para bodas, eventos corporativos y recepciones. Las tres vistas
- * (cotizador, Mi Evento y Panel Logística) leen y escriben el mismo estado, que se guarda en el
- * navegador y vuelve a empezar cada día.
- */
 import { useCallback, useEffect, useState } from "react";
 
 export const foto = (id: string, ancho: number, alto: number) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${ancho}&h=${alto}&q=74`;
@@ -17,15 +11,12 @@ export const FOTOS = {
 export const qz = (n: number) => `Q${n.toLocaleString("en-US")}`;
 export const num = (n: number) => n.toLocaleString("en-US");
 
-/* en el mismo orden en que aparecen en la portada, de arriba hacia abajo */
 export const SECCIONES = [
   { id: "garantias", nombre: "Garantías" },
   { id: "mobiliario", nombre: "Mobiliario" },
   { id: "paquetes", nombre: "Paquetes" },
   { id: "cobertura", nombre: "Cobertura" },
 ];
-
-/* ---------------- fechas (en hora local) ---------------- */
 
 const dos = (n: number) => String(n).padStart(2, "0");
 export const iso = (d: Date) => `${d.getFullYear()}-${dos(d.getMonth() + 1)}-${dos(d.getDate())}`;
@@ -45,10 +36,8 @@ export const ahora = () => {
   const d = new Date();
   return `${dos(d.getHours())}:${dos(d.getMinutes())}`;
 };
-/* "16:00" menos 6 horas = "10:00" */
 export const antes = (hora: string, horas: number) => `${dos(Number(hora.slice(0, 2)) - horas)}:${hora.slice(3)}`;
 
-/* los próximos viernes, sábados y domingos, desde mañana */
 export function finesDeSemana(n = 8) {
   const out: string[] = [];
   for (let k = 1; out.length < n; k++) {
@@ -58,15 +47,12 @@ export function finesDeSemana(n = 8) {
   return out;
 }
 
-/* el sábado que viene (hoy, si hoy es sábado) y su fin de semana, sin días que ya pasaron */
 export function sabado() {
   let f = dia(0);
   while (aFecha(f).getDay() !== 6) f = mas(f, 1);
   return f;
 }
 export const finDeSemana = () => [mas(sabado(), -1), sabado(), mas(sabado(), 1)].filter((f) => f >= dia(0));
-
-/* ---------------- inventario ---------------- */
 
 export const CATEGORIAS = ["Sillas y Mesas", "Toldos y Carpas", "Cristalería y Mantelería", "Calentadores y Audio"] as const;
 export type Categoria = (typeof CATEGORIAS)[number];
@@ -77,9 +63,7 @@ type Ficha = {
   cat: Categoria;
   precio: number;
   total: number;
-  /* de cuánto en cuánto suben los botones + y − */
   paso: number;
-  /* lo que se descuenta del depósito por pieza que falta o vuelve rota */
   reposicion: number;
   clase?: "silla" | "toldo";
   foto: string;
@@ -113,8 +97,6 @@ export type Cesta = Partial<Record<ArtId, number>>;
 export const renglones = (c: Cesta) => IDS.filter((id) => (c[id] ?? 0) > 0).map((id) => ({ id, n: c[id]!, art: ARTICULOS[id] }));
 export const unidades = (c: Cesta, clase: "silla" | "toldo") => renglones(c).reduce((s, r) => s + (r.art.clase === clase ? r.n : 0), 0);
 
-/* ---------------- zonas, cuentas y paquetes ---------------- */
-
 export const ZONAS = {
   ciudad: { nombre: "Ciudad de Guatemala", corto: "la capital", flete: 250, alcance: "Zonas de la capital y colonias cercanas del área metropolitana." },
   carretera: { nombre: "Carretera a El Salvador", corto: "Carretera a El Salvador", flete: 375, alcance: "Santa Catarina Pinula, Fraijanes y fincas sobre la ruta." },
@@ -136,7 +118,6 @@ export function cuentas(c: Cesta, zona: ZonaId) {
   return { subtotal, flete, deposito, total, anticipo: Math.round(total / 2) };
 }
 
-/* lo que normalmente lleva un evento según los invitados */
 export function sugerido(n: number): Cesta {
   const mesas = Math.ceil(n / 10);
   const toldos: Cesta = n <= 50 ? { toldo6: 1 } : n <= 100 ? { toldo6: 2 } : n <= 150 ? { toldo10: 1 } : { toldo10: 1, toldo6: 1 };
@@ -149,14 +130,10 @@ export const PAQUETES: { id: string; nombre: string; para: string; cesta: Cesta;
   { id: "boda", nombre: "Boda Imperial 200 personas", para: "Boda completa en jardín o finca", cesta: { crossback: 200, redonda: 20, mantel: 20, camino: 20, copas: 200, vajilla: 200, toldo10: 1, calentador: 6, luces: 12, audio: 1 }, foto: "1772127822525-7eda37383b9f", alt: "Recepción de boda al aire libre con toldo y mesas montadas" },
 ];
 
-/* ---------------- pagos ---------------- */
-
 export const MEDIOS = ["Visanet", "NeoNet", "Transferencia BI", "Transferencia BAC"] as const;
 export type Medio = (typeof MEDIOS)[number];
 export const esTarjeta = (m: Medio) => m === "Visanet" || m === "NeoNet";
 export type Pago = { id: number; monto: number; medio: Medio; ref: string; fecha: string; verificado: boolean };
-
-/* ---------------- flota ---------------- */
 
 export type EstadoCamion = "bodega" | "carga" | "ruta" | "montaje" | "regreso" | "taller";
 export const ESTADOS_CAMION: Record<EstadoCamion, string> = {
@@ -168,8 +145,6 @@ export const ESTADOS_CAMION: Record<EstadoCamion, string> = {
   taller: "En taller",
 };
 export type Camion = { id: string; nombre: string; ton: string; placa: string; piloto: string; pilotoCompleto: string; dpi: string; estado: EstadoCamion; orden?: string };
-
-/* ---------------- órdenes de alquiler ---------------- */
 
 export type Entrega = { mapa: string; recibe: string; notas: string };
 export type EstadoOrden = "reservada" | "evento" | "retorno" | "liquidada";
@@ -191,9 +166,7 @@ export type Orden = {
   pagos: Pago[];
   camion?: string;
   entrega?: Entrega;
-  /* por dónde entró: la página o el teléfono / WhatsApp */
   origen: "web" | "manual";
-  /* reservas hechas desde este navegador: salen en Mi Evento */
   mia?: boolean;
   nueva?: boolean;
 };
@@ -202,24 +175,19 @@ export const pagado = (o: Orden) => o.pagos.filter((p) => p.verificado).reduce((
 export const porVerificar = (o: Orden) => o.pagos.filter((p) => !p.verificado).reduce((s, p) => s + p.monto, 0);
 export const saldo = (o: Orden) => Math.max(0, cuentas(o.cesta, o.zona).total - pagado(o));
 
-/* horario del día del evento: el camión llega 6 horas antes y el montaje queda listo 1 hora antes */
 export const cronograma = (o: Orden) => ({ llegada: antes(o.hora, 6), listo: antes(o.hora, 1), recoleccion: mas(o.fecha, 1) });
 
 export const cargoDe = (o: Orden) => renglones(o.cesta).reduce((s, r) => s + ((o.revision[r.id]?.faltan ?? 0) + (o.revision[r.id]?.rotas ?? 0)) * r.art.reposicion, 0);
-/* lo que se devuelve del depósito y, si los daños lo superan, lo que queda por cobrar */
 export function liquidacion(o: Orden) {
   const { deposito } = cuentas(o.cesta, o.zona);
   const cargo = cargoDe(o);
   return { deposito, cargo, devolver: Math.max(0, deposito - cargo), cobrar: Math.max(0, cargo - deposito) };
 }
 
-/* ---------------- datos con los que abre el día ---------------- */
-
 function iniciales(): { ordenes: Orden[]; camiones: Camion[] } {
   const s = sabado();
   let n = 0;
   const pago = (monto: number, medio: Medio, ref: string, fecha: string, verificado = true): Pago => ({ id: ++n, monto, medio, ref, fecha, verificado });
-  /* "pagos" dice cuánto entró: todo, el anticipo o nada */
   const o = (folio: number, cliente: string, evento: string, lugar: string, zona: ZonaId, fecha: string, hora: string, cesta: Cesta, estado: EstadoOrden, cobro: "todo" | "anticipo" | "nada", extra: Partial<Orden> = {}): Orden => {
     const c = cuentas(cesta, zona);
     const pagos = cobro === "nada" ? [] : [pago(c.anticipo, "Transferencia BI", `BI-${44710 + folio}`, mas(fecha, -20))];
@@ -239,7 +207,6 @@ function iniciales(): { ordenes: Orden[]; camiones: Camion[] } {
     o(809, "Cámara de Comercio Regional", "Almuerzo de asociados", "Salón al aire libre, Fraijanes", "carretera", mas(s, 7), "12:00", { tiffany: 250, redonda: 25, mantel: 25, copas: 250, vajilla: 250, toldo10: 1, audio: 1 }, "reservada", "anticipo", { origen: "manual" }),
     o(810, "Lucía Barrios", "XV años", "Jardín en Santa Catarina Pinula", "carretera", mas(s, 8), "18:00", { tiffany: 150, redonda: 15, mantel: 15, camino: 15, copas: 150, toldo10: 1, luces: 10, audio: 1 }, "reservada", "nada"),
   ];
-  /* la gala ya mandó su saldo con tarjeta y falta verificarlo */
   const gala = ordenes.find((x) => x.folio === "EVT-806")!;
   gala.pagos.push(pago(cuentas(gala.cesta, gala.zona).total - cuentas(gala.cesta, gala.zona).anticipo, "Visanet", "Aut. 552019", dia(0), false));
   const camiones: Camion[] = [
@@ -250,8 +217,6 @@ function iniciales(): { ordenes: Orden[]; camiones: Camion[] } {
   ];
   return { ordenes, camiones };
 }
-
-/* ---------------- estado compartido ---------------- */
 
 type Estado = { dia: string; ordenes: Orden[]; camiones: Camion[]; folio: number; pago: number };
 const CLAVE = "casa-imperial-v3";
@@ -281,11 +246,10 @@ export function useImperial() {
     try {
       localStorage.setItem(CLAVE, JSON.stringify(estado));
     } catch {
-      /* sin guardado, la demo sigue funcionando */
+      // almacenamiento bloqueado: el estado vive solo en memoria
     }
   }, [estado]);
 
-  /* dos pestañas abiertas (el cliente y la bodega) se ven entre sí */
   useEffect(() => {
     const otra = (e: StorageEvent) => {
       if (e.key !== CLAVE) return;
@@ -296,13 +260,12 @@ export function useImperial() {
     return () => removeEventListener("storage", otra);
   }, []);
 
-  /* piezas libres en bodega para una fecha: lo que no está apartado por otra orden abierta */
   const libres = useCallback(
     (fecha: string, id: ArtId) => Math.max(0, ARTICULOS[id].total - estado.ordenes.filter((o) => o.fecha === fecha && o.estado !== "liquidada").reduce((s, o) => s + (o.cesta[id] ?? 0), 0)),
     [estado.ordenes],
   );
 
-  /* qué parte del inventario (medido por su precio de renta) ya está apartada ese día */
+  // la ocupación se pondera por precio de renta, no por cantidad de piezas
   const ocupacion = useCallback(
     (fecha: string) => {
       const todo = IDS.reduce((s, id) => s + ARTICULOS[id].total * ARTICULOS[id].precio, 0);
@@ -324,7 +287,6 @@ export function useImperial() {
     [estado.folio],
   );
 
-  /* el cliente reporta un pago; la bodega lo verifica en su panel */
   const reportarPago = useCallback(
     (folio: string, p: Omit<Pago, "id" | "fecha" | "verificado">) =>
       setEstado((e) => ({ ...e, pago: e.pago + 1, ordenes: e.ordenes.map((o) => (o.folio === folio ? { ...o, pagos: [...o.pagos, { ...p, id: e.pago, fecha: dia(0), verificado: false }] } : o)) })),
@@ -332,7 +294,6 @@ export function useImperial() {
   );
   const verificarPagos = useCallback((folio: string) => setEstado((e) => ({ ...e, ordenes: e.ordenes.map((o) => (o.folio === folio ? { ...o, pagos: o.pagos.map((p) => ({ ...p, verificado: true })) } : o)) })), []);
 
-  /* sale el camión: la orden pasa a montaje y el camión queda en ruta con ella */
   const despachar = useCallback(
     (folio: string, camion: string) =>
       setEstado((e) => ({
@@ -343,7 +304,6 @@ export function useImperial() {
     [],
   );
 
-  /* el mobiliario vuelve a bodega: queda por revisar y el camión libre */
   const recibir = useCallback(
     (folio: string) =>
       setEstado((e) => ({

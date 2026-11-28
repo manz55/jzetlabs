@@ -1,4 +1,3 @@
-/* Pie: zonas de cobertura, políticas y crédito. */
 import { ZONAS, ZONA_IDS, qz } from "./datos";
 import { ancho } from "./estilos";
 import { Logo } from "./Piezas";

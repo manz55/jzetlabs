@@ -1,10 +1,8 @@
-/* Piezas que comparten las tres vistas: logotipo, fotos, botones, contador y ventana. */
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Minus, Plus, X } from "lucide-react";
 import { foto } from "./datos";
 import { boton } from "./estilos";
 
-/* logotipo editorial: solo letras y una línea bronce de lado a lado */
 export function Logo({ claro = false }: { claro?: boolean }) {
   return (
     <span className="inline-flex w-fit flex-col whitespace-nowrap leading-none">
@@ -30,7 +28,6 @@ export function Foto({ id, alt, ancho, alto, pronto = false, className = "" }: {
   );
 }
 
-/* − cantidad +, con la cantidad editable para pedidos grandes */
 export function Contador({ valor, max, paso = 1, nombre, alCambiar }: { valor: number; max: number; paso?: number; nombre: string; alCambiar: (n: number) => void }) {
   const poner = (n: number) => alCambiar(Math.max(0, Math.min(max, Math.round(n) || 0)));
   const tecla = "grid size-11 shrink-0 place-items-center rounded-lg border border-[#CFC6BA] bg-white text-[#1C1917] transition hover:border-[#1C1917] active:scale-95 disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-[#CFC6BA]";
@@ -55,7 +52,6 @@ export function Contador({ valor, max, paso = 1, nombre, alCambiar }: { valor: n
   );
 }
 
-/* ventana nativa: atrapa el foco y cierra con Escape o con la X (un toque afuera no borra lo escrito) */
 export function Ventana({ titulo, alCerrar, ancho = "34rem", children }: { titulo: string; alCerrar: () => void; ancho?: string; children: ReactNode }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {

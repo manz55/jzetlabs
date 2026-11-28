@@ -1,7 +1,3 @@
-/*
- * Barra fija. Los accesos a secciones (en el orden en que aparecen en la portada) y "Cotizar fecha"
- * solo salen en la portada. En pantallas angostas todo pasa al menú desplegable.
- */
 import { useEffect, useRef, useState } from "react";
 import { Armchair, CalendarHeart, Menu, Truck, X } from "lucide-react";
 import { SECCIONES } from "./datos";
@@ -71,7 +67,6 @@ export function Nav({ vista, avisos, alVista, alSeccion, alCotizar }: { vista: V
 
   return (
     <header ref={barra} className="sticky top-0 z-40 border-b border-[#E4DDD3] bg-[#FAF8F5]/95 backdrop-blur">
-      {/* sin accesos a la derecha, el selector queda centrado en la pantalla */}
       <div className={`${ancho} !max-w-[88rem] flex h-[4.5rem] items-center justify-between gap-3 ${portada ? "" : "lg:grid lg:grid-cols-[1fr_auto_1fr]"}`}>
         <button type="button" onClick={elegir(() => alVista("renta"))} aria-label="Casa Imperial, ir al inicio" className="shrink-0 justify-self-start text-left">
           <Logo />
@@ -103,7 +98,6 @@ export function Nav({ vista, avisos, alVista, alSeccion, alCotizar }: { vista: V
             aria-controls="ci-menu"
             aria-label={abierto ? "Cerrar menú" : "Abrir menú"}
             onClick={() => setAbierto((v) => !v)}
-            /* en escritorio ancho ya se ve todo; fuera de la portada basta el selector desde lg */
             className={`${boton.linea} size-11 !px-0 ${portada ? "min-[1320px]:hidden" : "lg:hidden"}`}
           >
             {abierto ? <X size={20} aria-hidden /> : <Menu size={20} aria-hidden />}

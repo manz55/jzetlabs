@@ -1,4 +1,3 @@
-/* Catálogo con la disponibilidad de la fecha elegida, y los paquetes armados. */
 import { useRef, useState } from "react";
 import { Check, CircleCheck, TriangleAlert } from "lucide-react";
 import { useCarga, useEscalonado } from "./animar";

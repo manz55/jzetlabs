@@ -1,4 +1,3 @@
-/* Cotización flotante y la reserva: al confirmar, la orden aparece en Mi Evento y en el Panel Logística. */
 import { useLayoutEffect, useRef, useState, type FormEvent } from "react";
 import { ChevronDown, ChevronUp, CircleCheck, MessageCircle, TriangleAlert } from "lucide-react";
 import { animate } from "animejs";
@@ -98,7 +97,6 @@ const TIPOS = ["Boda", "Evento corporativo", "Cena de gala", "Recepción o cóct
 const HORAS = ["12:00", "14:00", "16:00", "18:00", "19:00"];
 
 export function Reserva({ imp, plan, cesta, alCerrar, alConfirmada, alEvento }: { imp: Imperial; plan: Plan; cesta: Cesta; alCerrar: () => void; alConfirmada: () => void; alEvento: (folio: string) => void }) {
-  /* la cesta se guarda al abrir: al confirmar se vacía, pero el resumen se sigue mostrando */
   const [pedido] = useState(cesta);
   const [hecha, setHecha] = useState<Orden | null>(null);
   const [error, setError] = useState("");

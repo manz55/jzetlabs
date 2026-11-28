@@ -1,4 +1,3 @@
-/* Portada: el configurador, los compromisos y la cobertura (el catálogo va en Catalogo.tsx). */
 import { useEffect, useState } from "react";
 import { CalendarCheck, CircleCheck, ClipboardCheck, MapPin, ShieldCheck, Truck } from "lucide-react";
 import { FOTOS, INVITADOS, ZONAS, ZONA_IDS, dia, diaLargo, diaMes, diaSemana, finesDeSemana, foto, num, qz, textoInvitados, ARTICULOS, IDS, type Imperial, type Invitados, type ZonaId } from "./datos";
@@ -13,7 +12,6 @@ const METRICAS = [
   ["4 camiones", "propios, con piloto y montadores"],
 ];
 
-/* guarda lo que se va escribiendo y solo avisa cuando ya es una fecha futura completa */
 function OtraFecha({ fecha, alElegir }: { fecha: string; alElegir: (f: string) => void }) {
   const [escrito, setEscrito] = useState(fecha);
   useEffect(() => setEscrito(fecha), [fecha]);

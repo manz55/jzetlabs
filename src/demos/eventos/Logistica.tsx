@@ -1,4 +1,3 @@
-/* Ventanas del Panel Logística: checklist de carga, revisión de retorno, despacho, liquidación y orden manual. */
 import { useState, type FormEvent } from "react";
 import { CircleCheck, PackageCheck, Truck } from "lucide-react";
 import { ESTADOS, MEDIOS, PAQUETES, ZONAS, ZONA_IDS, cronograma, cuentas, dia, diaCorto, liquidacion, num, pagado, qz, renglones, saldo, sugerido, type ArtId, type Cesta, type Dano, type Imperial, type Medio, type Orden, type ZonaId } from "./datos";
@@ -8,7 +7,6 @@ import { Contador, Ventana } from "./Piezas";
 type Base = { imp: Imperial; alCerrar: () => void };
 const libre = (imp: Imperial, folio: string) => imp.camiones.filter((c) => c.estado === "bodega" || c.estado === "carga" || c.orden === folio);
 
-/* el camión asignado, si está libre; si no, el primero libre */
 const camionPara = (imp: Imperial, o: Orden) => {
   const ok = libre(imp, o.folio);
   return ok.find((c) => c.id === o.camion)?.id ?? ok[0]?.id ?? "";
@@ -268,7 +266,6 @@ export function NuevaOrden({ imp, alCerrar, alCreada }: Base & { alCreada: (foli
   const poner = (k: keyof typeof d) => (e: { target: { value: string } }) => setD((x) => ({ ...x, [k]: e.target.value }));
 
   const ideal: Cesta = d.base === "invitados" ? sugerido(Math.max(10, Math.min(1500, Number(d.invitados) || 0))) : { ...PAQUETES.find((p) => p.id === d.base)!.cesta };
-  /* lo que se pide, recortado a lo que queda libre esa fecha */
   const cesta: Cesta = Object.fromEntries(renglones(ideal).map((r) => [r.id, Math.min(r.n, imp.libres(d.fecha, r.id))]));
   const cortos = renglones(ideal).filter((r) => (cesta[r.id] ?? 0) < r.n);
   const c = cuentas(cesta, d.zona);
@@ -398,7 +395,6 @@ export function NuevaOrden({ imp, alCerrar, alCreada }: Base & { alCreada: (foli
   );
 }
 
-/* texto para avisarle al cliente según cómo va su orden */
 export function avisoWhatsApp(o: Orden) {
   const { llegada, recoleccion } = cronograma(o);
   const l = liquidacion(o);

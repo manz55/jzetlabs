@@ -1,4 +1,3 @@
-/* Movimiento con anime.js. Si la persona pidió menos movimiento, todo cambia al instante. */
 import { useEffect, useLayoutEffect, useState, type RefObject } from "react";
 import { animate, stagger } from "animejs";
 
@@ -8,13 +7,13 @@ export function irA(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: sinMovimiento() ? "instant" : "smooth", block: "start" });
 }
 
-/* la vista nueva entra apareciendo (solo opacidad, para no mover lo que va fijo en pantalla) */
+// solo opacidad: un transform movería los elementos fijos
 export function useVista(ref: RefObject<HTMLElement | null>, vista: string) {
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el || sinMovimiento()) return;
     const a = animate(el, { opacity: [0, 1], duration: 420, ease: "outCubic" });
-    /* seguro: si el navegador frena los cuadros, nada se queda invisible */
+    // si el navegador frena los cuadros, nada debe quedar invisible
     const seguro = window.setTimeout(() => a.complete(), 800);
     return () => {
       window.clearTimeout(seguro);
@@ -23,7 +22,6 @@ export function useVista(ref: RefObject<HTMLElement | null>, vista: string) {
   }, [ref, vista]);
 }
 
-/* true mientras la clave nueva todavía "se está cargando" (también la primera vez) */
 export function useCarga(clave: string, ms: number) {
   const [lista, setLista] = useState("");
   useEffect(() => {
@@ -33,7 +31,6 @@ export function useCarga(clave: string, ms: number) {
   return lista !== clave;
 }
 
-/* anima los hijos con data-entra cada vez que cambia "clave" y ya están pintados */
 export function useEscalonado(ref: RefObject<HTMLElement | null>, clave: string, listo = true) {
   useLayoutEffect(() => {
     if (!listo || sinMovimiento()) return;

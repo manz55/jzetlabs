@@ -1,8 +1,3 @@
-/*
- * Demo: Casa Imperial · Mobiliario y montaje de eventos (negocio inventado). Tres vistas en la misma
- * dirección que comparten datos en vivo: Catálogo y Cotizador (portada), Mi Evento (#mi-evento) y
- * Panel Logística (#panel). De lo compartido entre demos solo usa la banda superior.
- */
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { BandaDemos } from "../comun";
 import { irA, useVista } from "./animar";
@@ -17,7 +12,6 @@ import { Panel } from "./Panel";
 import { Pie } from "./Pie";
 
 const leer = (): Vista => (location.hash === "#mi-evento" ? "evento" : ["#panel", "#bodega", "#logistica"].includes(location.hash) ? "panel" : "renta");
-/* un enlace como #paquetes abre la portada en esa sección */
 const seccionDeLaDireccion = () => SECCIONES.find((s) => `#${s.id}` === location.hash)?.id ?? "";
 
 const TITULOS: Record<Vista, string> = {
@@ -36,7 +30,6 @@ export default function EventosDemo() {
   const [reservando, setReservando] = useState(false);
   const [miFolio, setMiFolio] = useState("EVT-804");
   const principal = useRef<HTMLElement>(null);
-  /* sección de la portada a la que hay que bajar cuando ya esté pintada */
   const destino = useRef(seccionDeLaDireccion());
   useVista(principal, vista);
 
@@ -48,7 +41,6 @@ export default function EventosDemo() {
     document.head.appendChild(l);
   }, []);
 
-  /* cada vista empieza arriba, también al volver atrás */
   useLayoutEffect(() => {
     const antes = history.scrollRestoration;
     history.scrollRestoration = "manual";
@@ -79,7 +71,7 @@ export default function EventosDemo() {
     const id = destino.current;
     if (!id) return;
     let t = 0;
-    /* se espera a que cargue la página y a que el catálogo cambie su esqueleto por las tarjetas */
+    // el catálogo tarda en cambiar el esqueleto por las tarjetas y eso mueve la sección
     const bajar = () => {
       t = window.setTimeout(() => {
         destino.current = "";
@@ -120,7 +112,6 @@ export default function EventosDemo() {
     setCesta((c) => ({ ...c, [id]: n }));
   }
 
-  /* deja cada renglón dentro de lo que queda libre ese día */
   const ajustar = (c: Cesta, fecha: string): Cesta => Object.fromEntries(renglones(c).map((r) => [r.id, Math.min(r.n, imp.libres(fecha, r.id))]));
 
   function armar() {
@@ -151,7 +142,7 @@ export default function EventosDemo() {
       <div className="relative z-50">
         <BandaDemos />
       </div>
-      {/* clip y no hidden: así la barra y los resúmenes pueden quedarse fijos al bajar */}
+      {/* overflow-x-hidden rompería los elementos sticky */}
       <div style={TEMA} className="min-h-screen w-full max-w-full overflow-x-clip bg-[#FAF8F5] text-base leading-relaxed text-[#44403C]">
         <Nav vista={vista} avisos={avisos} alVista={ir} alSeccion={irSeccion} alCotizar={() => irSeccion("cotizar")} />
 
@@ -177,7 +168,6 @@ export default function EventosDemo() {
           {vista === "panel" && <Panel imp={imp} />}
         </main>
 
-        {/* espacio para que lo fijo de abajo no tape el final */}
         <div className={conDock ? "bg-[#1C1917] pb-52 sm:pb-40 lg:pb-28" : undefined}>
           <Pie />
         </div>
