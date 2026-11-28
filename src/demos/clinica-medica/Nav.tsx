@@ -1,0 +1,122 @@
+import { useEffect, useRef, useState } from "react";
+import { LayoutDashboard, MapPin, Menu, Stethoscope, UserRound, X } from "lucide-react";
+import { SECCIONES, SEDE } from "./datos";
+import { LogoMarca } from "./Piezas";
+
+export type Vista = "inicio" | "portal" | "panel";
+
+const VISTAS = [
+  { id: "inicio", nombre: "Especialidades y Lab", icono: Stethoscope },
+  { id: "portal", nombre: "Portal del Paciente", icono: UserRound },
+  { id: "panel", nombre: "Panel Médico y Caja", icono: LayoutDashboard },
+] as const;
+
+export function Nav({ vista, alVista, alSeccion, alAgendar }: { vista: Vista; alVista: (v: Vista) => void; alSeccion: (id: string) => void; alAgendar: () => void }) {
+  const [abierto, setAbierto] = useState(false);
+  const barra = useRef<HTMLElement>(null);
+  const hamburguesa = useRef<HTMLButtonElement>(null);
+  const portada = vista === "inicio";
+
+  useEffect(() => setAbierto(false), [vista]);
+  useEffect(() => {
+    if (!abierto) return;
+    const tecla = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setAbierto(false);
+      hamburguesa.current?.focus();
+    };
+    const fuera = (e: PointerEvent) => {
+      if (!barra.current?.contains(e.target as Node)) setAbierto(false);
+    };
+    addEventListener("keydown", tecla);
+    addEventListener("pointerdown", fuera);
+    return () => {
+      removeEventListener("keydown", tecla);
+      removeEventListener("pointerdown", fuera);
+    };
+  }, [abierto]);
+
+  const elegir = (accion: () => void) => () => {
+    setAbierto(false);
+    accion();
+  };
+
+  return (
+    <header ref={barra} className="sticky top-0 z-40 border-b border-[#DBE4F0] bg-white/95 backdrop-blur print:hidden">
+      <div className="cm-ancho !max-w-[92rem] grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 gap-y-2 py-2.5 lg:grid-cols-[auto_1fr_auto]">
+        <button type="button" onClick={elegir(() => alVista("inicio"))} aria-label="Centro Médico Altamira, ir a la portada" className="min-h-11 justify-self-start text-left">
+          <LogoMarca />
+        </button>
+
+        <nav aria-label="Vistas" className="order-last col-span-2 grid grid-cols-3 gap-1 rounded-full bg-[#EFF6FF] p-1 lg:order-none lg:col-span-1 lg:flex lg:justify-self-center">
+          {VISTAS.map(({ id, nombre, icono: Icono }) => (
+            <button
+              key={id}
+              type="button"
+              aria-current={vista === id ? "page" : undefined}
+              onClick={elegir(() => alVista(id))}
+              className={`flex min-h-10 min-w-0 items-center justify-center gap-1.5 rounded-full px-2 text-[0.68rem] font-bold leading-tight transition sm:text-[0.8rem] lg:whitespace-nowrap lg:px-3.5 ${vista === id ? "bg-[#1D4ED8] text-white" : "text-[#334155] hover:bg-white"}`}
+            >
+              <Icono size={15} aria-hidden className="hidden shrink-0 sm:block lg:hidden min-[1440px]:block" />
+              {nombre}
+            </button>
+          ))}
+        </nav>
+
+        <div className="flex min-w-0 items-center justify-end gap-2">
+          {portada ? (
+            <>
+              <nav aria-label="Secciones de la portada" className="hidden items-center min-[1280px]:flex">
+                {SECCIONES.map((s) => (
+                  <button key={s.id} type="button" onClick={() => alSeccion(s.id)} className="min-h-11 whitespace-nowrap px-1.5 text-[0.76rem] font-semibold text-[#475569] transition hover:text-[#1D4ED8] min-[1400px]:px-2 min-[1400px]:text-[0.8rem]">
+                    {s.nombre}
+                  </button>
+                ))}
+              </nav>
+              <button type="button" onClick={elegir(alAgendar)} className="cm-boton cm-azul whitespace-nowrap max-sm:hidden">
+                Agendar consulta
+              </button>
+              <button
+                ref={hamburguesa}
+                type="button"
+                aria-expanded={abierto}
+                aria-controls="cm-menu"
+                aria-label={abierto ? "Cerrar menú" : "Abrir menú"}
+                onClick={() => setAbierto((v) => !v)}
+                className="cm-boton cm-linea size-11 !px-0 min-[1280px]:!hidden"
+              >
+                {abierto ? <X size={20} aria-hidden /> : <Menu size={20} aria-hidden />}
+              </button>
+            </>
+          ) : (
+            <p className="flex min-w-0 items-center gap-1.5 rounded-xl border border-[#BFDBFE] bg-[#EFF6FF] px-2 py-1.5 text-[0.62rem] font-bold leading-snug text-[#1E40AF] sm:rounded-full sm:px-3 sm:text-[0.75rem]">
+              <MapPin size={13} aria-hidden className="shrink-0 max-sm:hidden" />
+              <span className="max-sm:text-right">
+                <span className="max-sm:block max-sm:whitespace-nowrap">{SEDE.torre}</span>
+                <span className="max-sm:hidden"> · </span>
+                <span className="max-sm:block">{SEDE.nivel}</span>
+              </span>
+            </p>
+          )}
+        </div>
+      </div>
+
+      {portada && abierto && (
+        <div id="cm-menu" className="absolute inset-x-0 top-full border-b border-[#DBE4F0] bg-white shadow-xl min-[1280px]:hidden">
+          <div className="cm-ancho grid gap-3 py-4 sm:!mr-0 sm:max-w-sm">
+            <nav aria-label="Secciones de la portada" className="grid">
+              {SECCIONES.map((s) => (
+                <button key={s.id} type="button" onClick={elegir(() => alSeccion(s.id))} className="min-h-12 border-b border-[#DBE4F0] px-2 text-left text-[0.95rem] font-semibold text-[#0F172A] hover:text-[#1D4ED8]">
+                  {s.nombre}
+                </button>
+              ))}
+            </nav>
+            <button type="button" onClick={elegir(alAgendar)} className="cm-boton cm-azul w-full">
+              Agendar consulta
+            </button>
+          </div>
+        </div>
+      )}
+    </header>
+  );
+}

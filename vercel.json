@@ -81,6 +81,14 @@
       "destination": "/demos/clinica/index.html"
     },
     {
+      "source": "/demos/clinica-medica",
+      "destination": "/demos/clinica-medica/index.html"
+    },
+    {
+      "source": "/demos/clinica-medica/",
+      "destination": "/demos/clinica-medica/index.html"
+    },
+    {
       "source": "/demos/perfil-belleza",
       "destination": "/demos/perfil-belleza/index.html"
     },
