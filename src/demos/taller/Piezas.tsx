@@ -1,4 +1,4 @@
-/* Piezas que comparten las vistas: logo de letras, ventana, cifra animada, placa y campos. */
+/* Piezas que comparten las vistas: logo con emblema de letras, ventana, cifra animada, placa y campos. */
 import { useEffect, useRef, type ReactNode } from "react";
 import { X } from "lucide-react";
 import { useCifra } from "./animar";
@@ -6,8 +6,13 @@ import { useCifra } from "./animar";
 export function Logo() {
   return (
     <span className="at-logo">
-      <b>AUTOTECH</b>
-      <small>INGENIERÍA AUTOMOTRIZ</small>
+      <span className="at-emblema" aria-hidden>
+        AT
+      </span>
+      <span className="at-logo-texto">
+        <b>AUTOTECH</b>
+        <small>SERVICIO CERTIFICADO</small>
+      </span>
     </span>
   );
 }
