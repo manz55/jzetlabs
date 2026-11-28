@@ -2,13 +2,12 @@ import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from
 import { BandaDemos } from "../comun";
 import { irA } from "./animar";
 import { Caja, type Modo } from "./Caja";
-import { CargaStock } from "./CargaStock";
 import { Cierre } from "./Cierre";
 import { SECCIONES, cuentaVacia, pendientesDe, useFeria } from "./datos";
 import { Menu } from "./Menu";
 import { Nav, type Vista } from "./Nav";
 import { Pie } from "./Pie";
-import { ComoFunciona, Eventos, Hero } from "./Portada";
+import { Flujo, Hero } from "./Portada";
 import "./convivios.css";
 
 const TEMA = {
@@ -27,13 +26,16 @@ const TITULOS: Record<Vista, string> = {
 
 const leerVista = (): Vista => (["#caja", "#despacho"].includes(location.hash) ? "caja" : location.hash === "#cierre" ? "cierre" : "menu");
 const leerModo = (): Modo => (location.hash === "#despacho" ? "despacho" : "cobros");
-const seccionDeLaDireccion = () => SECCIONES.find((s) => `#${s.id}` === location.hash)?.id ?? "";
+const ancla = (id: string) => (id === "carga-stock" ? "stands-menu" : id);
+const seccionDeLaDireccion = () => ancla(SECCIONES.find((s) => `#${s.id}` === location.hash)?.id ?? "");
+const pideAjuste = () => location.hash === "#carga-stock";
 
 export default function ConviviosDemo() {
   const feria = useFeria();
   const [vista, setVista] = useState<Vista>(leerVista);
   const [modo, setModo] = useState<Modo>(leerModo);
   const [cuenta, setCuenta] = useState(cuentaVacia);
+  const [ajustando, setAjustando] = useState(pideAjuste);
   const destino = useRef(seccionDeLaDireccion());
 
   useLayoutEffect(() => {
@@ -52,6 +54,7 @@ export default function ConviviosDemo() {
       destino.current = seccionDeLaDireccion() || destino.current;
       setVista(leerVista());
       setModo(leerModo());
+      if (pideAjuste()) setAjustando(true);
     };
     addEventListener("hashchange", cambio);
     addEventListener("popstate", cambio);
@@ -83,11 +86,12 @@ export default function ConviviosDemo() {
   }
 
   function irSeccion(id: string) {
+    if (id === "carga-stock") setAjustando(true);
     if (vista === "menu") {
-      irA(id);
+      irA(ancla(id));
       return;
     }
-    destino.current = id;
+    destino.current = ancla(id);
     ir("menu");
   }
 
@@ -106,11 +110,9 @@ export default function ConviviosDemo() {
         <main className="flex-1">
           {vista === "menu" && (
             <>
-              <Hero feria={feria} alCaja={() => ir("caja")} alMenu={() => irSeccion("stands-menu")} />
-              <ComoFunciona />
-              <Menu feria={feria} />
-              <CargaStock feria={feria} />
-              <Eventos alCaja={() => ir("caja")} alCierre={() => ir("cierre")} />
+              <Hero feria={feria} alCaja={() => ir("caja")} alStands={() => ir("caja", "despacho")} />
+              <Flujo />
+              <Menu feria={feria} ajustando={ajustando} alAjustar={setAjustando} />
             </>
           )}
           {vista === "caja" && <Caja feria={feria} modo={modo} alModo={cambiarModo} cuenta={cuenta} alCuenta={setCuenta} />}

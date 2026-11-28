@@ -16,7 +16,7 @@ export type Cuenta = { vecino: string; items: Cesta; metodo: Pago["tipo"]; recib
 
 export const cuentaVacia = (): Cuenta => ({ vecino: "", items: {}, metodo: "efectivo", recibido: "", banco: "BI", boleta: "" });
 
-export const CONVIVIO = { nombre: "Convivio Navideño", lugar: "Residenciales Villa Real", zona: "Zona 16, Ciudad de Guatemala" };
+export const CONVIVIO = { nombre: "Convivio Navideño", lugar: "Residenciales Villa Real", zona: "Zona 16, Ciudad de Guatemala", obra: "parque infantil", meta: 8000 };
 
 export const STANDS: Record<StandId, { nombre: string; corto: string; icono: LucideIcon }> = {
   parrilla: { nombre: "Stand Parrilla", corto: "Parrilla", icono: Flame },
@@ -40,13 +40,6 @@ export const SECCIONES = [
   { id: "como-funciona", nombre: "Cómo funciona" },
   { id: "stands-menu", nombre: "Stands y Menú" },
   { id: "carga-stock", nombre: "Carga de Stock" },
-  { id: "eventos", nombre: "Eventos" },
-];
-
-export const EVENTOS = [
-  { nombre: "Residenciales Villa Real", tipo: "Convivio Navideño", lugar: "Zona 16, Ciudad de Guatemala", fecha: "", puestos: "Parrilla, antojitos y bebidas", foto: "1592411261931-a03edd69b423", alt: "Vecinos cenando en una mesa larga al aire libre" },
-  { nombre: "Condominio Las Luces", tipo: "Posada de vecinos", lugar: "Carretera a El Salvador", fecha: "Sábado 12 de diciembre", puestos: "4 puestos por confirmar existencias", foto: "1574482211311-45a2169db57c", alt: "Mesas bajo árboles iluminados con guirnaldas" },
-  { nombre: "Feria Colegio San José", tipo: "Kermés escolar", lugar: "San Cristóbal, Mixco", fecha: "Sábado 5 de diciembre", puestos: "6 puestos de padres de familia", foto: "1773134491442-185e2221cd9d", alt: "Familias recorriendo puestos de una feria al anochecer" },
 ];
 
 export const urlFoto = (id: string, ancho: number, alto: number) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${ancho}&h=${alto}&q=72`;
@@ -193,6 +186,7 @@ export type Feria = ReturnType<typeof useFeria>;
 export function resumen(feria: Feria) {
   const suma = (tickets: Ticket[]) => tickets.reduce((s, t) => s + totalDe(t.items), 0);
   const porTransferencia = (banco: Banco) => feria.tickets.filter((t) => t.pago.tipo === "transferencia" && t.pago.banco === banco);
+  const vendidoCon = (id: ProductoId, tipo: Pago["tipo"]) => feria.tickets.reduce((s, t) => s + (t.pago.tipo === tipo ? (t.items[id] ?? 0) : 0), 0) * PRODUCTOS[id].precio;
   const stands = IDS_STAND.map((id) => {
     const productos = productosDe(id).map((p) => ({
       id: p,
@@ -200,10 +194,21 @@ export function resumen(feria: Feria) {
       iniciales: feria.cargado(p),
       vendidas: feria.vendido(p),
       sobrantes: feria.quedan(p),
+      efectivo: vendidoCon(p, "efectivo"),
+      transferencia: vendidoCon(p, "transferencia"),
       total: feria.vendido(p) * PRODUCTOS[p].precio,
     }));
-    const sumar = (campo: "iniciales" | "vendidas" | "sobrantes" | "total") => productos.reduce((s, p) => s + p[campo], 0);
-    return { id, productos, iniciales: sumar("iniciales"), vendidas: sumar("vendidas"), sobrantes: sumar("sobrantes"), total: sumar("total") };
+    const sumar = (campo: "iniciales" | "vendidas" | "sobrantes" | "efectivo" | "transferencia" | "total") => productos.reduce((s, p) => s + p[campo], 0);
+    return {
+      id,
+      productos,
+      iniciales: sumar("iniciales"),
+      vendidas: sumar("vendidas"),
+      sobrantes: sumar("sobrantes"),
+      efectivo: sumar("efectivo"),
+      transferencia: sumar("transferencia"),
+      total: sumar("total"),
+    };
   });
   const entregados = feria.tickets.filter(despachado).length;
   return {
@@ -212,7 +217,6 @@ export function resumen(feria: Feria) {
     efectivo: suma(feria.tickets.filter((t) => t.pago.tipo === "efectivo")),
     bi: suma(porTransferencia("BI")),
     bac: suma(porTransferencia("BAC")),
-    boletas: porTransferencia("BI").length + porTransferencia("BAC").length,
     cobrados: feria.tickets.length,
     entregados,
     pendientes: feria.tickets.length - entregados,
@@ -224,6 +228,7 @@ export function reporteWhatsApp(feria: Feria) {
   const porStand = r.stands.map((s) =>
     [
       `*${STANDS[s.id].nombre}: ${qz(s.total)}*`,
+      `Efectivo ${qz(s.efectivo)} · Transferencia ${qz(s.transferencia)}`,
       ...s.productos.map((p) => `• ${p.nombre}: ${p.vendidas} de ${p.iniciales} vendidas, sobran ${p.sobrantes} (${qz(p.total)})`),
     ].join("\n"),
   );
@@ -235,6 +240,8 @@ export function reporteWhatsApp(feria: Feria) {
     `*Total recaudado: ${qz(r.total)}*`,
     `Efectivo en caja: ${qz(r.efectivo)}`,
     `Transferencias: ${qz(r.bi + r.bac)} (BI ${qz(r.bi)} · BAC ${qz(r.bac)})`,
+    `Cuadre: ${qz(r.efectivo)} + ${qz(r.bi + r.bac)} = ${qz(r.total)}`,
+    `Meta ${CONVIVIO.obra}: ${qz(r.total)} de ${qz(CONVIVIO.meta)} (${Math.floor((r.total / CONVIVIO.meta) * 100)}%)`,
     `Tickets: ${r.cobrados} cobrados, ${r.entregados} despachados, ${r.pendientes} pendientes`,
     "",
     porStand.join("\n\n"),
