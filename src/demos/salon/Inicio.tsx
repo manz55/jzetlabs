@@ -12,9 +12,9 @@ import { Cifra, Foto } from "./Piezas";
 export type Filtro = "Todos" | Categoria;
 
 const COMPROMISOS = [
-  { icono: FlaskConical, titulo: "Prueba de elasticidad y mechón previa", texto: "Antes de aclarar probamos un mechón. Si el cabello está comprometido no lo decoloramos: primero lo recuperamos.", sello: "15 minutos, sin costo en color" },
+  { icono: FlaskConical, titulo: "Prueba de elasticidad previa", texto: "Antes de aclarar probamos un mechón. Si el cabello está comprometido no lo decoloramos: primero lo recuperamos.", sello: "15 minutos, sin costo en color" },
   { icono: FileSignature, titulo: "Presupuesto cerrado por escrito", texto: "Recibe el precio total antes de empezar. No hay cargos sorpresa por gramos extra de tinte ni por largo.", sello: "Se firma antes de la primera mezcla" },
-  { icono: Leaf, titulo: "Fórmulas de alta gama sin amoníaco agresivo", texto: "Coloración profesional Wella, cuidado Kérastase y protector Olaplex. Su fórmula queda anotada en su expediente.", sello: "Cada gramo queda registrado" },
+  { icono: Leaf, titulo: "Fórmulas sin amoníaco agresivo", texto: "Coloración profesional de alta gama Wella, cuidado Kérastase y protector Olaplex. Su fórmula queda anotada en su expediente.", sello: "Cada gramo queda registrado" },
 ];
 
 export function Inicio({

@@ -8,6 +8,7 @@ export function Logo() {
   return (
     <span className="al-logo">
       <span className="al-logo-nombre">ATELIER L’ART</span>
+      <span className="al-logo-raya" aria-hidden />
       <span className="al-logo-linea">SALÓN &amp; COLORIMETRÍA</span>
     </span>
   );

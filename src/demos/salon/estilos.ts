@@ -51,9 +51,13 @@ export const ESTILOS = `
 
 /* logotipo */
 .al-logo { display: flex; flex-direction: column; align-items: flex-start; line-height: 1; white-space: nowrap; }
-.al-logo-nombre { font-family: var(--titulo); font-weight: 600; font-size: 1.22rem; letter-spacing: .06em; color: var(--espresso); }
-.al-logo-linea { margin-top: .34rem; font-size: .52rem; font-weight: 600; letter-spacing: .27em; color: var(--terra); }
-@media (max-width: 380px) { .al-logo-nombre { font-size: 1.02rem; } .al-logo-linea { font-size: .45rem; letter-spacing: .22em; } }
+.al-logo-nombre { font-family: var(--titulo); font-weight: 700; font-size: 1.22rem; letter-spacing: .06em; color: var(--espresso); }
+.al-logo-raya { align-self: stretch; height: 1px; margin: .32rem 0 .3rem; background: #9D5C4C; }
+.al-logo-linea { font-size: .52rem; font-weight: 600; letter-spacing: .22em; color: var(--terra); }
+@media (max-width: 380px) { .al-logo-nombre { font-size: 1.02rem; } .al-logo-linea { font-size: .45rem; } }
+
+/* celulares muy angostos: logotipo y botones completos */
+@media (max-width: 340px) { .al-nav .al-logo-nombre { font-size: .92rem; letter-spacing: .04em; } .al-nav .al-logo-linea { font-size: .41rem; } .al .al-nav-fila .al-nav-agendar { padding-inline: .55rem; font-size: .8rem; } }
 
 /* barra */
 .al-nav { position: sticky; top: 0; z-index: 40; background: var(--blanco); border-bottom: 1px solid var(--linea); }
