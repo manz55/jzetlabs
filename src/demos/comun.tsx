@@ -8,7 +8,7 @@ import { Modal } from "@/components/Modal";
 import { whatsappLink } from "@/data/site";
 import { irADemo, precargar } from "./navegar";
 
-/* avisoSiempre: en celular la banda también dice "Demo de" (para las que parecen un medio real) */
+/* avisoSiempre: en celular la banda también dice "Demo de" (para las que parecen un negocio o medio real) */
 export type DemoItem = { nombre: string; href: string; para: string; avisoSiempre?: boolean };
 
 /* Todas las demos, en tres tipos de producto: página, tienda o sistema a medida. "para" es una línea: para qué negocio es */
@@ -20,7 +20,7 @@ export const GRUPOS_DEMOS: { grupo: string; demos: DemoItem[] }[] = [
       { nombre: "Cosméticos", href: "/demos/cosmeticos/", para: "Marca de maquillaje con cursos" },
       { nombre: "Restaurante", href: "/demos/restaurante/", para: "Menú en línea y pedidos" },
       { nombre: "Hotel boutique", href: "/demos/hotel/", para: "Disponibilidad, habitaciones y reserva con chat" },
-      { nombre: "Taller mecánico", href: "/demos/taller/", para: "¿Puedo manejar?, auxilio a domicilio y seguimiento por placa" },
+      { nombre: "Taller mecánico", href: "/demos/taller-mecanico/", para: "Auxilio 24/7, ¿puedo manejar así?, seguimiento por placa y panel", avisoSiempre: true },
       { nombre: "Diario digital", href: "/demos/medio-comunicacion/", para: "Portada, última hora, secciones y boletín", avisoSiempre: true },
     ],
   },

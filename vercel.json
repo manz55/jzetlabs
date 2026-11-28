@@ -185,12 +185,12 @@
       "destination": "/demos/oftalmologia/index.html"
     },
     {
-      "source": "/demos/taller",
-      "destination": "/demos/taller/index.html"
+      "source": "/demos/taller-mecanico",
+      "destination": "/demos/taller-mecanico/index.html"
     },
     {
-      "source": "/demos/taller/",
-      "destination": "/demos/taller/index.html"
+      "source": "/demos/taller-mecanico/",
+      "destination": "/demos/taller-mecanico/index.html"
     },
     {
       "source": "/demos/ferreteria",
@@ -218,6 +218,16 @@
     }
   ],
   "redirects": [
+    {
+      "source": "/demos/taller",
+      "destination": "/demos/taller-mecanico/",
+      "permanent": true
+    },
+    {
+      "source": "/demos/taller/",
+      "destination": "/demos/taller-mecanico/",
+      "permanent": true
+    },
     {
       "source": "/demos/lujo",
       "destination": "/demos/boutique/",

@@ -51,7 +51,7 @@ export default defineConfig({
         demoVeterinaria: resolve(__dirname, 'demos/veterinaria/index.html'),
         demoMedicina: resolve(__dirname, 'demos/medicina/index.html'),
         demoOftalmologia: resolve(__dirname, 'demos/oftalmologia/index.html'),
-        demoTaller: resolve(__dirname, 'demos/taller/index.html'),
+        demoTaller: resolve(__dirname, 'demos/taller-mecanico/index.html'),
         demoFerreteria: resolve(__dirname, 'demos/ferreteria/index.html'),
         demoHotel: resolve(__dirname, 'demos/hotel/index.html'),
         demoMedio: resolve(__dirname, 'demos/medio-comunicacion/index.html'),

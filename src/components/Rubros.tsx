@@ -168,7 +168,7 @@ const VARIANTES_EMPRESAS: Variante[] = [
     visual: "foto",
     miniatura: true,
     demo: { texto: "Ver la página", tipo: "taller" },
-    panel: { texto: "Ver el panel", href: "/demos/taller/#taller" },
+    panel: { texto: "Ver el panel", href: "/demos/taller-mecanico/#panel" },
   },
 ];
 
@@ -255,12 +255,12 @@ const PANEL_INFO: Record<string, { n: string; c: string[]; f: string }> = {
   tiempo: { n: "Panel de Costa Serena", c: ["#0e3b3a", "#d9693f", "#d9eee8"], f: "DM Serif Display" },
   distribuidora: { n: "Panel de El Volcán", c: ["#1f2d45", "#b3261e", "#d6bf98"], f: "Saira Stencil One" },
   asistencia: { n: "Panel de Los Cedros", c: ["#173a5e", "#f2b400", "#f4f5f7"], f: "Instrument Sans" },
-  taller: { n: "Panel de Taller Torque", c: ["#15171c", "#ffc21a", "#e9ecef"], f: "Barlow Condensed" },
+  taller: { n: "Panel de Autotech", c: ["#0F172A", "#EA580C", "#F8FAFC"], f: "Plus Jakarta Sans" },
   gimnasios: { n: "Panel de Spartan Force", c: ["#16181a", "#f2c230", "#2e9b57"], f: "Big Shoulders Display" },
   eventos: { n: "Panel de La Ceiba", c: ["#1a275c", "#d6457a", "#e7ebf7"], f: "Young Serif" },
 };
 
-const RUTA_DEMO: Record<string, string> = { distribuidora: "/demos/distribuidora/", asistencia: "/demos/planilla/", clinica: "/demos/clinica/", pediatria: "/demos/pediatria/", medicina: "/demos/medicina/", perfil: "/demos/perfil-belleza/", salon: "/demos/salon/", boutique: "/demos/boutique/", ropa: "/demos/ropa/", cosmeticos: "/demos/cosmeticos/", celulares: "/demos/celulares/", restaurante: "/demos/restaurante/", tiempo: "/demos/tiempo-compartido/", oftalmologia: "/demos/oftalmologia/", veterinaria: "/demos/veterinaria/", taller: "/demos/taller/" };
+const RUTA_DEMO: Record<string, string> = { distribuidora: "/demos/distribuidora/", asistencia: "/demos/planilla/", clinica: "/demos/clinica/", pediatria: "/demos/pediatria/", medicina: "/demos/medicina/", perfil: "/demos/perfil-belleza/", salon: "/demos/salon/", boutique: "/demos/boutique/", ropa: "/demos/ropa/", cosmeticos: "/demos/cosmeticos/", celulares: "/demos/celulares/", restaurante: "/demos/restaurante/", tiempo: "/demos/tiempo-compartido/", oftalmologia: "/demos/oftalmologia/", veterinaria: "/demos/veterinaria/", taller: "/demos/taller-mecanico/" };
 
 /* Tipos de negocio: tarjetas que se ven claramente como opciones para escoger */
 function TarjetasFoco({ variantes, elegida, alElegir }: { variantes: Variante[]; elegida: number; alElegir: (i: number) => void }) {
