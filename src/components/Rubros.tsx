@@ -257,7 +257,7 @@ const PANEL_INFO: Record<string, { n: string; c: string[]; f: string }> = {
   asistencia: { n: "Panel de Los Cedros", c: ["#173a5e", "#f2b400", "#f4f5f7"], f: "Instrument Sans" },
   taller: { n: "Panel de Autotech", c: ["#0F172A", "#EA580C", "#F8FAFC"], f: "Plus Jakarta Sans" },
   gimnasios: { n: "Panel de IronPeak", c: ["#0F172A", "#15803D", "#F8FAFC"], f: "Plus Jakarta Sans" },
-  eventos: { n: "Panel de La Ceiba", c: ["#1a275c", "#d6457a", "#e7ebf7"], f: "Young Serif" },
+  eventos: { n: "Panel de Casa Imperial", c: ["#1C1917", "#A16207", "#FAF8F5"], f: "Playfair Display" },
 };
 
 const RUTA_DEMO: Record<string, string> = { distribuidora: "/demos/distribuidora/", asistencia: "/demos/planilla/", clinica: "/demos/clinica/", pediatria: "/demos/pediatria/", medicina: "/demos/medicina/", perfil: "/demos/perfil-belleza/", salon: "/demos/salon/", boutique: "/demos/boutique/", ropa: "/demos/ropa/", cosmeticos: "/demos/cosmeticos/", celulares: "/demos/celulares/", restaurante: "/demos/restaurante/", tiempo: "/demos/tiempo-compartido/", oftalmologia: "/demos/oftalmologia/", veterinaria: "/demos/veterinaria/", taller: "/demos/taller-mecanico/" };
@@ -414,7 +414,7 @@ const RUBROS: Rubro[] = [
     img: fotoEventos,
     alt: "Toldo blanco montado para una recepción",
     demo: { texto: "Ver la página", href: "/demos/eventos/" },
-    demo2: { texto: "Ver el panel", href: "/demos/eventos/#bodega" },
+    demo2: { texto: "Ver el panel", href: "/demos/eventos/#panel" },
     nota: "Foto de ejemplo.",
   },
 ];
