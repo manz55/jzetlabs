@@ -66,47 +66,85 @@ export const ESTILOS = `
 .at-botones { display: flex; flex-wrap: wrap; gap: .65rem; }
 .at-nota { margin-top: .8rem; color: ${SUAVE}; font-size: .82rem; }
 
-/* barra fija con las tres vistas: es "sticky", ocupa su lugar y no tapa nada */
-.at-nav { position: sticky; top: 0; z-index: 30; background: ${BLANCO}; border-bottom: 1px solid ${BORDE}; }
-.at-nav-fila { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "logo auxilio" "vistas vistas"; align-items: center; gap: .5rem .75rem; padding-block: .6rem; }
-.at-nav-logo { grid-area: logo; justify-self: start; min-height: 42px; }
-.at-nav-auxilio { grid-area: auxilio; min-height: 42px; padding: .4rem .8rem; font-size: .82rem; }
-.at-nav-auxilio .at-largo { display: none; }
-.at-vistas { grid-area: vistas; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px; padding: 3px; background: ${ACERO}; border: 1px solid ${BORDE}; border-radius: 12px; }
-.at-vistas button { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; min-width: 0; min-height: 40px; padding-inline: .3rem; border-radius: 9px; color: ${SUAVE}; font-size: .8rem; font-weight: 600; white-space: nowrap; transition: background-color .15s, color .15s; }
-.at-vistas button:hover { color: ${PIZARRA}; }
-.at-vistas button[aria-current="page"] { background: ${PIZARRA}; color: #fff; }
-.at-vistas button i { display: grid; place-items: center; min-width: 19px; height: 19px; border-radius: 999px; background: ${NARANJA}; color: #fff; font-size: .68rem; font-style: normal; font-weight: 700; }
-.at-vistas svg, .at-vistas .at-largo { display: none; }
-@media (min-width: 560px) { .at-vistas svg { display: block; } .at-nav-auxilio .at-largo { display: inline; } }
-@media (min-width: 700px) { .at-vistas .at-largo { display: inline; } .at-vistas .at-corto { display: none; } }
-@media (min-width: 1080px) {
-  .at-nav-fila { grid-template-columns: 1fr auto 1fr; grid-template-areas: "logo vistas auxilio"; min-height: 74px; }
-  .at-vistas { display: flex; }
-  .at-vistas button { padding-inline: 1rem; font-size: .85rem; }
-  .at-nav-auxilio { justify-self: end; }
+/*
+ * Barra fija: es "sticky", ocupa su lugar y no tapa nada. Va en 39 para que el panel
+ * "Ver otras demos" de la banda de arriba (40) se abra por encima.
+ */
+.at-nav { position: sticky; top: 0; z-index: 39; background: rgba(255,255,255,.95); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: 1px solid ${BORDE}; }
+.at-nav-fila { display: flex; align-items: center; justify-content: space-between; gap: .6rem; width: 100%; max-width: 86rem; min-height: 64px; margin-inline: auto; padding: .5rem 1.1rem; }
+.at-nav-logo { flex: none; min-height: 42px; }
+.at-nav-centro { display: none; }
+.at-nav-derecha { display: flex; flex: none; align-items: center; gap: .5rem; }
+.at .at-nav-auxilio { min-height: 42px; gap: .4rem; padding: .4rem .75rem; font-size: .83rem; white-space: nowrap; }
+.at-nav-palabra { display: none; }
+/* en celular el botón dice "Auxilio 24/7"; el icono aparece cuando hay espacio */
+@media (min-width: 375px) { .at-nav-palabra { display: inline; } }
+@media (min-width: 375px) and (max-width: 479px) { .at .at-nav-auxilio { padding-inline: .6rem; } .at .at-nav-auxilio svg { display: none; } }
+.at-nav-menu { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid ${BORDE_CAMPO}; border-radius: 10px; background: ${BLANCO}; }
+.at-nav-menu[aria-expanded="true"] { background: ${PIZARRA}; border-color: ${PIZARRA}; color: #fff; }
+
+.at-vistas button, .at-menu-vistas button { display: inline-flex; align-items: center; gap: .45rem; min-height: 40px; border-radius: 9px; color: ${SUAVE}; font-size: .84rem; font-weight: 600; white-space: nowrap; transition: background-color .15s, color .15s; }
+.at-vistas button:hover, .at-menu-vistas button:hover { color: ${PIZARRA}; }
+.at-vistas button[aria-current="page"], .at-menu-vistas button[aria-current="page"] { background: ${PIZARRA}; color: #fff; }
+.at-vistas i, .at-menu-vistas i { display: grid; place-items: center; min-width: 20px; height: 20px; padding-inline: 4px; border-radius: 999px; background: ${BORDE}; color: ${PIZARRA}; font-size: .7rem; font-style: normal; font-weight: 700; }
+.at-vistas i.at-badge-espera, .at-menu-vistas i.at-badge-espera { background: ${NARANJA}; color: #fff; }
+
+/* menú desplegable de celular y tableta */
+.at-menu { position: absolute; inset-inline: 0; top: 100%; display: grid; grid-template-columns: minmax(0, 1fr); gap: .7rem; max-height: calc(100dvh - 8rem); padding: .8rem 1.1rem 1.1rem; overflow-y: auto; background: ${BLANCO}; border-bottom: 1px solid ${BORDE}; box-shadow: 0 24px 40px -24px rgba(15,23,42,.45); animation: at-baja .22s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes at-baja { from { opacity: 0; transform: translateY(-8px); } }
+.at-menu-vistas { display: grid; grid-template-columns: minmax(0, 1fr); gap: .25rem; }
+.at-menu-vistas button { width: 100%; min-height: 48px; padding-inline: .8rem; font-size: .95rem; }
+.at-menu-vistas i { margin-left: auto; }
+.at-menu > p { padding-top: .6rem; border-top: 1px solid ${BORDE}; color: ${SUAVE}; font-size: .78rem; font-weight: 600; }
+.at-menu-accesos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem; }
+.at-menu-accesos button { min-height: 44px; border: 1px solid ${BORDE}; border-radius: 10px; background: ${ACERO}; font-size: .9rem; font-weight: 600; }
+@media (min-width: 640px) {
+  .at-menu { left: auto; right: 1.1rem; width: 24rem; border: 1px solid ${BORDE}; border-radius: 0 0 14px 14px; }
 }
-/* celulares angostos: logo, botón de auxilio y síntomas caben completos */
+
+/* desde laptop chica las vistas van en la barra */
+@media (min-width: 960px) {
+  .at-nav-fila { min-height: 72px; padding-inline: 1.75rem; }
+  .at-nav-centro { display: flex; align-items: center; justify-content: center; gap: .75rem; min-width: 0; }
+  .at-vistas { display: flex; gap: 3px; padding: 3px; background: ${ACERO}; border: 1px solid ${BORDE}; border-radius: 12px; }
+  .at-vistas button { padding-inline: .75rem; }
+  .at-vistas svg { display: none; }
+}
+.at-accesos-nav { display: none; }
+@media (min-width: 1100px) { .at-vistas svg { display: block; } }
+@media (min-width: 1280px) {
+  .at-nav-menu, .at-menu { display: none; }
+  .at-accesos-nav { display: flex; gap: .1rem; padding-left: .75rem; border-left: 1px solid ${BORDE}; }
+  .at-accesos-nav button { min-height: 40px; padding-inline: .6rem; border-radius: 8px; color: ${SUAVE}; font-size: .84rem; font-weight: 600; white-space: nowrap; }
+  .at-accesos-nav button:hover { background: ${ACERO}; color: ${PIZARRA}; }
+  .at-vistas svg { display: none; }
+}
+@media (min-width: 1440px) { .at-vistas svg { display: block; } }
+
+/* celulares angostos: logo, botones y síntomas caben completos */
 @media (max-width: 359px) {
+  .at-nav-fila { gap: .4rem; padding-inline: .8rem; }
   .at-nav-fila .at-logo { padding-left: 16px; }
   .at-nav-fila .at-logo b { font-size: 1rem; letter-spacing: .04em; }
   .at-nav-fila .at-logo small { font-size: .48rem; letter-spacing: .07em; }
-  .at .at-nav-auxilio { gap: .35rem; padding-inline: .55rem; font-size: .76rem; }
+  .at .at-nav-auxilio { gap: .3rem; padding-inline: .5rem; font-size: .76rem; }
+  .at-nav-menu { width: 40px; }
   .at .at-sintomas button { gap: .4rem; padding-inline: .5rem; font-size: .82rem; }
 }
-#at-nosotros, #at-triaje, #at-servicios, #at-equipo, #at-ubicacion { scroll-margin-top: 120px; }
+/* al saltar a una sección, la barra fija no tapa su título (equivale a scroll-mt-24) */
+#at-marcas, #at-nosotros, #at-calidad, #at-proceso, #at-triaje, #at-servicios, #at-equipo, #at-resenas, #at-ubicacion { scroll-margin-top: 6rem; }
 
 /* portada */
 .at-portada { border-bottom: 1px solid ${BORDE}; }
 .at-portada-fila { display: grid; gap: 1.8rem; padding-block: 1.6rem 2.4rem; }
 .at-sobre { color: ${NARANJA_HONDO}; font-size: .78rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; line-height: 1.5; }
-.at .at-portada h1 { margin-top: .75rem; margin-bottom: 1.4rem; font-size: clamp(1.8rem, 4.3vw, 3rem); line-height: 1.12; letter-spacing: -.028em; text-wrap: balance; }
+.at .at-portada h1 { margin-top: .75rem; margin-bottom: 1.4rem; font-size: clamp(1.8rem, 3.7vw, 2.75rem); line-height: 1.13; letter-spacing: -.028em; }
 .at-metricas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; margin-top: 1.6rem; background: ${BORDE}; border: 1px solid ${BORDE}; border-radius: 12px; overflow: hidden; }
 .at-metricas li { display: flex; flex-direction: column; padding: .8rem .95rem; background: ${BLANCO}; }
 .at-metricas li:last-child { grid-column: 1 / -1; }
-.at-metricas strong { font-family: ${TITULO}; font-size: 1.5rem; line-height: 1.2; }
+.at-metricas strong { font-family: ${TITULO}; font-size: clamp(1.25rem, 1.8vw, 1.4rem); line-height: 1.25; }
 .at-metricas span { color: ${SUAVE}; font-size: .8rem; font-weight: 500; line-height: 1.4; }
-@media (min-width: 640px) { .at-metricas { grid-template-columns: .85fr .85fr 1.3fr; } .at-metricas li:last-child { grid-column: auto; } }
+@media (min-width: 640px) { .at-metricas { grid-template-columns: repeat(2, minmax(0, max-content)) minmax(0, 1fr); } .at-metricas li:last-child { grid-column: auto; } }
 .at-portada-foto { position: relative; align-self: stretch; min-width: 0; }
 .at-portada-foto img { width: 100%; height: 100%; max-height: 50svh; aspect-ratio: 5 / 4; object-fit: cover; border-radius: 16px; }
 .at-portada-ficha { position: absolute; left: .8rem; bottom: .8rem; display: flex; align-items: center; gap: .75rem; max-width: calc(100% - 1.6rem); padding: .75rem 1rem; background: ${PIZARRA}; color: #fff; border-radius: 12px; }

@@ -4,32 +4,24 @@
  * #seguimiento/P-482JKL) y Panel Taller (#panel). De lo compartido entre demos solo usa la banda superior.
  */
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { LayoutDashboard, Search, Truck, Wrench } from "lucide-react";
 import { BandaDemos } from "../comun";
 import { Auxilio } from "./Auxilio";
-import { useVista } from "./animar";
+import { irA, useVista } from "./animar";
 import { Cita } from "./Cita";
-import { normalizarPlaca, useAutotech, type FallaId, type Filtro, type Tipo } from "./datos";
+import { enTaller, normalizarPlaca, useAutotech, type FallaId, type Filtro, type Tipo } from "./datos";
 import { ESTILOS, LETRAS } from "./estilos";
 import { Inicio } from "./Inicio";
+import { Nav, type Vista } from "./Nav";
 import { Panel, type FiltroPanel } from "./Panel";
 import { Pie } from "./Pie";
-import { Logo } from "./Piezas";
 import { Seguimiento } from "./Seguimiento";
 
-type Vista = "taller" | "seguimiento" | "panel";
 function leer(): { vista: Vista; placa: string } {
   const [ruta, dato = ""] = location.hash.slice(1).split("/");
   if (ruta === "seguimiento") return { vista: "seguimiento", placa: normalizarPlaca(dato) };
   if (ruta === "panel") return { vista: "panel", placa: "" };
   return { vista: "taller", placa: "" };
 }
-
-const VISTAS = [
-  { id: "taller", nombre: "Taller y Auxilio", corto: "Taller", icono: Wrench },
-  { id: "seguimiento", nombre: "Seguimiento por Placa", corto: "Seguimiento", icono: Search },
-  { id: "panel", nombre: "Panel Taller", corto: "Panel", icono: LayoutDashboard },
-] as const;
 
 const TITULOS: Record<Vista, string> = {
   taller: "Autotech · Demo de Jzet Labs",
@@ -47,6 +39,8 @@ export default function TallerDemo() {
   const [cita, setCita] = useState<string | null>(null);
   const [auxilio, setAuxilio] = useState<FallaId | "" | null>(null);
   const principal = useRef<HTMLElement>(null);
+  /* sección de la portada a la que hay que bajar cuando ya esté pintada */
+  const destino = useRef("");
   useVista(principal, vista);
 
   useLayoutEffect(() => {
@@ -87,6 +81,13 @@ export default function TallerDemo() {
 
   useEffect(() => {
     document.title = TITULOS[vista];
+    const id = destino.current;
+    if (!id) return;
+    const t = window.setTimeout(() => {
+      destino.current = "";
+      irA(id);
+    }, 120);
+    return () => window.clearTimeout(t);
   }, [vista]);
 
   function ir(nueva: Vista, conPlaca = placa) {
@@ -102,36 +103,24 @@ export default function TallerDemo() {
     setVista(nueva);
   }
 
+  function irSeccion(id: string) {
+    if (vista === "taller") {
+      irA(id);
+      return;
+    }
+    destino.current = id;
+    ir("taller");
+  }
+
   const porAprobar = taller.estado.ordenes.filter((o) => o.etapa === 3).length;
+  const placasActivas = taller.estado.ordenes.filter(enTaller).length;
 
   return (
     <>
       <style>{ESTILOS}</style>
       <BandaDemos />
       <div className="at">
-        <header className="at-nav">
-          <div className="at-ancho at-nav-fila">
-            <button type="button" className="at-nav-logo" onClick={() => ir("taller")} aria-label="Autotech, ir al inicio">
-              <Logo />
-            </button>
-            <nav className="at-vistas" aria-label="Secciones">
-              {VISTAS.map(({ id, nombre, corto, icono: Icono }) => (
-                <button key={id} type="button" aria-current={vista === id ? "page" : undefined} onClick={() => ir(id)} aria-label={nombre}>
-                  <Icono size={17} aria-hidden />
-                  <span className="at-largo">{nombre}</span>
-                  <span className="at-corto">{corto}</span>
-                  {id === "panel" && porAprobar > 0 && <i title="Pendientes de aprobación">{porAprobar}</i>}
-                </button>
-              ))}
-            </nav>
-            <button type="button" className="at-btn at-rojo at-nav-auxilio" onClick={() => setAuxilio("")}>
-              <Truck size={18} aria-hidden />
-              <span>
-                Auxilio<span className="at-largo"> vial</span> 24/7
-              </span>
-            </button>
-          </div>
-        </header>
+        <Nav vista={vista} placas={placasActivas} porAprobar={porAprobar} alVista={(v) => ir(v)} alSeccion={irSeccion} alAuxilio={() => setAuxilio("")} />
 
         <main ref={principal}>
           {vista === "taller" && <Inicio tipo={tipo} alTipo={setTipo} filtro={filtro} alFiltrar={setFiltro} alAgendar={setCita} alAuxilio={(f) => setAuxilio(f ?? "")} />}
