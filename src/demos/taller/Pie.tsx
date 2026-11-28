@@ -47,6 +47,7 @@ export function Pie({ alAuxilio }: { alAuxilio: () => void }) {
             </dl>
           </section>
         </div>
+        <p className="at-pie-demo">Esta es una página de demostración: el negocio, los precios, las reseñas y los datos son de muestra.</p>
         <div className="at-pie-final">
           <p>© {new Date().getFullYear()} Autotech. Sus datos se usan únicamente para atender su orden.</p>
           <p>

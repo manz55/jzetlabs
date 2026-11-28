@@ -580,6 +580,7 @@ export const ESTILOS = `
 .at-pie dl { display: grid; gap: .35rem; }
 .at-pie dl div { display: flex; justify-content: space-between; gap: 1rem; }
 .at-pie dd { font-size: .88rem; font-weight: 600; white-space: nowrap; }
+.at-pie-demo { padding-block: 1rem; border-top: 1px solid rgba(255,255,255,.14); color: rgba(255,255,255,.68); font-size: .82rem; }
 .at-pie-final { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem 1.5rem; padding-top: 1.1rem; border-top: 1px solid rgba(255,255,255,.14); color: rgba(255,255,255,.68); font-size: .82rem; }
 .at-pie-final p:last-child { margin-left: auto; text-align: right; }
 .at-pie-final a { color: #fff; font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
