@@ -52,7 +52,7 @@ const PILARES = [
     titulo: "Grooming dermatológico",
     foto: FOTOS.grooming,
     alt: "Poodle blanco recibiendo corte con tijera",
-    texto: "Baño según el tipo de piel, sin jaulas de secado y con revisión de oídos y uñas.",
+    texto: "Baño según el tipo de piel, sin jaulas de secado y con revisión de oídos.",
     puntos: ["Shampoo medicado cuando hace falta", "Secado a mano", "Aviso cuando está lista para recoger"],
     desde: "Desde Q180",
   },
@@ -104,7 +104,7 @@ const PAQUETES: { servicio: ServicioId; tamano: string; peso: string; foto: stri
     foto: FOTOS.pequeno,
     alt: "Perro pequeño blanco recién arreglado con pañuelo",
     duracion: "1 hora 30 minutos",
-    incluye: ["Baño con shampoo según su piel", "Corte de raza o a máquina", "Secado y cepillado", "Uñas y limpieza de oídos"],
+    incluye: ["Baño con shampoo según su piel", "Corte de raza o a máquina", "Secado y cepillado", "Limpieza de oídos"],
   },
   {
     servicio: "bano-mediano",
@@ -113,7 +113,7 @@ const PAQUETES: { servicio: ServicioId; tamano: string; peso: string; foto: stri
     foto: FOTOS.mediano,
     alt: "Perro mediano secándose sobre una toalla azul",
     duracion: "2 horas",
-    incluye: ["Todo lo del paquete pequeño", "Deslanado de manto", "Limpieza de glándulas anales", "Hidratación de almohadillas"],
+    incluye: ["Todo lo del paquete pequeño", "Limpieza de glándulas anales", "Hidratación de almohadillas"],
   },
   {
     servicio: "bano-grande",
@@ -122,7 +122,7 @@ const PAQUETES: { servicio: ServicioId; tamano: string; peso: string; foto: stri
     foto: FOTOS.grande,
     alt: "Golden retriever sentado después de su baño",
     duracion: "2 horas 30 minutos",
-    incluye: ["Todo lo del paquete mediano", "Deslanado profundo en dos pasadas", "Secado con turbina de baja intensidad", "Dos personas durante el baño"],
+    incluye: ["Todo lo del paquete mediano", "Secado con turbina de baja intensidad", "Dos personas durante el baño"],
   },
 ];
 
