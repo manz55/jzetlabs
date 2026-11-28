@@ -78,6 +78,17 @@ export function Cierre({ feria, alCaja, alDespacho, alStock }: { feria: Feria; a
         {copia === "fallo" && <p className="mt-4 rounded-xl bg-[#FEF2F2] px-4 py-3 text-sm font-bold text-[#B91C1C]">No se pudo copiar. Selecciona el texto del mensaje y cópialo.</p>}
       </div>
 
+      {r.porConfirmar > 0 && (
+        <p className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#F59E0B] bg-[#FEF3C7] px-4 py-2 text-sm font-bold text-[#78350F]">
+          <span>
+            {r.porConfirmar === 1 ? "1 pedido por confirmar" : `${r.porConfirmar} pedidos por confirmar`} en caja ({qz(r.montoPorConfirmar)}): todavía no cuentan en el cierre.
+          </span>
+          <button type="button" onClick={alCaja} className="min-h-11 underline">
+            Ir a confirmarlos
+          </button>
+        </p>
+      )}
+
       <dl className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4 lg:gap-4">
         <div className="min-w-0 rounded-2xl bg-[#18181B] p-4 text-white lg:p-5">
           <dt className="flex items-start justify-between gap-2 text-sm font-bold text-white/75">

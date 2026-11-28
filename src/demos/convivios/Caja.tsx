@@ -1,11 +1,12 @@
 import { Banknote, ChefHat } from "lucide-react";
-import { MesaCobros } from "./Cobros";
+import { MesaCobros, type Pedido } from "./Cobros";
 import { Despacho } from "./Despacho";
-import { pendientesDe, type Cuenta, type Feria } from "./datos";
+import { pendientesDe } from "./datos";
 
 export type Modo = "cobros" | "despacho";
 
-export function Caja({ feria, modo, alModo, cuenta, alCuenta }: { feria: Feria; modo: Modo; alModo: (m: Modo) => void; cuenta: Cuenta; alCuenta: (c: Cuenta) => void }) {
+export function Caja({ modo, alModo, pedido }: { modo: Modo; alModo: (m: Modo) => void; pedido: Pedido }) {
+  const { feria } = pedido;
   const pendientes = pendientesDe(feria.tickets, "todos").length;
   const modos = [
     { id: "cobros", nombre: "Hacer Pedido / Caja", texto: "Vecinos desde su teléfono o encargado de caja", icono: Banknote },
@@ -34,7 +35,7 @@ export function Caja({ feria, modo, alModo, cuenta, alCuenta }: { feria: Feria; 
           );
         })}
       </div>
-      {modo === "cobros" ? <MesaCobros feria={feria} cuenta={cuenta} alCuenta={alCuenta} alDespacho={() => alModo("despacho")} /> : <Despacho feria={feria} />}
+      {modo === "cobros" ? <MesaCobros {...pedido} alDespacho={() => alModo("despacho")} /> : <Despacho feria={feria} />}
     </div>
   );
 }

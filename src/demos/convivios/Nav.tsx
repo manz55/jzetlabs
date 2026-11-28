@@ -25,7 +25,7 @@ export function Logo() {
   );
 }
 
-export function Nav({ vista, pendientes, alVista, alSeccion }: { vista: Vista; pendientes: number; alVista: (v: Vista) => void; alSeccion: (id: string) => void }) {
+export function Nav({ vista, pendientes, alVista, alSeccion, alCaja }: { vista: Vista; pendientes: number; alVista: (v: Vista) => void; alSeccion: (id: string) => void; alCaja: () => void }) {
   const [abierto, setAbierto] = useState(false);
   const barra = useRef<HTMLElement>(null);
   const hamburguesa = useRef<HTMLButtonElement>(null);
@@ -93,7 +93,7 @@ export function Nav({ vista, pendientes, alVista, alSeccion }: { vista: Vista; p
                   </button>
                 ))}
               </nav>
-              <button type="button" onClick={elegir(() => alVista("caja"))} className="tf-boton tf-rojo whitespace-nowrap !px-4 max-sm:hidden">
+              <button type="button" onClick={elegir(alCaja)} className="tf-boton tf-rojo whitespace-nowrap !px-4 max-sm:hidden">
                 Ir a Caja
               </button>
               <button
@@ -127,7 +127,7 @@ export function Nav({ vista, pendientes, alVista, alSeccion }: { vista: Vista; p
                 </button>
               ))}
             </nav>
-            <button type="button" onClick={elegir(() => alVista("caja"))} className="tf-boton tf-rojo w-full">
+            <button type="button" onClick={elegir(alCaja)} className="tf-boton tf-rojo w-full">
               Ir a Caja
             </button>
           </div>

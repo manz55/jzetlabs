@@ -1,55 +1,65 @@
-import { useRef, useState } from "react";
-import { ArrowDown, ArrowRight, Banknote, CircleCheck, Landmark, Minus, Plus, ReceiptText, Trash2 } from "lucide-react";
-import { IDS_STAND, STANDS, codigo, hora, productosDe, PRODUCTOS, qz, renglones, standsDe, totalDe, cuentaVacia, quien, type Cuenta, type Feria, type Pago, type ProductoId, type Ticket } from "./datos";
+import { useRef } from "react";
+import { ArrowDown, Banknote, Landmark, Minus, Plus, ReceiptText, Send, Smartphone, Store, Trash2 } from "lucide-react";
+import { IDS_STAND, STANDS, productosDe, PRODUCTOS, qz, renglones, totalDe, cuentaVacia, faltaEfectivo, type Cuenta, type Feria, type Pago, type ProductoId, type Rol } from "./datos";
 import { irA } from "./animar";
-import { BadgeEntrega, Foto } from "./Piezas";
+import { Comprobante } from "./Comprobante";
+import { Efectivo } from "./Efectivo";
+import { Foto } from "./Piezas";
+import { PorConfirmar } from "./PorConfirmar";
 
-const BILLETE_MAYOR = 200;
+export type Pedido = {
+  feria: Feria;
+  cuenta: Cuenta;
+  alCuenta: (c: Cuenta) => void;
+  rol: Rol;
+  alRol: (r: Rol) => void;
+  emitido: number | null;
+  alEmitir: (numero: number | null) => void;
+};
 
-export function MesaCobros({ feria, cuenta, alCuenta, alDespacho }: { feria: Feria; cuenta: Cuenta; alCuenta: (c: Cuenta) => void; alDespacho: () => void }) {
-  const [ticket, setTicket] = useState<Ticket | null>(null);
+export function MesaCobros({ feria, cuenta, alCuenta, rol, alRol, emitido, alEmitir, alDespacho }: Pedido & { alDespacho: () => void }) {
   const campoNombre = useRef<HTMLInputElement>(null);
+  const esCaja = rol === "caja";
+  const ticket = feria.ticket(emitido);
   const lineas = renglones(cuenta.items);
   const total = totalDe(cuenta.items);
   const piezas = lineas.reduce((s, l) => s + l.cantidad, 0);
   const recibido = Number(cuenta.recibido);
-  const vuelto = recibido - total;
   const sinStock = lineas.filter((l) => l.cantidad > feria.quedan(l.id));
 
   const falta = !lineas.length
-    ? "Toca los productos que piden."
+    ? esCaja
+      ? "Toca los productos que piden."
+      : "Toca lo que quieres pedir."
     : sinStock.length
       ? `Ya no alcanza ${sinStock.map((l) => l.nombre).join(" ni ")}: baja la cantidad.`
       : !cuenta.vecino.trim()
         ? "Escribe el nombre de quien pide."
         : cuenta.entrega === "casa" && !cuenta.casa.trim()
           ? "Escribe la nomenclatura de la casa para el envío."
-          : cuenta.metodo === "efectivo" && !cuenta.recibido
-            ? "Ingresa con cuánto paga."
-            : cuenta.metodo === "efectivo" && vuelto < 0
-              ? `Faltan ${qz(-vuelto)}.`
-              : cuenta.metodo === "efectivo" && vuelto >= BILLETE_MAYOR
-                ? `Revisa el monto: el vuelto sería de ${qz(vuelto)}.`
-                : "";
+          : esCaja && cuenta.metodo === "efectivo"
+            ? faltaEfectivo(total, cuenta.recibido)
+            : "";
 
   const cambiar = (parte: Partial<Cuenta>) => {
-    setTicket(null);
+    alEmitir(null);
     alCuenta({ ...cuenta, ...parte });
   };
   const poner = (id: ProductoId, n: number) => cambiar({ items: { ...cuenta.items, [id]: Math.max(0, Math.min(n, feria.quedan(id))) } });
 
-  function cobrar() {
+  function enviar() {
     if (falta) return;
-    const pago: Pago = cuenta.metodo === "efectivo" ? { tipo: "efectivo", recibido } : { tipo: "transferencia", banco: cuenta.banco, boleta: cuenta.boleta.trim() };
-    const nuevo = feria.cobrar(cuenta, Object.fromEntries(lineas.map((l) => [l.id, l.cantidad])), pago);
+    const pago: Pago = cuenta.metodo === "efectivo" ? { tipo: "efectivo", recibido: esCaja ? recibido : 0 } : { tipo: "transferencia", banco: cuenta.banco, boleta: cuenta.boleta.trim() };
+    const items = Object.fromEntries(lineas.map((l) => [l.id, l.cantidad]));
+    const nuevo = (esCaja ? feria.cobrar : feria.pedir)(cuenta, items, pago);
     if (!nuevo) return;
-    setTicket(nuevo);
+    alEmitir(nuevo.numero);
     alCuenta(cuentaVacia());
     window.setTimeout(() => irA("tf-cuenta"), 60);
   }
 
   function siguiente() {
-    setTicket(null);
+    alEmitir(null);
     window.setTimeout(() => campoNombre.current?.focus({ preventScroll: true }));
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -57,6 +67,24 @@ export function MesaCobros({ feria, cuenta, alCuenta, alDespacho }: { feria: Fer
   return (
     <div className="mt-6 grid items-start gap-6 xl:grid-cols-12">
       <div className="grid min-w-0 gap-5 xl:col-span-8">
+        <div role="group" aria-label="Quién hace el pedido" className="flex flex-wrap items-center gap-2">
+          <span className="mr-1 text-sm font-bold text-[#18181B]">¿Quién está pidiendo?</span>
+          <button type="button" aria-pressed={!esCaja} onClick={() => alRol("vecino")} className="tf-pildora">
+            <Smartphone size={16} aria-hidden /> Soy vecino
+          </button>
+          <button type="button" aria-pressed={esCaja} onClick={() => alRol("caja")} className="tf-pildora">
+            <Store size={16} aria-hidden /> Soy de caja
+            {feria.porConfirmar.length > 0 && (
+              <span className="tf-cuenta">
+                {feria.porConfirmar.length}
+                <span className="sr-only"> por confirmar</span>
+              </span>
+            )}
+          </button>
+        </div>
+
+        {esCaja && <PorConfirmar feria={feria} />}
+
         <div className="grid items-end gap-3 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1.15fr)]">
           <div className="min-w-0">
             <label htmlFor="tf-nombre" className="tf-rotulo">Nombre</label>
@@ -128,11 +156,11 @@ export function MesaCobros({ feria, cuenta, alCuenta, alDespacho }: { feria: Fer
 
       <div id="tf-cuenta" className="min-w-0 scroll-mt-32 lg:scroll-mt-24 xl:sticky xl:top-20 xl:col-span-4 xl:max-h-[calc(100dvh-5.5rem)] xl:overflow-y-auto">
         {ticket ? (
-          <TicketDigital ticket={ticket} alSiguiente={siguiente} alDespacho={alDespacho} />
+          <Comprobante ticket={ticket} rol={rol} alSiguiente={siguiente} alDespacho={alDespacho} />
         ) : (
           <div className="tf-tarjeta p-5">
             <div className="flex items-center justify-between gap-3">
-              <h2 className="text-xl font-extrabold">Cuenta actual</h2>
+              <h2 className="text-xl font-extrabold">{esCaja ? "Cuenta actual" : "Tu pedido"}</h2>
               {lineas.length > 0 && (
                 <button type="button" onClick={() => cambiar({ items: {} })} className="inline-flex min-h-11 items-center gap-1.5 px-1 text-sm font-bold text-[#6B6560] hover:text-[#B91C1C]">
                   <Trash2 size={15} aria-hidden /> Vaciar
@@ -171,7 +199,7 @@ export function MesaCobros({ feria, cuenta, alCuenta, alDespacho }: { feria: Fer
 
             <div role="group" aria-label="Forma de pago" className="mt-4 grid grid-cols-2 gap-2">
               <button type="button" aria-pressed={cuenta.metodo === "efectivo"} onClick={() => cambiar({ metodo: "efectivo" })} className="tf-pildora !rounded-xl">
-                <Banknote size={17} aria-hidden /> Efectivo
+                <Banknote size={17} aria-hidden /> {esCaja ? "Efectivo" : "Efectivo en caja"}
               </button>
               <button type="button" aria-pressed={cuenta.metodo === "transferencia"} onClick={() => cambiar({ metodo: "transferencia" })} className="tf-pildora !rounded-xl">
                 <Landmark size={17} aria-hidden /> Transferencia
@@ -179,24 +207,13 @@ export function MesaCobros({ feria, cuenta, alCuenta, alDespacho }: { feria: Fer
             </div>
 
             {cuenta.metodo === "efectivo" ? (
-              <div className="mt-4">
-                <label htmlFor="tf-recibido" className="tf-rotulo">Paga con (Q)</label>
-                <input id="tf-recibido" inputMode="numeric" autoComplete="off" placeholder="Billete que entrega" value={cuenta.recibido} onChange={(e) => cambiar({ recibido: e.target.value.replace(/\D/g, "").slice(0, 5) })} className="tf-campo !text-xl" />
-                <div className="mt-2 grid grid-cols-4 gap-2">
-                  <button type="button" disabled={!total} onClick={() => cambiar({ recibido: String(total) })} className="tf-boton tf-linea !px-1">
-                    Exacto
-                  </button>
-                  {[50, 100, 200].map((b) => (
-                    <button key={b} type="button" onClick={() => cambiar({ recibido: String(b) })} className="tf-boton tf-linea !px-1">
-                      Q{b}
-                    </button>
-                  ))}
+              esCaja ? (
+                <div className="mt-4">
+                  <Efectivo id="tf-recibido" total={total} recibido={cuenta.recibido} alCambiar={(v) => cambiar({ recibido: v })} />
                 </div>
-                <p aria-live="polite" className={`mt-3 flex items-baseline justify-between rounded-xl px-4 py-3 ${total && cuenta.recibido && vuelto >= 0 && vuelto < BILLETE_MAYOR ? "bg-[#DCFCE7] text-[#166534]" : "bg-[#F9F5F0] text-[#6B6560]"}`}>
-                  <span className="font-bold">Vuelto</span>
-                  <span className="text-2xl font-extrabold">{total && cuenta.recibido && vuelto >= 0 ? qz(vuelto) : "Q0"}</span>
-                </p>
-              </div>
+              ) : (
+                <p className="mt-4 rounded-xl bg-[#F9F5F0] px-4 py-3 text-sm font-bold text-[#18181B]">Pagas {qz(total)} en Caja Central y ahí confirman tu pedido.</p>
+              )
             ) : (
               <div className="mt-4 grid gap-3">
                 <div role="group" aria-label="Banco" className="grid grid-cols-2 gap-2">
@@ -215,8 +232,9 @@ export function MesaCobros({ feria, cuenta, alCuenta, alDespacho }: { feria: Fer
               </div>
             )}
 
-            <button type="button" disabled={Boolean(falta)} onClick={cobrar} aria-describedby="tf-falta" className="tf-boton tf-verde mt-4 !min-h-14 w-full !text-base">
-              <ReceiptText size={19} aria-hidden /> Cobrar y generar ticket digital
+            <button type="button" disabled={Boolean(falta)} onClick={enviar} aria-describedby="tf-falta" className="tf-boton tf-verde mt-4 !min-h-14 w-full !text-base">
+              {esCaja ? <ReceiptText size={19} aria-hidden /> : <Send size={19} aria-hidden />}
+              {esCaja ? "Cobrar y generar ticket digital" : "Enviar pedido a caja"}
             </button>
             <p id="tf-falta" aria-live="polite" className="mt-2 min-h-5 text-center text-sm font-semibold text-[#6B6560]">{falta}</p>
           </div>
@@ -230,77 +248,11 @@ export function MesaCobros({ feria, cuenta, alCuenta, alDespacho }: { feria: Fer
               {piezas} {piezas === 1 ? "producto" : "productos"} · {qz(total)}
             </span>
             <span className="flex items-center gap-1.5">
-              Ir a cobrar <ArrowDown size={17} aria-hidden />
+              {esCaja ? "Ir a cobrar" : "Ver mi pedido"} <ArrowDown size={17} aria-hidden />
             </span>
           </button>
         </div>
       )}
-    </div>
-  );
-}
-
-function TicketDigital({ ticket, alSiguiente, alDespacho }: { ticket: Ticket; alSiguiente: () => void; alDespacho: () => void }) {
-  const total = totalDe(ticket.items);
-  return (
-    <div role="status" className="tf-tarjeta overflow-hidden">
-      <div className="bg-[#15803D] px-5 py-4 text-white">
-        <p className="flex items-center gap-2 text-sm font-bold">
-          <CircleCheck size={18} aria-hidden /> Pagado · {hora(ticket.fecha)}
-        </p>
-        <p className="mt-1 text-4xl font-extrabold">{codigo(ticket.numero)}</p>
-        <p className="break-words font-semibold">{quien(ticket)}</p>
-      </div>
-      <div className="border-t-2 border-dashed border-[#D9CFC3] p-5">
-        <BadgeEntrega entrega={ticket.entrega} casa={ticket.casa} className="mb-4" />
-        {standsDe(ticket).map((stand) => (
-          <div key={stand} className="mb-3">
-            <p className="text-xs font-extrabold uppercase tracking-wide text-[#B91C1C]">
-              {ticket.entrega === "casa" ? "Sale de" : "Retira en"} {STANDS[stand].nombre}
-            </p>
-            <ul>
-              {renglones(ticket.items)
-                .filter((l) => l.stand === stand)
-                .map((l) => (
-                  <li key={l.id} className="flex justify-between gap-3 py-0.5 font-semibold text-[#18181B]">
-                    <span>
-                      {l.cantidad} × {l.nombre}
-                    </span>
-                    <span>{qz(l.cantidad * l.precio)}</span>
-                  </li>
-                ))}
-            </ul>
-          </div>
-        ))}
-        <dl className="border-t border-[#EAE2D8] pt-3 text-sm">
-          <div className="flex justify-between text-xl font-extrabold text-[#18181B]">
-            <dt>Total</dt>
-            <dd>{qz(total)}</dd>
-          </div>
-          {ticket.pago.tipo === "efectivo" ? (
-            <>
-              <div className="mt-1 flex justify-between">
-                <dt>Efectivo recibido</dt>
-                <dd className="font-bold">{qz(ticket.pago.recibido)}</dd>
-              </div>
-              <div className="flex justify-between text-lg font-extrabold text-[#15803D]">
-                <dt>Entrega de vuelto</dt>
-                <dd>{qz(ticket.pago.recibido - total)}</dd>
-              </div>
-            </>
-          ) : (
-            <div className="mt-1 flex justify-between gap-3">
-              <dt>Transferencia {ticket.pago.banco}</dt>
-              <dd className="font-bold">{ticket.pago.boleta || "Sin número"}</dd>
-            </div>
-          )}
-        </dl>
-        <button type="button" onClick={alSiguiente} className="tf-boton tf-rojo mt-5 !min-h-12 w-full">
-          Cobrar al siguiente
-        </button>
-        <button type="button" onClick={alDespacho} className="tf-boton tf-linea mt-2 w-full">
-          Verla en los stands <ArrowRight size={16} aria-hidden />
-        </button>
-      </div>
     </div>
   );
 }

@@ -3,7 +3,7 @@ import { BandaDemos } from "../comun";
 import { irA } from "./animar";
 import { Admin, type Pestana } from "./Admin";
 import { Caja, type Modo } from "./Caja";
-import { SECCIONES, cuentaVacia, pendientesDe, useFeria } from "./datos";
+import { SECCIONES, cuentaVacia, pendientesDe, useFeria, type Rol } from "./datos";
 import { Menu } from "./Menu";
 import { Nav, type Vista } from "./Nav";
 import { Pie } from "./Pie";
@@ -35,6 +35,8 @@ export default function ConviviosDemo() {
   const [vista, setVista] = useState<Vista>(leerVista);
   const [modo, setModo] = useState<Modo>(leerModo);
   const [cuenta, setCuenta] = useState(cuentaVacia);
+  const [rol, setRol] = useState<Rol>("vecino");
+  const [emitidos, setEmitidos] = useState<Record<Rol, number | null>>({ vecino: null, caja: null });
   const [pestana, setPestana] = useState<Pestana>(leerPestana);
   const [enVivo, setEnVivo] = useState(false);
   const destino = useRef(seccionDeLaDireccion());
@@ -102,6 +104,11 @@ export default function ConviviosDemo() {
     setVista("menu");
   }
 
+  function irPedido(quienPide: Rol) {
+    setRol(quienPide);
+    ir("#caja");
+  }
+
   function cambiarModo(nuevo: Modo) {
     history.replaceState(null, "", nuevo === "despacho" ? "#despacho" : "#caja");
     setModo(nuevo);
@@ -113,17 +120,23 @@ export default function ConviviosDemo() {
         <BandaDemos />
       </div>
       <div style={TEMA} className="flex min-h-screen w-full max-w-full flex-col overflow-x-clip bg-[#FFFDFB] text-base leading-relaxed text-[#3F3F46]">
-        <Nav vista={vista} pendientes={pendientesDe(feria.tickets, "todos").length} alVista={(v) => ir(DIRECCIONES[v])} alSeccion={irSeccion} />
+        <Nav vista={vista} pendientes={pendientesDe(feria.tickets, "todos").length} alVista={(v) => ir(DIRECCIONES[v])} alSeccion={irSeccion} alCaja={() => irPedido("caja")} />
         <main className="flex-1">
           {vista === "menu" && (
             <>
-              <Hero feria={feria} alCaja={() => ir("#caja")} alStands={() => ir("#despacho")} />
+              <Hero feria={feria} alCaja={() => irPedido("vecino")} alStands={() => ir("#despacho")} />
               <Flujo />
               <Menu feria={feria} enVivo={enVivo} alCambiar={setEnVivo} />
             </>
           )}
-          {vista === "caja" && <Caja feria={feria} modo={modo} alModo={cambiarModo} cuenta={cuenta} alCuenta={setCuenta} />}
-          {vista === "admin" && <Admin feria={feria} pestana={pestana} ir={ir} />}
+          {vista === "caja" && (
+            <Caja
+              modo={modo}
+              alModo={cambiarModo}
+              pedido={{ feria, cuenta, alCuenta: setCuenta, rol, alRol: setRol, emitido: emitidos[rol], alEmitir: (n) => setEmitidos((e) => ({ ...e, [rol]: n })) }}
+            />
+          )}
+          {vista === "admin" && <Admin feria={feria} pestana={pestana} ir={(direccion) => (direccion === "#caja" ? irPedido("caja") : ir(direccion))} />}
         </main>
         <Pie />
       </div>

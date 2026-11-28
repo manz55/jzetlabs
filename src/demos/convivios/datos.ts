@@ -12,7 +12,9 @@ export type Producto = { nombre: string; detalle: string; precio: number; stand:
 export type PlatilloNuevo = Pick<Producto, "nombre" | "detalle" | "precio" | "stand" | "foto" | "alt" | "cargadas">;
 export type Entrega = "salon" | "casa";
 export type Cliente = { vecino: string; casa: string; entrega: Entrega };
-export type Ticket = Cliente & { numero: number; items: Cesta; pago: Pago; fecha: number; entregas: Partial<Record<StandId, number>> };
+export type EstadoPedido = "porConfirmar" | "pagado" | "anulado";
+export type Rol = "vecino" | "caja";
+export type Ticket = Cliente & { numero: number; estado: EstadoPedido; items: Cesta; pago: Pago; fecha: number; entregas: Partial<Record<StandId, number>> };
 type Estado = { dia: string; productos: Record<ProductoId, Producto>; tickets: Ticket[] };
 
 export type Cuenta = Cliente & { items: Cesta; metodo: Pago["tipo"]; recibido: string; banco: Banco; boleta: string };
@@ -28,6 +30,7 @@ export const STANDS: Record<StandId, { nombre: string; corto: string; icono: Luc
 };
 export const IDS_STAND = Object.keys(STANDS) as StandId[];
 export const MAXIMO_PORCIONES = 999;
+export const BILLETE_MAYOR = 200;
 
 const platillo = (datos: PlatilloNuevo): Producto => ({ ...datos, agotado: false, baja: false });
 
@@ -59,6 +62,13 @@ export const quien = ({ vecino, casa }: Cliente) => (casa ? `${vecino} · ${/^\d
 export const hora = (fecha: number) => new Date(fecha).toLocaleTimeString("es-GT", { hour: "numeric", minute: "2-digit" });
 export const diaLargo = () => new Date().toLocaleDateString("es-GT", { weekday: "long", day: "numeric", month: "long" });
 
+export function faltaEfectivo(total: number, recibido: string) {
+  const vuelto = Number(recibido) - total;
+  if (!recibido) return "Ingresa con cuánto paga.";
+  if (vuelto < 0) return `Faltan ${qz(-vuelto)}.`;
+  return vuelto >= BILLETE_MAYOR ? `Revisa el monto: el vuelto sería de ${qz(vuelto)}.` : "";
+}
+
 export const renglones = (cesta: Cesta) =>
   Object.keys(PRODUCTOS).filter((id) => (cesta[id] ?? 0) > 0).map((id) => ({ id, cantidad: cesta[id]!, ...PRODUCTOS[id] }));
 export const totalDe = (cesta: Cesta) => renglones(cesta).reduce((s, r) => s + r.cantidad * r.precio, 0);
@@ -73,6 +83,7 @@ function estadoInicial(dia: string): Estado {
   const transferencia = (banco: Banco, boleta: string): Pago => ({ tipo: "transferencia", banco, boleta });
   const venta = (numero: number, minutos: number, vecino: string, casa: string, items: Cesta, pago: Pago, entregados: StandId[], entrega: Entrega = "salon"): Ticket => ({
     numero,
+    estado: "pagado",
     vecino,
     casa,
     entrega,
@@ -97,7 +108,7 @@ function estadoInicial(dia: string): Estado {
   };
 }
 
-const CLAVE = "ticketfest-v3";
+const CLAVE = "ticketfest-v4";
 const hoy = () => new Date().toDateString();
 
 function guardado(): Estado | null {
@@ -146,8 +157,9 @@ function cambiar(fn: (e: Estado) => Estado) {
   avisar();
 }
 
-const vendidoEn = (e: Estado, id: ProductoId) => e.tickets.reduce((s, t) => s + (t.items[id] ?? 0), 0);
-const sobranteEn = (e: Estado, id: ProductoId) => e.productos[id].cargadas - vendidoEn(e, id);
+const unidadesEn = (e: Estado, id: ProductoId, estados: EstadoPedido[]) => e.tickets.reduce((s, t) => s + (estados.includes(t.estado) ? (t.items[id] ?? 0) : 0), 0);
+const comprometidoEn = (e: Estado, id: ProductoId) => unidadesEn(e, id, ["pagado", "porConfirmar"]);
+const sobranteEn = (e: Estado, id: ProductoId) => e.productos[id].cargadas - comprometidoEn(e, id);
 const disponibleEn = (e: Estado, id: ProductoId) => (e.productos[id].agotado || e.productos[id].baja ? 0 : sobranteEn(e, id));
 
 function editar(id: ProductoId, cambios: (e: Estado) => Partial<Producto>) {
@@ -156,11 +168,11 @@ function editar(id: ProductoId, cambios: (e: Estado) => Partial<Producto>) {
 
 function fijarDisponibles(id: ProductoId, cantidad: number) {
   const nuevas = Math.max(0, Math.min(MAXIMO_PORCIONES, cantidad));
-  editar(id, (e) => ({ cargadas: vendidoEn(e, id) + nuevas, agotado: false }));
+  editar(id, (e) => ({ cargadas: comprometidoEn(e, id) + nuevas, agotado: false }));
 }
 
 function sumar(id: ProductoId, cantidad: number) {
-  editar(id, (e) => ({ cargadas: vendidoEn(e, id) + Math.min(MAXIMO_PORCIONES, sobranteEn(e, id) + cantidad), agotado: false }));
+  editar(id, (e) => ({ cargadas: comprometidoEn(e, id) + Math.min(MAXIMO_PORCIONES, sobranteEn(e, id) + cantidad), agotado: false }));
 }
 
 const marcarAgotado = (id: ProductoId, agotado: boolean) => editar(id, () => ({ agotado }));
@@ -170,15 +182,25 @@ function crear(datos: PlatilloNuevo) {
   cambiar((e) => ({ ...e, productos: { ...e.productos, [`p${Date.now()}`]: platillo(datos) } }));
 }
 
-function cobrar({ vecino, casa, entrega }: Cliente, items: Cesta, pago: Pago): Ticket | null {
+function registrar({ vecino, casa, entrega }: Cliente, items: Cesta, pago: Pago, estadoPedido: EstadoPedido): Ticket | null {
   let nuevo: Ticket | null = null;
   cambiar((e) => {
     if (Object.entries(items).some(([id, cantidad]) => (cantidad ?? 0) > disponibleEn(e, id))) return e;
-    nuevo = { numero: Math.max(100, ...e.tickets.map((t) => t.numero)) + 1, vecino: vecino.trim(), casa: casa.trim().replace(/^casa\s+/i, ""), entrega, items, pago, fecha: Date.now(), entregas: {} };
+    nuevo = { numero: Math.max(100, ...e.tickets.map((t) => t.numero)) + 1, estado: estadoPedido, vecino: vecino.trim(), casa: casa.trim().replace(/^casa\s+/i, ""), entrega, items, pago, fecha: Date.now(), entregas: {} };
     return { ...e, tickets: [...e.tickets, nuevo] };
   });
   return nuevo;
 }
+
+const cobrar = (cliente: Cliente, items: Cesta, pago: Pago) => registrar(cliente, items, pago, "pagado");
+const pedir = (cliente: Cliente, items: Cesta, pago: Pago) => registrar(cliente, items, pago, "porConfirmar");
+
+function resolverPedido(numero: number, cambios: Partial<Ticket>) {
+  cambiar((e) => ({ ...e, tickets: e.tickets.map((t) => (t.numero === numero && t.estado === "porConfirmar" ? { ...t, ...cambios } : t)) }));
+}
+
+const confirmarPago = (numero: number, pago: Pago) => resolverPedido(numero, { estado: "pagado", pago, fecha: Date.now() });
+const anular = (numero: number) => resolverPedido(numero, { estado: "anulado" });
 
 function marcarEntrega(numero: number, stand: StandId, entregado: boolean) {
   cambiar((e) => ({
@@ -197,9 +219,12 @@ export function useFeria() {
   const e = useSyncExternalStore(suscribir, () => estado);
   return {
     productos: e.productos,
-    tickets: e.tickets,
+    tickets: e.tickets.filter((t) => t.estado === "pagado").sort((a, b) => a.fecha - b.fecha),
+    porConfirmar: e.tickets.filter((t) => t.estado === "porConfirmar"),
+    ticket: (numero: number | null) => e.tickets.find((t) => t.numero === numero),
     cargado: (id: ProductoId) => e.productos[id].cargadas,
-    vendido: (id: ProductoId) => vendidoEn(e, id),
+    vendido: (id: ProductoId) => unidadesEn(e, id, ["pagado"]),
+    apartado: (id: ProductoId) => unidadesEn(e, id, ["porConfirmar"]),
     sobrante: (id: ProductoId) => sobranteEn(e, id),
     quedan: (id: ProductoId) => disponibleEn(e, id),
     fijarDisponibles,
@@ -208,6 +233,9 @@ export function useFeria() {
     darDeBaja,
     crear,
     cobrar,
+    pedir,
+    confirmarPago,
+    anular,
     marcarEntrega,
   };
 }
@@ -225,7 +253,7 @@ export function resumen(feria: Feria) {
       nombre: PRODUCTOS[p].nombre,
       iniciales: feria.cargado(p),
       vendidas: feria.vendido(p),
-      sobrantes: feria.sobrante(p),
+      sobrantes: feria.cargado(p) - feria.vendido(p),
       baja: PRODUCTOS[p].baja,
       efectivo: vendidoCon(p, "efectivo"),
       transferencia: vendidoCon(p, "transferencia"),
@@ -251,6 +279,8 @@ export function resumen(feria: Feria) {
     bi: suma(porTransferencia("BI")),
     bac: suma(porTransferencia("BAC")),
     cobrados: feria.tickets.length,
+    porConfirmar: feria.porConfirmar.length,
+    montoPorConfirmar: suma(feria.porConfirmar),
     entregados,
     pendientes: feria.tickets.length - entregados,
   };
@@ -275,6 +305,7 @@ export function reporteWhatsApp(feria: Feria) {
     `Transferencias: ${qz(r.bi + r.bac)} (BI ${qz(r.bi)} · BAC ${qz(r.bac)})`,
     `Cuadre: ${qz(r.efectivo)} + ${qz(r.bi + r.bac)} = ${qz(r.total)}`,
     `Tickets: ${r.cobrados} cobrados, ${r.entregados} despachados, ${r.pendientes} pendientes`,
+    ...(r.porConfirmar ? [`Por confirmar en caja: ${r.porConfirmar} (${qz(r.montoPorConfirmar)}), no incluidos arriba`] : []),
     "",
     porStand.join("\n\n"),
   ].join("\n");

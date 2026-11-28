@@ -116,6 +116,7 @@ function Fila({ feria, id }: { feria: Feria; id: ProductoId }) {
           </h3>
           <p className="text-sm text-[#6B6560]">
             {STANDS[p.stand].corto} · {qz(p.precio)} · {feria.vendido(id)} vendidas de {feria.cargado(id)}
+            {feria.apartado(id) > 0 && <span className="font-bold text-[#92400E]"> · {feria.apartado(id)} {feria.apartado(id) === 1 ? "apartada" : "apartadas"} por confirmar</span>}
           </p>
         </div>
       </div>
