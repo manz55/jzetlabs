@@ -167,10 +167,11 @@ export const ESTADOS_CAMION: Record<EstadoCamion, string> = {
   regreso: "Regresando a bodega",
   taller: "En taller",
 };
-export type Camion = { id: string; nombre: string; ton: string; piloto: string; estado: EstadoCamion; orden?: string };
+export type Camion = { id: string; nombre: string; ton: string; placa: string; piloto: string; pilotoCompleto: string; dpi: string; estado: EstadoCamion; orden?: string };
 
 /* ---------------- órdenes de alquiler ---------------- */
 
+export type Entrega = { mapa: string; recibe: string; notas: string };
 export type EstadoOrden = "reservada" | "evento" | "retorno" | "liquidada";
 export const ESTADOS: Record<EstadoOrden, string> = { reservada: "Por cargar", evento: "En montaje / evento", retorno: "Retorno y revisión", liquidada: "Liquidada" };
 export type Dano = { faltan: number; rotas: number };
@@ -189,6 +190,7 @@ export type Orden = {
   revision: Partial<Record<ArtId, Dano>>;
   pagos: Pago[];
   camion?: string;
+  entrega?: Entrega;
   /* por dónde entró: la página o el teléfono / WhatsApp */
   origen: "web" | "manual";
   /* reservas hechas desde este navegador: salen en Mi Evento */
@@ -230,7 +232,7 @@ function iniciales(): { ordenes: Orden[]; camiones: Camion[] } {
     o(799, "Distribuidora Santa Lucía", "Cena de fin de año", "Terraza corporativa, zona 14", "ciudad", dia(-1), "19:00", { crossback: 90, redonda: 9, mantel: 9, copas: 90, toldo6: 2, calentador: 5 }, "retorno", "todo"),
     o(801, "Grupo Textil La Fuente", "Lanzamiento de producto", "Plaza corporativa, zona 10", "ciudad", dia(0), "18:00", { coctel: 30, plegable: 120, toldo6: 2, audio: 1, luces: 8 }, "evento", "todo", { camion: "c3" }),
     o(802, "Familia Cifuentes", "Recepción de bodas de plata", "Hacienda en San Juan del Obispo", "antigua", dia(0), "17:00", { tiffany: 150, redonda: 15, mantel: 15, copas: 150, vajilla: 150, toldo6: 3, calentador: 4 }, "evento", "todo", { camion: "c1" }),
-    o(804, "Daniela Herrera y Andrés Monzón", "Boda", "Finca San Cayetano", "antigua", s, "16:00", { crossback: 220, redonda: 22, mantel: 22, camino: 22, copas: 220, vajilla: 220, toldo10: 2, calentador: 10, luces: 12, audio: 1 }, "reservada", "anticipo", { camion: "c2", mia: true }),
+    o(804, "Daniela Herrera y Andrés Monzón", "Boda", "Finca San Cayetano", "antigua", s, "16:00", { crossback: 220, redonda: 22, mantel: 22, camino: 22, copas: 220, vajilla: 220, toldo10: 2, calentador: 10, luces: 12, audio: 1 }, "reservada", "anticipo", { camion: "c2", mia: true, entrega: { mapa: "", recibe: "5512 3487 · Sofía Herrera (coordinadora)", notas: "Ingreso por portón de proveedores. Jardín plano, el toldo va junto a la capilla." } }),
     o(806, "Agroindustrial Los Volcanes", "Cena de gala de fin de año", "Jardín Las Lomas, zona 15", "ciudad", s, "19:00", { tiffany: 420, redonda: 50, mantel: 50, copas: 600, vajilla: 450, toldo10: 2, toldo6: 4, calentador: 12, coctel: 30, audio: 2 }, "reservada", "anticipo", { origen: "manual" }),
     o(807, "María José Pineda y Rodrigo Estrada", "Boda", "Finca en Santa Elena Barillas", "carretera", s, "15:00", { crossback: 300, redonda: 30, mantel: 30, camino: 30, copas: 300, vajilla: 300, toldo10: 1, calentador: 8 }, "reservada", "anticipo"),
     o(808, "Familia Godoy", "Bautizo", "Casa familiar, zona 15", "ciudad", mas(s, 1), "12:00", { tiffany: 80, redonda: 8, mantel: 8, camino: 8, copas: 80, toldo6: 2 }, "reservada", "anticipo"),
@@ -241,10 +243,10 @@ function iniciales(): { ordenes: Orden[]; camiones: Camion[] } {
   const gala = ordenes.find((x) => x.folio === "EVT-806")!;
   gala.pagos.push(pago(cuentas(gala.cesta, gala.zona).total - cuentas(gala.cesta, gala.zona).anticipo, "Visanet", "Aut. 552019", dia(0), false));
   const camiones: Camion[] = [
-    { id: "c1", nombre: "Camión 1", ton: "5 Ton", piloto: "Carlos M.", estado: "ruta", orden: "EVT-802" },
-    { id: "c2", nombre: "Camión 2", ton: "3.5 Ton", piloto: "Edwin R.", estado: "bodega" },
-    { id: "c3", nombre: "Camión 3", ton: "3.5 Ton", piloto: "Julio P.", estado: "montaje", orden: "EVT-801" },
-    { id: "c4", nombre: "Camión 4", ton: "1.5 Ton", piloto: "Marvin L.", estado: "taller" },
+    { id: "c1", nombre: "Camión 1", ton: "5 Ton", placa: "C-217FKM", piloto: "Carlos M.", pilotoCompleto: "Carlos Morales Pérez", dpi: "2384 51762 0101", estado: "ruta", orden: "EVT-802" },
+    { id: "c2", nombre: "Camión 2", ton: "3.5 Ton", placa: "C-482BJR", piloto: "Edwin R.", pilotoCompleto: "Edwin Ramírez López", dpi: "2915 30448 0108", estado: "bodega" },
+    { id: "c3", nombre: "Camión 3", ton: "3.5 Ton", placa: "C-356HTV", piloto: "Julio P.", pilotoCompleto: "Julio Pérez Ajú", dpi: "1846 92035 0115", estado: "montaje", orden: "EVT-801" },
+    { id: "c4", nombre: "Camión 4", ton: "1.5 Ton", placa: "C-903KRD", piloto: "Marvin L.", pilotoCompleto: "Marvin López Chávez", dpi: "3017 64289 0101", estado: "taller" },
   ];
   return { ordenes, camiones };
 }
@@ -252,7 +254,7 @@ function iniciales(): { ordenes: Orden[]; camiones: Camion[] } {
 /* ---------------- estado compartido ---------------- */
 
 type Estado = { dia: string; ordenes: Orden[]; camiones: Camion[]; folio: number; pago: number };
-const CLAVE = "casa-imperial-v2";
+const CLAVE = "casa-imperial-v3";
 const inicial = (): Estado => ({ dia: dia(0), ...iniciales(), folio: 812, pago: 100 });
 
 function leer(texto: string | null): Estado | null {
